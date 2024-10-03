@@ -1,0 +1,22 @@
+.container {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+
+}
+
+.login-form {
+  width: 400px;
+  margin: auto;
+  padding: 2em 4em;
+  background-color: aliceblue;
+}
+
+.row .mat-mdc-form-field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+}

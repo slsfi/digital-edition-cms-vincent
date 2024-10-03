@@ -1,0 +1,39 @@
+<div class="container">
+  <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit($event)">
+    <div class="row">
+      <mat-form-field>
+        <mat-label>Environment</mat-label>
+        <mat-select formControlName="environment">
+          <mat-option *ngFor="let environment of environments" [value]="environment.value">
+            {{ environment.name }} ({{ environment.value }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div *ngIf="environment?.value === ' '" class="row">
+      <mat-form-field>
+        <mat-label>Custom Environment</mat-label>
+        <input matInput placeholder="Custom Environment" formControlName="customEnvironment" />
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput placeholder="Email" formControlName="email" />
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input matInput placeholder="Password" formControlName="password"
+          [type]="hidePassword() ? 'password' : 'text'" />
+        <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)">
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+    <div class="actions">
+      <button mat-raised-button color="primary" [disabled]="!loginForm.valid">Log in</button>
+    </div>
+  </form>
+</div>

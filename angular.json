@@ -68,7 +68,8 @@
               "buildTarget": "vincent-cms:build:production"
             },
             "development": {
-              "buildTarget": "vincent-cms:build:development"
+              "buildTarget": "vincent-cms:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

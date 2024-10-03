@@ -1,0 +1,11 @@
+{
+  "/testing/**": {
+    "target": "https://testa-api.sls.fi",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/testing/": ""
+    }
+  }
+}

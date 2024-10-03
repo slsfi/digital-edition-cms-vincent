@@ -1,0 +1,9 @@
+<p>main works!</p>
+<ng-container *ngIf="$facsimiles | async as facsimiles">
+  {{ facsimiles.length }}
+  <!-- <div>
+    <div *ngFor="let facsimile of facsimiles">
+      <h2>{{ facsimile.title }}</h2>
+    </div>
+  </div> -->
+</ng-container>

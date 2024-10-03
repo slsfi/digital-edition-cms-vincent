@@ -1,0 +1,24 @@
+.drawer {
+  height: calc(100vh - 64px);
+  background-color: white;
+}
+
+.content {
+  padding: 4em;
+  margin: 0 auto;
+}
+
+mat-drawer-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.menu {
+  padding: 1em;
+}
+
+.title {
+  padding-left: 2em;
+}

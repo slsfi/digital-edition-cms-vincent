@@ -3,9 +3,60 @@
 </style>
 
 <main class="main">
-  <div class="content">
-    <h1>Hello, {{ title }}</h1>
-  </div>
+  <mat-toolbar [class.center]="(isAuthenticated$ | async) === false">
+    <ng-container *ngIf="(isAuthenticated$ | async) === true">
+      <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"  (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </ng-container>
+    <span class="title">Vincent – CMS for the SLS Digital Edition Platform</span>
+    <ng-container *ngIf="selectedProject$ | async as selectedProject">
+      <span class="title" *ngIf="selectedProject.name">Project: {{selectedProject.name}}</span>
+    </ng-container>
+  </mat-toolbar>
+  <mat-drawer-container class="drawer">
+    <mat-drawer #drawer mode="over">
+      <div class="menu">
+        <ng-container *ngIf="availableProjects$ | async as availableProjects">
+          <ng-container *ngIf="selectedProject$ | async as selectedProject">
+            <mat-form-field>
+              <mat-label>Project</mat-label>
+              <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
+                <mat-option *ngFor="let project of availableProjects" [value]="project">
+                  {{ project.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+        </ng-container>
+        <mat-divider></mat-divider>
+        <mat-nav-list>
+          <a mat-list-item routerLink="/projects" (click)="drawer.toggle()">Project management</a>
+          <a mat-list-item routerLink="/texts" (click)="drawer.toggle()">Text collection management</a>
+          <a mat-list-item routerLink="/facsimiles" (click)="drawer.toggle()">Facsimile management</a>
+          <a mat-list-item routerLink="/persons" (click)="drawer.toggle()">Index of persons management</a>
+        </mat-nav-list>
+        <mat-divider></mat-divider>
+        <mat-nav-list>
+          <a href="/" mat-list-item (click)="logout();drawer.toggle();">
+            <mat-icon matListItemIcon>logout</mat-icon>
+            <div matListItemTitle>Log out</div>
+          </a>
+        </mat-nav-list>
+      </div>
+    </mat-drawer>
+    <mat-drawer-content>
+      <div class="content">
+        <ng-container *ngIf="(isAuthenticated$ | async) === true">
+          <main-content></main-content>
+        </ng-container>
+        <ng-container *ngIf="(isAuthenticated$ | async) === false">
+          <login></login>
+        </ng-container>
+        <router-outlet></router-outlet>
+      </div>
+    </mat-drawer-content>
+  </mat-drawer-container>
 </main>
 
 <router-outlet />
