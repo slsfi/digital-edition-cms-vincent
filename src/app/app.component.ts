@@ -15,7 +15,7 @@ import { NavigationComponent } from './components/navigation/navigation.componen
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, LoginComponent, HomeComponent, CommonModule, MatProgressSpinnerModule, MatSidenavModule, TopbarComponent, NavigationComponent],
+  imports: [RouterOutlet, CommonModule, MatProgressSpinnerModule, MatSidenavModule, TopbarComponent, NavigationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

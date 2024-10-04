@@ -13,19 +13,7 @@
         <ng-container *ngIf="(loading$ | async) === true">
           <div class="overlay"><mat-spinner></mat-spinner></div>
         </ng-container>
-        <ng-container *ngIf="currentUrl$ | async as currentUrl">
-          <ng-container *ngIf="currentUrl === '/'">
-            <ng-container *ngIf="(isAuthenticated$ | async) === true">
-              <home></home>
-            </ng-container>
-            <ng-container *ngIf="(isAuthenticated$ | async) === false">
-              <login></login>
-            </ng-container>
-          </ng-container>
-          <ng-container *ngIf="currentUrl !== '/'">
-            <router-outlet></router-outlet>
-          </ng-container>
-        </ng-container>
+        <router-outlet></router-outlet>
       </div>
     </mat-drawer-content>
   </mat-drawer-container>

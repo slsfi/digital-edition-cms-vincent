@@ -10,17 +10,20 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  environment = new BehaviorSubject<string|null>(null);
+  $environment = new BehaviorSubject<string|null>(null);
   prefix: string = '/digitaledition';
   $loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  setEnvironment(env: string) {
-    this.environment.next(env);
-    localStorage.setItem('environment', env);
+  setEnvironment(env: string | null) {
+    this.$environment.next(env);
+    if (env != null) {
+      localStorage.setItem('environment', env);
+    }
+
   }
 
   getEnvironment() {
-    return this.environment.value || localStorage.getItem('environment') || '';
+    return this.$environment.value || localStorage.getItem('environment') || '';
   }
 
   getPrefixedUrl(): string {

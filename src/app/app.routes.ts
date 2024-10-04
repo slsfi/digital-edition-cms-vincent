@@ -5,9 +5,11 @@ import { FacsimilesComponent } from './pages/facsimiles/facsimiles.component';
 import { PersonsComponent } from './pages/persons/persons.component';
 import { LoginComponent } from './components/login/login.component';
 import { authGuard } from './guards/auth.guard';
+import { HomeComponent } from './components/home/home.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: '', component: HomeComponent, canActivate: [authGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [authGuard] },
   { path: 'projects', component: ProjectsComponent, canActivate: [authGuard] },
   { path: 'texts', component: TextsComponent, canActivate: [authGuard] },
   { path: 'facsimiles', component: FacsimilesComponent, canActivate: [authGuard] },

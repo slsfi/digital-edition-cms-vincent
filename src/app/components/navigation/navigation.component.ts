@@ -32,6 +32,7 @@ export class NavigationComponent {
   logout() {
     this.authService.logout();
     this.projectService.setSelectedProject(null);
+    localStorage.clear();
   }
 
   changeProject(event: MatSelectChange) {

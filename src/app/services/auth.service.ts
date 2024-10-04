@@ -2,13 +2,14 @@ import { BehaviorSubject, catchError, filter, map, Observable, take, tap, throwE
 import { ApiService } from './api.service';
 import { Injectable } from '@angular/core';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private apiService: ApiService) {
+  constructor(private apiService: ApiService, private router: Router) {
     if (this.getAccessToken()) {
       this.$isAuthenticated.next(true);
     } else {
@@ -30,7 +31,7 @@ export class AuthService {
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
         localStorage.setItem('user_projects', user_projects.join(','));
-
+        this.router.navigate(['/']);
         this.$isAuthenticated.next(true);
       });
   }
@@ -63,8 +64,8 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.clear();
+    this.apiService.setEnvironment(null);
     this.$isAuthenticated.next(false);
   }
 
