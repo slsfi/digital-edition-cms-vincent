@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { AuthService } from './auth.service';
-import { BehaviorSubject, filter, Observable, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, switchMap } from 'rxjs';
 import { Person } from '../models/person';
 import { Publication } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
@@ -22,7 +21,15 @@ export class ProjectService {
 
   getProjects(): Observable<Project[]> {
     const url = `${this.apiService.getPrefixedUrl()}/projects`;
-    return this.apiService.get(url);
+    return this.apiService.get(url).pipe(
+      map((projects: Project[]) => {
+        const userProjects = (localStorage.getItem('user_projects') || '').split(',');
+        if (userProjects.length) {
+          return projects.filter(project => userProjects.includes(project.name));
+        }
+        return projects;
+      })
+    );;
   }
 
   setSelectedProject(project: string | null) {
