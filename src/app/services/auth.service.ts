@@ -1,4 +1,4 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, Observable, take, tap, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import { Injectable } from '@angular/core';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
@@ -18,43 +18,69 @@ export class AuthService {
 
   $isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  login(email: string, password: string) {
+  private refreshTokenInProgress = false;
+  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+
+  login(email: string, password: string): void {
     const url = `${this.apiService.getEnvironment()}auth/login`;
     const body: LoginRequest = { email, password };
-    return this.apiService.post(url, body)
+    this.apiService.post(url, body)
       .subscribe((response: LoginResponse) => {
-        const { access_token, refresh_token } = response;
-        localStorage.setItem('access_token', JSON.stringify(access_token));
-        localStorage.setItem('refresh_token', JSON.stringify(refresh_token));
+        const { access_token, refresh_token, user_projects } = response;
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('refresh_token', refresh_token);
+        localStorage.setItem('user_projects', user_projects.join(','));
+
         this.$isAuthenticated.next(true);
       });
   }
 
-  refreshToken() {
-    const url = `${this.apiService.getEnvironment()}auth/refresh`;
-    const body = { refresh_token: this.getRefreshToken() };
-    return this.apiService.post(url, body)
-      .subscribe((response: RefreshTokenResponse) => {
-        const { access_token } = response;
-        localStorage.setItem('access_token', JSON.stringify(access_token));
-      });
+  refreshToken(): Observable<string> {
+    if (this.refreshTokenInProgress) {
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1)
+      );
+    } else {
+      this.refreshTokenInProgress = true;
+      const url = `${this.apiService.getEnvironment()}auth/refresh`;
+      const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
+      return this.apiService.post(url, null, { headers }).pipe(
+        map((response: RefreshTokenResponse) => {
+          const { access_token } = response;
+          localStorage.setItem('access_token', access_token);
+          this.refreshTokenInProgress = false;
+          this.refreshTokenSubject.next(access_token);
+          return access_token;
+        }),
+        catchError((error) => {
+          this.refreshTokenInProgress = false;
+          this.logout();
+          return throwError(() => error);
+        })
+      );
+    }
   }
 
-  logout() {
+  logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     this.$isAuthenticated.next(false);
   }
 
-  getAccessToken() {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      return JSON.parse(token);
-    }
-    return null;
+  getAccessToken(): string | null {
+    return localStorage.getItem('access_token')
   }
 
-  getRefreshToken() {
+  getRefreshToken(): string | null {
     return localStorage.getItem('refresh_token');
+  }
+
+  getUserProjects(): string[] {
+    const projects = localStorage.getItem('user_projects');
+    if (projects) {
+      return projects.split(',');
+    }
+    return [];
   }
 }
