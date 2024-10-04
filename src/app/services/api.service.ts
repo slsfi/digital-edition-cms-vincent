@@ -12,6 +12,7 @@ export class ApiService {
 
   environment = new BehaviorSubject<string|null>(null);
   prefix: string = '/digitaledition';
+  $loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   setEnvironment(env: string) {
     this.environment.next(env);
@@ -27,28 +28,34 @@ export class ApiService {
   }
 
   post(url: string, body: any, options: any = {}) {
+    this.$loading.next(true);
     return this.http.post(url, body, options)
     .pipe(
       map((response: any) => {
         // console.log("post result", response);
+        this.$loading.next(false);
         return response;
       }),
       catchError((error) => {
         console.error("post error", error);
+        this.$loading.next(false);
         throw error;
       })
     )
   }
 
   get(url: string, options: any = {}) {
+    this.$loading.next(true);
     return this.http.get(url, options)
     .pipe(
       map((response: any) => {
         // console.log("get result", response);
+        this.$loading.next(false);
         return response;
       }),
       catchError((error) => {
         console.error("get error", error);
+        this.$loading.next(false);
         throw error;
       })
     )

@@ -9,32 +9,31 @@
         <mat-icon>menu</mat-icon>
       </button>
     </ng-container>
-    <span class="title">Vincent – CMS for the SLS Digital Edition Platform</span>
+    <h1 class="title">Vincent – CMS for the SLS Digital Edition Platform</h1>
     <ng-container *ngIf="selectedProject$ | async as selectedProject">
-      <span class="title" *ngIf="selectedProject.name">Project: {{selectedProject.name}}</span>
+      <h4 class="title" *ngIf="selectedProject.name">Project: {{selectedProject.name}}</h4>
     </ng-container>
   </mat-toolbar>
   <mat-drawer-container class="drawer">
     <mat-drawer #drawer mode="over">
       <div class="menu">
         <ng-container *ngIf="availableProjects$ | async as availableProjects">
-          <ng-container *ngIf="selectedProject$ | async as selectedProject">
-            <mat-form-field>
-              <mat-label>Project</mat-label>
-              <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
-                <mat-option *ngFor="let project of availableProjects" [value]="project">
-                  {{ project.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </ng-container>
+          <mat-form-field>
+            <mat-label>Project</mat-label>
+            <mat-select [value]="selectedProject$ | async" (selectionChange)="changeProject($event)">
+              <mat-option *ngFor="let project of availableProjects" [value]="project">
+                {{ project.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </ng-container>
         <mat-divider></mat-divider>
         <mat-nav-list>
-          <a mat-list-item routerLink="/projects" (click)="drawer.toggle()">Project management</a>
-          <a mat-list-item routerLink="/texts" (click)="drawer.toggle()">Text collection management</a>
-          <a mat-list-item routerLink="/facsimiles" (click)="drawer.toggle()">Facsimile management</a>
-          <a mat-list-item routerLink="/persons" (click)="drawer.toggle()">Index of persons management</a>
+          <a mat-list-item href="/" (click)="drawer.toggle()">Home</a>
+          <a mat-list-item href="/projects" (click)="drawer.toggle()">Project management</a>
+          <a mat-list-item href="/texts" (click)="drawer.toggle()">Text collection management</a>
+          <a mat-list-item href="/facsimiles" (click)="drawer.toggle()">Facsimile management</a>
+          <a mat-list-item href="/persons" (click)="drawer.toggle()">Index of persons management</a>
         </mat-nav-list>
         <mat-divider></mat-divider>
         <mat-nav-list>
@@ -47,16 +46,23 @@
     </mat-drawer>
     <mat-drawer-content>
       <div class="content">
-        <ng-container *ngIf="(isAuthenticated$ | async) === true">
-          <main-content></main-content>
+        <ng-container *ngIf="(loading$ | async) === true">
+          <div class="overlay"><mat-spinner></mat-spinner></div>
         </ng-container>
-        <ng-container *ngIf="(isAuthenticated$ | async) === false">
-          <login></login>
+        <ng-container *ngIf="currentUrl$ | async as currentUrl">
+          <ng-container *ngIf="currentUrl === '/'">
+            <ng-container *ngIf="(isAuthenticated$ | async) === true">
+              <home></home>
+            </ng-container>
+            <ng-container *ngIf="(isAuthenticated$ | async) === false">
+              <login></login>
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="currentUrl !== '/'">
+            <router-outlet></router-outlet>
+          </ng-container>
         </ng-container>
-        <router-outlet></router-outlet>
       </div>
     </mat-drawer-content>
   </mat-drawer-container>
 </main>
-
-<router-outlet />

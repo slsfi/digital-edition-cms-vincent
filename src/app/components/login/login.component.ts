@@ -50,9 +50,9 @@ export class LoginComponent {
 
   loginForm: FormGroup = new FormGroup({
     // FIXME: remove default values
-    email: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
-    password: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
-    environment: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
+    email: new FormControl('tomi@identio.fi', {nonNullable: true, validators: [Validators.required]}),
+    password: new FormControl('identio', {nonNullable: true, validators: [Validators.required]}),
+    environment: new FormControl('/testing/', {nonNullable: true, validators: [Validators.required]}),
     customEnvironment: new FormControl('', {nonNullable: true, validators: [requiredIfEnvironmentIsCustom]})
   });
 
@@ -83,7 +83,6 @@ export class LoginComponent {
     event.preventDefault();
     const {email, password, environment, customEnvironment} = this.loginForm.value;
     const env = environment === ' ' ? customEnvironment : environment;
-    console.log({email, password, env});
     this.apiService.setEnvironment(env);
     this.authService.login(email, password);
   }
