@@ -14,18 +14,19 @@ import { Project } from '../../models/project';
 })
 export class PersonsComponent {
 
-  $subjects: Observable<Person[]>;
-  $selectedProject: Observable<Project | null>;
+  $subjects: Observable<Person[]> = new Observable<Person[]>();
+  $selectedProject: Observable<string | null> = new Observable<string | null>();
 
-  constructor(private projectService: ProjectService) {
-    this.$selectedProject = this.projectService.$selectedProject
-    this.$subjects = combineLatest(this.$selectedProject, this.projectService.getSubjects())
+  constructor(private projectService: ProjectService) { }
+
+  ngAfterViewInit() {
+    this.$selectedProject = this.projectService.$selectedProject;
+    this.$subjects = combineLatest([this.$selectedProject, this.projectService.getSubjects()])
       .pipe(
         map(([project, subjects]) => {
           return subjects;
         }),
       );
-
   }
 
 

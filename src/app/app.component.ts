@@ -26,8 +26,8 @@ import { Project } from './models/project';
 export class AppComponent {
 
   isAuthenticated$: Observable<boolean> = new Observable<boolean>();
-  availableProjects$: Observable<Project[]> = new Observable<Project[]>();
-  selectedProject$: Observable<Project | null> = new Observable<Project>();
+  availableProjects$: Observable<Project[]>;
+  selectedProject$: Observable<string | null>;
   currentUrl$: Observable<string> = new Observable<string>();
   loading$: Observable<boolean> = new Observable<boolean>();
 

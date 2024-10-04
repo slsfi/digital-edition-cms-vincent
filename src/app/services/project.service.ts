@@ -12,11 +12,11 @@ import { Project } from '../models/project';
 })
 export class ProjectService {
 
-  $selectedProject: BehaviorSubject<Project | null> = new BehaviorSubject<Project | null>(null);
+  $selectedProject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor(private apiService: ApiService) {
     if (localStorage.getItem('selected_project')) {
-      this.$selectedProject.next(JSON.parse(localStorage.getItem('selected_project') || ''));
+      this.$selectedProject.next(localStorage.getItem('selected_project'));
     }
   }
 
@@ -25,16 +25,16 @@ export class ProjectService {
     return this.apiService.get(url);
   }
 
-  setSelectedProject(project: Project | null) {
+  setSelectedProject(project: string | null) {
     this.$selectedProject.next(project);
-    localStorage.setItem('selected_project', JSON.stringify(project));
+    localStorage.setItem('selected_project', project || '');
   }
 
   getFacsimiles(): Observable<Facsimile[]> {
     return this.$selectedProject.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.getPrefixedUrl()}/${project.name}/facsimile_collection/list/`;
+        const url = `${this.apiService.getPrefixedUrl()}/${project}/facsimile_collection/list/`;
         return this.apiService.get(url);
       }
     ));
@@ -44,7 +44,7 @@ export class ProjectService {
     return this.$selectedProject.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.getPrefixedUrl()}/${project.name}/publication_collection/list/`;
+        const url = `${this.apiService.getPrefixedUrl()}/${project}/publication_collection/list/`;
         return this.apiService.get(url);
       }
     ));
@@ -54,7 +54,7 @@ export class ProjectService {
     return this.$selectedProject.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.getPrefixedUrl()}/${project.name}/subjects`;
+        const url = `${this.apiService.getPrefixedUrl()}/${project}/subjects`;
         return this.apiService.get(url);
       }
     ));

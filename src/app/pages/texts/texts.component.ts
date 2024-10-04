@@ -15,17 +15,18 @@ import { Project } from '../../models/project';
 export class TextsComponent {
 
   $publications: Observable<Publication[]> = new Observable<Publication[]>();
-  $selectedProject: Observable<Project | null>;
+  $selectedProject: Observable<string | null> = new Observable<string | null>();
 
-  constructor(private projectService: ProjectService) {
+  constructor(private projectService: ProjectService) { }
+
+  ngAfterViewInit() {
     this.$selectedProject = this.projectService.$selectedProject;
-    this.$publications = combineLatest(this.$selectedProject, this.projectService.getPublications())
+    this.$publications = combineLatest([this.$selectedProject, this.projectService.getPublications()])
       .pipe(
         map(([project, publications]) => {
           return publications;
         }),
       );
-
-  }
+    }
 
 }

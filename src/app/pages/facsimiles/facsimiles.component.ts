@@ -14,12 +14,14 @@ import { Project } from '../../models/project';
 })
 export class FacsimilesComponent {
 
-  $selectedProject: Observable<Project | null>;
-  $facsimiles: Observable<Facsimile[]>;
+  $selectedProject: Observable<string | null> = new Observable<string | null>();
+  $facsimiles: Observable<Facsimile[]> = new Observable<Facsimile[]>();
 
-  constructor(private projectService: ProjectService) {
+  constructor(private projectService: ProjectService) { }
+
+  ngAfterViewInit() {
     this.$selectedProject = this.projectService.$selectedProject;
-    this.$facsimiles = combineLatest(this.$selectedProject, this.projectService.getFacsimiles())
+    this.$facsimiles = combineLatest([this.$selectedProject, this.projectService.getFacsimiles()])
       .pipe(
         map(([project, facsimiles]) => {
           return facsimiles;
