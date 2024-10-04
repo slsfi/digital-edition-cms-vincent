@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { combineLatest, map, Observable } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Publication } from '../../models/publication';
+import { Project } from '../../models/project';
 
 @Component({
   selector: 'app-texts',
@@ -14,9 +15,17 @@ import { Publication } from '../../models/publication';
 export class TextsComponent {
 
   $publications: Observable<Publication[]> = new Observable<Publication[]>();
+  $selectedProject: Observable<Project | null>;
 
   constructor(private projectService: ProjectService) {
-    this.$publications = this.projectService.getPublications();
+    this.$selectedProject = this.projectService.$selectedProject;
+    this.$publications = combineLatest(this.$selectedProject, this.projectService.getPublications())
+      .pipe(
+        map(([project, publications]) => {
+          return publications;
+        }),
+      );
+
   }
 
 }

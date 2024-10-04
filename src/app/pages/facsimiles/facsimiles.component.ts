@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { combineLatest, map, Observable } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
 import { Facsimile } from '../../models/facsimile';
+import { Project } from '../../models/project';
 
 @Component({
   selector: 'app-facsimiles',
@@ -13,10 +14,17 @@ import { Facsimile } from '../../models/facsimile';
 })
 export class FacsimilesComponent {
 
-  $facsimiles: Observable<Facsimile[]> = new Observable<Facsimile[]>();
+  $selectedProject: Observable<Project | null>;
+  $facsimiles: Observable<Facsimile[]>;
 
   constructor(private projectService: ProjectService) {
-    this.$facsimiles = this.projectService.getFacsimiles();
+    this.$selectedProject = this.projectService.$selectedProject;
+    this.$facsimiles = combineLatest(this.$selectedProject, this.projectService.getFacsimiles())
+      .pipe(
+        map(([project, facsimiles]) => {
+          return facsimiles;
+        }),
+      );
   }
 
 }

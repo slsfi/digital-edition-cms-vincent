@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, filter, Observable, Subject, switchMap } from 'rxjs';
 import { Person } from '../models/person';
 import { Publication } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
@@ -30,25 +30,34 @@ export class ProjectService {
     localStorage.setItem('selected_project', JSON.stringify(project));
   }
 
-  //https://testa-api.sls.fi/digitaledition/topelius/facsimile_collection/list/
   getFacsimiles(): Observable<Facsimile[]> {
-    const projectName = this.$selectedProject.value?.name;
-    const url = `${this.apiService.getPrefixedUrl()}/${projectName}/facsimile_collection/list/`;
-    return this.apiService.get(url);
+    return this.$selectedProject.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.getPrefixedUrl()}/${project.name}/facsimile_collection/list/`;
+        return this.apiService.get(url);
+      }
+    ));
   }
 
-  //https://testa-api.sls.fi/digitaledition/topelius/publication_collection/list/
   getPublications(): Observable<Publication[]> {
-    const projectName = this.$selectedProject.value?.name;
-    const url = `${this.apiService.getPrefixedUrl()}/${projectName}/publication_collection/list/`;
-    return this.apiService.get(url);
+    return this.$selectedProject.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.getPrefixedUrl()}/${project.name}/publication_collection/list/`;
+        return this.apiService.get(url);
+      }
+    ));
   }
 
-  //https://testa-api.sls.fi/digitaledition/topelius/subjects/
   getSubjects(): Observable<Person[]> {
-    const projectName = this.$selectedProject.value?.name;
-    const url = `${this.apiService.getPrefixedUrl()}/${projectName}/subjects`;
-    return this.apiService.get(url);
+    return this.$selectedProject.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.getPrefixedUrl()}/${project.name}/subjects`;
+        return this.apiService.get(url);
+      }
+    ));
   }
 
 }

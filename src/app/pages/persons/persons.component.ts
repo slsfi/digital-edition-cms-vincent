@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, combineLatest, map, Observable } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
 import { Person } from '../../models/person';
+import { Project } from '../../models/project';
 
 @Component({
   selector: 'app-persons',
@@ -13,9 +14,19 @@ import { Person } from '../../models/person';
 })
 export class PersonsComponent {
 
-  $subjects: Observable<Person[]> = new Observable<Person[]>();
+  $subjects: Observable<Person[]>;
+  $selectedProject: Observable<Project | null>;
 
   constructor(private projectService: ProjectService) {
-    this.$subjects = this.projectService.getSubjects();
+    this.$selectedProject = this.projectService.$selectedProject
+    this.$subjects = combineLatest(this.$selectedProject, this.projectService.getSubjects())
+      .pipe(
+        map(([project, subjects]) => {
+          return subjects;
+        }),
+      );
+
   }
+
+
 }
