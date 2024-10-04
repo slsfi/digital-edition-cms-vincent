@@ -1,0 +1,27 @@
+<div class="menu">
+  <ng-container *ngIf="availableProjects$ | async as availableProjects">
+    <mat-form-field>
+      <mat-label>Project</mat-label>
+      <mat-select [value]="selectedProject$ | async" (selectionChange)="changeProject($event)">
+        <mat-option *ngFor="let project of availableProjects" [value]="project.name">
+          {{ project.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
+  <mat-divider></mat-divider>
+  <mat-nav-list>
+    <a mat-list-item routerLink="/" (click)="toggleMenu()">Home</a>
+    <a mat-list-item routerLink="/projects" (click)="toggleMenu()">Project management</a>
+    <a mat-list-item routerLink="/texts" (click)="toggleMenu()">Text collection management</a>
+    <a mat-list-item routerLink="/facsimiles" (click)="toggleMenu()">Facsimile management</a>
+    <a mat-list-item routerLink="/persons" (click)="toggleMenu()">Index of persons management</a>
+  </mat-nav-list>
+  <mat-divider></mat-divider>
+  <mat-nav-list>
+    <a href="/" mat-list-item (click)="logout();toggleMenu();">
+      <mat-icon matListItemIcon>logout</mat-icon>
+      <div matListItemTitle>Log out</div>
+    </a>
+  </mat-nav-list>
+</div>

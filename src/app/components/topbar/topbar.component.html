@@ -1,0 +1,11 @@
+<mat-toolbar [class.center]="(isAuthenticated$ | async) === false">
+  <ng-container *ngIf="(isAuthenticated$ | async) === true">
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"  (click)="toggleMenu()">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </ng-container>
+  <h1 class="title">Vincent – CMS for the SLS Digital Edition Platform</h1>
+  <ng-container *ngIf="selectedProject$ | async as selectedProject">
+    <h4 class="title" *ngIf="selectedProject">Project: {{selectedProject}}</h4>
+  </ng-container>
+</mat-toolbar>
