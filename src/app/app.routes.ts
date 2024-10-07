@@ -3,9 +3,9 @@ import { ProjectsComponent } from './pages/projects/projects.component';
 import { TextsComponent } from './pages/texts/texts.component';
 import { FacsimilesComponent } from './pages/facsimiles/facsimiles.component';
 import { PersonsComponent } from './pages/persons/persons.component';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './guards/auth.guard';
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './pages/home/home.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
