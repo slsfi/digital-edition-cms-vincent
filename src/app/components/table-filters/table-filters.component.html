@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Filter</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" id="filter-form" (ngSubmit)="submit($event)">
+    <ng-container *ngFor="let field of data">
+      <div>
+        <mat-form-field>
+          <mat-label>{{ field.header }}</mat-label>
+          <ng-container *ngIf="field.type === 'published'">
+            <mat-select [formControlName]="field.field">
+              <mat-option>Any</mat-option>
+              <mat-option [value]="0">Not published</mat-option>
+              <mat-option [value]="1">Internally</mat-option>
+              <mat-option [value]="2">Externally</mat-option>
+            </mat-select>
+          </ng-container>
+          <ng-container *ngIf="field.type === 'boolean'">
+            <mat-select [formControlName]="field.field">
+              <mat-option>Any</mat-option>
+              <mat-option [value]="0">No</mat-option>
+              <mat-option [value]="1">Yes</mat-option>
+            </mat-select>
+          </ng-container>
+          <ng-container *ngIf="field.type === 'string' || field.type === 'number'">
+            <input matInput [placeholder]="field.header" [formControlName]="field.field" />
+          </ng-container>
+        </mat-form-field>
+      </div>
+    </ng-container>
+  </form>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close (click)="reset()">Reset</button>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="true" [disabled]="!form.valid" type="submit" form="filter-form">Filter</button>
+</mat-dialog-actions>

@@ -1,47 +1,33 @@
 <div class="container">
   <div class="header-row">
     <h1>Project management</h1>
-    <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add project</button>
-  </div>
-  <ng-container *ngIf="$projects | async as projects">
-    <table mat-table [dataSource]="projects">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let project">{{ project.name }}</td>
-      </ng-container>
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef>ID</th>
-        <td mat-cell *matCellDef="let project">{{ project.id }}</td>
-      </ng-container>
-      <ng-container matColumnDef="date_created">
-        <th mat-header-cell *matHeaderCellDef>Date Created</th>
-        <td mat-cell *matCellDef="let project">{{ project.date_created | date: 'd.M.yyyy HH:mm' }}</td>
-      </ng-container>
-      <ng-container matColumnDef="deleted">
-        <th mat-header-cell *matHeaderCellDef>Deleted</th>
-        <td mat-cell *matCellDef="let project">
-          {{ project.deleted === 0 ? 'No' : 'Yes' }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="date_modified">
-        <th mat-header-cell *matHeaderCellDef>Date Modified</th>
-        <td mat-cell *matCellDef="let project">{{ project.date_modified | date: 'd.M.yyyy HH.mm'  }}</td>
-      </ng-container>
-      <ng-container matColumnDef="published">
-        <th mat-header-cell *matHeaderCellDef>Published</th>
-        <td mat-cell *matCellDef="let project">
-          <ng-container *ngIf="project.published === 0">Not published</ng-container>
-          <ng-container *ngIf="project.published === 1">Internally</ng-container>
-          <ng-container *ngIf="project.published === 2">Externally</ng-container>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let project">
-          <button mat-icon-button (click)="editProject(project)"><mat-icon>edit</mat-icon></button>
-        </td>
-      </ng-container>
+    <div class="actions">
+      <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
+      <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add project</button>
+    </div>
 
+  </div>
+  <!-- {{ $filteredProjects | async | json }} -->
+  <ng-container *ngIf="$filteredProjects | async as projects">
+    <table mat-table [dataSource]="projects">
+      <ng-container *ngFor="let column of columnsData">
+        <ng-container [matColumnDef]="column.field">
+          <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+          <td mat-cell *matCellDef="let project">
+            <ng-container *ngIf="column.type === 'date'">{{ project[column.field] | date: 'd.M.yyyy HH:mm' }}</ng-container>
+            <ng-container *ngIf="column.type === 'string' || column.type === 'number' ">{{ project[column.field] }}</ng-container>
+            <ng-container *ngIf="column.type === 'boolean'">{{ project[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
+            <ng-container *ngIf="column.type === 'published'">
+              <ng-container *ngIf="project[column.field] === 0">Not published</ng-container>
+              <ng-container *ngIf="project[column.field] === 1">Internally</ng-container>
+              <ng-container *ngIf="project[column.field] === 2">Externally</ng-container>
+            </ng-container>
+            <ng-container *ngIf="column.type === 'action'">
+              <button mat-icon-button (click)="editProject(project)"><mat-icon>edit</mat-icon></button>
+            </ng-container>
+          </td>
+        </ng-container>
+      </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
