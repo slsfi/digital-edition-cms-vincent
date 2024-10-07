@@ -4,7 +4,7 @@ import { BehaviorSubject, filter, map, Observable, switchMap } from 'rxjs';
 import { Person } from '../models/person';
 import { Publication } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
-import { Project } from '../models/project';
+import { AddProjectData, EditProjectData, Project } from '../models/project';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class ProjectService {
   }
 
   getProjects(): Observable<Project[]> {
-    const url = `${this.apiService.getPrefixedUrl()}/projects`;
+    const url = `${this.apiService.prefixedUrl}/projects/`;
     return this.apiService.get(url).pipe(
       map((projects: Project[]) => {
         const userProjects = (localStorage.getItem('user_projects') || '').split(',');
@@ -29,7 +29,17 @@ export class ProjectService {
         }
         return projects;
       })
-    );;
+    );
+  }
+
+  addProject(payload: AddProjectData) {
+    const url = `${this.apiService.prefixedUrl}/projects/new/`;
+    return this.apiService.post(url, payload);
+  }
+
+  editProject(id: number, payload: EditProjectData) {
+    const url = `${this.apiService.prefixedUrl}/projects/${id}/edit/`;
+    return this.apiService.post(url, payload);
   }
 
   setSelectedProject(project: string | null) {
@@ -41,7 +51,7 @@ export class ProjectService {
     return this.$selectedProject.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.getPrefixedUrl()}/${project}/facsimile_collection/list/`;
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
         return this.apiService.get(url);
       }
     ));
@@ -51,7 +61,7 @@ export class ProjectService {
     return this.$selectedProject.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.getPrefixedUrl()}/${project}/publication_collection/list/`;
+        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
         return this.apiService.get(url);
       }
     ));
@@ -61,7 +71,7 @@ export class ProjectService {
     return this.$selectedProject.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.getPrefixedUrl()}/${project}/subjects`;
+        const url = `${this.apiService.prefixedUrl}/${project}/subjects`;
         return this.apiService.get(url);
       }
     ));

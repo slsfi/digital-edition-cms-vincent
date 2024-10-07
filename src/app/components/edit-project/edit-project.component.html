@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ data.name ? 'Edit' : 'Add' }} project</h2>
+<mat-dialog-content>
+  <form [formGroup]="addProjectForm" id="project-form" (ngSubmit)="onSubmit($event)">
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput placeholder="Name" formControlName="name" />
+    </mat-form-field>
+    <mat-form-field *ngIf="data.name">
+      <mat-label>Published</mat-label>
+      <mat-select formControlName="published">
+        <mat-option [value]="0">Not published</mat-option>
+        <mat-option [value]="1">Internally</mat-option>
+        <mat-option [value]="2">Externally</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="true" [disabled]="!addProjectForm.valid" type="submit"
+    form="project-form">{{ data.name ? 'Edit' : 'Add' }}</button>
+</mat-dialog-actions>

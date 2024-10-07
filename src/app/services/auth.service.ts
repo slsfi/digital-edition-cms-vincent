@@ -23,7 +23,7 @@ export class AuthService {
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   login(email: string, password: string): void {
-    const url = `${this.apiService.getEnvironment()}auth/login`;
+    const url = `${this.apiService.environment}auth/login`;
     const body: LoginRequest = { email, password };
     this.apiService.post(url, body)
       .subscribe((response: LoginResponse) => {
@@ -44,7 +44,7 @@ export class AuthService {
       );
     } else {
       this.refreshTokenInProgress = true;
-      const url = `${this.apiService.getEnvironment()}auth/refresh`;
+      const url = `${this.apiService.environment}auth/refresh`;
       const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
       return this.apiService.post(url, null, { headers }).pipe(
         map((response: RefreshTokenResponse) => {

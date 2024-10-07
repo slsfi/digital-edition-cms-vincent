@@ -6,3 +6,12 @@ export interface Project {
   name: string;
   published: number;
 }
+
+export interface EditProjectData {
+  name: string;
+  published: number;
+}
+
+export interface AddProjectData {
+  name: string;
+}

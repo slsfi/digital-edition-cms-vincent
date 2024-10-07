@@ -19,15 +19,14 @@ export class ApiService {
     if (env != null) {
       localStorage.setItem('environment', env);
     }
-
   }
 
-  getEnvironment() {
+  get environment() {
     return this.$environment.value || localStorage.getItem('environment') || '';
   }
 
-  getPrefixedUrl(): string {
-    return `${this.getEnvironment()}${this.prefix}`;
+  get prefixedUrl(): string {
+    return `${this.environment}${this.prefix}`;
   }
 
   post(url: string, body: any, options: any = {}) {

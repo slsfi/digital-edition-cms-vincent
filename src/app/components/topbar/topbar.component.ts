@@ -5,11 +5,12 @@ import { AuthService } from '../../services/auth.service';
 import { Observable } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { ProjectService } from '../../services/project.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'topbar',
   standalone: true,
-  imports: [CommonModule, MatToolbarModule, MatIconModule],
+  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })
