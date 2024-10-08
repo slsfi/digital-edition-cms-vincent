@@ -6,7 +6,9 @@
   <topbar (onMenuToggle)="drawer.toggle()"></topbar>
   <mat-drawer-container class="drawer">
     <mat-drawer #drawer mode="over">
-      <navigation (onMenuToggle)="drawer.toggle()"></navigation>
+      @if (isAuthenticated$ | async) {
+        <navigation (onMenuToggle)="drawer.toggle()"></navigation>
+      }
     </mat-drawer>
     <mat-drawer-content>
       <div class="content">

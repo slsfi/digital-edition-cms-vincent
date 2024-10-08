@@ -21,6 +21,9 @@ export class ProjectService {
   }
 
   getProjects(): Observable<Project[]> {
+    if (!this.apiService.environment) {
+      return new Observable<Project[]>();
+    }
     const url = `${this.apiService.prefixedUrl}/projects/`;
     return this.apiService.get(url).pipe(
       map((projects: Project[]) => {
