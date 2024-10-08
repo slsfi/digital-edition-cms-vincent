@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
@@ -10,6 +10,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPersonComponent } from '../../components/edit-person/edit-person.component';
+import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
+import { NavigationEnd, Router } from '@angular/router';
+import { QueryParamsService } from '../../services/query-params.service';
 
 @Component({
   selector: 'app-persons',
@@ -22,8 +25,10 @@ import { EditPersonComponent } from '../../components/edit-person/edit-person.co
 export class PersonsComponent {
 
   $loader: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  $url: Observable<string> = new Observable<string>();
 
   $subjects: Observable<Person[]> = new Observable<Person[]>();
+  $filteredSubjects: Observable<Person[]> = new Observable<Person[]>();
   $selectedProject: Observable<string | null> = new Observable<string | null>();
 
   columnsData: Column[] = [
@@ -31,8 +36,8 @@ export class PersonsComponent {
     { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'number', editable: true },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true },
     { field: 'alias', header: 'Alias', filterable: true, type: 'string', editable: false },
-    { field: 'date_born', header: 'Date Born', filterable: true, type: 'date', editable: true },
-    { field: 'date_deceased', header: 'Date Deceased', filterable: true, type: 'date', editable: true },
+    { field: 'date_born', header: 'Date Born', filterable: false, type: 'date', editable: true },
+    { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'date', editable: true },
     { field: 'action', header: 'Actions', filterable: false, type: 'action' },
   ]
 
@@ -56,7 +61,7 @@ export class PersonsComponent {
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog) {
+  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService) {
   }
 
   ngAfterViewInit() {
@@ -69,6 +74,33 @@ export class PersonsComponent {
         })
       )),
     )
+
+    // Listen for URL changes, start with the current URL to ensure the stream has an initial value
+    this.$url = this.router.events.pipe(
+      filter((event: any) => event instanceof NavigationEnd),
+      startWith(this.router.url), // Ensure the initial URL is emitted when the component is initialized
+      map((event: any) => event instanceof NavigationEnd ? event.url : event)
+    );
+
+    this.$filteredSubjects = combineLatest([this.$subjects, this.$url]).pipe(
+      map(([subjects, url]) => {
+        const queryParams = this.queryParamsService.getQueryParams();
+        // Filter projects based on query params
+        if (queryParams['full_name']) {
+          subjects = subjects.filter(project => project.full_name?.includes(queryParams['full_name']));
+        }
+        if (queryParams['legacy_id']) {
+          subjects = subjects.filter(project => project.legacy_id === queryParams['legacy_id']);
+        }
+        if (queryParams['id']) {
+          subjects = subjects.filter(project => project.id === parseInt(queryParams['id']));
+        }
+        if (queryParams['alias']) {
+          subjects = subjects.filter(project => project.alias?.includes(queryParams['alias']));
+        }
+        return subjects
+      })
+    );
   }
 
   edit(person: Person | null = null) {
@@ -81,6 +113,21 @@ export class PersonsComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
         this.$loader.next(0);
+      }
+    });
+  }
+
+  filterPersons() {
+    console.log('filterPersons');
+    const columns = this.columnsData.filter(column => column.filterable);
+    const dialogRef = this.dialog.open(TableFiltersComponent, {
+      width: '250px',
+      data: columns
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        console.log('filtering projects');
       }
     });
 

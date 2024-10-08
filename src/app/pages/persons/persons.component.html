@@ -2,12 +2,12 @@
   <div class="header-row">
     <h1>Index of persons management</h1>
     <div class="actions">
-      <button mat-flat-button><mat-icon>filter_list</mat-icon>Filter</button>
+      <button mat-flat-button (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
       <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
     </div>
 
   </div>
-  <ng-container *ngIf="$subjects | async as subjects">
+  <ng-container *ngIf="$filteredSubjects | async as subjects">
     <table mat-table [dataSource]="subjects">
       <ng-container *ngFor="let column of columnsData">
         <ng-container [matColumnDef]="column.field">
