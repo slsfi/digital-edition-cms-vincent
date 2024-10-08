@@ -21,8 +21,8 @@ export class TopbarComponent {
   selectedProject$: Observable<string | null> = new Observable<string | null>();
 
   constructor(private authService: AuthService, private projectService: ProjectService) {
-    this.isAuthenticated$ = this.authService.$isAuthenticated;
-    this.selectedProject$ = this.projectService.$selectedProject;
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.selectedProject$ = this.projectService.selectedProject$;
   }
 
   toggleMenu() {

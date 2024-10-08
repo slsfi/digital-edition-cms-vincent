@@ -23,9 +23,9 @@ import { CustomDatePipe } from '../../pipes/custom-date.pipe';
   styleUrl: './projects.component.scss'
 })
 export class ProjectsComponent {
-  $loader: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  $projects: Observable<Project[]> = new Observable<Project[]>();
-  $filteredProjects: Observable<Project[]> = new Observable<Project[]>();
+  loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  projects$: Observable<Project[]> = new Observable<Project[]>();
+  filteredProjects$: Observable<Project[]> = new Observable<Project[]>();
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true },
     { field: 'name', header: 'Name', type: 'string', filterable: true },
@@ -36,20 +36,20 @@ export class ProjectsComponent {
     { field: 'action', header: 'Action', type: 'action', filterable: false }
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
-  $url = new Observable<string>();
+  url$ = new Observable<string>();
 
   constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService) {
-    this.$projects = this.$loader.asObservable().pipe(
+    this.projects$ = this.loader$.asObservable().pipe(
       startWith(null),
       switchMap(() => this.projectService.getProjects()),
     )
     // Listen for URL changes, start with the current URL to ensure the stream has an initial value
-    this.$url = this.router.events.pipe(
+    this.url$ = this.router.events.pipe(
       filter((event: any) => event instanceof NavigationEnd),
       startWith(this.router.url), // Ensure the initial URL is emitted when the component is initialized
       map((event: any) => event instanceof NavigationEnd ? event.url : event)
     );
-    this.$filteredProjects = combineLatest([this.$projects, this.$url]).pipe(
+    this.filteredProjects$ = combineLatest([this.projects$, this.url$]).pipe(
       map(([projects, url]) => {
         const queryParams = this.queryParamsService.getQueryParams();
         // Filter projects based on query params
@@ -81,7 +81,7 @@ export class ProjectsComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
         // force projects to reload
-        this.$loader.next(0);
+        this.loader$.next(0);
       }
     });
   }

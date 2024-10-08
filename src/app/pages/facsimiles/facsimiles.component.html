@@ -1,4 +1,4 @@
 <p>facsimiles works!</p>
-<ng-container *ngIf="$facsimiles | async as facsimiles">
+<ng-container *ngIf="facsimiles$ | async as facsimiles">
   <span>{{ facsimiles.length }}</span>
 </ng-container>

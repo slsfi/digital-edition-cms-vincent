@@ -24,12 +24,12 @@ import { QueryParamsService } from '../../services/query-params.service';
 })
 export class PersonsComponent {
 
-  $loader: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  $url: Observable<string> = new Observable<string>();
+  loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  url$: Observable<string> = new Observable<string>();
 
-  $subjects: Observable<Person[]> = new Observable<Person[]>();
-  $filteredSubjects: Observable<Person[]> = new Observable<Person[]>();
-  $selectedProject: Observable<string | null> = new Observable<string | null>();
+  subjects$: Observable<Person[]> = new Observable<Person[]>();
+  filteredSubjects$: Observable<Person[]> = new Observable<Person[]>();
+  selectedProject$: Observable<string | null> = new Observable<string | null>();
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
@@ -65,10 +65,10 @@ export class PersonsComponent {
   }
 
   ngAfterViewInit() {
-    this.$selectedProject = this.projectService.$selectedProject;
-    this.$subjects = this.$loader.asObservable().pipe(
+    this.selectedProject$ = this.projectService.selectedProject$;
+    this.subjects$ = this.loader$.asObservable().pipe(
       startWith(null),
-      switchMap(() => combineLatest([this.projectService.getSubjects(), this.projectService.$selectedProject]).pipe(
+      switchMap(() => combineLatest([this.projectService.getSubjects(), this.projectService.selectedProject$]).pipe(
         map(([subjects, selectedProject]) => {
           return subjects
         })
@@ -76,13 +76,13 @@ export class PersonsComponent {
     )
 
     // Listen for URL changes, start with the current URL to ensure the stream has an initial value
-    this.$url = this.router.events.pipe(
+    this.url$ = this.router.events.pipe(
       filter((event: any) => event instanceof NavigationEnd),
       startWith(this.router.url), // Ensure the initial URL is emitted when the component is initialized
       map((event: any) => event instanceof NavigationEnd ? event.url : event)
     );
 
-    this.$filteredSubjects = combineLatest([this.$subjects, this.$url]).pipe(
+    this.filteredSubjects$ = combineLatest([this.subjects$, this.url$]).pipe(
       map(([subjects, url]) => {
         const queryParams = this.queryParamsService.getQueryParams();
         // Filter projects based on query params
@@ -112,7 +112,7 @@ export class PersonsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        this.$loader.next(0);
+        this.loader$.next(0);
       }
     });
   }

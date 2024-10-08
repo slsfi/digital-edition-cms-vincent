@@ -25,9 +25,9 @@ export class AppComponent {
   loading$: Observable<boolean> = new Observable<boolean>();
 
   constructor(private authService: AuthService, private projectService: ProjectService, private router: Router, private apiService: ApiService) {
-    this.isAuthenticated$ = this.authService.$isAuthenticated;
-    this.selectedProject$ = this.projectService.$selectedProject;
-    this.loading$ = this.apiService.$loading;
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.selectedProject$ = this.projectService.selectedProject$;
+    this.loading$ = this.apiService.loading$;
   }
 
   ngOnInit() {

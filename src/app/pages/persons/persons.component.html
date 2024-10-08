@@ -7,7 +7,7 @@
     </div>
 
   </div>
-  <ng-container *ngIf="$filteredSubjects | async as subjects">
+  <ng-container *ngIf="filteredSubjects$ | async as subjects">
     <table mat-table [dataSource]="subjects">
       <ng-container *ngFor="let column of columnsData">
         <ng-container [matColumnDef]="column.field">

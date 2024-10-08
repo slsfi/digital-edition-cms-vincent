@@ -11,13 +11,13 @@ export class AuthService {
 
   constructor(private apiService: ApiService, private router: Router) {
     if (this.getAccessToken()) {
-      this.$isAuthenticated.next(true);
+      this.isAuthenticated$.next(true);
     } else {
-      this.$isAuthenticated.next(false);
+      this.isAuthenticated$.next(false);
     }
   }
 
-  $isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -32,7 +32,7 @@ export class AuthService {
         localStorage.setItem('refresh_token', refresh_token);
         localStorage.setItem('user_projects', user_projects.join(','));
         this.router.navigate(['/']);
-        this.$isAuthenticated.next(true);
+        this.isAuthenticated$.next(true);
       });
   }
 
@@ -66,7 +66,7 @@ export class AuthService {
   logout(): void {
     localStorage.clear();
     this.apiService.setEnvironment(null);
-    this.$isAuthenticated.next(false);
+    this.isAuthenticated$.next(false);
   }
 
   getAccessToken(): string | null {

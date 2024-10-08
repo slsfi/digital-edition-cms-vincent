@@ -7,8 +7,8 @@
     </div>
 
   </div>
-  <!-- {{ $filteredProjects | async | json }} -->
-  <ng-container *ngIf="$filteredProjects | async as projects">
+  <!-- {{ filteredProjects$ | async | json }} -->
+  <ng-container *ngIf="filteredProjects$ | async as projects">
     <table mat-table [dataSource]="projects">
       <ng-container *ngFor="let column of columnsData">
         <ng-container [matColumnDef]="column.field">

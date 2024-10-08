@@ -11,11 +11,12 @@ import { AddProjectData, EditProjectData, Project } from '../models/project';
 })
 export class ProjectService {
 
-  $selectedProject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  selectedProject$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+
 
   constructor(private apiService: ApiService) {
     if (localStorage.getItem('selected_project')) {
-      this.$selectedProject.next(localStorage.getItem('selected_project'));
+      this.selectedProject$.next(localStorage.getItem('selected_project'));
     }
   }
 
@@ -43,12 +44,12 @@ export class ProjectService {
   }
 
   setSelectedProject(project: string | null) {
-    this.$selectedProject.next(project);
+    this.selectedProject$.next(project);
     localStorage.setItem('selected_project', project || '');
   }
 
   getFacsimiles(): Observable<Facsimile[]> {
-    return this.$selectedProject.pipe(
+    return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
@@ -58,7 +59,7 @@ export class ProjectService {
   }
 
   getPublications(): Observable<Publication[]> {
-    return this.$selectedProject.pipe(
+    return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
@@ -68,7 +69,7 @@ export class ProjectService {
   }
 
   getSubjects(): Observable<Person[]> {
-    return this.$selectedProject.pipe(
+    return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/subjects`;
@@ -78,7 +79,7 @@ export class ProjectService {
   }
 
   addSubject(payload: PersonPayload): Observable<Person> {
-    return this.$selectedProject.pipe(
+    return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/subjects/new/`;
@@ -88,7 +89,7 @@ export class ProjectService {
   }
 
   editSubject(id: number, payload: PersonPayload): Observable<Person> {
-    return this.$selectedProject.pipe(
+    return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/subjects/${id}/edit/`;

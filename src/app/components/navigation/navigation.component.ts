@@ -26,7 +26,7 @@ export class NavigationComponent {
 
   constructor(private projectService: ProjectService, private authService: AuthService) {
     this.availableProjects$ = this.projectService.getProjects();
-    this.selectedProject$ = this.projectService.$selectedProject;
+    this.selectedProject$ = this.projectService.selectedProject$;
    }
 
   logout() {
