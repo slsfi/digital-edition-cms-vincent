@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Project } from '../../models/project';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,11 +12,13 @@ import { NavigationEnd, Router } from '@angular/router';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { Column } from '../../models/column';
 import { QueryParamsService } from '../../services/query-params.service';
+import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe],
+  providers: [DatePipe],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss'
 })

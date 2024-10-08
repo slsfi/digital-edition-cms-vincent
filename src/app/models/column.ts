@@ -3,6 +3,8 @@ export interface Column {
   header: string;
   type: string;
   filterable: boolean;
+  editable?: boolean;
+  required?: boolean;
 }
 
 export type QueryParamType = {

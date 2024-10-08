@@ -5,4 +5,16 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .container {
   width: calc(100vw - 8em);
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
 }

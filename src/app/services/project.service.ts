@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, filter, map, Observable, switchMap } from 'rxjs';
-import { Person } from '../models/person';
+import { Person, PersonPayload } from '../models/person';
 import { Publication } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
@@ -75,6 +75,26 @@ export class ProjectService {
         return this.apiService.get(url);
       }
     ));
+  }
+
+  addSubject(payload: PersonPayload): Observable<Person> {
+    return this.$selectedProject.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/subjects/new/`;
+        return this.apiService.post(url, payload);
+      })
+    );
+  }
+
+  editSubject(id: number, payload: PersonPayload): Observable<Person> {
+    return this.$selectedProject.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/subjects/${id}/edit/`;
+        return this.apiService.post(url, payload);
+      })
+    );
   }
 
 }

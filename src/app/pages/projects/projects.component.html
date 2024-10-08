@@ -3,7 +3,7 @@
     <h1>Project management</h1>
     <div class="actions">
       <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
-      <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add project</button>
+      <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
     </div>
 
   </div>
@@ -14,7 +14,7 @@
         <ng-container [matColumnDef]="column.field">
           <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
           <td mat-cell *matCellDef="let project">
-            <ng-container *ngIf="column.type === 'date'">{{ project[column.field] | date: 'd.M.yyyy HH:mm' }}</ng-container>
+            <ng-container *ngIf="column.type === 'date'">{{ project[column.field] | customDate }}</ng-container>
             <ng-container *ngIf="column.type === 'string' || column.type === 'number' ">{{ project[column.field] }}</ng-container>
             <ng-container *ngIf="column.type === 'boolean'">{{ project[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
             <ng-container *ngIf="column.type === 'published'">

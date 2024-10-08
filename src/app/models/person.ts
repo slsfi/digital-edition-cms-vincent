@@ -18,5 +18,39 @@ export interface Person {
   project_id: number;
   source: string | null;
   translation_id: string | null;
-  type: string;
+  type: PersonType;
 }
+
+export interface PersonPayload {
+  type: PersonType;
+  description: string;
+  first_name: string | null;
+  last_name: string | null;
+  preposition: string | null;
+  full_name: string | null;
+  legacy_id: string;
+  date_born: string | null;
+  date_deceased: string | null;
+}
+
+enum PersonType {
+  AUTHOR = 'Author',
+  BRÖDERNA = 'bröderna',
+  MYTOLOGISKA_PERSONER = 'mytologiska personer',
+  HISTORISKA_PERSONER = 'historiska personer',
+  FAMILJ = 'familj',
+  FIKTIVA_PERSONER = 'fiktiva personer',
+  PERSON = 'person',
+  PLAYMAN = 'playman'
+}
+
+export const personTypeOptions = [
+  { label: 'Author', value: PersonType.AUTHOR },
+  { label: 'Bröderna', value: PersonType.BRÖDERNA },
+  { label: 'Mytologiska personer', value: PersonType.MYTOLOGISKA_PERSONER },
+  { label: 'Historiska personer', value: PersonType.HISTORISKA_PERSONER },
+  { label: 'Familj', value: PersonType.FAMILJ },
+  { label: 'Fiktiva personer', value: PersonType.FIKTIVA_PERSONER },
+  { label: 'Person', value: PersonType.PERSON },
+  { label: 'Playman', value: PersonType.PLAYMAN }
+];
