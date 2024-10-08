@@ -74,7 +74,7 @@ export class ProjectsComponent {
 
   editProject(project: Project | null = null) {
     const dialogRef = this.dialog.open(EditProjectComponent, {
-      width: '250px',
+      width: '300px',
       data: project ?? {}
     });
 
