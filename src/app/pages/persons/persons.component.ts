@@ -13,11 +13,12 @@ import { EditPersonComponent } from '../../components/edit-person/edit-person.co
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { NavigationEnd, Router } from '@angular/router';
 import { QueryParamsService } from '../../services/query-params.service';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-persons',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe],
+  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule],
   providers: [DatePipe],
   templateUrl: './persons.component.html',
   styleUrl: './persons.component.scss'
@@ -87,7 +88,7 @@ export class PersonsComponent {
         const queryParams = this.queryParamsService.getQueryParams();
         // Filter projects based on query params
         if (queryParams['full_name']) {
-          subjects = subjects.filter(project => project.full_name?.includes(queryParams['full_name']));
+          subjects = subjects.filter(project => project.full_name?.toLowerCase().includes(queryParams['full_name'].toLowerCase()));
         }
         if (queryParams['legacy_id']) {
           subjects = subjects.filter(project => project.legacy_id === queryParams['legacy_id']);
@@ -96,7 +97,7 @@ export class PersonsComponent {
           subjects = subjects.filter(project => project.id === parseInt(queryParams['id']));
         }
         if (queryParams['alias']) {
-          subjects = subjects.filter(project => project.alias?.includes(queryParams['alias']));
+          subjects = subjects.filter(project => project.alias?.toLowerCase().includes(queryParams['alias'].toLowerCase()));
         }
         return subjects
       })
