@@ -19,6 +19,7 @@ export interface Person {
   source: string | null;
   translation_id: string | null;
   type: PersonType;
+  sortColumn: string;
 }
 
 export interface PersonPayload {

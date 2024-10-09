@@ -5,6 +5,7 @@ export interface Column {
   filterable: boolean;
   editable?: boolean;
   required?: boolean;
+  editOrder?: number;
 }
 
 export type QueryParamType = {

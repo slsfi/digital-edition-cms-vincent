@@ -2,31 +2,50 @@
   <div class="header-row">
     <h1>Index of persons management</h1>
     <div class="actions">
-      <button mat-flat-button (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
+      <ng-container *ngIf="queryParams$ | async as queryParams">
+        <button mat-flat-button [matBadge]="queryParams.length > 0 ? queryParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
+      </ng-container>
       <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
     </div>
-
   </div>
-  @if ((selectedProject$ | async) === null) {
-    <div class="info">
-      <p>Please select a project first.</p>
-    </div>
-  }
-  <ng-container *ngIf="filteredSubjects$ | async as subjects">
-    <!-- <ng-container *ngFor="let subject of subjects">
-      <div class="row">{{subject.full_name}}</div>
-    </ng-container> -->
 
+  <ng-container *ngIf="selectedProject$ | async as selectedProject">
+    @if (selectedProject === null) {
+      <div class="info">
+        <p>Please select a project first.</p>
+      </div>
+    }
+  </ng-container>
+
+  <ng-container *ngIf="filteredSubjects$ | async as subjects">
+    <div class="header-row">
+      <div class="active-filters">
+        <span>Selected filters:</span>
+        <ng-container *ngIf="queryParams$ | async as queryParams">
+          <mat-chip-set aria-label="active filters">
+            <ng-container *ngFor="let filter of queryParams">
+              <mat-chip>{{ filter.header }}: {{ filter.value }}</mat-chip>
+            </ng-container>
+          </mat-chip-set>
+        </ng-container>
+      </div>
+      <div>{{ subjects.length }} / {{ allSubjectsLength }} </div>
+    </div>
     <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
       <table class="mat-mdc-table">
         <thead>
           <tr>
+            <th class="index">#</th>
             <ng-container *ngFor="let column of columnsData">
               <th>{{ column.header }}</th>
             </ng-container>
           </tr>
         </thead>
-        <tr *cdkVirtualFor="let person of subjects">
+        <tr *ngIf="!subjects.length">
+          <td [attr.colspan]="columnsData.length">No data</td>
+        </tr>
+        <tr *cdkVirtualFor="let person of subjects; let i = index;">
+          <td class="index">{{ i + 1 }}</td>
           <ng-container *ngFor="let column of columnsData">
             <td>
               <ng-container *ngIf="column.type === 'date'">{{ person[column.field] | customDate: 'd.M.yyyy' }}</ng-container>
@@ -42,29 +61,8 @@
               </ng-container>
             </td>
           </ng-container>
+        </tr>
       </table>
-      <!-- <table mat-table [dataSource]="subjects">
-        <ng-container *ngFor="let column of columnsData">
-          <ng-container [matColumnDef]="column.field">
-            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-            <td mat-cell *matCellDef="let person">
-              <ng-container *ngIf="column.type === 'date'">{{ person[column.field] | customDate: 'd.M.yyyy' }}</ng-container>
-              <ng-container *ngIf="column.type === 'string' || column.type === 'number' ">{{ person[column.field] }}</ng-container>
-              <ng-container *ngIf="column.type === 'boolean'">{{ person[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
-              <ng-container *ngIf="column.type === 'published'">
-                <ng-container *ngIf="person[column.field] === 0">Not published</ng-container>
-                <ng-container *ngIf="person[column.field] === 1">Internally</ng-container>
-                <ng-container *ngIf="person[column.field] === 2">Externally</ng-container>
-              </ng-container>
-              <ng-container *ngIf="column.type === 'action'">
-                <button mat-icon-button (click)="edit(person)"><mat-icon>edit</mat-icon></button>
-              </ng-container>
-            </td>
-          </ng-container>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table> -->
     </cdk-virtual-scroll-viewport>
   </ng-container>
 </div>

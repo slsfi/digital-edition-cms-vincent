@@ -1,5 +1,5 @@
 .viewport {
-  height: calc(100vh - 300px);
+  height: calc(100vh - 360px);
 }
 
 table {
@@ -20,4 +20,20 @@ table {
     height: 52px;
     border-top: 1px solid #e0e0e0;
   }
+}
+
+.active-filters {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+::ng-deep .mat-badge-content {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.index {
+  color: #c4c4c4;
 }
