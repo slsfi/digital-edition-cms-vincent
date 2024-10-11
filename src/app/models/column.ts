@@ -2,7 +2,7 @@ export interface Column {
   field: string;
   header: string;
   type: string;
-  filterable: boolean;
+  filterable?: boolean;
   editable?: boolean;
   required?: boolean;
   editOrder?: number;

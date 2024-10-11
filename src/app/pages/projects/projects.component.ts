@@ -39,6 +39,10 @@ export class ProjectsComponent {
   url$ = new Observable<string>();
 
   constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService) {
+
+  }
+
+  ngAfterViewInit() {
     this.projects$ = this.loader$.asObservable().pipe(
       startWith(null),
       switchMap(() => this.projectService.getProjects()),
@@ -69,8 +73,8 @@ export class ProjectsComponent {
         return projects;
       })
     );
-  }
 
+  }
 
   editProject(project: Project | null = null) {
     const dialogRef = this.dialog.open(EditProjectComponent, {

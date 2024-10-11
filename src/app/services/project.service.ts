@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { BehaviorSubject, filter, map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload } from '../models/person';
-import { Publication } from '../models/publication';
+import { ManuscriptResponse, PublicationCollection, PublicationComment, ReadingText, Version } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
@@ -61,7 +61,7 @@ export class ProjectService {
     ));
   }
 
-  getPublications(): Observable<Publication[]> {
+  getPublicationCollections(): Observable<PublicationCollection[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -69,6 +69,66 @@ export class ProjectService {
         return this.apiService.get(url);
       }
     ));
+  }
+
+  getPublications(collectionId: string) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/`;
+        return this.apiService.get(url);
+      }
+    ));
+  }
+
+  getReadingTextForPublication(collectionId: string, publicationId: string): Observable<ReadingText> {
+    return this.selectedProject$.pipe(
+      filter(project => {
+        return !!project
+      }),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/est`;
+        return this.apiService.get(url);
+      }),
+      catchError(() => of())
+    );
+  }
+
+  getCommentForPublication(collectionId: string, publicationId: string): Observable<PublicationComment[]> {
+    // /<project>/text/<collection_id>/<publication_id>/com
+    // /<project>/publication/<publication_id>/comments/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
+        return this.apiService.get(url);
+      }),
+      catchError(() => of())
+    );
+  }
+
+  getVersionsForPublication(collectionId: string, publicationId: string): Observable<Version[]> {
+      // /<project>/publication/<publication_id>/versions/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/`;
+        return this.apiService.get(url);
+      }),
+      catchError(() => of([]))
+    );
+  }
+
+  getManuscriptsForPublication(collectionId: string, publicationId: string): Observable<ManuscriptResponse> {
+    // <project>/text/<collection_id>/<publication_id>/ms/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/ms/`;
+        return this.apiService.get(url);
+      }),
+      catchError(() => of())
+    );
   }
 
   getSubjects(): Observable<Person[]> {

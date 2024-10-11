@@ -9,12 +9,8 @@
     </div>
   </div>
 
-  <ng-container *ngIf="selectedProject$ | async as selectedProject">
-    @if (selectedProject === null) {
-      <div class="info">
-        <p>Please select a project first.</p>
-      </div>
-    }
+  <ng-container *ngIf="(selectedProject$ | async) == null">
+    <p>Please select a project</p>
   </ng-container>
 
   <ng-container *ngIf="filteredSubjects$ | async as subjects">
