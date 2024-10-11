@@ -9,6 +9,7 @@ export interface PublicationCollection {
   id: number;
   legacy_id: string;
   name: string;
+  name_translation_id: string | null;
   project_id: number;
   publication_collection_introduction_id: number;
   publication_collection_title_id: number;
@@ -16,11 +17,17 @@ export interface PublicationCollection {
   title: string;
 }
 
+export interface PublicationCollectionRequest {
+  name: string;
+  published: Published;
+  deleted?: Deleted;
+}
+
 export interface Publication {
   date_created: string;
   date_modified: string | null;
   date_published_externally: string | null;
-  deleted: number;
+  deleted: Deleted;
   genre: string | null;
   id: number;
   language: string | null;
@@ -45,7 +52,7 @@ export interface PublicationComment {
   date_created: string;
   date_modified: string | null;
   date_published_externally: string | null;
-  deleted: number;
+  deleted: Deleted;
   id: number;
   legacy_id: string;
   original_filename: string;
@@ -57,7 +64,7 @@ export interface Version {
   date_created: string;
   date_modified: string | null;
   date_published_externally: string | null;
-  deleted: number;
+  deleted: Deleted;
   id: number;
   legacy_id: string;
   name: string;
@@ -89,4 +96,9 @@ export enum Published {
   NotPublished = 0,
   PublishedInternally = 1,
   PublishedExternally = 2,
+}
+
+export enum Deleted {
+  NotDeleted = 0,
+  Deleted = 1,
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload } from '../models/person';
-import { ManuscriptResponse, PublicationCollection, PublicationComment, ReadingText, Version } from '../models/publication';
+import { ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, ReadingText, Version } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
@@ -67,6 +67,26 @@ export class ProjectService {
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
         return this.apiService.get(url);
+      }
+    ));
+  }
+
+  editPublicationCollection(collectionId: number, data: PublicationCollectionRequest) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/edit/`;
+        return this.apiService.post(url, data);
+      }
+    ));
+  }
+
+  addPublicationCollection(data: PublicationCollectionRequest) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/new/`;
+        return this.apiService.post(url, data);
       }
     ));
   }

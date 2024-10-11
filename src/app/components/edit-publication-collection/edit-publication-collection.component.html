@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>{{ data.collection.id ? 'Edit' : 'Add' }} Publication collection</h2>
+<mat-dialog-content>
+  <form *ngIf="data.columns.length" [formGroup]="form" id="collection-form" (ngSubmit)="onSubmit($event)">
+    <ng-container *ngFor="let column of data.columns">
+      <div>
+        <mat-form-field>
+          <mat-label>{{ column.header }}</mat-label>
+          <ng-container *ngIf="column.type === 'boolean'">
+            <mat-select [formControlName]="column.field">
+              <mat-option>Any</mat-option>
+              <mat-option [value]="0">No</mat-option>
+              <mat-option [value]="1">Yes</mat-option>
+            </mat-select>
+          </ng-container>
+          <ng-container *ngIf="column.type === 'published'">
+            <mat-select [formControlName]="column.field">
+              <mat-option>Any</mat-option>
+              <mat-option [value]="0">Not published</mat-option>
+              <mat-option [value]="1">Internally</mat-option>
+              <mat-option [value]="2">Externally</mat-option>
+            </mat-select>
+          </ng-container>
+          <ng-container *ngIf="column.type === 'date'">
+            <input matInput [placeholder]="column.header" [formControlName]="column.field" [matDatepicker]="picker"/>
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </ng-container>
+          <ng-container *ngIf="column.type === 'textarea'">
+            <textarea
+              matInput
+              [placeholder]="column.header"
+              [formControlName]="column.field"
+              cdkTextareaAutosize
+              #autosize="cdkTextareaAutosize"
+              cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="7"
+              ></textarea>
+          </ng-container>
+          <ng-container *ngIf="column.type === 'string' || column.type === 'number'">
+            <input matInput [placeholder]="column.header" [formControlName]="column.field" />
+          </ng-container>
+        </mat-form-field>
+      </div>
+    </ng-container>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button *ngIf="form" mat-button [mat-dialog-close]="true" type="submit" [disabled]="!form.valid"
+    form="collection-form">{{ data.collection.id ? 'Edit' : 'Add' }}</button>
+</mat-dialog-actions>

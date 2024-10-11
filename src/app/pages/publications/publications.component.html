@@ -1,4 +1,14 @@
+
 <h1>Text collection management</h1>
+
+<div class="header-row">
+  <h2>Publication collections</h2>
+  <div class="actions">
+    <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
+  </div>
+</div>
+
+
 <ng-container *ngIf="(selectedProject$ | async) == null">
   <p>Please select a project</p>
 </ng-container>
@@ -16,7 +26,7 @@
               <a [routerLink]="['/publication-collections', publicationCollection.id]">{{ publicationCollection[column.field] }}</a>
             </ng-container>
             <ng-container *ngIf="column.type === 'date'">{{ publicationCollection[column.field] | customDate }}</ng-container>
-            <ng-container *ngIf="column.field === 'title'">{{ publicationCollection[column.field] }}</ng-container>
+            <ng-container *ngIf="column.field === 'title' || column.field == 'name'">{{ publicationCollection[column.field] }}</ng-container>
             <ng-container *ngIf="column.type === 'boolean'">{{ publicationCollection[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
             <ng-container *ngIf="column.type === 'published'">
               <ng-container *ngIf="publicationCollection[column.field] === 0">Not published</ng-container>
@@ -24,7 +34,7 @@
               <ng-container *ngIf="publicationCollection[column.field] === 2">Externally</ng-container>
             </ng-container>
             <ng-container *ngIf="column.type === 'action'">
-              <button mat-icon-button><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button (click)="editPublicationCollection(publicationCollection)"><mat-icon>edit</mat-icon></button>
             </ng-container>
           </td>
         </ng-container>

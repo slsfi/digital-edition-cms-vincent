@@ -16,3 +16,9 @@
 td.selected {
   background-color: #d5d4d4;
 }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
