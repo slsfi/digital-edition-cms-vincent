@@ -27,41 +27,75 @@
       </div>
       <div>{{ subjects.length }} / {{ allSubjectsLength }} </div>
     </div>
-    <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
-      <table class="mat-mdc-table">
-        <thead>
-          <tr>
-            <th class="index">#</th>
-            <ng-container *ngFor="let column of columnsData">
-              <th>{{ column.header }}</th>
-            </ng-container>
-          </tr>
-        </thead>
-        <tr *ngIf="!subjects.length">
-          <td [attr.colspan]="columnsData.length">No data</td>
-        </tr>
-        <tr *cdkVirtualFor="let person of subjects; let i = index;">
-          <td class="index">{{ i + 1 }}</td>
-          <ng-container *ngFor="let column of columnsData">
-            <td>
-              <ng-container *ngIf="column.type === 'date'">{{ person[column.field] | customDate: 'd.M.yyyy' }}</ng-container>
-              <ng-container *ngIf="column.type === 'string' || column.type === 'number' ">{{ person[column.field] }}</ng-container>
-              <ng-container *ngIf="column.type === 'boolean'">{{ person[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
+    <ng-container *ngIf="subjects.length < 1000 else virtualScroll">
+      <table mat-table [dataSource]="subjects">
+        <ng-container *ngFor="let column of columnsData">
+          <ng-container [matColumnDef]="column.field">
+            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+            <td mat-cell *matCellDef="let subject">
+              <ng-container *ngIf="column.type === 'date'">{{ subject[column.field] | customDate: 'd.M.yyyy' }}</ng-container>
+              <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'textarea'">{{ subject[column.field] }}</ng-container>
+              <ng-container *ngIf="column.type === 'boolean'">{{ subject[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
               <ng-container *ngIf="column.type === 'published'">
-                <ng-container *ngIf="person[column.field] === 0">Not published</ng-container>
-                <ng-container *ngIf="person[column.field] === 1">Internally</ng-container>
-                <ng-container *ngIf="person[column.field] === 2">Externally</ng-container>
+                <ng-container *ngIf="subject[column.field] === 0">Not published</ng-container>
+                <ng-container *ngIf="subject[column.field] === 1">Internally</ng-container>
+                <ng-container *ngIf="subject[column.field] === 2">Externally</ng-container>
               </ng-container>
               <ng-container *ngIf="column.type === 'action'">
-                <button mat-icon-button (click)="edit(person)"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="edit(subject)"><mat-icon>edit</mat-icon></button>
               </ng-container>
             </td>
           </ng-container>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <!-- No content -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="columnsData.length">No data</td>
         </tr>
       </table>
-    </cdk-virtual-scroll-viewport>
+
+    </ng-container>
+
+    <ng-template #virtualScroll>
+      <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
+        <table class="mat-mdc-table">
+          <thead>
+            <tr>
+              <th class="index">#</th>
+              <ng-container *ngFor="let column of columnsData">
+                <th>{{ column.header }}</th>
+              </ng-container>
+            </tr>
+          </thead>
+          <tr *ngIf="!subjects.length">
+            <td [attr.colspan]="columnsData.length">No data</td>
+          </tr>
+          <tr *cdkVirtualFor="let person of subjects; let i = index;">
+            <td class="index">{{ i + 1 }}</td>
+            <ng-container *ngFor="let column of columnsData">
+              <td>
+                <ng-container *ngIf="column.type === 'date'">{{ person[column.field] | customDate: 'd.M.yyyy' }}</ng-container>
+                <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'textarea'">{{ person[column.field] }}</ng-container>
+                <ng-container *ngIf="column.type === 'boolean'">{{ person[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
+                <ng-container *ngIf="column.type === 'published'">
+                  <ng-container *ngIf="person[column.field] === 0">Not published</ng-container>
+                  <ng-container *ngIf="person[column.field] === 1">Internally</ng-container>
+                  <ng-container *ngIf="person[column.field] === 2">Externally</ng-container>
+                </ng-container>
+                <ng-container *ngIf="column.type === 'action'">
+                  <button mat-icon-button (click)="edit(person)"><mat-icon>edit</mat-icon></button>
+                </ng-container>
+              </td>
+            </ng-container>
+          </tr>
+        </table>
+      </cdk-virtual-scroll-viewport>
+    </ng-template>
   </ng-container>
 </div>
+
+
 
 <ng-template #loading>
   <ng-container *ngIf="selectedProject$ | async as selectedProject">

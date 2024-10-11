@@ -42,30 +42,30 @@ export class PersonsComponent {
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
-    { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'number', editable: true, editOrder: 5 },
+    { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'string', editable: true, editOrder: 5 },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true, editOrder: 1 },
-    { field: 'alias', header: 'Alias', filterable: true, type: 'string', editable: false },
-    { field: 'date_born', header: 'Date Born', filterable: false, type: 'date', editable: true, editOrder: 4 },
-    { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'date', editable: true, editOrder: 4 },
+    { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, required: true, editOrder: 2 },
+    { field: 'date_born', header: 'Date Born', filterable: false, type: 'date', editable: true, editOrder: 3 },
+    { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'date', editable: true, editOrder: 3 },
     { field: 'action', header: 'Actions', filterable: false, type: 'action' },
   ]
 
   allColumns: Column[] = [
     ...this.columnsData,
-    { field: 'date_created', header: 'Date created', filterable: false, type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date modified', filterable: false, type: 'date', editable: false },
-    { field: 'deleted', header: 'Deleted', filterable: true, type: 'boolean', editable: false },
-    { field: 'description', header: 'Description', filterable: true, type: 'textarea', editable: true, required: true, editOrder: 2 },
-    { field: 'first_name', header: 'First name', filterable: true, type: 'string', editable: true, editOrder: 0 },
-    { field: 'last_name', header: 'Last name', filterable: true, type: 'string', editable: true, editOrder: 0 },
-    { field: 'occupation', header: 'Occupation', filterable: true, type: 'string', editable: false },
-    { field: 'place_of_birth', header: 'Place of birth', filterable: true, type: 'string', editable: false },
-    { field: 'preposition', header: 'Preposition', filterable: true, type: 'string', editable: true, editOrder: 1  },
-    { field: 'previous_last_name', header: 'Previous last name', filterable: true, type: 'string', editable: false },
-    { field: 'project_id', header: 'Project ID', filterable: true, type: 'number', editable: false },
-    { field: 'source', header: 'Source', filterable: true, type: 'string', editable: false },
-    { field: 'translation_id', header: 'Translation ID', filterable: true, type: 'string', editable: false },
-    { field: 'type', header: 'Type', filterable: true, type: 'type', editable: true, required: true, editOrder: 3 },
+    { field: 'date_created', header: 'Date created', filterable: false, type: 'string', editable: false },
+    { field: 'date_modified', header: 'Date modified', filterable: false, type: 'string', editable: false },
+    { field: 'deleted', header: 'Deleted', filterable: false, type: 'boolean', editable: false },
+    { field: 'alias', header: 'Alias', filterable: false, type: 'string', editable: false },
+    { field: 'first_name', header: 'First name', filterable: false, type: 'string', editable: true, editOrder: 0 },
+    { field: 'last_name', header: 'Last name', filterable: false, type: 'string', editable: true, editOrder: 0 },
+    { field: 'occupation', header: 'Occupation', filterable: false, type: 'string', editable: false },
+    { field: 'place_of_birth', header: 'Place of birth', filterable: false, type: 'string', editable: false },
+    { field: 'preposition', header: 'Preposition', filterable: false, type: 'string', editable: true, editOrder: 0  },
+    { field: 'previous_last_name', header: 'Previous last name', filterable: false, type: 'string', editable: false },
+    { field: 'project_id', header: 'Project ID', filterable: false, type: 'number', editable: false },
+    { field: 'source', header: 'Source', filterable: false, type: 'string', editable: false },
+    { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
+    { field: 'type', header: 'Type', filterable: true, type: 'type', editable: true, required: true, editOrder: 4 },
   ]
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);
@@ -103,8 +103,6 @@ export class PersonsComponent {
       )),
     )
 
-
-
     this.filteredSubjects$ = combineLatest([this.subjects$, this.url$]).pipe(
       map(([subjects, url]) => {
         this.allSubjectsLength = subjects.length;
@@ -119,8 +117,8 @@ export class PersonsComponent {
         if (queryParams['id']) {
           subjects = subjects.filter(project => project.id === parseInt(queryParams['id']));
         }
-        if (queryParams['alias']) {
-          subjects = subjects.filter(project => project.alias?.toLowerCase().includes(queryParams['alias'].toLowerCase()));
+        if (queryParams['type']) {
+          subjects = subjects.filter(project => project.type === queryParams['type']);
         }
         return subjects;
       })
@@ -147,7 +145,7 @@ export class PersonsComponent {
   }
 
   filterPersons() {
-    const columns = this.columnsData.filter(column => column.filterable);
+    const columns = this.allColumns.filter(column => column.filterable);
     const dialogRef = this.dialog.open(TableFiltersComponent, {
       width: '250px',
       data: columns

@@ -23,6 +23,12 @@
           <ng-container *ngIf="field.type === 'string' || field.type === 'number'">
             <input matInput [placeholder]="field.header" [formControlName]="field.field" />
           </ng-container>
+          <ng-container *ngIf="field.type === 'type'">
+            <mat-select [formControlName]="field.field">
+              <mat-option>Any</mat-option>
+              <mat-option *ngFor="let type of personTypes" [value]="type.value">{{ type.label }}</mat-option>
+            </mat-select>
+          </ng-container>
         </mat-form-field>
       </div>
     </ng-container>

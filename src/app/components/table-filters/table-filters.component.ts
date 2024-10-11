@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { personTypeOptions } from '../../models/person';
 
 @Component({
   selector: 'app-table-filters',
@@ -23,7 +24,10 @@ export class TableFiltersComponent {
   form!: FormGroup;
   readonly data = inject<Column[]>(MAT_DIALOG_DATA);
 
+  personTypes = personTypeOptions;
+
   ngOnInit() {
+    console.log(this.data);
     this.form = new FormGroup({});
     const queryParams = this.queryParamsService.getQueryParams();
     this.data.forEach((column) => {
