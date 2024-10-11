@@ -46,7 +46,6 @@ export class EditPublicationComponent {
           value = (this.getValue(column) as string).replace('XX-XX', '01-01');
         }
       }
-      console.log({ field: column.field, value })
       this.form.addControl(column.field, new FormControl({ value, disabled: !column.editable }));
     });
   }

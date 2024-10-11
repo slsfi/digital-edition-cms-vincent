@@ -7,8 +7,6 @@
 
 <div class="publications">
   <div class="header">
-    <h2>{{ selectedProject$ | async }}</h2>
-
     <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
       <button mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></button>
       <h2>{{ selectedPublicationCollection.name }} </h2>
