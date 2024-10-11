@@ -1,21 +1,29 @@
 
 <h1>Text collection management</h1>
 
-<div class="header-row">
-  <h2>Publication collections</h2>
-  <div class="actions">
-    <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
-  </div>
-</div>
-
-
 <ng-container *ngIf="(selectedProject$ | async) == null">
   <p>Please select a project</p>
 </ng-container>
 
+<div class="publications">
+  <div class="header">
+    <h2>{{ selectedProject$ | async }}</h2>
+
+    <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
+      <button mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></button>
+      <h2>{{ selectedPublicationCollection.name }} </h2>
+    </ng-container>
+  </div>
+</div>
+
 <ng-template #publicationCollections>
   <ng-container *ngIf="publicationCollections$ | async as publicationCollections else loading">
-    <div>publication collections: {{publicationCollections.length}}</div>
+    <div class="header-row">
+      <h3>Publication collections ({{publicationCollections.length}})</h3>
+      <div class="actions">
+        <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
+      </div>
+    </div>
     <div></div>
     <table mat-table [dataSource]="publicationCollections">
       <ng-container *ngFor="let column of publicationCollectionColumnsData">
@@ -53,47 +61,51 @@
 
 <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">
   <div class="publications">
-    <div class="header">
-      <button mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></button>
-    </div>
-
     <div class="content">
       <div>
         <ng-container *ngIf="publications$ | async as publications else loading">
-            <div>publications: {{ publications.length }}</div>
-            <table mat-table [dataSource]="publications">
-              <ng-container *ngFor="let column of publicationColumnsData">
-                <ng-container [matColumnDef]="column.field">
-                  <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-                  <td [ngClass]="{ 'selected': publication.id == (publicationId$ | async) }" mat-cell *matCellDef="let publication">
-                    <ng-container *ngIf="column.field === 'id'">
-                      <a [routerLink]="['/publication-collections/', publicationCollectionId, 'publication', publication.id]">{{ publication[column.field] }}</a>
-                    </ng-container>
+            <div class="header-row">
+              <h3>Publications ({{publications.length}})</h3>
+              <div class="actions">
+                <button mat-flat-button (click)="editPublication()"><mat-icon>add</mat-icon>Add</button>
+              </div>
+            </div>
+          <table mat-table [dataSource]="publications">
+            <ng-container *ngFor="let column of publicationColumnsData">
+              <ng-container [matColumnDef]="column.field">
+                <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+                <td [ngClass]="{ 'selected': publication.id == (publicationId$ | async) }" mat-cell *matCellDef="let publication">
+                  <ng-container *ngIf="column.field === 'id'">
+                    <a [routerLink]="['/publication-collections/', publicationCollectionId, 'publication', publication.id]">{{ publication[column.field] }}</a>
+                  </ng-container>
 
-                    <ng-container *ngIf="column.type === 'date'">{{ publication[column.field] | customDate }}</ng-container>
-                    <ng-container *ngIf="column.field === 'name'">{{ publication[column.field] }}</ng-container>
-                    <ng-container *ngIf="column.type === 'boolean'">{{ publication[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
-                    <ng-container *ngIf="column.type === 'published'">
-                      <ng-container *ngIf="publication[column.field] === 0">Not published</ng-container>
-                      <ng-container *ngIf="publication[column.field] === 1">Internally</ng-container>
-                      <ng-container *ngIf="publication[column.field] === 2">Externally</ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="column.type === 'action'">
-                      <button mat-icon-button><mat-icon>edit</mat-icon></button>
-                    </ng-container>
-                  </td>
-                </ng-container>
+                  <ng-container *ngIf="column.type === 'date'">{{ publication[column.field] | customDate }}</ng-container>
+                  <ng-container *ngIf="column.field === 'name'">{{ publication[column.field] }}</ng-container>
+                  <ng-container *ngIf="column.type === 'boolean'">{{ publication[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
+                  <ng-container *ngIf="column.type === 'published'">
+                    <ng-container *ngIf="publication[column.field] === 0">Not published</ng-container>
+                    <ng-container *ngIf="publication[column.field] === 1">Internally</ng-container>
+                    <ng-container *ngIf="publication[column.field] === 2">Externally</ng-container>
+                  </ng-container>
+                  <ng-container *ngIf="column.type === 'action'">
+                    <button mat-icon-button (click)="editPublication(publication, publicationCollectionId)"><mat-icon>edit</mat-icon></button>
+                  </ng-container>
+                </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="publicationDisplayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: publicationDisplayedColumns;"></tr>
-            </table>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="publicationDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: publicationDisplayedColumns;"></tr>
+          </table>
         </ng-container>
       </div>
       <div>
+        <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
+          <h3>{{ selectedPublication.name }} </h3>
+        </ng-container>
         <ng-container *ngIf="publicationId$ | async as publicationId">
           <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
             <ng-container *ngIf="readingText$ | async as text else loading">
-              <h3>Reading text: </h3>
+              <h4>Reading text</h4>
               <ng-container *ngIf="text.id">
                 <div>id: {{ text.id }}</div>
                 <div>language: {{ text.language }}</div>
@@ -103,15 +115,15 @@
               </ng-container>
             </ng-container>
             <ng-container *ngIf="comments$ | async as comments else loading">
-              <h3>Comments: </h3>
-              <div>comments: {{ comments.length }}</div>
+              <h4>Comments</h4>
+              <div>count: {{ comments.length }}</div>
               <ng-container *ngFor="let comment of comments">
                 <div>id: {{ comment.id }}</div>
                 <div>original_filename: {{ comment.original_filename }}</div>
               </ng-container>
             </ng-container>
             <ng-container *ngIf="versions$ | async as versions else loading">
-              <h3>Versions: </h3>
+              <h4>Versions</h4>
               <div *ngIf="versions.length === 0">No versions</div>
               <ng-container *ngFor="let version of versions">
                 <div>id: {{ version.id }}</div>
@@ -120,7 +132,7 @@
               </ng-container>
             </ng-container>
             <ng-container *ngIf="manuscripts$ | async as manuscripts else loading">
-              <h3>manuscripts: </h3>
+              <h4>manuscripts</h4>
               <div *ngIf="!manuscripts.manuscripts || manuscripts.manuscripts?.length == 0">No manuscripts</div>
               <ng-container *ngFor="let manuscript of manuscripts.manuscripts">
                 <div>id: {{ manuscript.id }}</div>

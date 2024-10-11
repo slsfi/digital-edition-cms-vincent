@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap, tap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { ManuscriptResponse, Publication, PublicationCollection, PublicationComment, ReadingText, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -12,6 +12,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditPublicationCollectionComponent } from '../../components/edit-publication-collection/edit-publication-collection.component';
 import { MatDialog } from '@angular/material/dialog';
+import { EditPublicationComponent } from '../../components/edit-publication/edit-publication.component';
 
 
 @Component({
@@ -49,10 +50,27 @@ export class PublicationsComponent {
 
 
   publicationColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number' },
-    { field: 'name', header: 'Name', type: 'string' },
-    { field: 'published', header: 'Published', type: 'published' },
-    { field: 'actions', header: 'Actions', type: 'action' },
+    { field: 'id', header: 'ID', type: 'number', editable: false },
+    { field: 'name', header: 'Name', type: 'string', editable: true },
+    { field: 'published', header: 'Published', type: 'published', editable: true },
+    { field: 'actions', header: 'Actions', type: 'action', editable: false },
+  ];
+  allPublicationColumnsData: Column[] = [
+    ...this.publicationColumnsData,
+    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
+    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
+    { field: 'date_published_externally', header: 'Date Published Externally', type: 'date', editable: true },
+    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
+    { field: 'genre', header: 'Genre', type: 'string', editable: true },
+    { field: 'language', header: 'Language', type: 'string', editable: true },
+    { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: true },
+    { field: 'original_filename', header: 'Original Filename', type: 'string', editable: true },
+    { field: 'original_publication_date', header: 'Original Publication Date', type: 'date', editable: true },
+    { field: 'publication_collection_id', header: 'Publication Collection ID', type: 'number', editable: false },
+    { field: 'publication_comment_id', header: 'Publication Comment ID', type: 'number', editable: true },
+    { field: 'publication_group_id', header: 'Publication Group ID', type: 'number', editable: true },
+    { field: 'published_by', header: 'Published By', type: 'string', editable: true },
+    { field: 'zts_id', header: 'ZTS ID', type: 'string', editable: false },
   ];
   publicationDisplayedColumns: string[] = this.publicationColumnsData.map(column => column.field);
 
@@ -61,9 +79,11 @@ export class PublicationsComponent {
 
   publicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
+  selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
   publicationId$: Observable<string | null> = new Observable<string | null>();
+  selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
 
   readingText$: Observable<ReadingText> = new Observable<ReadingText>();
   comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
@@ -91,9 +111,19 @@ export class PublicationsComponent {
           .pipe(map(([project, publications]) => publications)))
     );
 
+    this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
+      filter(([publications, collectionId]) => collectionId != null),
+      map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
+    );
+
     this.publications$ = this.publicationCollectionId$.pipe(
       filter((collectionId) => collectionId != null),
       switchMap(collectionId => this.projectService.getPublications(collectionId))
+    );
+
+    this.selectedPublication$ = combineLatest([this.publications$, this.publicationId$]).pipe(
+      filter(([publications, publicationId]) => publicationId != null),
+      map(([publications, publicationId]) => publications.find(publication => publication.id === parseInt(publicationId as string)) ?? null)
     );
 
     this.readingText$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
@@ -137,5 +167,27 @@ export class PublicationsComponent {
       }
     });
   }
+
+  editPublication(publication: Publication | null = null, collectionId: string = '') {
+    console.log('Edit publication', publication);
+
+    const dialogRef = this.dialog.open(EditPublicationComponent, {
+      width: '400px',
+      data: {
+        colectionId: collectionId,
+        publication: publication ?? {},
+        columns: this.allPublicationColumnsData
+          .filter(column => column.type !== 'action')
+          .sort((a: any, b: any) => b.editable - a.editable)
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        // force publications to reload
+      }
+    });
+  }
+
 
 }

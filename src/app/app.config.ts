@@ -11,7 +11,7 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withComponentInputBinding(), withRouterConfig({ paramsInheritanceStrategy: 'always', onSameUrlNavigation: 'reload' })),
+    provideRouter(routes, withComponentInputBinding(), withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideAnimationsAsync('animations'),
     provideHttpClient(
       withInterceptors([authInterceptor]),

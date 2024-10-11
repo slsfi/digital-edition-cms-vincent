@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload } from '../models/person';
-import { ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, ReadingText, Version } from '../models/publication';
+import { ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationRequest, ReadingText, Version } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
@@ -101,6 +101,28 @@ export class ProjectService {
     ));
   }
 
+  editPublication(publicationId: number, data: PublicationRequest) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/edit/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+  }
+
+  addPublication(collectionId: number,data: PublicationRequest) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/new/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+  }
+
   getReadingTextForPublication(collectionId: string, publicationId: string): Observable<ReadingText> {
     return this.selectedProject$.pipe(
       filter(project => {
@@ -110,10 +132,7 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/est`;
         return this.apiService.get(url);
       }),
-      catchError(() => {
-        console.log('Error getting reading text');
-        return of({} as ReadingText);
-      })
+      catchError(() => of({} as ReadingText))
     );
   }
 
@@ -138,10 +157,7 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/`;
         return this.apiService.get(url);
       }),
-      catchError(() => {
-        console.log('Error getting versions');
-        return of([])
-      })
+      catchError(() => of([]))
     );
   }
 
@@ -153,10 +169,7 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/ms/`;
         return this.apiService.get(url);
       }),
-      catchError(() => {
-        console.log('Error getting manuscripts');
-        return of({} as ManuscriptResponse);
-      })
+      catchError(() => of({} as ManuscriptResponse))
     );
   }
 

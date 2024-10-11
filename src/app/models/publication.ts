@@ -42,6 +42,17 @@ export interface Publication {
   published_by: string | null;
   zts_id: string | null;
 }
+export interface PublicationRequest {
+  publication_collection_id: number;
+  publication_comment_id: number;
+  name: string;
+  original_filename: string;
+  original_publication_date: string;
+  published: Published;
+  language: string;
+  genre: string;
+  deleted: Deleted;
+}
 
 export interface ReadingText {
   id: number;
