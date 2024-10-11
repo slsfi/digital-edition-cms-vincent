@@ -13,19 +13,19 @@
     <div *ngIf="environment?.value === ' '" class="row">
       <mat-form-field>
         <mat-label>Custom Environment</mat-label>
-        <input matInput placeholder="Custom Environment" formControlName="customEnvironment" />
+        <input matInput formControlName="customEnvironment" />
       </mat-form-field>
     </div>
     <div class="row">
       <mat-form-field>
         <mat-label>Email</mat-label>
-        <input matInput placeholder="Email" formControlName="email" autocomplete="email" />
+        <input matInput formControlName="email" autocomplete="email" />
       </mat-form-field>
     </div>
     <div class="row">
       <mat-form-field>
         <mat-label>Password</mat-label>
-        <input matInput placeholder="Password" formControlName="password" autocomplete="current-password"
+        <input matInput formControlName="password" autocomplete="current-password"
           [type]="hidePassword() ? 'password' : 'text'" />
         <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" type="button">
           <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>

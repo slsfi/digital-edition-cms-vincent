@@ -34,7 +34,6 @@
             <ng-container *ngIf="column.type === 'textarea'">
               <textarea
                 matInput
-                [placeholder]="column.header"
                 [formControlName]="column.field"
                 cdkTextareaAutosize
                 #autosize="cdkTextareaAutosize"
@@ -43,7 +42,7 @@
                 ></textarea>
             </ng-container>
             <ng-container *ngIf="column.type === 'string' || column.type === 'number'">
-              <input matInput [placeholder]="column.header" [formControlName]="column.field" />
+              <input matInput [formControlName]="column.field" />
             </ng-container>
           </mat-form-field>
         </ng-template>

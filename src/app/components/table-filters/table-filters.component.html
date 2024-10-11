@@ -21,7 +21,7 @@
             </mat-select>
           </ng-container>
           <ng-container *ngIf="field.type === 'string' || field.type === 'number'">
-            <input matInput [placeholder]="field.header" [formControlName]="field.field" />
+            <input matInput [formControlName]="field.field" />
           </ng-container>
           <ng-container *ngIf="field.type === 'type'">
             <mat-select [formControlName]="field.field">
