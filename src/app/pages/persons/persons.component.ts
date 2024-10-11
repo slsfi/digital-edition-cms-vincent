@@ -1,3 +1,4 @@
+import { ApiService } from './../../services/api.service';
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
@@ -16,11 +17,12 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-persons',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule, MatChipsModule, MatBadgeModule],
+  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule, MatChipsModule, MatBadgeModule, LoadingSpinnerComponent],
   providers: [DatePipe],
   templateUrl: './persons.component.html',
   styleUrl: './persons.component.scss'
@@ -35,6 +37,8 @@ export class PersonsComponent {
   selectedProject$!: Observable<string | null>;
   queryParams$: Observable<any> = new Observable<any>();
   allSubjectsLength: number = 0;
+
+  loading$: Observable<boolean> = new Observable<boolean>();
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
@@ -66,7 +70,8 @@ export class PersonsComponent {
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService) {
+  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService, private apiService: ApiService) {
+    this.loading$ = this.apiService.loading$;
     this.selectedProject$ = this.projectService.selectedProject$;
     // Listen for URL changes, start with the current URL to ensure the stream has an initial value
     this.url$ = this.router.events.pipe(

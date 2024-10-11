@@ -13,11 +13,12 @@ import { TableFiltersComponent } from '../../components/table-filters/table-filt
 import { Column } from '../../models/column';
 import { QueryParamsService } from '../../services/query-params.service';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe],
+  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent],
   providers: [DatePipe],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss'

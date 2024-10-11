@@ -90,7 +90,10 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/est`;
         return this.apiService.get(url);
       }),
-      catchError(() => of())
+      catchError(() => {
+        console.log('Error getting reading text');
+        return of({} as ReadingText);
+      })
     );
   }
 
@@ -115,7 +118,10 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/`;
         return this.apiService.get(url);
       }),
-      catchError(() => of([]))
+      catchError(() => {
+        console.log('Error getting versions');
+        return of([])
+      })
     );
   }
 
@@ -127,7 +133,10 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/ms/`;
         return this.apiService.get(url);
       }),
-      catchError(() => of())
+      catchError(() => {
+        console.log('Error getting manuscripts');
+        return of({} as ManuscriptResponse);
+      })
     );
   }
 

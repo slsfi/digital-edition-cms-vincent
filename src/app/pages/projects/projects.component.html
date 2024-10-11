@@ -8,7 +8,7 @@
 
   </div>
   <!-- {{ filteredProjects$ | async | json }} -->
-  <ng-container *ngIf="filteredProjects$ | async as projects">
+  <ng-container *ngIf="filteredProjects$ | async as projects else loading">
     <table mat-table [dataSource]="projects">
       <ng-container *ngFor="let column of columnsData">
         <ng-container [matColumnDef]="column.field">
@@ -33,3 +33,7 @@
     </table>
   </ng-container>
 </div>
+
+<ng-template #loading>
+  <loading-spinner></loading-spinner>
+</ng-template>

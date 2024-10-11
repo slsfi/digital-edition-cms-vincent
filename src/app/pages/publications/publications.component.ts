@@ -9,12 +9,13 @@ import { Column } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 
 @Component({
   selector: 'app-publications',
   standalone: true,
-  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink],
+  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
   styleUrl: './publications.component.scss'
@@ -37,7 +38,7 @@ export class PublicationsComponent {
   ];
   publicationDisplayedColumns: string[] = this.publicationColumnsData.map(column => column.field);
 
-
+  loading$: Observable<boolean> = new Observable<boolean>();
   selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
 
   publicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();

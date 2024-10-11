@@ -13,7 +13,7 @@
     <p>Please select a project</p>
   </ng-container>
 
-  <ng-container *ngIf="filteredSubjects$ | async as subjects">
+  <ng-container *ngIf="filteredSubjects$ | async as subjects else loading">
     <div class="header-row">
       <div class="active-filters">
         <span>Selected filters:</span>
@@ -62,3 +62,11 @@
     </cdk-virtual-scroll-viewport>
   </ng-container>
 </div>
+
+<ng-template #loading>
+  <ng-container *ngIf="selectedProject$ | async as selectedProject">
+    <ng-container *ngIf="(loading$ | async) === false">
+      <loading-spinner></loading-spinner>
+      </ng-container>
+  </ng-container>
+</ng-template>
