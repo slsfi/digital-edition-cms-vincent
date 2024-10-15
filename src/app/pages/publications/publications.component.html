@@ -99,14 +99,15 @@
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
           <h3>{{ selectedPublication.name }} </h3>
-          <file-tree></file-tree>
           <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
             <h4>Reading text</h4>
+            <button mat-button (click)="editSelectedFile('text', selectedPublication.original_filename, selectedPublication.id)">Edit</button>
             <div>original_filename: {{ selectedPublication.original_filename }}</div>
             <ng-container *ngIf="comments$ | async as comments else loading">
               <h4>Comments</h4>
               <div>count: {{ comments.length }}</div>
               <ng-container *ngFor="let comment of comments">
+                <button mat-button (click)="editSelectedFile('comment', comment.original_filename, selectedPublication.id)">Edit</button>
                 <div>id: {{ comment.id }}</div>
                 <div>original_filename: {{ comment.original_filename }}</div>
               </ng-container>
@@ -115,6 +116,7 @@
               <h4>Versions</h4>
               <div *ngIf="versions.length === 0">No versions</div>
               <ng-container *ngFor="let version of versions">
+                <button mat-button (click)="editSelectedFile('version', version.original_filename, version.id)">Edit</button>
                 <div>id: {{ version.id }}</div>
                 <div>name: {{ version.name }}</div>
                 <div>original_filename: {{ version.original_filename }}</div>
@@ -124,6 +126,7 @@
               <h4>manuscripts</h4>
               <div *ngIf="manuscripts.length == 0">No manuscripts</div>
               <ng-container *ngFor="let manuscript of manuscripts">
+                <button mat-button (click)="editSelectedFile('manuscript', manuscript.original_filename, manuscript.id)">Edit</button>
                 <div>id: {{ manuscript.id }}</div>
                 <div>name: {{ manuscript.name }}</div>
                 <div>original_filename: {{ manuscript.original_filename }}</div>

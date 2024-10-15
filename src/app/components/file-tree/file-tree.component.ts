@@ -1,11 +1,13 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule, MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
-import { map, Observable } from 'rxjs';
+import { map } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
+import { CommonModule } from '@angular/common';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 interface TreeNode {
   name: string;
@@ -21,15 +23,15 @@ interface FlatTreeNode {
 @Component({
   selector: 'file-tree',
   standalone: true,
-  imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent],
+  imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent, CommonModule, MatDialogModule],
   templateUrl: './file-tree.component.html',
   styleUrl: './file-tree.component.scss'
 })
 export class FileTreeComponent {
+  readonly filename = inject<string>(MAT_DIALOG_DATA);
 
-  @Output('selectedChange') selectedChange = new EventEmitter<string[]>();
-
-  fileTree$: Observable<any> = new Observable<any>();
+  @Input() value: string | null = '';
+  @Output() valueChange = new EventEmitter<string>();
 
   treeControl: FlatTreeControl<FlatTreeNode>;
   treeFlattener: MatTreeFlattener<TreeNode, FlatTreeNode>;
@@ -63,18 +65,21 @@ export class FileTreeComponent {
   }
 
   ngOnInit() {
-    this.fileTree$ = this.projectService.getProjectFileTree().pipe(
-      map((fileTree) => {
-        const tree = this.convertToTreeNode(fileTree);
-        return tree
-      })
-    );
+    if (this.value) {
+      this.selectedNodes = this.value.split('/');
+    }
+    if (this.filename) {
+      this.selectedNodes = this.filename.split('/');
+    }
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
+  get selectedNodeName() {
+    return this.selectedNodes[this.selectedNodes.length - 1];
+  }
 
   // Transformer to flatten the tree data
   private transformer = (node: TreeNode, level: number) => {
@@ -114,25 +119,29 @@ export class FileTreeComponent {
   }
 
   select(node: FlatTreeNode) {
-    const parentNodes = this.getParentNodes(node);
-    this.selectedNodes = [...parentNodes.map(node => node.name), node.name];
-    this.selectedChange.emit(this.selectedNodes);
+    this.selectedNodes = [...this.getParentNodes(node).map(node => node.name), node.name];
+    this.valueChange.emit(this.selectedNodes.join('/'));
+    this.treeControl.dataNodes.forEach(node => this.treeControl.collapse(node));
   }
 
-    // Method to find the parent nodes of a selected node
-    getParentNodes(node: FlatTreeNode): FlatTreeNode[] {
-      const parentNodes: FlatTreeNode[] = [];
-      let currentLevel = node.level;
-      // Traverse backwards through the tree control data to find parent nodes
-      for (let i = this.treeControl.dataNodes.indexOf(node) - 1; i >= 0; i--) {
-        const currentNode = this.treeControl.dataNodes[i];
-        if (currentNode.level < currentLevel) {
-          parentNodes.unshift(currentNode);  // Add to the front of the list (parents should be ordered)
-          currentLevel = currentNode.level;
-        }
+  getParentNodes(node: FlatTreeNode): FlatTreeNode[] {
+    const parentNodes: FlatTreeNode[] = [];
+    let currentLevel = node.level;
+    // Traverse backwards through the tree control data to find parent nodes
+    for (let i = this.treeControl.dataNodes.indexOf(node) - 1; i >= 0; i--) {
+      const currentNode = this.treeControl.dataNodes[i];
+      if (currentNode.level < currentLevel) {
+        parentNodes.unshift(currentNode);  // Add to the front of the list (parents should be ordered)
+        currentLevel = currentNode.level;
       }
-
-      return parentNodes;
     }
+
+    return parentNodes;
+  }
+
+  isSelected(node: FlatTreeNode): boolean {
+    const idx = this.selectedNodes.indexOf(node.name);
+    return idx === node.level;
+  }
 
 }

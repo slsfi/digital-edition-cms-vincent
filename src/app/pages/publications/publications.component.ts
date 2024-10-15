@@ -77,20 +77,19 @@ export class PublicationsComponent {
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
+  publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
 
+  commentsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
+  versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = new Observable<Version[]>();
+  manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
 
-
-
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) {
-
-
-   }
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) { }
 
   ngOnInit() {
     const paramMap$ = this.route.paramMap.pipe();
@@ -116,9 +115,15 @@ export class PublicationsComponent {
       map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
     );
 
-    this.publications$ = this.publicationCollectionId$.pipe(
-      filter((collectionId) => collectionId != null),
-      switchMap(collectionId => this.projectService.getPublications(collectionId))
+    this.publications$ = this.publicationsLoader$.asObservable().pipe(
+      startWith(null),
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$])
+        .pipe(
+          filter(([project, collectionId]) => collectionId != null),
+          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
+          switchMap(([project, collectionId]) => this.projectService.getPublications(collectionId as string))
+        )
+      )
     );
 
     this.selectedPublication$ = combineLatest([this.publications$, this.publicationId$]).pipe(
@@ -126,34 +131,48 @@ export class PublicationsComponent {
       map(([publications, publicationId]) => publications.find(publication => publication.id === parseInt(publicationId as string)) ?? null)
     );
 
-    this.comments$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
-      filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-      distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-        prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-      ),
-      switchMap(([collectionId, publicationId]) => this.projectService.getCommentForPublication(collectionId as string, publicationId as string)),
+    this.comments$ = this.commentsLoader$.asObservable().pipe(
+      startWith(0),
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
+        .pipe(
+          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+          ),
+          switchMap(([collectionId, publicationId]) => this.projectService.getCommentForPublication(collectionId as string, publicationId as string))
+        )
+      )
     );
 
-    this.versions$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
-      filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-      distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-        prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-      ),
-      switchMap(([collectionId, publicationId]) => this.projectService.getVersionsForPublication(collectionId as string, publicationId as string)),
+    this.versions$ = this.versionsLoader$.asObservable().pipe(
+      startWith(0),
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
+        .pipe(
+          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+          ),
+          switchMap(([collectionId, publicationId]) => this.projectService.getVersionsForPublication(collectionId as string, publicationId as string))
+        )
+      )
     );
 
-    this.manuscripts$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
-      filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-      distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-        prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-      ),
-      switchMap(([collectionId, publicationId]) => this.projectService.getManuscriptsForPublication(collectionId as string, publicationId as string)),
+    this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
+      startWith(0),
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
+        .pipe(
+          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+          ),
+          switchMap(([collectionId, publicationId]) => this.projectService.getManuscriptsForPublication(collectionId as string, publicationId as string))
+        )
+      )
     );
+
   }
 
   editPublicationCollection(publicationCollection: PublicationCollection | null = null) {
-    console.log('Edit publication collection', publicationCollection);
-
     const dialogRef = this.dialog.open(EditPublicationCollectionComponent, {
       width: '400px',
       data: {
@@ -166,15 +185,12 @@ export class PublicationsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        // force publication collections to reload
         this.publicationCollectionsLoader$.next(0);
       }
     });
   }
 
   editPublication(publication: Publication | null = null, collectionId: string = '') {
-    console.log('Edit publication', publication);
-
     const dialogRef = this.dialog.open(EditPublicationComponent, {
       width: '400px',
       data: {
@@ -188,8 +204,48 @@ export class PublicationsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        // force publications to reload
+        this.publicationsLoader$.next(0);
       }
+    });
+  }
+
+  editSelectedFile(type: 'text' | 'comment' | 'version' | 'manuscript', filename: string | null = '', editId: number) {
+    const dialogRef = this.dialog.open(FileTreeComponent, {
+      data: filename
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result) {
+        return;
+      }
+      const filePath = result.join('/');
+
+      if (type === 'text') {
+
+        const data = { original_filename: filePath }
+        this.projectService.editPublication(editId, data).subscribe(() => {
+          this.publicationsLoader$.next(0);
+        });
+
+      } else if (type === 'comment') {
+        const data = { filename: filePath }
+        this.projectService.editComment(editId, data).subscribe(() => {
+          this.commentsLoader$.next(0);
+        });
+      } else if (type === 'version') {
+        const data = { filename: filePath }
+        this.projectService.editVersion(editId, data).subscribe(() => {
+          this.versionsLoader$.next(0);
+        });
+      } else if (type === 'manuscript') {
+        const data = { filename: filePath }
+        this.projectService.editManuscript(editId, data).subscribe(() => {
+          this.manuscriptsLoader$.next(0);
+        });
+      }
+
+
     });
   }
 

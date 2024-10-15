@@ -34,15 +34,15 @@ export interface Publication {
   published: Published;
 }
 export interface PublicationRequest {
-  publication_collection_id: number;
-  publication_comment_id: number;
-  name: string;
-  original_filename: string;
-  original_publication_date: string;
-  published: Published;
-  language: string;
-  genre: string;
-  deleted: Deleted;
+  publication_collection_id?: number | null;
+  publication_comment_id?: number | null;
+  name?: string;
+  original_filename: string  | null;
+  original_publication_date?: string | null;
+  published?: Published;
+  language?: string | null;
+  genre?: string | null;
+  deleted?: Deleted;
 }
 
 export interface ReadingText {
@@ -59,6 +59,11 @@ export interface PublicationComment {
   published: Published;
 }
 
+export interface PublicationCommentRequest {
+  filename: string;
+  published?: Published;
+}
+
 export interface Version {
   date_created: string;
   date_modified: string | null;
@@ -72,6 +77,15 @@ export interface Version {
   sort_order: number;
   type: number;
 }
+
+export interface VersionRequest {
+  title?: string
+  filename: string;
+  published?: Published;
+  sort_order?: number;
+  version_type?: number;
+}
+
 export interface Manuscript {
   id: number;
   language: string | null;
@@ -80,6 +94,13 @@ export interface Manuscript {
   name: string;
   original_filename: string;
   sort_order: number;
+}
+
+export interface ManuscriptRequest {
+  title?: string;
+  filename: string;
+  published?: Published;
+  sort_order?: number;
 }
 
 export interface ManuscriptResponse {

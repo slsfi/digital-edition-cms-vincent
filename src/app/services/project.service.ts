@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload } from '../models/person';
-import { Manuscript, ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationRequest, ReadingText, Version } from '../models/publication';
+import { Manuscript, ManuscriptRequest, ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
@@ -159,6 +159,19 @@ export class ProjectService {
     );
   }
 
+  editComment(publicationId: number, data: PublicationCommentRequest) {
+    // /<project>/publication/<publication_id>/comment/edit/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comment/edit/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+
+  }
+
   getVersionsForPublication(collectionId: string, publicationId: string): Observable<Version[]> {
       // /<project>/publication/<publication_id>/versions/
     return this.selectedProject$.pipe(
@@ -171,6 +184,19 @@ export class ProjectService {
     );
   }
 
+  editVersion(versionId: number, data: PublicationCommentRequest) {
+    // /<project>/versions/<version_id>/edit/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/versions/${versionId}/edit/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+  }
+
+
   getManuscriptsForPublication(collectionId: string, publicationId: string): Observable<Manuscript[]> {
     // /<project>/publication/<publication_id>/manuscripts/
     return this.selectedProject$.pipe(
@@ -182,6 +208,19 @@ export class ProjectService {
       catchError(() => of([] as Manuscript[]))
     );
   }
+
+  editManuscript(manuscriptId: number, data: ManuscriptRequest) {
+    // /<project>/manuscripts/<manuscript_id>/edit/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/manuscripts/${manuscriptId}/edit/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+  }
+
 
   getSubjects(): Observable<Person[]> {
     return this.selectedProject$.pipe(
