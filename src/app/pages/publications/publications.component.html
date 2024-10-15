@@ -99,13 +99,7 @@
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
           <h3>{{ selectedPublication.name }} </h3>
-          <div>
-            <h4>File tree</h4>
-            <ng-container *ngIf="fileTree$ | async as fileTree else loading">
-              <div *ngIf="fileTree.length === 0">No files</div>
-              <div>{{fileTree | json }}</div>
-            </ng-container>
-          </div>
+          <file-tree></file-tree>
           <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
             <h4>Reading text</h4>
             <div>original_filename: {{ selectedPublication.original_filename }}</div>

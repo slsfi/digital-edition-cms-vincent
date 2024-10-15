@@ -1,0 +1,26 @@
+<h4>File tree</h4>
+<div>selected: {{ selectedNodes.join(' / ') }}</div>
+
+<mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl" >
+  <!-- Node template for leaf nodes -->
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+    <button mat-icon-button disabled></button>
+    <span class="selectable" (click)="select(node)">{{node.name}}</span>
+  </mat-tree-node>
+
+  <!-- Node template for expandable nodes -->
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+    <div class="expandable" [attr.aria-label]="'toggle ' + node.name" matTreeNodeToggle>
+      <button mat-icon-button >
+        <mat-icon class="mat-icon-rtl-mirror">
+          {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+        </mat-icon>
+      </button>
+      {{node.name}}
+    </div>
+  </mat-tree-node>
+</mat-tree>
+
+@if (loading) {
+  <loading-spinner></loading-spinner>
+}

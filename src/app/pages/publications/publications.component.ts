@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, distinct, distinctUntilChanged, filter, map, Observable, startWith, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, startWith, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Manuscript, Publication, PublicationCollection, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -13,12 +13,12 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 import { EditPublicationCollectionComponent } from '../../components/edit-publication-collection/edit-publication-collection.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPublicationComponent } from '../../components/edit-publication/edit-publication.component';
-
+import { FileTreeComponent } from "../../components/file-tree/file-tree.component";
 
 @Component({
   selector: 'app-publications',
   standalone: true,
-  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent],
+  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
   styleUrl: './publications.component.scss'
@@ -38,7 +38,6 @@ export class PublicationsComponent {
     { field: 'collection_title_published', header: 'Collection Title Published', type: 'published', editable: false },
     { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'date_published_externally', header: 'Date Published Externally', type: 'date', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: false },
     { field: 'name_translation_id', header: 'Name Translation ID', type: 'string', editable: false },
     { field: 'project_id', header: 'Project ID', type: 'number', editable: false },
@@ -59,7 +58,6 @@ export class PublicationsComponent {
     ...this.publicationColumnsData,
     { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'date_published_externally', header: 'Date Published Externally', type: 'date', editable: true },
     { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
     { field: 'genre', header: 'Genre', type: 'string', editable: true },
     { field: 'language', header: 'Language', type: 'string', editable: true },
@@ -68,9 +66,7 @@ export class PublicationsComponent {
     { field: 'original_publication_date', header: 'Original Publication Date', type: 'date', editable: true },
     { field: 'publication_collection_id', header: 'Publication Collection ID', type: 'number', editable: false },
     { field: 'publication_comment_id', header: 'Publication Comment ID', type: 'number', editable: true },
-    { field: 'publication_group_id', header: 'Publication Group ID', type: 'number', editable: true },
     { field: 'published_by', header: 'Published By', type: 'string', editable: true },
-    { field: 'zts_id', header: 'ZTS ID', type: 'string', editable: false },
   ];
   publicationDisplayedColumns: string[] = this.publicationColumnsData.map(column => column.field);
 
@@ -89,9 +85,12 @@ export class PublicationsComponent {
   versions$: Observable<Version[]> = new Observable<Version[]>();
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
 
-  fileTree$: Observable<any> = new Observable<any>();
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) { }
+
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) {
+
+
+   }
 
   ngOnInit() {
     const paramMap$ = this.route.paramMap.pipe();
@@ -105,8 +104,6 @@ export class PublicationsComponent {
     );
 
     this.selectedProject$ = this.projectService.selectedProject$;
-
-    this.fileTree$ = this.projectService.getProjectFileTree();
 
     this.publicationCollections$ = this.publicationCollectionsLoader$.asObservable().pipe(
         startWith(null),

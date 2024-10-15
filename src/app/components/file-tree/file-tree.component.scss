@@ -1,0 +1,13 @@
+.selectable {
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.expandable {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
