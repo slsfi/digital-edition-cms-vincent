@@ -1,8 +1,8 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinct, distinctUntilChanged, filter, map, Observable, startWith, switchMap, tap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
-import { ManuscriptResponse, Publication, PublicationCollection, PublicationComment, ReadingText, Version } from '../../models/publication';
+import { Manuscript, Publication, PublicationCollection, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column } from '../../models/column';
@@ -85,10 +85,11 @@ export class PublicationsComponent {
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
 
-  readingText$: Observable<ReadingText> = new Observable<ReadingText>();
   comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
   versions$: Observable<Version[]> = new Observable<Version[]>();
-  manuscripts$: Observable<ManuscriptResponse> = new Observable<ManuscriptResponse>();
+  manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
+
+  fileTree$: Observable<any> = new Observable<any>();
 
   constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) { }
 
@@ -104,6 +105,8 @@ export class PublicationsComponent {
     );
 
     this.selectedProject$ = this.projectService.selectedProject$;
+
+    this.fileTree$ = this.projectService.getProjectFileTree();
 
     this.publicationCollections$ = this.publicationCollectionsLoader$.asObservable().pipe(
         startWith(null),
@@ -126,23 +129,27 @@ export class PublicationsComponent {
       map(([publications, publicationId]) => publications.find(publication => publication.id === parseInt(publicationId as string)) ?? null)
     );
 
-    this.readingText$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
-      filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-      switchMap(([collectionId, publicationId]) => this.projectService.getReadingTextForPublication(collectionId as string, publicationId as string)),
-    );
-
     this.comments$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
       filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+      distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+        prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+      ),
       switchMap(([collectionId, publicationId]) => this.projectService.getCommentForPublication(collectionId as string, publicationId as string)),
     );
 
     this.versions$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
       filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+      distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+        prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+      ),
       switchMap(([collectionId, publicationId]) => this.projectService.getVersionsForPublication(collectionId as string, publicationId as string)),
     );
 
     this.manuscripts$ = combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
       filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+      distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+        prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+      ),
       switchMap(([collectionId, publicationId]) => this.projectService.getManuscriptsForPublication(collectionId as string, publicationId as string)),
     );
   }

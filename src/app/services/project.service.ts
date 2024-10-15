@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload } from '../models/person';
-import { ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationRequest, ReadingText, Version } from '../models/publication';
+import { Manuscript, ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationRequest, ReadingText, Version } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
@@ -44,6 +44,17 @@ export class ProjectService {
   editProject(id: number, payload: EditProjectData) {
     const url = `${this.apiService.prefixedUrl}/projects/${id}/edit/`;
     return this.apiService.post(url, payload);
+  }
+
+  getProjectFileTree() {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/get_tree/`;
+        return this.apiService.get(url);
+      }),
+      catchError(() => of([]))
+    );
   }
 
   setSelectedProject(project: string | null) {
@@ -137,7 +148,6 @@ export class ProjectService {
   }
 
   getCommentForPublication(collectionId: string, publicationId: string): Observable<PublicationComment[]> {
-    // /<project>/text/<collection_id>/<publication_id>/com
     // /<project>/publication/<publication_id>/comments/
     return this.selectedProject$.pipe(
       filter(project => !!project),
@@ -145,7 +155,7 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
         return this.apiService.get(url);
       }),
-      catchError(() => of())
+      catchError(() => of([]))
     );
   }
 
@@ -161,15 +171,15 @@ export class ProjectService {
     );
   }
 
-  getManuscriptsForPublication(collectionId: string, publicationId: string): Observable<ManuscriptResponse> {
-    // <project>/text/<collection_id>/<publication_id>/ms/
+  getManuscriptsForPublication(collectionId: string, publicationId: string): Observable<Manuscript[]> {
+    // /<project>/publication/<publication_id>/manuscripts/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/ms/`;
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/`;
         return this.apiService.get(url);
       }),
-      catchError(() => of({} as ManuscriptResponse))
+      catchError(() => of([] as Manuscript[]))
     );
   }
 

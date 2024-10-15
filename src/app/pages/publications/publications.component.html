@@ -99,19 +99,16 @@
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
           <h3>{{ selectedPublication.name }} </h3>
-        </ng-container>
-        <ng-container *ngIf="publicationId$ | async as publicationId">
-          <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
-            <ng-container *ngIf="readingText$ | async as text else loading">
-              <h4>Reading text</h4>
-              <ng-container *ngIf="text.id">
-                <div>id: {{ text.id }}</div>
-                <div>language: {{ text.language }}</div>
-              </ng-container>
-              <ng-container *ngIf="!text.id">
-                <div>No reading text</div>
-              </ng-container>
+          <div>
+            <h4>File tree</h4>
+            <ng-container *ngIf="fileTree$ | async as fileTree else loading">
+              <div *ngIf="fileTree.length === 0">No files</div>
+              <div>{{fileTree | json }}</div>
             </ng-container>
+          </div>
+          <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
+            <h4>Reading text</h4>
+            <div>original_filename: {{ selectedPublication.original_filename }}</div>
             <ng-container *ngIf="comments$ | async as comments else loading">
               <h4>Comments</h4>
               <div>count: {{ comments.length }}</div>
@@ -131,8 +128,8 @@
             </ng-container>
             <ng-container *ngIf="manuscripts$ | async as manuscripts else loading">
               <h4>manuscripts</h4>
-              <div *ngIf="!manuscripts.manuscripts || manuscripts.manuscripts?.length == 0">No manuscripts</div>
-              <ng-container *ngFor="let manuscript of manuscripts.manuscripts">
+              <div *ngIf="manuscripts.length == 0">No manuscripts</div>
+              <ng-container *ngFor="let manuscript of manuscripts">
                 <div>id: {{ manuscript.id }}</div>
                 <div>name: {{ manuscript.name }}</div>
                 <div>original_filename: {{ manuscript.original_filename }}</div>
