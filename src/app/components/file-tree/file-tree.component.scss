@@ -15,3 +15,7 @@
 .selected {
   font-weight: 600;
 }
+
+::ng-deep .mat-tree-node {
+  min-height: 0 !important;
+}

@@ -1,14 +1,14 @@
 <h2 mat-dialog-title>File selector</h2>
 <mat-dialog-content>
-  <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl" >
+  <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl">
     <!-- Node template for leaf nodes -->
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
       <button mat-icon-button disabled></button>
       <span class="selectable" [ngClass]="{'selected': selectedNodeName === node.name}" (click)="select(node)">{{node.name}}</span>
     </mat-tree-node>
 
     <!-- Node template for expandable nodes -->
-    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding matTreeNodePaddingIndent="20">
       <div class="expandable" [ngClass]="{'selected': isSelected(node) }" [attr.aria-label]="'toggle ' + node.name" matTreeNodeToggle>
         <button mat-icon-button >
           <mat-icon class="mat-icon-rtl-mirror">
