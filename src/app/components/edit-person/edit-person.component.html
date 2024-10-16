@@ -2,7 +2,7 @@
 <mat-dialog-content>
 
   <form *ngIf="columns.length" [formGroup]="form" id="person-form" (ngSubmit)="onSubmit($event)">
-    <ng-container *ngFor="let column of columns">
+    @for (column of columns; track column.field) {
       <div>
         <ng-container *ngIf="column.type === 'date' else otherTypes">
           <!-- for some reason styles don't work if this is done similarly -->
@@ -27,7 +27,9 @@
             <ng-container *ngIf="column.type === 'type'">
               <mat-select [formControlName]="column.field">
                 <mat-option>Any</mat-option>
-                <mat-option *ngFor="let type of personTypes" [value]="type.value">{{ type.label }}</mat-option>
+                @for (type of personTypes; track type.value) {
+                  <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                }
               </mat-select>
             </ng-container>
             <ng-container *ngIf="column.type === 'textarea'">
@@ -46,7 +48,7 @@
           </mat-form-field>
         </ng-template>
       </div>
-    </ng-container>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>

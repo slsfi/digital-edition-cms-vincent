@@ -3,9 +3,11 @@
     <mat-form-field>
       <mat-label>Selected Project</mat-label>
       <mat-select [value]="selectedProject$ | async" (selectionChange)="changeProject($event)">
-        <mat-option *ngFor="let project of availableProjects" [value]="project.name">
-          {{ project.name }}
-        </mat-option>
+        @for (project of availableProjects; track project.name) {
+          <mat-option [value]="project.name">
+            {{ project.name }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
   </ng-container>

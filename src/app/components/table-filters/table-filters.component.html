@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Filter</h2>
 <mat-dialog-content>
   <form [formGroup]="form" id="filter-form" (ngSubmit)="submit($event)">
-    <ng-container *ngFor="let field of data">
+    @for (field of data; track field.field) {
       <div>
         <mat-form-field>
           <mat-label>{{ field.header }}</mat-label>
@@ -26,12 +26,14 @@
           <ng-container *ngIf="field.type === 'type'">
             <mat-select [formControlName]="field.field">
               <mat-option>Any</mat-option>
-              <mat-option *ngFor="let type of personTypes" [value]="type.value">{{ type.label }}</mat-option>
+              @for (type of personTypes; track type.value) {
+                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+              }
             </mat-select>
           </ng-container>
         </mat-form-field>
       </div>
-    </ng-container>
+    }
   </form>
 
 </mat-dialog-content>

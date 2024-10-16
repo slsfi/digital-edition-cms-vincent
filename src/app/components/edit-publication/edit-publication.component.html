@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ data.publication.id ? 'Edit' : 'Add' }} Publication collection</h2>
 <mat-dialog-content>
   <form *ngIf="data.columns.length" [formGroup]="form" id="publications-form" (ngSubmit)="onSubmit($event)">
-    <ng-container *ngFor="let column of data.columns">
+    @for (column of data.columns; track column.field) {
       <div>
         <ng-container *ngIf="column.type === 'date' else otherTypes">
           <!-- for some reason styles don't work if this is done similarly -->
@@ -47,7 +47,7 @@
           </mat-form-field>
         </ng-template>
       </div>
-    </ng-container>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>

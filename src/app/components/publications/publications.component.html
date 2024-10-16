@@ -17,7 +17,7 @@
               </div>
             </div>
           <table mat-table [dataSource]="publications">
-            <ng-container *ngFor="let column of publicationColumnsData">
+            @for (column of publicationColumnsData; track column.field) {
               <ng-container [matColumnDef]="column.field">
                 <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
                 <td [ngClass]="{ 'selected': publication.id == (publicationId$ | async) }" mat-cell *matCellDef="let publication">
@@ -38,7 +38,7 @@
                   </ng-container>
                 </td>
               </ng-container>
-            </ng-container>
+            }
             <tr mat-header-row *matHeaderRowDef="publicationDisplayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: publicationDisplayedColumns;"></tr>
           </table>
@@ -84,7 +84,7 @@
                   </mat-card-header>
                   <mat-card-content>
                     <table mat-table [dataSource]="versions">
-                      <ng-container *ngFor="let column of versionColumnsData">
+                      @for (column of versionColumnsData; track column.field) {
                         <ng-container [matColumnDef]="column.field">
                           <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
                           <td mat-cell *matCellDef="let version">
@@ -98,7 +98,7 @@
                             </ng-container>
                           </td>
                         </ng-container>
-                      </ng-container>
+                      }
                       <tr mat-header-row *matHeaderRowDef="versionDisplayedColumns"></tr>
                       <tr mat-row *matRowDef="let row; columns: versionDisplayedColumns;"></tr>
                       <tr class="mat-row" *matNoDataRow>
@@ -118,7 +118,7 @@
                   </mat-card-header>
                   <mat-card-content>
                     <table mat-table [dataSource]="manuscripts">
-                      <ng-container *ngFor="let column of manuscriptColumnsData">
+                      @for (column of manuscriptColumnsData; track column.field) {
                         <ng-container [matColumnDef]="column.field">
                           <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
                           <td mat-cell *matCellDef="let manuscript">
@@ -132,7 +132,7 @@
                             </ng-container>
                           </td>
                         </ng-container>
-                      </ng-container>
+                      }
                       <tr mat-header-row *matHeaderRowDef="manuscriptDisplayedColumns"></tr>
                       <tr mat-row *matRowDef="let row; columns: manuscriptDisplayedColumns;"></tr>
                       <tr class="mat-row" *matNoDataRow>
