@@ -2,19 +2,22 @@
 <style>
 </style>
 
+@let loading = loading$ | async;
+@let authenticated = isAuthenticated$ | async;
+
 <main class="main">
   <topbar (onMenuToggle)="drawer.toggle()"></topbar>
   <mat-drawer-container class="drawer">
     <mat-drawer #drawer mode="over">
-      @if (isAuthenticated$ | async) {
+      @if (authenticated === true) {
         <navigation (onMenuToggle)="drawer.toggle()"></navigation>
       }
     </mat-drawer>
     <mat-drawer-content>
       <div class="content">
-        <ng-container *ngIf="(loading$ | async) === true">
+        @if (loading === true) {
           <div class="overlay"><mat-spinner></mat-spinner></div>
-        </ng-container>
+        }
         <router-outlet></router-outlet>
       </div>
     </mat-drawer-content>

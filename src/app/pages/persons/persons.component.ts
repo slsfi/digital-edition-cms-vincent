@@ -1,6 +1,6 @@
 import { ApiService } from './../../services/api.service';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounce, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
@@ -94,6 +94,7 @@ export class PersonsComponent {
   ngAfterViewInit() {
     this.subjects$ = this.loader$.asObservable().pipe(
       startWith(null),
+      debounce(i => timer(500)),
       switchMap(() => combineLatest([this.projectService.getSubjects(), this.projectService.selectedProject$]).pipe(
         map(([subjects, selectedProject]) => {
           return subjects

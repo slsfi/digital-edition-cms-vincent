@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -121,6 +121,7 @@ export class PublicationsComponent {
 
     this.publications$ = this.publicationsLoader$.asObservable().pipe(
       startWith(null),
+      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$])
         .pipe(
           filter(([project, collectionId]) => collectionId != null),
@@ -137,6 +138,7 @@ export class PublicationsComponent {
 
     this.comment$ = this.commentLoader$.asObservable().pipe(
       startWith(0),
+      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
           filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
@@ -150,6 +152,7 @@ export class PublicationsComponent {
 
     this.versions$ = this.versionsLoader$.asObservable().pipe(
       startWith(0),
+      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
           filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
@@ -163,6 +166,7 @@ export class PublicationsComponent {
 
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
       startWith(0),
+      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
           filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),

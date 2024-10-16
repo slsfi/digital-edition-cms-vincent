@@ -1,8 +1,11 @@
+@let availableProjects = availableProjects$ | async;
+@let selectedProject = selectedProject$ | async;
+
 <div class="menu">
-  <ng-container *ngIf="availableProjects$ | async as availableProjects">
+  @if (availableProjects) {
     <mat-form-field>
       <mat-label>Selected Project</mat-label>
-      <mat-select [value]="selectedProject$ | async" (selectionChange)="changeProject($event)">
+      <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
         @for (project of availableProjects; track project.name) {
           <mat-option [value]="project.name">
             {{ project.name }}
@@ -10,7 +13,7 @@
         }
       </mat-select>
     </mat-form-field>
-  </ng-container>
+  }
   <mat-divider></mat-divider>
   <mat-nav-list>
     <a mat-list-item routerLink="/" (click)="toggleMenu()">Home</a>

@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounce, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -64,6 +64,7 @@ export class PublicationCollectionsComponent {
 
     this.publicationCollections$ = this.publicationCollectionsLoader$.asObservable().pipe(
         startWith(null),
+        debounce(() => timer(500)),
         switchMap(() => combineLatest([this.selectedProject$, this.projectService.getPublicationCollections()])
           .pipe(map(([project, publications]) => publications)))
     );

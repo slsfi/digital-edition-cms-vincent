@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounce, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Project } from '../../models/project';
@@ -46,6 +46,7 @@ export class ProjectsComponent {
   ngAfterViewInit() {
     this.projects$ = this.loader$.asObservable().pipe(
       startWith(null),
+      debounce(i => timer(500)),
       switchMap(() => this.projectService.getProjects()),
     )
     // Listen for URL changes, start with the current URL to ensure the stream has an initial value
