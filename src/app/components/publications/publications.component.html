@@ -86,7 +86,6 @@
                           <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
                           <td mat-cell *matCellDef="let version">
                             <ng-container *ngIf="column.type === 'string' || column.type === 'number'">{{ version[column.field] }}</ng-container>
-                            <ng-container *ngIf="column.field === 'original_filename'">{{ version[column.field] }}</ng-container>
                             <ng-container *ngIf="column.type === 'action'">
                               <button mat-icon-button (click)="editSelectedFile('version', version.original_filename, version.id)"><mat-icon>edit</mat-icon></button>
                             </ng-container>
@@ -114,7 +113,6 @@
                           <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
                           <td mat-cell *matCellDef="let manuscript">
                             <ng-container *ngIf="column.type === 'string' || column.type === 'number'">{{ manuscript[column.field] }}</ng-container>
-                            <ng-container *ngIf="column.field === 'original_filename'">{{ manuscript[column.field] }}</ng-container>
                             <ng-container *ngIf="column.type === 'action'">
                               <button mat-icon-button (click)="editSelectedFile('manuscript', manuscript.original_filename, manuscript.id)"><mat-icon>edit</mat-icon></button>
                             </ng-container>

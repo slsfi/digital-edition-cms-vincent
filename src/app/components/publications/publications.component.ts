@@ -64,7 +64,6 @@ export class PublicationsComponent {
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
 
   versionColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', editable: false },
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
     { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
@@ -72,7 +71,6 @@ export class PublicationsComponent {
   versionDisplayedColumns: string[] = this.versionColumnsData.map(column => column.field);
 
   manuscriptColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', editable: false },
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
     { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
