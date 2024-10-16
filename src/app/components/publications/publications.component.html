@@ -1,63 +1,11 @@
 
-<h1>Text collection management</h1>
-
-<ng-container *ngIf="(selectedProject$ | async) == null">
-  <p>Please select a project</p>
-</ng-container>
-
-<div class="publications">
-  <div class="header">
-    <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
-      <button mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></button>
-      <h2>{{ selectedPublicationCollection.name }} </h2>
-    </ng-container>
-  </div>
-</div>
-
-<ng-template #publicationCollections>
-  <ng-container *ngIf="publicationCollections$ | async as publicationCollections else loading">
-    <div class="header-row">
-      <h3>Publication collections ({{publicationCollections.length}})</h3>
-      <div class="actions">
-        <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
-      </div>
-    </div>
-    <div></div>
-    <table mat-table [dataSource]="publicationCollections">
-      <ng-container *ngFor="let column of publicationCollectionColumnsData">
-        <ng-container [matColumnDef]="column.field">
-          <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-          <td mat-cell *matCellDef="let publicationCollection">
-            <ng-container *ngIf="column.field === 'id'">
-              <a [routerLink]="['/publication-collections', publicationCollection.id]">{{ publicationCollection[column.field] }}</a>
-            </ng-container>
-            <ng-container *ngIf="column.type === 'date'">{{ publicationCollection[column.field] | customDate }}</ng-container>
-            <ng-container *ngIf="column.field === 'title' || column.field == 'name'">{{ publicationCollection[column.field] }}</ng-container>
-            <ng-container *ngIf="column.type === 'boolean'">{{ publicationCollection[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
-            <ng-container *ngIf="column.type === 'published'">
-              <ng-container *ngIf="publicationCollection[column.field] === 0">Not published</ng-container>
-              <ng-container *ngIf="publicationCollection[column.field] === 1">Internally</ng-container>
-              <ng-container *ngIf="publicationCollection[column.field] === 2">Externally</ng-container>
-            </ng-container>
-            <ng-container *ngIf="column.type === 'action'">
-              <button mat-icon-button (click)="editPublicationCollection(publicationCollection)"><mat-icon>edit</mat-icon></button>
-            </ng-container>
-          </td>
-        </ng-container>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="publicationCollectionDisplayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: publicationCollectionDisplayedColumns;"></tr>
-    </table>
-  </ng-container>
-</ng-template>
-
 <ng-template #loading>
   <ng-container *ngIf="selectedProject$ | async as selectedProject">
     <loading-spinner></loading-spinner>
   </ng-container>
 </ng-template>
 
-<ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">
+<ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
   <div class="publications">
     <div class="content">
       <div>

@@ -1,0 +1,15 @@
+.publications {
+  width: calc(100vw - 24px - 8em);
+
+  .header {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+  }
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

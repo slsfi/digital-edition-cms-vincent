@@ -9,14 +9,14 @@ import { Column } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { EditPublicationCollectionComponent } from '../../components/edit-publication-collection/edit-publication-collection.component';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { EditPublicationCollectionComponent } from '../edit-publication-collection/edit-publication-collection.component';
 import { MatDialog } from '@angular/material/dialog';
-import { EditPublicationComponent } from '../../components/edit-publication/edit-publication.component';
-import { FileTreeComponent } from "../../components/file-tree/file-tree.component";
+import { EditPublicationComponent } from '../edit-publication/edit-publication.component';
+import { FileTreeComponent } from "../file-tree/file-tree.component";
 
 @Component({
-  selector: 'app-publications',
+  selector: 'publications',
   standalone: true,
   imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent],
   providers: [DatePipe],
@@ -24,30 +24,6 @@ import { FileTreeComponent } from "../../components/file-tree/file-tree.componen
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent {
-  publicationCollectionColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', editable: false },
-    { field: 'name', header: 'Name', type: 'string', editable: true },
-    { field: 'published', header: 'Published', type: 'published', editable: true },
-    { field: 'actions', header: 'Actions', type: 'action', editable: false },
-  ];
-  allPublicationCollectionColumns: Column[] = [
-    ...this.publicationCollectionColumnsData,
-    { field: 'collection_intro_filename', header: 'Collection Intro Filename', type: 'string', editable: false },
-    { field: 'collection_intro_published', header: 'Collection Intro Published', type: 'published', editable: false },
-    { field: 'collection_title_filename', header: 'Collection Title Filename', type: 'string', editable: false },
-    { field: 'collection_title_published', header: 'Collection Title Published', type: 'published', editable: false },
-    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: false },
-    { field: 'name_translation_id', header: 'Name Translation ID', type: 'string', editable: false },
-    { field: 'project_id', header: 'Project ID', type: 'number', editable: false },
-    { field: 'publication_collection_introduction_id', header: 'Publication Collection Introduction ID', type: 'number', editable: false },
-    { field: 'title', header: 'Title', type: 'string', editable: false },
-  ];
-  publicationCollectionDisplayedColumns: string[] = this.publicationCollectionColumnsData.map(column => column.field);
-  publicationCollectionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-
-
   publicationColumnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', editable: false },
     { field: 'name', header: 'Name', type: 'string', editable: true },
@@ -73,9 +49,7 @@ export class PublicationsComponent {
   loading$: Observable<boolean> = new Observable<boolean>();
   selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
 
-  publicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
-  selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
   publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
@@ -103,17 +77,6 @@ export class PublicationsComponent {
     );
 
     this.selectedProject$ = this.projectService.selectedProject$;
-
-    this.publicationCollections$ = this.publicationCollectionsLoader$.asObservable().pipe(
-        startWith(null),
-        switchMap(() => combineLatest([this.selectedProject$, this.projectService.getPublicationCollections()])
-          .pipe(map(([project, publications]) => publications)))
-    );
-
-    this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
-      filter(([publications, collectionId]) => collectionId != null),
-      map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
-    );
 
     this.publications$ = this.publicationsLoader$.asObservable().pipe(
       startWith(null),
@@ -170,24 +133,6 @@ export class PublicationsComponent {
       )
     );
 
-  }
-
-  editPublicationCollection(publicationCollection: PublicationCollection | null = null) {
-    const dialogRef = this.dialog.open(EditPublicationCollectionComponent, {
-      width: '400px',
-      data: {
-        collection: publicationCollection ?? {},
-        columns: this.allPublicationCollectionColumns
-          .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable)
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.publicationCollectionsLoader$.next(0);
-      }
-    });
   }
 
   editPublication(publication: Publication | null = null, collectionId: string = '') {
