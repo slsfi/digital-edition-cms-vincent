@@ -77,7 +77,10 @@
               <ng-container *ngIf="versions$ | async as versions else loading">
                 <mat-card appearance="outlined">
                   <mat-card-header>
-                    <mat-card-title>Versions</mat-card-title>
+                    <mat-card-title>
+                      Versions
+                      <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    </mat-card-title>
                   </mat-card-header>
                   <mat-card-content>
                     <table mat-table [dataSource]="versions">
@@ -88,7 +91,10 @@
                             <ng-container *ngIf="column.field === 'name'">{{ version[column.field] }}</ng-container>
                             <ng-container *ngIf="column.field === 'original_filename'">{{ version[column.field].split('/').join(' / ') }}</ng-container>
                             <ng-container *ngIf="column.type === 'action'">
-                              <button mat-icon-button (click)="editSelectedFile('version', version.original_filename, version.id)"><mat-icon>edit</mat-icon></button>
+                              <div class="row-actions">
+                                <button mat-icon-button (click)="editVersion(version, selectedPublication.id)"><mat-icon>edit</mat-icon></button>
+                                <button mat-icon-button (click)="editSelectedFile('version', version.original_filename, version.id)"><mat-icon>folder</mat-icon></button>
+                              </div>
                             </ng-container>
                           </td>
                         </ng-container>
@@ -105,7 +111,10 @@
               <ng-container *ngIf="manuscripts$ | async as manuscripts else loading">
                 <mat-card appearance="outlined">
                   <mat-card-header>
-                    <mat-card-title>Manuscripts</mat-card-title>
+                    <mat-card-title>
+                      Manuscripts
+                      <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    </mat-card-title>
                   </mat-card-header>
                   <mat-card-content>
                     <table mat-table [dataSource]="manuscripts">
@@ -116,7 +125,10 @@
                             <ng-container *ngIf="column.field === 'name'">{{ manuscript[column.field] }}</ng-container>
                             <ng-container *ngIf="column.field === 'original_filename'">{{ manuscript[column.field].split('/').join(' / ') }}</ng-container>
                             <ng-container *ngIf="column.type === 'action'">
-                              <button mat-icon-button (click)="editSelectedFile('manuscript', manuscript.original_filename, manuscript.id)"><mat-icon>edit</mat-icon></button>
+                              <div class="row-actions">
+                                <button mat-icon-button (click)="editManuscript(manuscript, selectedPublication.id)"><mat-icon>edit</mat-icon></button>
+                                <button mat-icon-button (click)="editSelectedFile('manuscript', manuscript.original_filename, manuscript.id)"><mat-icon>folder</mat-icon></button>
+                              </div>
                             </ng-container>
                           </td>
                         </ng-container>

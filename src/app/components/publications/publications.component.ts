@@ -14,6 +14,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditPublicationComponent } from '../edit-publication/edit-publication.component';
 import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatCardModule } from '@angular/material/card';
+import { EditVersionComponent } from '../edit-version/edit-version.component';
+import { EditManuscriptComponent } from '../edit-manuscript/edit-manuscript.component';
 
 @Component({
   selector: 'publications',
@@ -65,17 +67,42 @@ export class PublicationsComponent {
 
   versionColumnsData: Column[] = [
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': false },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
   ]
   versionDisplayedColumns: string[] = this.versionColumnsData.map(column => column.field);
+  allVersionColumnsData: Column[] = [
+    ...this.versionColumnsData,
+    { field: 'published', header: 'Published', type: 'published', editable: true },
+    { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
+    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
+    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
+    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
+    { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
+    { field: 'section_id', header: 'Section ID', type: 'number', editable: false },
+    { field: 'type', header: 'Type', type: 'number', editable: true },
+    { field: 'id', header: 'ID', type: 'number', editable: false },
+
+  ]
 
   manuscriptColumnsData: Column[] = [
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': false },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
   ]
   manuscriptDisplayedColumns: string[] = this.manuscriptColumnsData.map(column => column.field);
+  allManuscriptColumnsData: Column[] = [
+    ...this.manuscriptColumnsData,
+    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
+    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
+    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
+    { field: 'id', header: 'ID', type: 'number', editable: false },
+    { field: 'language', header: 'Language', type: 'string', editable: false },
+    { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
+    { field: 'published', header: 'Published', type: 'published', editable: true },
+    { field: 'section_id', header: 'Section ID', type: 'number', editable: false },
+    { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
+  ]
 
   constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) { }
 
@@ -203,10 +230,48 @@ export class PublicationsComponent {
           this.manuscriptsLoader$.next(0);
         });
       }
-
-
     });
   }
 
+  editVersion(version: Version | null, publicationId: number) {
+    console.log('editVersion', version);
+    const dialogRef = this.dialog.open(EditVersionComponent, {
+      width: '400px',
+      data: {
+        version: version ?? {},
+        publicationId,
+        columns: this.allVersionColumnsData
+          .filter(column => column.type !== 'action')
+          .sort((a: any, b: any) => b.editable - a.editable)
+      }
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('versions edit result', result);
+      if (result === true) {
+        this.versionsLoader$.next(0);
+      }
+    });
+  }
+
+  editManuscript(manuscript: Manuscript | null, publicationId: number) {
+    console.log('editManuscript', manuscript);
+    const dialogRef = this.dialog.open(EditManuscriptComponent, {
+      width: '400px',
+      data: {
+        manuscript: manuscript ?? {},
+        publicationId,
+        columns: this.allManuscriptColumnsData
+          .filter(column => column.type !== 'action')
+          .sort((a: any, b: any) => b.editable - a.editable)
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('manuscript edit result', result);
+      if (result === true) {
+        this.manuscriptsLoader$.next(0);
+      }
+    });
+  }
 }

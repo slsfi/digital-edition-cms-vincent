@@ -1,9 +1,5 @@
 <h2 mat-dialog-title>File selector</h2>
 <mat-dialog-content>
-
-  <h4>File tree</h4>
-  <div>selected: {{ selectedNodes.join(' / ') }}</div>
-
   <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl" >
     <!-- Node template for leaf nodes -->
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -31,6 +27,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
+  <div><span class="selected">selected:</span> {{ selectedNodes.join(' / ') }}</div>
   <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button [mat-dialog-close]="selectedNodes" [disabled]="selectedNodes.length === 0">Select</button>
 </mat-dialog-actions>

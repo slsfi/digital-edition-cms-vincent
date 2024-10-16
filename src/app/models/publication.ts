@@ -87,12 +87,16 @@ export interface VersionRequest {
 }
 
 export interface Manuscript {
+  date_created: string;
+  date_modified: string | null;
+  deleted: Deleted;
   id: number;
   language: string | null;
-  manuscript_changes: string;
-  manuscript_normalized: string;
   name: string;
   original_filename: string;
+  publication_id: number;
+  published: Published;
+  section_id: number | null;
   sort_order: number;
 }
 

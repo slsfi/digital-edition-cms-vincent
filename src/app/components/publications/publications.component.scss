@@ -23,6 +23,12 @@ td.selected {
   justify-content: space-between;
 }
 
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .file-row {
   display: flex;
   justify-content: space-between;
@@ -37,4 +43,14 @@ td.selected {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+::ng-deep .mat-mdc-card-header-text {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-card-title {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
 }

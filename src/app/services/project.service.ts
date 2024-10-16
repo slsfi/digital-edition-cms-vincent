@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload } from '../models/person';
-import { Manuscript, ManuscriptRequest, ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version } from '../models/publication';
+import { Manuscript, ManuscriptRequest, ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
 import { Facsimile } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
@@ -171,7 +171,6 @@ export class ProjectService {
       }),
       catchError(() => of())
     );
-
   }
 
   getVersionsForPublication(collectionId: string, publicationId: string): Observable<Version[]> {
@@ -186,7 +185,7 @@ export class ProjectService {
     );
   }
 
-  editVersion(versionId: number, data: PublicationCommentRequest) {
+  editVersion(versionId: number, data: VersionRequest) {
     // /<project>/versions/<version_id>/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
@@ -198,6 +197,17 @@ export class ProjectService {
     );
   }
 
+  addVersion(publicationId: number, data: VersionRequest) {
+    // /<project>/publication/<publication_id>/versions/new/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/new/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+  }
 
   getManuscriptsForPublication(collectionId: string, publicationId: string): Observable<Manuscript[]> {
     // /<project>/publication/<publication_id>/manuscripts/
@@ -223,6 +233,16 @@ export class ProjectService {
     );
   }
 
+  addManuscript(publicationId: number, data: ManuscriptRequest) {
+    // /<project>/publication/<publication_id>/manuscripts/new/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/new/`;
+        return this.apiService.post(url, data);
+      }
+    ));
+  }
 
   getSubjects(): Observable<Person[]> {
     return this.selectedProject$.pipe(
