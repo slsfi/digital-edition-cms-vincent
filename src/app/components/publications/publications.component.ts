@@ -2,7 +2,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, startWith, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
-import { Manuscript, Publication, PublicationCollection, PublicationComment, Version } from '../../models/publication';
+import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column } from '../../models/column';
@@ -10,15 +10,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
-import { EditPublicationCollectionComponent } from '../edit-publication-collection/edit-publication-collection.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPublicationComponent } from '../edit-publication/edit-publication.component';
 import { FileTreeComponent } from "../file-tree/file-tree.component";
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'publications',
   standalone: true,
-  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent],
+  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent, MatCardModule],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
   styleUrl: './publications.component.scss'
@@ -56,12 +56,28 @@ export class PublicationsComponent {
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
 
-  commentsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
+  commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  comment$: Observable<PublicationComment> = new Observable<PublicationComment>();
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = new Observable<Version[]>();
   manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
+
+  versionColumnsData: Column[] = [
+    { field: 'id', header: 'ID', type: 'number', editable: false },
+    { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+    { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
+  ]
+  versionDisplayedColumns: string[] = this.versionColumnsData.map(column => column.field);
+
+  manuscriptColumnsData: Column[] = [
+    { field: 'id', header: 'ID', type: 'number', editable: false },
+    { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+    { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
+  ]
+  manuscriptDisplayedColumns: string[] = this.manuscriptColumnsData.map(column => column.field);
 
   constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) { }
 
@@ -94,7 +110,7 @@ export class PublicationsComponent {
       map(([publications, publicationId]) => publications.find(publication => publication.id === parseInt(publicationId as string)) ?? null)
     );
 
-    this.comments$ = this.commentsLoader$.asObservable().pipe(
+    this.comment$ = this.commentLoader$.asObservable().pipe(
       startWith(0),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
@@ -176,7 +192,7 @@ export class PublicationsComponent {
       } else if (type === 'comment') {
         const data = { filename: filePath }
         this.projectService.editComment(editId, data).subscribe(() => {
-          this.commentsLoader$.next(0);
+          this.commentLoader$.next(0);
         });
       } else if (type === 'version') {
         const data = { filename: filePath }

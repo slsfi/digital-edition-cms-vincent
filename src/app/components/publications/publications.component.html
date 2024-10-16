@@ -48,38 +48,89 @@
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
           <h3>{{ selectedPublication.name }} </h3>
           <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
-            <h4>Reading text</h4>
-            <button mat-button (click)="editSelectedFile('text', selectedPublication.original_filename, selectedPublication.id)">Edit</button>
-            <div>original_filename: {{ selectedPublication.original_filename }}</div>
-            <ng-container *ngIf="comments$ | async as comments else loading">
-              <h4>Comments</h4>
-              <div>count: {{ comments.length }}</div>
-              <ng-container *ngFor="let comment of comments">
-                <button mat-button (click)="editSelectedFile('comment', comment.original_filename, selectedPublication.id)">Edit</button>
-                <div>id: {{ comment.id }}</div>
-                <div>original_filename: {{ comment.original_filename }}</div>
+            <div class="cards">
+              <mat-card appearance="outlined">
+                <mat-card-header>
+                  <mat-card-title>Reading text</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="file-row">
+                    <div><span>Filename:</span> {{ selectedPublication.original_filename }}</div>
+                    <button mat-icon-button (click)="editSelectedFile('text', selectedPublication.original_filename, selectedPublication.id)"><mat-icon>edit</mat-icon></button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+              <ng-container *ngIf="comment$ | async as comment else loading">
+                <mat-card appearance="outlined">
+                  <mat-card-header>
+                    <mat-card-title>Comment</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="file-row">
+                      <div><span>Filename:</span> {{ comment.original_filename }}</div>
+                      <button mat-icon-button (click)="editSelectedFile('comment', comment.original_filename, selectedPublication.id)"><mat-icon>edit</mat-icon></button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
               </ng-container>
-            </ng-container>
-            <ng-container *ngIf="versions$ | async as versions else loading">
-              <h4>Versions</h4>
-              <div *ngIf="versions.length === 0">No versions</div>
-              <ng-container *ngFor="let version of versions">
-                <button mat-button (click)="editSelectedFile('version', version.original_filename, version.id)">Edit</button>
-                <div>id: {{ version.id }}</div>
-                <div>name: {{ version.name }}</div>
-                <div>original_filename: {{ version.original_filename }}</div>
+
+              <ng-container *ngIf="versions$ | async as versions else loading">
+                <mat-card appearance="outlined">
+                  <mat-card-header>
+                    <mat-card-title>Versions</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <table mat-table [dataSource]="versions">
+                      <ng-container *ngFor="let column of versionColumnsData">
+                        <ng-container [matColumnDef]="column.field">
+                          <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+                          <td mat-cell *matCellDef="let version">
+                            <ng-container *ngIf="column.type === 'string' || column.type === 'number'">{{ version[column.field] }}</ng-container>
+                            <ng-container *ngIf="column.field === 'original_filename'">{{ version[column.field] }}</ng-container>
+                            <ng-container *ngIf="column.type === 'action'">
+                              <button mat-icon-button (click)="editSelectedFile('version', version.original_filename, version.id)"><mat-icon>edit</mat-icon></button>
+                            </ng-container>
+                          </td>
+                        </ng-container>
+                      </ng-container>
+                      <tr mat-header-row *matHeaderRowDef="versionDisplayedColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: versionDisplayedColumns;"></tr>
+                      <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" [attr.colspan]="versionColumnsData.length">No versions</td>
+                      </tr>
+                    </table>
+                  </mat-card-content>
+                </mat-card>
               </ng-container>
-            </ng-container>
-            <ng-container *ngIf="manuscripts$ | async as manuscripts else loading">
-              <h4>manuscripts</h4>
-              <div *ngIf="manuscripts.length == 0">No manuscripts</div>
-              <ng-container *ngFor="let manuscript of manuscripts">
-                <button mat-button (click)="editSelectedFile('manuscript', manuscript.original_filename, manuscript.id)">Edit</button>
-                <div>id: {{ manuscript.id }}</div>
-                <div>name: {{ manuscript.name }}</div>
-                <div>original_filename: {{ manuscript.original_filename }}</div>
+              <ng-container *ngIf="manuscripts$ | async as manuscripts else loading">
+                <mat-card appearance="outlined">
+                  <mat-card-header>
+                    <mat-card-title>Manuscripts</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <table mat-table [dataSource]="manuscripts">
+                      <ng-container *ngFor="let column of manuscriptColumnsData">
+                        <ng-container [matColumnDef]="column.field">
+                          <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+                          <td mat-cell *matCellDef="let manuscript">
+                            <ng-container *ngIf="column.type === 'string' || column.type === 'number'">{{ manuscript[column.field] }}</ng-container>
+                            <ng-container *ngIf="column.field === 'original_filename'">{{ manuscript[column.field] }}</ng-container>
+                            <ng-container *ngIf="column.type === 'action'">
+                              <button mat-icon-button (click)="editSelectedFile('manuscript', manuscript.original_filename, manuscript.id)"><mat-icon>edit</mat-icon></button>
+                            </ng-container>
+                          </td>
+                        </ng-container>
+                      </ng-container>
+                      <tr mat-header-row *matHeaderRowDef="manuscriptDisplayedColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: manuscriptDisplayedColumns;"></tr>
+                      <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" [attr.colspan]="manuscriptColumnsData.length">No manuscripts</td>
+                      </tr>
+                    </table>
+                  </mat-card-content>
+                </mat-card>
               </ng-container>
-            </ng-container>
+            </div>
           </ng-container>
         </ng-container>
       </div>

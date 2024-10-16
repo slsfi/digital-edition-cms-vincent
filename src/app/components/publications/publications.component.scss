@@ -22,3 +22,19 @@ td.selected {
   align-items: center;
   justify-content: space-between;
 }
+
+.file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    font-weight: 600;
+  }
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

@@ -147,15 +147,17 @@ export class ProjectService {
     );
   }
 
-  getCommentForPublication(collectionId: string, publicationId: string): Observable<PublicationComment[]> {
+  getCommentForPublication(collectionId: string, publicationId: string): Observable<PublicationComment> {
     // /<project>/publication/<publication_id>/comments/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url).pipe(
+          map((comments: PublicationComment[]) => comments[0] || {} as PublicationComment)
+        )
       }),
-      catchError(() => of([]))
+      catchError(() => of({} as PublicationComment))
     );
   }
 
