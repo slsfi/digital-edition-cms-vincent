@@ -31,7 +31,6 @@ export class ProjectsComponent {
     { field: 'id', header: 'ID', type: 'number', filterable: true },
     { field: 'name', header: 'Name', type: 'string', filterable: true },
     { field: 'published', header: 'Published', type: 'published', filterable: true },
-    { field: 'deleted', header: 'Deleted', type: 'boolean', filterable: true },
     { field: 'date_created', header: 'Date Created', type: 'date', filterable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', filterable: false },
     { field: 'action', header: 'Action', type: 'action', filterable: false }
