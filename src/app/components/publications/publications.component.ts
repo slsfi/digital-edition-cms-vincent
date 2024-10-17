@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter, map, Observable, shareReplay, startWith, Subject, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -57,7 +57,7 @@ export class PublicationsComponent {
 
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
 
-  publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  publicationsLoader$: Subject<void> = new Subject<void>();
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
@@ -152,8 +152,8 @@ export class PublicationsComponent {
 
     this.selectedProject$ = this.projectService.selectedProject$;
 
-    this.publications$ = this.publicationsLoader$.asObservable().pipe(
-      startWith(null),
+    const publicationsShared$ = this.publicationsLoader$.pipe(
+      startWith(void 0),
       debounce(() => timer(500)),
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$])
         .pipe(
@@ -161,10 +161,13 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([project, collectionId]) => this.projectService.getPublications(collectionId as string))
         )
-      )
+      ),
+      shareReplay(1)
     );
 
-    this.filteredPublications$ = combineLatest([this.publications$, this.route.queryParamMap]).pipe(
+    this.publications$ = publicationsShared$;
+
+    this.filteredPublications$ = combineLatest([publicationsShared$, this.route.queryParamMap]).pipe(
       map(([publications, params]) => {
         const queryParams: QueryParamType = {};
 
@@ -263,12 +266,12 @@ export class PublicationsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        this.publicationsLoader$.next(0);
+        this.publicationsLoader$.next();
       }
     });
   }
 
-  editSelectedFile(type: 'text' | 'comment' | 'version' | 'manuscript', filename: string | null = '', editId: number) {
+  editSelectedFile(type: 'text' | 'comment' | 'version' | 'manuscript', filename: string | null = '', editId: number) {
     const dialogRef = this.dialog.open(FileTreeComponent, {
       data: filename
     });
@@ -284,7 +287,7 @@ export class PublicationsComponent {
 
         const data = { original_filename: filePath }
         this.projectService.editPublication(editId, data).subscribe(() => {
-          this.publicationsLoader$.next(0);
+          this.publicationsLoader$.next();
         });
 
       } else if (type === 'comment') {

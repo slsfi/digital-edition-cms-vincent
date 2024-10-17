@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounce, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
+import { combineLatest, filter, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -8,7 +8,7 @@ import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column, QueryParamType } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditPublicationCollectionComponent } from '../../components/edit-publication-collection/edit-publication-collection.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -48,7 +48,7 @@ export class PublicationCollectionsComponent {
     { field: 'title', header: 'Title', type: 'string', editable: false },
   ];
   publicationCollectionDisplayedColumns: string[] = this.publicationCollectionColumnsData.map(column => column.field);
-  publicationCollectionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  publicationCollectionsLoader$: Subject<void> = new Subject<void>();
 
   selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
 
@@ -95,19 +95,21 @@ export class PublicationCollectionsComponent {
       })
     );
 
-    this.publicationCollections$ = this.publicationCollectionsLoader$.asObservable().pipe(
-        startWith(null),
-        debounce(() => timer(500)),
-        switchMap(() => combineLatest([this.selectedProject$, this.projectService.getPublicationCollections()])
-          .pipe(map(([project, publications]) => publications)))
+    const publicationCollectionsShared$ = this.publicationCollectionsLoader$.pipe(
+      startWith(void 0),
+      switchMap(() => combineLatest([this.selectedProject$, this.projectService.getPublicationCollections()])),
+      map(([project, publications]) => publications),
+      shareReplay(1)
     );
 
-    this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
+    this.publicationCollections$ = publicationCollectionsShared$;
+
+    this.selectedPublicationCollection$ = combineLatest([publicationCollectionsShared$, this.publicationCollectionId$]).pipe(
       filter(([publications, collectionId]) => collectionId != null),
       map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
     );
 
-    this.filteredPublicationCollections$ = combineLatest([this.publicationCollections$, this.route.queryParamMap]).pipe(
+    this.filteredPublicationCollections$ = combineLatest([publicationCollectionsShared$, this.route.queryParamMap]).pipe(
       map(([publications, params]) => {
         const queryParams: QueryParamType = {};
 
@@ -158,36 +160,24 @@ export class PublicationCollectionsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        this.publicationCollectionsLoader$.next(0);
+        this.publicationCollectionsLoader$.next();
       }
     });
   }
 
   filter() {
     const columns = this.allPublicationCollectionColumns.filter(column => column.filterable);
-    const dialogRef = this.dialog.open(TableFiltersComponent, {
+    this.dialog.open(TableFiltersComponent, {
       width: '250px',
       data: columns
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        console.log('filtering projects');
-      }
     });
   }
 
   sort() {
     const columns = this.publicationCollectionColumnsData.filter(column => column.field !== 'actions');
-    const dialogRef = this.dialog.open(TableSortingComponent, {
+    this.dialog.open(TableSortingComponent, {
       width: '250px',
       data: columns
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        console.log('sorting projects');
-      }
     });
   }
 

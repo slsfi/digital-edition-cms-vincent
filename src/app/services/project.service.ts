@@ -1,3 +1,4 @@
+import { Publication } from './../models/publication';
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
@@ -102,7 +103,7 @@ export class ProjectService {
     ));
   }
 
-  getPublications(collectionId: string) {
+  getPublications(collectionId: string): Observable<Publication[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
