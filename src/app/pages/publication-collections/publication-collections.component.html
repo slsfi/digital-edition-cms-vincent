@@ -1,3 +1,6 @@
+@let sortParams = sortParams$ | async;
+@let filterParams = filterParams$ | async;
+@let collectionsAmount = (publicationCollections$ | async)?.length ?? 0;
 
 <h1>Text collection management</h1>
 
@@ -15,10 +18,12 @@
 </div>
 
 <ng-template #publicationCollections>
-  <ng-container *ngIf="publicationCollections$ | async as publicationCollections else loading">
+  <ng-container *ngIf="filteredPublicationCollections$ | async as publicationCollections else loading">
     <div class="header-row">
-      <h3>Publication collections ({{publicationCollections.length}})</h3>
+      <h3>Publication collections ({{publicationCollections.length}} / {{collectionsAmount}})</h3>
       <div class="actions">
+        <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
+        <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
         <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
       </div>
     </div>

@@ -1,6 +1,7 @@
-import { Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { QueryParamType } from '../models/column';
+import { Observable } from 'rxjs';
 
 
 
@@ -9,9 +10,10 @@ import { QueryParamType } from '../models/column';
 })
 export class QueryParamsService {
 
+  queryParams$: Observable<Params>;
 
-  constructor(private router: Router) {
-
+  constructor(private router: Router, private route: ActivatedRoute) {
+    this.queryParams$ = this.route.queryParams;
   }
 
   getQueryParams() {
@@ -19,7 +21,7 @@ export class QueryParamsService {
   }
 
   addQueryParams(params: QueryParamType) {
-    this.router.navigate([], { queryParams: params, queryParamsHandling: 'replace' });
+    this.router.navigate([], { queryParams: params, queryParamsHandling: 'merge' });
   }
 
   clearQueryParams() {

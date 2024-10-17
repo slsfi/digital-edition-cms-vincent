@@ -5,52 +5,55 @@ import { Column, QueryParamType } from '../../models/column';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { personTypeOptions } from '../../models/person';
 
 @Component({
-  selector: 'app-table-filters',
+  selector: 'app-table-sorting',
   standalone: true,
   imports: [CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule, ReactiveFormsModule, MatDialogModule, MatButtonModule],
-  templateUrl: './table-filters.component.html',
-  styleUrl: './table-filters.component.scss'
+  templateUrl: './table-sorting.component.html',
+  styleUrl: './table-sorting.component.scss'
 })
-export class TableFiltersComponent {
+export class TableSortingComponent {
 
   constructor(private queryParamsService: QueryParamsService) { }
 
   form!: FormGroup;
   readonly data = inject<Column[]>(MAT_DIALOG_DATA);
 
-  personTypes = personTypeOptions;
-
   ngOnInit() {
-    this.form = new FormGroup({});
     const queryParams = this.queryParamsService.getQueryParams();
-    this.data.forEach((column) => {
-      let value = queryParams[column.field] || '';
-      if (value && (column.type === 'number' || column.type === 'published')) {
-        value = parseInt(value);
-      }
-      this.form.addControl(column.field, new FormControl(value));
+    this.form = new FormGroup({
+      field: new FormControl(queryParams['sort'], Validators.required),
+      direction: new FormControl(queryParams['direction'], Validators.required)
     });
+  }
+
+  get field() {
+    return this.form.get('field');
+  }
+
+  get direction() {
+    return this.form.get('direction');
   }
 
   submit(event: Event) {
     event.preventDefault();
-    const params: QueryParamType = {};
-    Object.entries(this.form.value).forEach(([key, value]) => {
-      if (value != '') {
-        params[key] = (value as string).toLowerCase();
-      }
-    });
+    const params: QueryParamType = {
+      sort: this.form.value.field,
+      direction: this.form.value.direction
+    };
     this.queryParamsService.addQueryParams(params);
   }
 
   reset() {
     this.form.reset();
-    this.queryParamsService.addQueryParams(this.form.value);
+    const params: QueryParamType = {
+      sort: this.form.value.field,
+      direction: this.form.value.direction
+    };
+    this.queryParamsService.addQueryParams(params);
   }
 }

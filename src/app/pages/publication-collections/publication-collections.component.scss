@@ -13,3 +13,8 @@
   align-items: center;
   justify-content: space-between;
 }
+
+::ng-deep .mat-badge-content {
+  background-color: #f44336 !important;
+  color: white !important;
+}

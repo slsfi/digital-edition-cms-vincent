@@ -5,7 +5,7 @@ import { ProjectService } from '../../services/project.service';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column } from '../../models/column';
+import { Column, QueryParamType } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -16,20 +16,24 @@ import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatCardModule } from '@angular/material/card';
 import { EditVersionComponent } from '../edit-version/edit-version.component';
 import { EditManuscriptComponent } from '../edit-manuscript/edit-manuscript.component';
+import { TableFiltersComponent } from '../table-filters/table-filters.component';
+import { TableSortingComponent } from '../table-sorting/table-sorting.component';
+import { QueryParamsService } from '../../services/query-params.service';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'publications',
   standalone: true,
-  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent, MatCardModule],
+  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent, MatCardModule, MatBadgeModule],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent {
   publicationColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', editable: false },
-    { field: 'name', header: 'Name', type: 'string', editable: true },
-    { field: 'published', header: 'Published', type: 'published', editable: true },
+    { field: 'id', header: 'ID', type: 'number', editable: false, filterable: true },
+    { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true },
+    { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true },
     { field: 'actions', header: 'Actions', type: 'action', editable: false },
   ];
   allPublicationColumnsData: Column[] = [
@@ -57,6 +61,7 @@ export class PublicationsComponent {
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
+  filteredPublications$: Observable<Publication[]> = new Observable<Publication[]>();
 
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comment$: Observable<PublicationComment> = new Observable<PublicationComment>();
@@ -82,7 +87,6 @@ export class PublicationsComponent {
     { field: 'section_id', header: 'Section ID', type: 'number', editable: false },
     { field: 'type', header: 'Type', type: 'number', editable: true },
     { field: 'id', header: 'ID', type: 'number', editable: false },
-
   ]
 
   manuscriptColumnsData: Column[] = [
@@ -104,10 +108,39 @@ export class PublicationsComponent {
     { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
   ]
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog) { }
+  queryParams$ = new Observable<any>();
+  sortParams$: Observable<any[]> = new Observable<any[]>();
+  filterParams$: Observable<any[]> = new Observable<any[]>();
+
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog, private queryParamsService: QueryParamsService) { }
 
   ngOnInit() {
-    const paramMap$ = this.route.paramMap.pipe();
+    this.queryParams$ = this.queryParamsService.queryParams$;
+    this.sortParams$ = this.queryParams$.pipe(
+      map(params => {
+        const sort = params['sort'];
+        const direction = params['direction'];
+        if (sort && direction) {
+          return [{ key: sort, value: direction }];
+        }
+        return [];
+      })
+    );
+
+    this.filterParams$ = this.queryParams$.pipe(
+      map(params => {
+        const keys = ['name', 'published', 'id'];
+        const res: any[] = [];
+        keys.forEach(key => {
+          if (params[key]) {
+            res.push({ key, value: params[key] });
+          }
+        });
+        return res;
+      })
+    );
+
+    const paramMap$ = this.route.paramMap;
 
     this.publicationCollectionId$ = paramMap$.pipe(
       map(params => params.get('collectionId'))
@@ -129,6 +162,42 @@ export class PublicationsComponent {
           switchMap(([project, collectionId]) => this.projectService.getPublications(collectionId as string))
         )
       )
+    );
+
+    this.filteredPublications$ = combineLatest([this.publications$, this.route.queryParamMap]).pipe(
+      map(([publications, params]) => {
+        const queryParams: QueryParamType = {};
+
+        params.keys.forEach(key => {
+          const k = params.get(key);
+          if (k) {
+            queryParams[key] = k;
+          }
+        });
+
+        if (queryParams['name']) {
+          publications = publications.filter(publication => publication.name.toLowerCase().includes(queryParams['name']));
+        }
+        if (queryParams['published']) {
+          publications = publications.filter(publication => publication.published === parseInt(queryParams['published']));
+        }
+        if (queryParams['id']) {
+          publications = publications.filter(publication => publication.id === parseInt(queryParams['id']));
+        }
+
+        let filteredPublications = [...publications];
+        if (queryParams['sort'] && queryParams['direction']) {
+          filteredPublications = filteredPublications.sort((a: any, b: any) => {
+            if (queryParams['direction'] === 'asc') {
+              return a[queryParams['sort']] > b[queryParams['sort']] ? 1 : -1;
+            } else {
+              return a[queryParams['sort']] < b[queryParams['sort']] ? 1 : -1;
+            }
+          });
+        }
+
+        return filteredPublications;
+      })
     );
 
     this.selectedPublication$ = combineLatest([this.publications$, this.publicationId$]).pipe(
@@ -238,7 +307,6 @@ export class PublicationsComponent {
   }
 
   editVersion(version: Version | null, publicationId: number) {
-    console.log('editVersion', version);
     const dialogRef = this.dialog.open(EditVersionComponent, {
       width: '400px',
       data: {
@@ -251,7 +319,6 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('versions edit result', result);
       if (result === true) {
         this.versionsLoader$.next(0);
       }
@@ -259,7 +326,6 @@ export class PublicationsComponent {
   }
 
   editManuscript(manuscript: Manuscript | null, publicationId: number) {
-    console.log('editManuscript', manuscript);
     const dialogRef = this.dialog.open(EditManuscriptComponent, {
       width: '400px',
       data: {
@@ -272,10 +338,25 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('manuscript edit result', result);
       if (result === true) {
         this.manuscriptsLoader$.next(0);
       }
+    });
+  }
+
+  filter() {
+    const columns = this.publicationColumnsData.filter(column => column.filterable);
+    this.dialog.open(TableFiltersComponent, {
+      width: '250px',
+      data: columns
+    });
+  }
+
+  sort() {
+    const columns = this.publicationColumnsData.filter(column => column.field !== 'actions');
+    this.dialog.open(TableSortingComponent, {
+      width: '250px',
+      data: columns
     });
   }
 }

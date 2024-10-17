@@ -64,9 +64,6 @@ export class ProjectsComponent {
         if (queryParams['published']) {
           projects = projects.filter(project => project.published === parseInt(queryParams['published']));
         }
-        if (queryParams['deleted']) {
-          projects = projects.filter(project => project.deleted === parseInt(queryParams['deleted']));
-        }
         if (queryParams['id']) {
           projects = projects.filter(project => project.id === parseInt(queryParams['id']));
         }
