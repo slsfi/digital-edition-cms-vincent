@@ -99,8 +99,6 @@
 
 <ng-template #loading>
   <ng-container *ngIf="selectedProject$ | async as selectedProject">
-    <ng-container *ngIf="(loading$ | async) === false">
-      <loading-spinner></loading-spinner>
-      </ng-container>
+    <loading-spinner [overlay]="true"></loading-spinner>
   </ng-container>
 </ng-template>

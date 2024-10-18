@@ -3,10 +3,11 @@ import { provideRouter, withComponentInputBinding, withRouterConfig } from '@ang
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors } from '@angular/common/http';
 
-import { authInterceptor } from './auth.interceptor';
+import { authInterceptor } from './interceptors/auth.interceptor';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { loadingInterceptor } from './interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding(), withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideAnimationsAsync('animations'),
     provideHttpClient(
-      withInterceptors([authInterceptor]),
+      withInterceptors([authInterceptor, loadingInterceptor]),
     ),
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }, provideAnimationsAsync(),
   ],

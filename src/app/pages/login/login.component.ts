@@ -1,3 +1,4 @@
+import { LoadingService } from './../../services/loading.service';
 import { ApiService } from './../../services/api.service';
 import { Component, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,8 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 const requiredIfEnvironmentIsCustom = function(control: AbstractControl) {
   const form = control.parent as FormGroup;
@@ -21,15 +23,18 @@ const requiredIfEnvironmentIsCustom = function(control: AbstractControl) {
 @Component({
   selector: 'login',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, ReactiveFormsModule, CommonModule, MatIconModule],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, ReactiveFormsModule, CommonModule, MatIconModule, LoadingSpinnerComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  constructor(private apiService: ApiService, private authService: AuthService) {
+  constructor(private apiService: ApiService, private authService: AuthService, private loadingService: LoadingService) {
+    this.loading$ = this.loadingService.loading$;
   }
 
   valueChanges: Subscription = new Subscription();
+
+  loading$: Observable<boolean>;
 
   ngOnInit() {
     this.valueChanges = this.environment.valueChanges.subscribe(() => {

@@ -3,6 +3,12 @@
 @let queryParams = queryParams$ | async;
 @let publicationsAmount = (publications$ | async)?.length ?? 0;
 
+<ng-template #loadingOverlay>
+  <ng-container *ngIf="selectedProject$ | async as selectedProject">
+    <loading-spinner [overlay]="true"></loading-spinner>
+  </ng-container>
+</ng-template>
+
 <ng-template #loading>
   <ng-container *ngIf="selectedProject$ | async as selectedProject">
     <loading-spinner></loading-spinner>
@@ -13,7 +19,7 @@
   <div class="publications">
     <div class="content">
       <div class="list">
-        <ng-container *ngIf="filteredPublications$ | async as publications else loading">
+        <ng-container *ngIf="filteredPublications$ | async as publications else loadingOverlay">
             <div class="header-row">
               <h3>Publications ({{publications.length}} / {{ publicationsAmount }})</h3>
               <div class="actions">

@@ -18,6 +18,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-persons',
@@ -71,8 +72,8 @@ export class PersonsComponent {
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService, private apiService: ApiService) {
-    this.loading$ = this.apiService.loading$;
+  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService, private loadingService: LoadingService) {
+    this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.projectService.selectedProject$;
     // Listen for URL changes, start with the current URL to ensure the stream has an initial value
     this.url$ = this.router.events.pipe(
