@@ -1,0 +1,24 @@
+
+form .mat-mdc-form-field {
+  width: 100%;
+}
+
+.translations {
+  padding: 10px;
+  border: solid 1px #ccc;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-translations {
+  margin-top: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}

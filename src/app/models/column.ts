@@ -6,6 +6,7 @@ export interface Column {
   editable?: boolean;
   required?: boolean;
   editOrder?: number;
+  translations?: boolean;
 }
 
 export type QueryParamType = {

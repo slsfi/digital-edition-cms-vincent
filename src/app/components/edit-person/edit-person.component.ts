@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { Person, personTypeOptions } from '../../models/person';
+import { Person, personTypeOptions, Translation } from '../../models/person';
 import { MatInputModule } from '@angular/material/input';
 import { Column } from '../../models/column';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,6 +12,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { ProjectService } from '../../services/project.service';
+import { MatIconModule } from '@angular/material/icon';
+import { Observable } from 'rxjs';
+import { TranslationsComponent } from '../translations/translations.component';
 
 interface InputData {
   person: Person;
@@ -21,7 +24,7 @@ interface InputData {
 @Component({
   selector: 'app-edit-person',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe],
+  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe, MatIconModule, TranslationsComponent],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-person.component.html',
   styleUrl: './edit-person.component.scss'
@@ -36,6 +39,11 @@ export class EditPersonComponent {
 
   form!: FormGroup;
   columns: Column[] = [];
+  translationForm!: FormGroup;
+
+  fieldForTranslate: string | null = null;
+
+  fieldTranslations$: Observable<Translation> = new Observable<Translation>();
 
   isBCDate(dateString: string | number | null) {
     if (dateString == null) {
@@ -78,7 +86,6 @@ export class EditPersonComponent {
 
   onSubmit(event: Event) {
     event.preventDefault();
-    console.log('PersonForm submitted', this.form.value);
     if (this.data.person.id) {
       this.projectService.editSubject(this.data.person.id, this.form.value).subscribe(() => {});
     } else {
@@ -86,5 +93,11 @@ export class EditPersonComponent {
     }
 
   }
+
+  showTranslations(column: Column) {
+    this.fieldForTranslate = column.field;
+  }
+
+
 
 }

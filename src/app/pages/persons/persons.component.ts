@@ -38,15 +38,16 @@ export class PersonsComponent {
   queryParams$: Observable<any> = new Observable<any>();
   allSubjectsLength: number = 0;
 
-  loading$: Observable<boolean> = new Observable<boolean>();
+  loading$: Observable<boolean>;
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'string', editable: true, editOrder: 5 },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true, editOrder: 1 },
-    { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, required: true, editOrder: 2 },
+    { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, required: true, editOrder: 2, translations: true },
     { field: 'date_born', header: 'Date Born', filterable: false, type: 'date', editable: true, editOrder: 3 },
     { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'date', editable: true, editOrder: 3 },
+    { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
     { field: 'action', header: 'Actions', filterable: false, type: 'action' },
   ]
 
@@ -58,13 +59,13 @@ export class PersonsComponent {
     { field: 'alias', header: 'Alias', filterable: false, type: 'string', editable: false },
     { field: 'first_name', header: 'First name', filterable: false, type: 'string', editable: true, editOrder: 0 },
     { field: 'last_name', header: 'Last name', filterable: false, type: 'string', editable: true, editOrder: 0 },
-    { field: 'occupation', header: 'Occupation', filterable: false, type: 'string', editable: false },
+    { field: 'occupation', header: 'Occupation', filterable: false, type: 'string', editable: false, translations: true },
     { field: 'place_of_birth', header: 'Place of birth', filterable: false, type: 'string', editable: false },
     { field: 'preposition', header: 'Preposition', filterable: false, type: 'string', editable: true, editOrder: 0  },
     { field: 'previous_last_name', header: 'Previous last name', filterable: false, type: 'string', editable: false },
     { field: 'project_id', header: 'Project ID', filterable: false, type: 'number', editable: false },
     { field: 'source', header: 'Source', filterable: false, type: 'string', editable: false },
-    { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
+    // { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
     { field: 'type', header: 'Type', filterable: true, type: 'type', editable: true, required: true, editOrder: 4 },
   ]
 
@@ -128,7 +129,7 @@ export class PersonsComponent {
 
   edit(person: Person | null = null) {
     const dialogRef = this.dialog.open(EditPersonComponent, {
-      width: '400px',
+      width: '500px',
       data: {
         person: person ?? {},
         columns: this.allColumns
@@ -147,17 +148,10 @@ export class PersonsComponent {
 
   filterPersons() {
     const columns = this.allColumns.filter(column => column.filterable);
-    const dialogRef = this.dialog.open(TableFiltersComponent, {
+    this.dialog.open(TableFiltersComponent, {
       width: '250px',
       data: columns
     });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        console.log('filtering projects');
-      }
-    });
-
   }
 
 

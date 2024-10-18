@@ -90,15 +90,9 @@ export class ProjectsComponent {
 
   filterProjects() {
     const columns = this.columnsData.filter(column => column.filterable);
-    const dialogRef = this.dialog.open(TableFiltersComponent, {
+    this.dialog.open(TableFiltersComponent, {
       width: '250px',
       data: columns
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        console.log('filtering projects');
-      }
     });
   }
 

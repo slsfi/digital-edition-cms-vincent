@@ -1,0 +1,91 @@
+@let translations = fieldTranslations$ | async;
+@let activeLanguages = mode() === 'edit' ? languages : filteredLanguages;
+
+<div class="translations">
+  <button mat-icon-button type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
+  @if (mode() != '') {
+    <form [formGroup]="form" id="translation-form" (ngSubmit)="onSubmitTranslation($event)">
+      <h4>{{mode() === 'edit' ? 'Edit' : 'Add'}} Translation for {{ field() }}</h4>
+      <mat-form-field>
+        <mat-label>Language</mat-label>
+        <mat-select formControlName="language">
+          @for (lang of activeLanguages; track lang.value) {
+            <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Text</mat-label>
+        <textarea
+          matInput
+          formControlName="text"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="7">
+        </textarea>
+      </mat-form-field>
+      @if (mode() === 'edit') {
+        <mat-form-field>
+          <mat-label>Deleted</mat-label>
+          <mat-select formControlName="deleted">
+            <mat-option [value]="0">No</mat-option>
+            <mat-option [value]="1">Yes</mat-option>
+          </mat-select>
+        </mat-form-field>
+      }
+      <mat-form-field>
+        <mat-label>Neutral text</mat-label>
+        <textarea
+          matInput
+          formControlName="neutral_text"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="7">
+        </textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Table name</mat-label>
+        <input matInput formControlName="table_name" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Field name</mat-label>
+        <input matInput formControlName="field_name" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Translation ID</mat-label>
+        <input matInput formControlName="translation_id" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Parent ID</mat-label>
+        <input matInput formControlName="parent_id" />
+      </mat-form-field>
+    </form>
+  } @else {
+    <div class="header-row">
+      <h2>original {{ field() }}</h2>
+      <button mat-flat-button type="button" (click)="addTranslation()"><mat-icon>add</mat-icon>Add translation</button>
+    </div>
+    <div>{{ originalText }}</div>
+
+    @if (translations && translations.length) {
+      <div class="edit-translations">
+        @for (translation of translations; track translation.language) {
+          <div class="header-row">
+            <h3>{{ languageNames[translation.language] }}</h3>
+            <button mat-flat-button (click)="editTranslation(translation)"><mat-icon>edit</mat-icon>Edit</button>
+          </div>
+          {{ translation.text }}
+        }
+      </div>
+    }
+  }
+
+  <div class="actions">
+    @if (mode() !== '') {
+      <button mat-button type="button" (click)="previous()">Cancel</button>
+      <button mat-button type="submit" form="translation-form" [disabled]="!form.valid">{{mode() === 'edit' ? 'Save' : 'Add'}} translation</button>
+    }
+  </div>
+</div>
