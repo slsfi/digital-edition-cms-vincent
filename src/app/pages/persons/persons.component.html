@@ -29,10 +29,11 @@
     </div>
     <ng-container *ngIf="subjects.length < 1000 else virtualScroll">
       <table mat-table [dataSource]="subjects">
-        @for (column of columnsData; track column.field) {
+        @for (column of columnsData; track column.field;) {
           <ng-container [matColumnDef]="column.field">
-            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-            <td mat-cell *matCellDef="let subject">
+            <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
+            <td mat-cell [ngClass]="{'index': column.type === 'index'}" *matCellDef="let subject; let i = index;">
+              <ng-container *ngIf="column.type === 'index'">{{ i + 1 }}</ng-container>
               <ng-container *ngIf="column.type === 'date'">{{ subject[column.field] | customDate: 'd.M.yyyy' }}</ng-container>
               <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'textarea'">{{ subject[column.field] }}</ng-container>
               <ng-container *ngIf="column.type === 'boolean'">{{ subject[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>

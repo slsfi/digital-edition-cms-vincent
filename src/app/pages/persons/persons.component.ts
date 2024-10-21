@@ -42,6 +42,7 @@ export class PersonsComponent {
   loading$: Observable<boolean>;
 
   columnsData: Column[] = [
+    { field: 'index', header: '#', filterable: false, type: 'index' },
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'string', editable: true, editOrder: 5 },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true, editOrder: 1 },
@@ -134,7 +135,7 @@ export class PersonsComponent {
       data: {
         person: person ?? {},
         columns: this.allColumns
-          .filter(column => column.type !== 'action')
+          .filter(column => column.type !== 'action' && column.type !== 'index')
           .sort((a: any, b: any) => b.editable - a.editable)
           .sort((a: any, b: any) => a.editOrder - b.editOrder)
       }
