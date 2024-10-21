@@ -10,11 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { EditFacsimileComponent } from '../../components/edit-facsimile/edit-facsimile.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-facsimiles',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule],
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'
 })

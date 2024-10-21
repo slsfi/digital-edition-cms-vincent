@@ -9,37 +9,39 @@
   </div>
   <ng-container *ngIf="facsimileCollections$ | async as facsimiles else loading">
     <span>{{ facsimiles.length }}</span>
-    <table mat-table [dataSource]="facsimiles">
-      <ng-container [matColumnDef]="column.field" *ngFor="let column of columnsData">
-        <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
-        <td mat-cell [ngClass]="{'index': column.type === 'index'}" *matCellDef="let facsimile; let i = index;">
-          @if (column.type === 'index') {
-            {{ i + 1 }}
-          } @else if (column.type === 'date') {
-            {{ facsimile[column.field] | date: 'd.M.yyyy' }}
-          } @else if (column.type === 'string' || column.type === 'number' || column.type === 'textarea') {
-            {{ facsimile[column.field] }}
-          } @else if (column.type === 'boolean') {
-            {{ facsimile[column.field] === 0 ? 'No' : 'Yes' }}
-          } @else if (column.type === 'published') {
-            @if (facsimile[column.field] === 0) {
-              Not published
-            } @else if (facsimile[column.field] === 1) {
-              Internally
-            } @else if (facsimile[column.field] === 2) {
-              Externally
+    <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
+      <table class="mat-mdc-table">
+        <thead>
+          <tr>
+            <th class="index">#</th>
+            @for (column of columnsData; track column.field) {
+              <th>{{ column.header }}</th>
             }
-          } @else if (column.type === 'actions') {
-            <button mat-icon-button (click)="editCollection(facsimile)"><mat-icon>edit</mat-icon></button>
+          </tr>
+        </thead>
+        <tr *ngIf="!facsimiles.length">
+          <td [attr.colspan]="columnsData.length">No data</td>
+        </tr>
+        <tr *cdkVirtualFor="let facsimile of facsimiles; let i = index;">
+          <td class="index">{{ i + 1 }}</td>
+          @for (column of columnsData; track column.field) {
+            <td>
+              <ng-container *ngIf="column.type === 'date'">{{ facsimile[column.field] | date: 'd.M.yyyy' }}</ng-container>
+              <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'textarea'">{{ facsimile[column.field] }}</ng-container>
+              <ng-container *ngIf="column.type === 'boolean'">{{ facsimile[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
+              <ng-container *ngIf="column.type === 'published'">
+                <ng-container *ngIf="facsimile[column.field] === 0">Not published</ng-container>
+                <ng-container *ngIf="facsimile[column.field] === 1">Internally</ng-container>
+                <ng-container *ngIf="facsimile[column.field] === 2">Externally</ng-container>
+              </ng-container>
+              <ng-container *ngIf="column.type === 'actions'">
+                <button mat-icon-button (click)="editCollection(facsimile)"><mat-icon>edit</mat-icon></button>
+              </ng-container>
+            </td>
           }
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" [attr.colspan]="columnsData.length">No data</td>
-      </tr>
-    </table>
+        </tr>
+      </table>
+    </cdk-virtual-scroll-viewport>
 
   </ng-container>
 
