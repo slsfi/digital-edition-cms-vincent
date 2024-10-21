@@ -1,4 +1,54 @@
-<p>facsimiles works!</p>
-<ng-container *ngIf="facsimiles$ | async as facsimiles">
-  <span>{{ facsimiles.length }}</span>
-</ng-container>
+@let selectedProject = selectedProject$ | async;
+<div class="container">
+
+  <div class="header-row">
+    <h1>Facsimile management</h1>
+    <div class="actions">
+      <button mat-flat-button (click)="editCollection()"><mat-icon>add</mat-icon>Add</button>
+    </div>
+  </div>
+  <ng-container *ngIf="facsimileCollections$ | async as facsimiles else loading">
+    <span>{{ facsimiles.length }}</span>
+    <table mat-table [dataSource]="facsimiles">
+      <ng-container [matColumnDef]="column.field" *ngFor="let column of columnsData">
+        <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
+        <td mat-cell [ngClass]="{'index': column.type === 'index'}" *matCellDef="let facsimile; let i = index;">
+          @if (column.type === 'index') {
+            {{ i + 1 }}
+          } @else if (column.type === 'date') {
+            {{ facsimile[column.field] | date: 'd.M.yyyy' }}
+          } @else if (column.type === 'string' || column.type === 'number' || column.type === 'textarea') {
+            {{ facsimile[column.field] }}
+          } @else if (column.type === 'boolean') {
+            {{ facsimile[column.field] === 0 ? 'No' : 'Yes' }}
+          } @else if (column.type === 'published') {
+            @if (facsimile[column.field] === 0) {
+              Not published
+            } @else if (facsimile[column.field] === 1) {
+              Internally
+            } @else if (facsimile[column.field] === 2) {
+              Externally
+            }
+          } @else if (column.type === 'actions') {
+            <button mat-icon-button (click)="editCollection(facsimile)"><mat-icon>edit</mat-icon></button>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="columnsData.length">No data</td>
+      </tr>
+    </table>
+
+  </ng-container>
+
+  <ng-template #loading>
+    @if (!selectedProject) {
+      <p>Please select a project</p>
+    } @else {
+      <loading-spinner></loading-spinner>
+    }
+  </ng-template>
+
+</div>

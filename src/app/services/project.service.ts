@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload, TranslationRequest, TranslationRequestPost } from '../models/person';
-import { Manuscript, ManuscriptRequest, ManuscriptResponse, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
-import { Facsimile } from '../models/facsimile';
+import { Manuscript, ManuscriptRequest, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
+import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project } from '../models/project';
 
 @Injectable({
@@ -63,12 +63,32 @@ export class ProjectService {
     localStorage.setItem('selected_project', project || '');
   }
 
-  getFacsimiles(): Observable<Facsimile[]> {
+  getFacsimileCollections(): Observable<FacsimileCollection[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
         return this.apiService.get(url);
+      }
+    ));
+  }
+
+  addFacsimileCollection(data: FacsimileCollectionCreateRequest) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/new/`;
+        return this.apiService.post(url, data);
+      }
+    ));
+  }
+
+  editFacsimileCollection(collectionId: number, data: FacsimileCollectionEditRequest) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${collectionId}/edit/`;
+        return this.apiService.post(url, data);
       }
     ));
   }
