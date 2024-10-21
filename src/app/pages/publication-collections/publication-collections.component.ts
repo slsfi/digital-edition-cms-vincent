@@ -134,9 +134,9 @@ export class PublicationCollectionsComponent {
         if (queryParams['sort'] && queryParams['direction']) {
           filteredPublications = filteredPublications.sort((a: any, b: any) => {
             if (queryParams['direction'] === 'asc') {
-              return a[queryParams['sort']] > b[queryParams['sort']] ? 1 : -1;
+              return a[queryParams['sort']].toLowerCase() > b[queryParams['sort']].toLowerCase() ? 1 : -1;
             } else {
-              return a[queryParams['sort']] < b[queryParams['sort']] ? 1 : -1;
+              return a[queryParams['sort']].toLowerCase() < b[queryParams['sort']].toLowerCase() ? 1 : -1;
             }
           });
         }

@@ -27,7 +27,7 @@ export class TableSortingComponent {
     const queryParams = this.queryParamsService.getQueryParams();
     this.form = new FormGroup({
       field: new FormControl(queryParams['sort'], Validators.required),
-      direction: new FormControl(queryParams['direction'], Validators.required)
+      direction: new FormControl(queryParams['direction'] ?? 'asc', Validators.required)
     });
   }
 
