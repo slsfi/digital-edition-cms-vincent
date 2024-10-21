@@ -113,12 +113,14 @@ export class PublicationCollectionsComponent {
       map(([publications, params]) => {
         const queryParams: QueryParamType = {};
 
+
         params.keys.forEach(key => {
           const k = params.get(key);
           if (k) {
             queryParams[key] = k;
           }
         });
+        console.log({params, queryParams});
 
         if (queryParams['name']) {
           publications = publications.filter(publication => publication.name.toLowerCase().includes(queryParams['name']));
@@ -133,10 +135,16 @@ export class PublicationCollectionsComponent {
         let filteredPublications = [...publications];
         if (queryParams['sort'] && queryParams['direction']) {
           filteredPublications = filteredPublications.sort((a: any, b: any) => {
+            let aValue = a[queryParams['sort']];
+            let bValue = b[queryParams['sort']];
+            if (typeof aValue === 'string') {
+              aValue = aValue.toLowerCase();
+              bValue = bValue.toLowerCase();
+            }
             if (queryParams['direction'] === 'asc') {
-              return a[queryParams['sort']].toLowerCase() > b[queryParams['sort']].toLowerCase() ? 1 : -1;
+              return aValue > bValue ? 1 : -1;
             } else {
-              return a[queryParams['sort']].toLowerCase() < b[queryParams['sort']].toLowerCase() ? 1 : -1;
+              return aValue < bValue ? 1 : -1;
             }
           });
         }

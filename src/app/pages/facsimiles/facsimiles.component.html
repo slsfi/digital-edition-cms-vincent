@@ -1,14 +1,23 @@
 @let selectedProject = selectedProject$ | async;
+@let facsimiles = filteredFacsimileCollections$ | async;
+@let totalFacsimiles = (facsimileCollections$ | async)?.length;
+@let sortParams = sortParams$ | async;
+@let filterParams = filterParams$ | async;
+
 <div class="container">
 
   <div class="header-row">
     <h1>Facsimile management</h1>
     <div class="actions">
+      <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
+      <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
       <button mat-flat-button (click)="editCollection()"><mat-icon>add</mat-icon>Add</button>
     </div>
   </div>
-  <ng-container *ngIf="facsimileCollections$ | async as facsimiles else loading">
-    <span>{{ facsimiles.length }}</span>
+  <ng-container *ngIf="facsimiles else loading">
+    <div class="total">
+      <span>{{ facsimiles.length }} / {{ totalFacsimiles }}</span>
+    </div>
     <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
       <table class="mat-mdc-table">
         <thead>

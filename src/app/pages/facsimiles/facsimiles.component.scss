@@ -25,3 +25,14 @@ table {
     border-top: 1px solid #e0e0e0;
   }
 }
+
+::ng-deep .mat-badge-content {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.total {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 0;
+}
