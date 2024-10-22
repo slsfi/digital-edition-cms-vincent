@@ -2,19 +2,19 @@ import { Component } from '@angular/core';
 import { combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
-import { FacsimileCollection } from '../../models/facsimile';
+import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatTableModule } from '@angular/material/table';
 import { Column } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { EditFacsimileComponent } from '../../components/edit-facsimile/edit-facsimile.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
+import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 
 @Component({
   selector: 'app-facsimiles',
@@ -125,18 +125,36 @@ export class FacsimilesComponent {
   }
 
   editCollection(collection: FacsimileCollection | null = null) {
-    console.log('Edit collection', collection);
-    const dialogRef = this.dialog.open(EditFacsimileComponent, {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
       data: {
-        facsimile: collection ?? {},
-        columns: this.columnsData.filter(column => column.type != 'actions')
+        model: collection ?? {},
+        columns: this.columnsData.filter(column => column.type != 'actions'),
+        title: 'Fascimile collection'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed', result);
       if (result) {
-        this.loader$.next();
+
+        const payload = result.form.value as FacsimileCollectionEditRequest;
+
+        let req;
+        if (collection?.id) {
+          req = this.projectService.editFacsimileCollection(collection.id, payload)
+        } else {
+          const data: FacsimileCollectionCreateRequest = {
+            title: payload.title,
+            description: payload.description,
+            folderPath: payload.folder_path,
+            externalUrl: payload.external_url,
+            numberOfPages: payload.number_of_pages,
+            startPageNumber: payload.start_page_number,
+          };
+          req = this.projectService.addFacsimileCollection(data);
+        }
+        req.subscribe(() => {
+          this.loader$.next();
+        });
       }
     });
   }

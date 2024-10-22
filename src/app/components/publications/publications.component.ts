@@ -11,15 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { MatDialog } from '@angular/material/dialog';
-import { EditPublicationComponent } from '../edit-publication/edit-publication.component';
 import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatCardModule } from '@angular/material/card';
-import { EditVersionComponent } from '../edit-version/edit-version.component';
-import { EditManuscriptComponent } from '../edit-manuscript/edit-manuscript.component';
 import { TableFiltersComponent } from '../table-filters/table-filters.component';
 import { TableSortingComponent } from '../table-sorting/table-sorting.component';
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
+import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
 
 @Component({
   selector: 'publications',
@@ -252,21 +250,29 @@ export class PublicationsComponent {
 
   }
 
-  editPublication(publication: Publication | null = null, collectionId: string = '') {
-    const dialogRef = this.dialog.open(EditPublicationComponent, {
+  editPublication(publication: Publication | null = null, collectionId: string) {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '400px',
       data: {
-        colectionId: collectionId,
-        publication: publication ?? {},
+        model: publication ?? {},
         columns: this.allPublicationColumnsData
           .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable)
+          .sort((a: any, b: any) => b.editable - a.editable),
+        title: 'Publication'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.publicationsLoader$.next();
+      if (result) {
+        let req;
+        if (publication?.id) {
+          req = this.projectService.editPublication(publication.id, result.form.value);
+        } else {
+          req = this.projectService.addPublication(parseInt(collectionId), result.form.value);
+        }
+        req.subscribe(() => {
+          this.publicationsLoader$.next();
+        });
       }
     });
   }
@@ -310,39 +316,70 @@ export class PublicationsComponent {
   }
 
   editVersion(version: Version | null, publicationId: number) {
-    const dialogRef = this.dialog.open(EditVersionComponent, {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '400px',
       data: {
-        version: version ?? {},
-        publicationId,
+        model: version ?? {},
         columns: this.allVersionColumnsData
           .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable)
+          .sort((a: any, b: any) => b.editable - a.editable),
+        title: 'Version'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.versionsLoader$.next(0);
+      if (result) {
+        const payload = {
+          title: result.form.value.name,
+          filename: result.form.value.original_filename,
+          published: result.form.value.published ? result.form.value.published : null,
+          sort_order: result.form.value.sort_order,
+          version_type: result.form.value.type,
+        }
+
+        let req;
+        if (version?.id) {
+          req = this.projectService.editVersion(version.id, payload);
+        } else {
+          req = this.projectService.addVersion(publicationId, payload);
+        }
+        req.subscribe(() => {
+          this.versionsLoader$.next(0);
+        });
       }
     });
   }
 
   editManuscript(manuscript: Manuscript | null, publicationId: number) {
-    const dialogRef = this.dialog.open(EditManuscriptComponent, {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '400px',
       data: {
-        manuscript: manuscript ?? {},
-        publicationId,
+        model: manuscript ?? {},
         columns: this.allManuscriptColumnsData
           .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable)
+          .sort((a: any, b: any) => b.editable - a.editable),
+        title: 'Manuscript'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.manuscriptsLoader$.next(0);
+      if (result) {
+        const payload = {
+          title: result.form.value.name,
+          filename: result.form.value.original_filename,
+          published: result.form.value.published ? result.form.value.published : null,
+          sort_order: result.form.value.sort_order,
+        }
+
+        let req;
+        if (manuscript?.id) {
+          req = this.projectService.editManuscript(manuscript.id, payload);
+        } else {
+          req = this.projectService.addManuscript(publicationId, payload);
+        }
+        req.subscribe(() => {
+          this.manuscriptsLoader$.next(0);
+        });
       }
     });
   }

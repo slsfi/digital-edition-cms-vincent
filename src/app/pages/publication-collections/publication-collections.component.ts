@@ -10,13 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { EditPublicationCollectionComponent } from '../../components/edit-publication-collection/edit-publication-collection.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PublicationsComponent } from "../../components/publications/publications.component";
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { QueryParamsService } from '../../services/query-params.service';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
 import { MatBadgeModule } from '@angular/material/badge';
+import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 
 @Component({
   selector: 'publication-collections',
@@ -156,19 +156,28 @@ export class PublicationCollectionsComponent {
   }
 
   editPublicationCollection(publicationCollection: PublicationCollection | null = null) {
-    const dialogRef = this.dialog.open(EditPublicationCollectionComponent, {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '400px',
       data: {
-        collection: publicationCollection ?? {},
+        model: publicationCollection ?? {},
         columns: this.allPublicationCollectionColumns
           .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable)
+          .sort((a: any, b: any) => b.editable - a.editable),
+        title: 'Publication Collection'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.publicationCollectionsLoader$.next();
+      if (result) {
+        let req;
+        if (publicationCollection?.id) {
+          req = this.projectService.editPublicationCollection(publicationCollection.id, result.form.value);
+        } else {
+          req = this.projectService.addPublicationCollection(result.form.value);
+        }
+        req.subscribe(() => {
+          this.publicationCollectionsLoader$.next();
+        });
       }
     });
   }

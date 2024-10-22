@@ -25,7 +25,7 @@
               <div class="actions">
                 <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
                 <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-                <button mat-flat-button (click)="editPublication()"><mat-icon>add</mat-icon>Add</button>
+                <button mat-flat-button (click)="editPublication(null, publicationCollectionId)"><mat-icon>add</mat-icon>Add</button>
               </div>
             </div>
           <table mat-table [dataSource]="publications">

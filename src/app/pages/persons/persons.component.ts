@@ -1,4 +1,3 @@
-import { ApiService } from './../../services/api.service';
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, debounce, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
@@ -10,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { MatDialog } from '@angular/material/dialog';
-import { EditPersonComponent } from '../../components/edit-person/edit-person.component';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { NavigationEnd, Router } from '@angular/router';
 import { QueryParamsService } from '../../services/query-params.service';
@@ -19,6 +17,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { LoadingService } from '../../services/loading.service';
+import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 
 @Component({
   selector: 'app-persons',
@@ -130,20 +129,29 @@ export class PersonsComponent {
   }
 
   edit(person: Person | null = null) {
-    const dialogRef = this.dialog.open(EditPersonComponent, {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '500px',
       data: {
-        person: person ?? {},
+        model: person ?? {},
         columns: this.allColumns
           .filter(column => column.type !== 'action' && column.type !== 'index')
           .sort((a: any, b: any) => b.editable - a.editable)
-          .sort((a: any, b: any) => a.editOrder - b.editOrder)
+          .sort((a: any, b: any) => a.editOrder - b.editOrder),
+        title: 'Person'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.loader$.next(0);
+      if (result) {
+        let req;
+        if (person?.id) {
+          req = this.projectService.editSubject(person.id, result.form.value);
+        } else {
+          req = this.projectService.addSubject(result.form.value);
+        }
+        req.subscribe(() => {
+          this.loader$.next(0);
+        });
       }
     });
   }

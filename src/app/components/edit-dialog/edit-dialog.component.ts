@@ -11,23 +11,25 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { ProjectService } from '../../services/project.service';
-import { Version } from '../../models/publication';
+import { TranslationsComponent } from '../translations/translations.component';
+import { personTypeOptions } from '../../models/person';
+import { MatIconModule } from '@angular/material/icon';
 
 interface InputData {
-  version: Version;
-  publicationId: number;
+  model: any;
   columns: Column[];
+  title: string;
 }
 
 @Component({
-  selector: 'app-edit-version',
+  selector: 'edit-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe],
+  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe, TranslationsComponent, MatIconModule],
   providers: [provideNativeDateAdapter(), DatePipe],
-  templateUrl: './edit-version.component.html',
-  styleUrl: './edit-version.component.scss'
+  templateUrl: './edit-dialog.component.html',
+  styleUrl: './edit-dialog.component.scss'
 })
-export class EditVersionComponent {
+export class EditDialogComponent {
 
   constructor(private projectService: ProjectService) { }
 
@@ -35,18 +37,31 @@ export class EditVersionComponent {
 
   form!: FormGroup;
 
+  columns: Column[] = [];
+  personTypes = personTypeOptions;
+
+  fieldForTranslate: string | null = null;
+
   ngOnInit() {
+    const copiedColumns = this.data.columns.map((column) => ({ ...column }));
+    copiedColumns.forEach((column) => {
+      if (column.type === 'date' && this.isBCDate(this.data.model[column.field])) {
+        column.type = 'string';
+      }
+    });
+    this.columns = copiedColumns;
+
     this.form = new FormGroup({});
 
-    this.data.columns.forEach((column) => {
-      let value: string | number | null | Date = this.data.version[column.field as keyof Version] || '';
+    this.columns.forEach((column) => {
+      let value: string | number | null | Date = this.data.model[column.field] || '';
 
       const validators = [];
       if (column.required) {
         validators.push(Validators.required);
       }
 
-      if (column.type === 'date') {
+      if (column.type === 'date' && value != null) {
         value = value === '' ? null : new Date(value);
       }
 
@@ -57,23 +72,18 @@ export class EditVersionComponent {
     });
   }
 
-  onSubmit(event: Event) {
-    event.preventDefault();
-
-    const payload = {
-      title: this.form.value.name,
-      filename: this.form.value.original_filename,
-      published: this.form.value.published ? this.form.value.published : null,
-      sort_order: this.form.value.sort_order,
-      version_type: this.form.value.type,
+  isBCDate(dateString: string | number | null) {
+    if (dateString == null) {
+      return false;
     }
-
-    if (this.data.version.id) {
-      this.projectService.editVersion(this.data.version.id, payload).subscribe(() => {});
-    } else {
-      this.projectService.addVersion(this.data.publicationId, payload).subscribe(() => {});
+    if (typeof dateString === 'number') {
+      return dateString < 0;
     }
+    return dateString.includes('BC');
+  }
 
+  showTranslations(column: Column) {
+    this.fieldForTranslate = column.field;
   }
 
 }
