@@ -14,6 +14,7 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-projects',
@@ -38,9 +39,13 @@ export class ProjectsComponent {
   displayedColumns: string[] = this.columnsData.map(column => column.field);
   url$ = new Observable<string>();
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService) {
-
-  }
+  constructor(
+    private projectService: ProjectService,
+    private dialog: MatDialog,
+    private router: Router,
+    private queryParamsService: QueryParamsService,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngAfterViewInit() {
     this.projects$ = this.loader$.asObservable().pipe(
@@ -96,8 +101,14 @@ export class ProjectsComponent {
         } else {
           req = this.projectService.addProject(data);
         }
-        req.subscribe(() => {
-          this.loader$.next(0);
+        req.subscribe({
+          next: () => {
+            this.loader$.next(0);
+            this.snackBar.open('Project saved successfully', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackBar.open('Error saving project', 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       }
     });

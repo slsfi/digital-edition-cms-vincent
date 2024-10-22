@@ -8,6 +8,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors } from '@angular
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { loadingInterceptor } from './interceptors/loading.interceptor';
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +18,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor, loadingInterceptor]),
     ),
-    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }, provideAnimationsAsync(),
+    provideAnimationsAsync(),
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 3000 } },
   ],
 };

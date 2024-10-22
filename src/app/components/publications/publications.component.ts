@@ -18,6 +18,7 @@ import { TableSortingComponent } from '../table-sorting/table-sorting.component'
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'publications',
@@ -110,7 +111,13 @@ export class PublicationsComponent {
   sortParams$: Observable<any[]> = new Observable<any[]>();
   filterParams$: Observable<any[]> = new Observable<any[]>();
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private dialog: MatDialog, private queryParamsService: QueryParamsService) { }
+  constructor(
+    private projectService: ProjectService,
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private queryParamsService: QueryParamsService,
+    private snackbar: MatSnackBar
+  ) { }
 
   ngOnInit() {
     this.queryParams$ = this.queryParamsService.queryParams$;
@@ -270,8 +277,14 @@ export class PublicationsComponent {
         } else {
           req = this.projectService.addPublication(parseInt(collectionId), result.form.value);
         }
-        req.subscribe(() => {
-          this.publicationsLoader$.next();
+        req.subscribe({
+          next: () => {
+            this.publicationsLoader$.next();
+            this.snackbar.open('Publication saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error editing publication', 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       }
     });
@@ -289,27 +302,54 @@ export class PublicationsComponent {
       }
       const filePath = result.join('/');
 
+
+      const succesMessage = 'Filename saved';
+      const errorMessage = 'Error editing filename';
+
       if (type === 'text') {
 
         const data = { original_filename: filePath }
-        this.projectService.editPublication(editId, data).subscribe(() => {
-          this.publicationsLoader$.next();
+        this.projectService.editPublication(editId, data).subscribe({
+          next: () => {
+            this.publicationsLoader$.next();
+            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
-
       } else if (type === 'comment') {
         const data = { filename: filePath }
-        this.projectService.editComment(editId, data).subscribe(() => {
-          this.commentLoader$.next(0);
+        this.projectService.editComment(editId, data).subscribe({
+          next: () => {
+            this.commentLoader$.next(0);
+            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       } else if (type === 'version') {
         const data = { filename: filePath }
-        this.projectService.editVersion(editId, data).subscribe(() => {
-          this.versionsLoader$.next(0);
+        this.projectService.editVersion(editId, data).subscribe({
+          next: () => {
+            this.versionsLoader$.next(0);
+            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       } else if (type === 'manuscript') {
         const data = { filename: filePath }
-        this.projectService.editManuscript(editId, data).subscribe(() => {
-          this.manuscriptsLoader$.next(0);
+        this.projectService.editManuscript(editId, data).subscribe({
+          next: () => {
+            this.manuscriptsLoader$.next(0);
+            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       }
     });
@@ -343,8 +383,15 @@ export class PublicationsComponent {
         } else {
           req = this.projectService.addVersion(publicationId, payload);
         }
-        req.subscribe(() => {
-          this.versionsLoader$.next(0);
+        req.subscribe({
+          next: () => {
+            this.versionsLoader$.next(0);
+            this.snackbar.open('Version saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error editing version', 'Close', { panelClass: ['snackbar-error'] });
+          }
+
         });
       }
     });
@@ -377,8 +424,14 @@ export class PublicationsComponent {
         } else {
           req = this.projectService.addManuscript(publicationId, payload);
         }
-        req.subscribe(() => {
-          this.manuscriptsLoader$.next(0);
+        req.subscribe({
+          next: () => {
+            this.manuscriptsLoader$.next(0);
+            this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error editing manuscript', 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       }
     });

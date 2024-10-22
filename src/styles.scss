@@ -18,3 +18,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     gap: 10px;
   }
 }
+
+.snackbar-success {
+  &.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
+    background-color: #43a047;
+  }
+}
+
+.snackbar-error {
+  &.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
+    background-color: #d32f2f;
+  }
+}
+
+.snackbar-error, .snackbar-success {
+  .mat-mdc-button {
+    color: white !important;
+  }
+}

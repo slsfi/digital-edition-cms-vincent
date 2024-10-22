@@ -17,6 +17,7 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'publication-collections',
@@ -61,7 +62,13 @@ export class PublicationCollectionsComponent {
   sortParams$: Observable<any[]> = new Observable<any[]>();
   filterParams$: Observable<any[]> = new Observable<any[]>();
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private route: ActivatedRoute, private queryParamsService: QueryParamsService) { }
+  constructor(
+    private projectService: ProjectService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
+    private queryParamsService: QueryParamsService,
+    private snackbar: MatSnackBar
+  ) { }
 
   ngOnInit() {
     this.selectedProject$ = this.projectService.selectedProject$;
@@ -113,14 +120,12 @@ export class PublicationCollectionsComponent {
       map(([publications, params]) => {
         const queryParams: QueryParamType = {};
 
-
         params.keys.forEach(key => {
           const k = params.get(key);
           if (k) {
             queryParams[key] = k;
           }
         });
-        console.log({params, queryParams});
 
         if (queryParams['name']) {
           publications = publications.filter(publication => publication.name.toLowerCase().includes(queryParams['name']));
@@ -175,8 +180,14 @@ export class PublicationCollectionsComponent {
         } else {
           req = this.projectService.addPublicationCollection(result.form.value);
         }
-        req.subscribe(() => {
-          this.publicationCollectionsLoader$.next();
+        req.subscribe({
+          next: () => {
+            this.publicationCollectionsLoader$.next();
+            this.snackbar.open('Publication Collection saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error saving publication collection', 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       }
     });

@@ -1,8 +1,9 @@
 import { BehaviorSubject, catchError, filter, map, Observable, take, tap, throwError } from 'rxjs';
 import { ApiService } from './api.service';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class AuthService {
       this.isAuthenticated$.next(false);
     }
   }
+  snackbar = inject(MatSnackBar);
 
   isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
@@ -26,13 +28,20 @@ export class AuthService {
     const url = `${this.apiService.environment}auth/login`;
     const body: LoginRequest = { email, password };
     this.apiService.post(url, body)
-      .subscribe((response: LoginResponse) => {
-        const { access_token, refresh_token, user_projects } = response;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('refresh_token', refresh_token);
-        localStorage.setItem('user_projects', user_projects.join(','));
-        this.router.navigate(['/']);
-        this.isAuthenticated$.next(true);
+      .subscribe({
+        next: (response: LoginResponse) => {
+          const { access_token, refresh_token, user_projects } = response;
+          localStorage.setItem('access_token', access_token);
+          localStorage.setItem('refresh_token', refresh_token);
+          localStorage.setItem('user_projects', user_projects.join(','));
+          this.router.navigate(['/']);
+          this.isAuthenticated$.next(true);
+        },
+        error: (err) => {
+          console.log(err);
+          this.logout();
+          this.snackbar.open('Failed: ' + err.error.msg, 'Close', { panelClass: 'snackbar-error' });
+        }
       });
   }
 

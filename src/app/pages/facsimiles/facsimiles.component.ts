@@ -15,6 +15,7 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-facsimiles',
@@ -46,7 +47,12 @@ export class FacsimilesComponent {
   sortParams$: Observable<{ key: string, value: string }[]> = new Observable<{ key: string, value: string }[]>();
   filterParams$: Observable<{ key: string, value: string, header: string }[]> = new Observable<{ key: string, value: string, header: string }[]>();
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private queryParamsService: QueryParamsService) { }
+  constructor(
+    private projectService: ProjectService,
+    private dialog: MatDialog,
+    private queryParamsService: QueryParamsService,
+    private snackbar: MatSnackBar
+  ) { }
 
   ngOnInit() {
     this.selectedProject$ = this.projectService.selectedProject$;
@@ -152,8 +158,14 @@ export class FacsimilesComponent {
           };
           req = this.projectService.addFacsimileCollection(data);
         }
-        req.subscribe(() => {
-          this.loader$.next();
+        req.subscribe({
+          next: () => {
+            this.loader$.next();
+            this.snackbar.open('Facsimile collection saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error editing facsimile collection', 'Close', { panelClass: ['snackbar-error'] });
+          }
         });
       }
     });

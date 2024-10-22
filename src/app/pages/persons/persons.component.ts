@@ -18,6 +18,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { LoadingService } from '../../services/loading.service';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-persons',
@@ -72,7 +73,14 @@ export class PersonsComponent {
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private router: Router, private queryParamsService: QueryParamsService, private loadingService: LoadingService) {
+  constructor(
+    private projectService: ProjectService,
+    private dialog: MatDialog,
+    private router: Router,
+    private queryParamsService: QueryParamsService,
+    private loadingService: LoadingService,
+    private snackaBar: MatSnackBar
+  ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.projectService.selectedProject$;
     // Listen for URL changes, start with the current URL to ensure the stream has an initial value
@@ -149,8 +157,14 @@ export class PersonsComponent {
         } else {
           req = this.projectService.addSubject(result.form.value);
         }
-        req.subscribe(() => {
-          this.loader$.next(0);
+        req.subscribe({
+          next: () => {
+            this.loader$.next(0);
+            this.snackaBar.open('Person saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackaBar.open('Error saving person', 'Close', { panelClass: ['snackbar-error'] });
+          },
         });
       }
     });
