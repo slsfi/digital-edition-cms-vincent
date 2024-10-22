@@ -9,28 +9,7 @@
   </div>
 
   <ng-container *ngIf="filteredProjects$ | async as projects else loading">
-    <table mat-table [dataSource]="projects">
-      @for (column of columnsData; track column.field) {
-        <ng-container [matColumnDef]="column.field">
-          <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-          <td mat-cell *matCellDef="let project">
-            <ng-container *ngIf="column.type === 'date'">{{ project[column.field] | customDate }}</ng-container>
-            <ng-container *ngIf="column.type === 'string' || column.type === 'number' ">{{ project[column.field] }}</ng-container>
-            <ng-container *ngIf="column.type === 'boolean'">{{ project[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
-            <ng-container *ngIf="column.type === 'published'">
-              <ng-container *ngIf="project[column.field] === 0">Not published</ng-container>
-              <ng-container *ngIf="project[column.field] === 1">Internally</ng-container>
-              <ng-container *ngIf="project[column.field] === 2">Externally</ng-container>
-            </ng-container>
-            <ng-container *ngIf="column.type === 'action'">
-              <button mat-icon-button (click)="editProject(project)"><mat-icon>edit</mat-icon></button>
-            </ng-container>
-          </td>
-        </ng-container>
-      }
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+    <custom-table [data]="projects" [columns]="columnsData" (editRow)="editProject($event)"></custom-table>
   </ng-container>
 </div>
 

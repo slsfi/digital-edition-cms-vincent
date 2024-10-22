@@ -15,11 +15,15 @@ import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent],
+  imports: [
+    CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent,
+    CustomTableComponent, CustomTableComponent
+  ],
   providers: [DatePipe],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss'

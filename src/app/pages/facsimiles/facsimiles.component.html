@@ -18,39 +18,11 @@
     <div class="total">
       <span>{{ facsimiles.length }} / {{ totalFacsimiles }}</span>
     </div>
-    <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
-      <table class="mat-mdc-table">
-        <thead>
-          <tr>
-            <th class="index">#</th>
-            @for (column of columnsData; track column.field) {
-              <th>{{ column.header }}</th>
-            }
-          </tr>
-        </thead>
-        <tr *ngIf="!facsimiles.length">
-          <td [attr.colspan]="columnsData.length">No data</td>
-        </tr>
-        <tr *cdkVirtualFor="let facsimile of facsimiles; let i = index;">
-          <td class="index">{{ i + 1 }}</td>
-          @for (column of columnsData; track column.field) {
-            <td>
-              <ng-container *ngIf="column.type === 'date'">{{ facsimile[column.field] | date: 'd.M.yyyy' }}</ng-container>
-              <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'textarea'">{{ facsimile[column.field] }}</ng-container>
-              <ng-container *ngIf="column.type === 'boolean'">{{ facsimile[column.field] === 0 ? 'No' : 'Yes' }}</ng-container>
-              <ng-container *ngIf="column.type === 'published'">
-                <ng-container *ngIf="facsimile[column.field] === 0">Not published</ng-container>
-                <ng-container *ngIf="facsimile[column.field] === 1">Internally</ng-container>
-                <ng-container *ngIf="facsimile[column.field] === 2">Externally</ng-container>
-              </ng-container>
-              <ng-container *ngIf="column.type === 'actions'">
-                <button mat-icon-button (click)="editCollection(facsimile)"><mat-icon>edit</mat-icon></button>
-              </ng-container>
-            </td>
-          }
-        </tr>
-      </table>
-    </cdk-virtual-scroll-viewport>
+    <custom-table
+      [data]="facsimiles"
+      [columns]="columnsData"
+      (editRow)="editCollection($event)">
+    </custom-table>
 
   </ng-container>
 

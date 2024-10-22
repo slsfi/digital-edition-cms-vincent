@@ -16,11 +16,12 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 
 @Component({
   selector: 'app-facsimiles',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule, MatBadgeModule],
+  imports: [CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule, MatBadgeModule, CustomTableComponent],
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'
 })
@@ -35,7 +36,7 @@ export class FacsimilesComponent {
     { field: 'start_page_number', header: 'Start page number', filterable: false, type: 'number', editable: true },
     { field: 'external_url', header: 'External URL', filterable: false, type: 'string', editable: true },
     { field: 'folder_path', header: 'Folder path', filterable: false, type: 'string', editable: true },
-    { field: 'actions', header: 'Actions', filterable: false, type: 'actions' },
+    { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
@@ -134,7 +135,7 @@ export class FacsimilesComponent {
     const dialogRef = this.dialog.open(EditDialogComponent, {
       data: {
         model: collection ?? {},
-        columns: this.columnsData.filter(column => column.type != 'actions'),
+        columns: this.columnsData.filter(column => column.type != 'action'),
         title: 'Fascimile collection'
       }
     });

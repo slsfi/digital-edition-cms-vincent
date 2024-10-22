@@ -18,18 +18,22 @@ import { TableSortingComponent } from '../../components/table-sorting/table-sort
 import { MatBadgeModule } from '@angular/material/badge';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 
 @Component({
   selector: 'publication-collections',
   standalone: true,
-  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, PublicationsComponent, MatBadgeModule],
+  imports: [
+    CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
+    PublicationsComponent, MatBadgeModule, CustomTableComponent, CustomTableComponent
+  ],
   providers: [DatePipe],
   templateUrl: './publication-collections.component.html',
   styleUrl: './publication-collections.component.scss'
 })
 export class PublicationCollectionsComponent {
   publicationCollectionColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', editable: false, filterable: true },
+    { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
     { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true },
     { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true },
     { field: 'actions', header: 'Actions', type: 'action', editable: false },
@@ -202,7 +206,7 @@ export class PublicationCollectionsComponent {
   }
 
   sort() {
-    const columns = this.publicationCollectionColumnsData.filter(column => column.field !== 'actions');
+    const columns = this.publicationCollectionColumnsData.filter(column => column.field !== 'action');
     this.dialog.open(TableSortingComponent, {
       width: '250px',
       data: columns

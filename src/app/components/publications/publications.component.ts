@@ -19,18 +19,22 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomTableComponent } from "../custom-table/custom-table.component";
 
 @Component({
   selector: 'publications',
   standalone: true,
-  imports: [CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent, FileTreeComponent, MatCardModule, MatBadgeModule],
+  imports: [
+    CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
+    FileTreeComponent, MatCardModule, MatBadgeModule, CustomTableComponent, CustomTableComponent
+  ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent {
   publicationColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', editable: false, filterable: true },
+    { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
     { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true },
     { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true },
     { field: 'actions', header: 'Actions', type: 'action', editable: false },
@@ -290,6 +294,10 @@ export class PublicationsComponent {
     });
   }
 
+  editSelectedFileTable(type: 'text' | 'comment' | 'version' | 'manuscript', model: any) {
+    this.editSelectedFile(type, model.original_filename, model.id);
+  }
+
   editSelectedFile(type: 'text' | 'comment' | 'version' | 'manuscript', filename: string | null = '', editId: number) {
     const dialogRef = this.dialog.open(FileTreeComponent, {
       data: filename
@@ -446,7 +454,7 @@ export class PublicationsComponent {
   }
 
   sort() {
-    const columns = this.publicationColumnsData.filter(column => column.field !== 'actions');
+    const columns = this.publicationColumnsData.filter(column => column.field !== 'action');
     this.dialog.open(TableSortingComponent, {
       width: '250px',
       data: columns

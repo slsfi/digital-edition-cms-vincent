@@ -19,11 +19,15 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 import { LoadingService } from '../../services/loading.service';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 
 @Component({
   selector: 'app-persons',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule, MatChipsModule, MatBadgeModule, LoadingSpinnerComponent],
+  imports: [
+    CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule, MatChipsModule,
+    MatBadgeModule, LoadingSpinnerComponent, CustomTableComponent
+  ],
   providers: [DatePipe],
   templateUrl: './persons.component.html',
   styleUrl: './persons.component.scss'
@@ -42,7 +46,6 @@ export class PersonsComponent {
   loading$: Observable<boolean>;
 
   columnsData: Column[] = [
-    { field: 'index', header: '#', filterable: false, type: 'index' },
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'string', editable: true, editOrder: 5 },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true, editOrder: 1 },
