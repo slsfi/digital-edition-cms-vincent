@@ -1,0 +1,18 @@
+.file-input {
+  display: none;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+
+  .image > div {
+    text-align: center;
+  }
+
+}
+
+.pages {
+  margin: 20px 0;
+}

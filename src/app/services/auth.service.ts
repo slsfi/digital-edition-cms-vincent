@@ -39,7 +39,6 @@ export class AuthService {
           this.isAuthenticated$.next(true);
         },
         error: (err) => {
-          console.log(err);
           this.logout();
           this.snackbar.open('Failed: ' + err.error.msg, 'Close', { panelClass: 'snackbar-error' });
         }

@@ -31,12 +31,15 @@ export class CustomTableComponent {
   @Input() idRouteParams: string[] = [];
   @Input() showIndex: boolean = true;
   @Input() selectedId: string | null = null;
+  @Input() loadingData = false;
 
   @Output() editRow: EventEmitter<any> = new EventEmitter<any>();
   @Output() editRowSecondary: EventEmitter<any> = new EventEmitter<any>();
+  @Output() openRow: EventEmitter<any> = new EventEmitter<any>();
 
   displayedColumns: string[] = [];
   editSecondaryUsed: boolean = false;
+  openUsed: boolean = false;
   tableColumns: Column[] = [];
 
   tableDataSource = new MatTableDataSource<any>();
@@ -56,6 +59,7 @@ export class CustomTableComponent {
   ngOnInit() {
     this.queryParams$ = this.queryParamsService.queryParams$;
     this.editSecondaryUsed = this.editRowSecondary.observers.length > 0;
+    this.openUsed = this.openRow.observers.length > 0;
     const indexColumn: Column = {field: 'index', header: '#', filterable: false, type: 'index'};
     this.tableColumns = this.showIndex ? [indexColumn, ...this.columns] : [...this.columns];
     this.displayedColumns = this.tableColumns.map(column => column.field);
@@ -125,4 +129,7 @@ export class CustomTableComponent {
     this.editRowSecondary.emit(model);
   }
 
+  open(model: any) {
+    this.openRow.emit(model);
+  }
 }

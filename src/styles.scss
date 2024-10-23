@@ -31,7 +31,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
-.snackbar-error, .snackbar-success {
+.snackbar-warning {
+  &.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
+    background-color: #ff9800;
+  }
+}
+
+.snackbar-error, .snackbar-success, .snackbar-warning {
   .mat-mdc-button {
     color: white !important;
   }

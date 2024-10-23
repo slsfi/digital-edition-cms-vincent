@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, startWith, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
@@ -18,11 +18,16 @@ import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.co
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FacsimileCollectionComponent } from '../../components/facsimile-collection/facsimile-collection.component';
 
 @Component({
   selector: 'app-facsimiles',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule, MatBadgeModule, CustomTableComponent],
+  imports: [
+    CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule,
+    MatBadgeModule, CustomTableComponent, FacsimileCollectionComponent
+  ],
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'
 })
@@ -33,10 +38,10 @@ export class FacsimilesComponent {
     { field: 'title', header: 'Title', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'number_of_pages', header: 'Number of pages', filterable: false, type: 'number', editable: true },
-    { field: 'page_comment', header: 'Page comment', filterable: false, type: 'string', editable: true },
+    // { field: 'page_comment', header: 'Page comment', filterable: false, type: 'string', editable: true },
     { field: 'start_page_number', header: 'Start page number', filterable: false, type: 'number', editable: true },
-    { field: 'external_url', header: 'External URL', filterable: false, type: 'string', editable: true },
-    { field: 'folder_path', header: 'Folder path', filterable: false, type: 'string', editable: true },
+    { field: 'external_url', header: 'External URL', filterable: true, type: 'string', editable: true },
+    // { field: 'folder_path', header: 'Folder path', filterable: false, type: 'string', editable: true },
     { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
@@ -52,33 +57,54 @@ export class FacsimilesComponent {
   filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
 
   loading$: Observable<boolean> = new Observable<boolean>();
+  loadingData = true;
+
+  collectionId$: Observable<string | null> = new Observable<string | null>();
+  selectedFacsimileCollection$: Observable<FacsimileCollection | null> = new Observable<FacsimileCollection | null>();
 
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private snackbar: MatSnackBar,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loading$ = this.loadingService.loading$;
   }
 
   ngOnInit() {
+    this.collectionId$ = this.route.params.pipe(map(params => params['id']));
+
     this.selectedProject$ = this.projectService.selectedProject$;
 
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
 
-    this.loader$.pipe(
+    const facsimileCollectionsShared$ = this.loader$.pipe(
       startWith(0),
       switchMap(() => combineLatest([this.selectedProject$, this.projectService.getFacsimileCollections()]).pipe(
         map(([project, facsimiles]) => {
           return facsimiles;
         })
       )),
-    ).subscribe(facsimiles => {
+      shareReplay(1)
+    );
+
+    this.facsimileCollections$ = facsimileCollectionsShared$;
+
+
+    this.facsimileCollections$.subscribe(facsimiles => {
+      this.loadingData = false;
       this.facsimilesSource.next(facsimiles);
     });
+
+    this.selectedFacsimileCollection$ = combineLatest([facsimileCollectionsShared$, this.collectionId$]).pipe(
+      map(([facsimiles, id]) => {
+        return facsimiles.find(facsimile => facsimile.id === parseInt(id as string)) ?? null;
+      })
+    );
 
   }
 
@@ -121,6 +147,10 @@ export class FacsimilesComponent {
         });
       }
     });
+  }
+
+  open(collection: FacsimileCollection) {
+    this.router.navigate(['facsimiles', collection.id]);
   }
 
   filter() {

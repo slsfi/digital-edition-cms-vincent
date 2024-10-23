@@ -1,0 +1,30 @@
+.file-input {
+  display: none;
+}
+
+.file-upload {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+mat-icon {
+  &.pending {
+    color: gray;
+  }
+  &.success {
+    color: green;
+  }
+  &.error {
+    color: red;
+  }
+  &.progress {
+    color: yellow;
+  }
+}
+
+.actions {
+  margin: 10px 0;
+  display: flex;
+  gap: 10px;
+}

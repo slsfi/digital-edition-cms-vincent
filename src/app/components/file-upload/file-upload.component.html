@@ -1,0 +1,65 @@
+@let queue = uploadQueue$ | async;
+
+@if (queue && queue.length) {
+  <div class="actions">
+    <button mat-flat-button [disabled]="uploadInProgress" (click)="uploadFiles()">
+      <mat-icon>cloud_upload</mat-icon>Upload
+    </button>
+    <button mat-flat-button [disabled]="uploadInProgress" (click)="clearQueue()">
+      <mat-icon>delete</mat-icon>Clear
+    </button>
+    <button mat-flat-button [disabled]="!uploadInProgress" (click)="cancelUploads()">
+      <mat-icon>cancel</mat-icon>Cancel
+    </button>
+  </div>
+
+  <table mat-table [dataSource]="queue">
+    <ng-container matColumnDef="order">
+      <th mat-header-cell *matHeaderCellDef>Page</th>
+      <td mat-cell *matCellDef="let item"> {{item.order}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let item"> {{item.file.name}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="size">
+      <th mat-header-cell *matHeaderCellDef>size</th>
+      <td mat-cell *matCellDef="let item"> {{item.file.size / 1000 / 1000 | number : '1.0-2'}} MB</td>
+    </ng-container>
+
+    <ng-container matColumnDef="progress">
+      <th mat-header-cell *matHeaderCellDef>Progress</th>
+      <td mat-cell *matCellDef="let item">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="item.progress">
+        </mat-progress-bar>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let item"> <mat-icon [ngClass]="item.status">circle</mat-icon> </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['order', 'name', 'size', 'progress', 'status']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['order', 'name', 'size', 'progress', 'status'];"></tr>
+  </table>
+} @else {
+  <input
+    type="file"
+    class="file-input"
+    accept="image/*"
+    (change)="onFileSelected($event)"
+    multiple
+    #fileUpload>
+
+  <div class="file-upload">
+      <button mat-flat-button (click)="fileUpload.click()">
+          <mat-icon>attach_file</mat-icon>Add files
+      </button>
+  </div>
+  <p>No files uploaded yet.</p>
+}

@@ -90,6 +90,39 @@ export class ProjectService {
     ));
   }
 
+  getFacsimileFile(url: string) {
+    // "/<project>/facsimiles/<collection_id>/<number>/<zoom_level>"
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        return this.apiService.get(url).pipe(
+          catchError(err => of(err))
+        )
+      }
+    ));
+  }
+
+  getFacsimileImagePath(collectionId: number, pageNumber: number, zoomLevel: 1|2|3|4 = 1) {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      map(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/${collectionId}/${pageNumber}/${zoomLevel}`;
+        return url.replace('/testing/', 'https://api.sls.fi/');
+      })
+    );
+  }
+
+  uploadFacsimileFile(collectionId: number, pageNumber: number, formData: FormData) {
+    // /<project>/facsimiles/<collection_id>/<page_number>
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/${collectionId}/${pageNumber}`;
+        return this.apiService.post(url, formData, { reportProgress: true, observe: 'events' });
+      }
+    ));
+  }
+
   getPublicationCollections(): Observable<PublicationCollection[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),

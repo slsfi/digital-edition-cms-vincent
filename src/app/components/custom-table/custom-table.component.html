@@ -21,7 +21,7 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" [attr.colspan]="tableColumns.length">
-        @if (loading$ | async) {
+        @if ((loading$ | async) || loadingData) {
           <loading-spinner></loading-spinner>
         } @else {
           No rows
@@ -80,6 +80,9 @@
       <button mat-icon-button (click)="edit(model)"><mat-icon>edit</mat-icon></button>
       @if (editSecondaryUsed) {
         <button mat-icon-button (click)="editSecondary(model)"><mat-icon>folder</mat-icon></button>
+      }
+      @if (openUsed) {
+        <button mat-icon-button (click)="open(model)"><mat-icon>photo_library</mat-icon></button>
       }
     </div>
   } @else if (column.field === 'original_fieldname') {

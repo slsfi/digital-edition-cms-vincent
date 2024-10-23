@@ -1,0 +1,28 @@
+<h2>Facsimile collection</h2>
+
+<h3>{{ collection.title }}</h3>
+<div class="pages">number of pages: {{ collection.number_of_pages }}</div>
+
+
+
+@if (firstImageIsValid) {
+  <div class="images">
+    @for (page of range; track page) {
+      <div class="image">
+        <div>{{ page }}</div>
+        <facsimile-file [collectionId]="collection.id" [pageNumber]="page"></facsimile-file>
+      </div>
+    } @empty {
+      <p>No pages</p>
+    }
+  </div>
+} @else {
+  @if (collection.number_of_pages) {
+    <file-upload
+      [collectionId]="collection.id"
+      [numberOfPages]="collection.number_of_pages">
+    </file-upload>
+  } @else {
+    <p>No pages</p>
+  }
+}
