@@ -216,10 +216,16 @@ export class PublicationsComponent {
         let filteredPublications = [...publications];
         if (queryParams['sort'] && queryParams['direction']) {
           filteredPublications = filteredPublications.sort((a: any, b: any) => {
+            let aValue = a[queryParams['sort']];
+            let bValue = b[queryParams['sort']];
+            if (typeof aValue === 'string') {
+              aValue = aValue.toLowerCase();
+              bValue = bValue.toLowerCase();
+            }
             if (queryParams['direction'] === 'asc') {
-              return a[queryParams['sort']].localeCompare(b[queryParams['sort']], undefined, { sensitivity: 'base' });
+              return aValue > bValue ? 1 : -1;
             } else {
-              return b[queryParams['sort']].localeCompare(a[queryParams['sort']], undefined, { sensitivity: 'base' });
+              return aValue < bValue ? 1 : -1;
             }
           });
         }
