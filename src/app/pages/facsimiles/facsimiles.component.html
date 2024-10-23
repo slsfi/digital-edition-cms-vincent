@@ -18,11 +18,15 @@
     <div class="total">
       <span>{{ facsimiles.length }} / {{ totalFacsimiles }}</span>
     </div>
+    @if (loading$ | async) {
+      <loading-spinner></loading-spinner>
+    } @else {
     <custom-table
-      [data]="facsimiles"
+      [data$]="facsimilesResult$"
       [columns]="columnsData"
       (editRow)="editCollection($event)">
     </custom-table>
+  }
 
   </ng-container>
 

@@ -1,6 +1,7 @@
+import { LoadingService } from './../../services/loading.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { combineLatest, filter, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -60,19 +61,29 @@ export class PublicationCollectionsComponent {
   publicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   filteredPublicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
+  private collectionsSource = new BehaviorSubject<PublicationCollection[]>([]);
+  publicationCollectionsResult$: Observable<PublicationCollection[]> = this.collectionsSource.asObservable();
+
+  allCollectionsAmount: number = 0;
+  filteredCollectionsAmount: number = 0;
 
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
   sortParams$: Observable<any[]> = new Observable<any[]>();
   filterParams$: Observable<any[]> = new Observable<any[]>();
 
+  loading$: Observable<boolean> = new Observable<boolean>();
+
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private queryParamsService: QueryParamsService,
-    private snackbar: MatSnackBar
-  ) { }
+    private snackbar: MatSnackBar,
+    private loadingService: LoadingService
+  ) {
+    this.loading$ = this.loadingService.loading$;
+   }
 
   ngOnInit() {
     this.selectedProject$ = this.projectService.selectedProject$;
@@ -122,6 +133,7 @@ export class PublicationCollectionsComponent {
 
     this.filteredPublicationCollections$ = combineLatest([publicationCollectionsShared$, this.route.queryParamMap]).pipe(
       map(([publications, params]) => {
+        this.allCollectionsAmount = publications.length;
         const queryParams: QueryParamType = {};
 
         params.keys.forEach(key => {
@@ -140,6 +152,8 @@ export class PublicationCollectionsComponent {
         if (queryParams['id']) {
           publications = publications.filter(publication => publication.id === parseInt(queryParams['id']));
         }
+
+        this.filteredCollectionsAmount = publications.length;
 
         let filteredPublications = [...publications];
         if (queryParams['sort'] && queryParams['direction']) {
@@ -161,6 +175,10 @@ export class PublicationCollectionsComponent {
         return filteredPublications;
       })
     );
+
+    this.filteredPublicationCollections$.subscribe(publications => {
+      this.collectionsSource.next(publications);
+    });
 
   }
 

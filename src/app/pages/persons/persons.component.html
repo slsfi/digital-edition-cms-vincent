@@ -13,7 +13,7 @@
     <p>Please select a project</p>
   </ng-container>
 
-  <ng-container *ngIf="filteredSubjects$ | async as subjects else loading">
+  <!-- <ng-container *ngIf="filteredSubjects$ | async as subjects else loading"> -->
     <div class="header-row">
       <div class="active-filters">
         <span>Selected filters:</span>
@@ -25,15 +25,18 @@
           </mat-chip-set>
         </ng-container>
       </div>
-      <div>{{ subjects.length }} / {{ allSubjectsLength }} </div>
+      <div>{{ filteredSubjectsLength }} / {{ allSubjectsLength }} </div>
     </div>
-    <custom-table
-      [data]="subjects"
-      [columns]="columnsData"
-      (editRow)="edit($event)">
-    </custom-table>
-
-  </ng-container>
+    @if (loading$ | async) {
+      <loading-spinner></loading-spinner>
+    } @else {
+      <custom-table
+        [data$]="persons$"
+        [columns]="columnsData"
+        (editRow)="edit($event)">
+      </custom-table>
+    }
+  <!-- </ng-container> -->
 </div>
 
 

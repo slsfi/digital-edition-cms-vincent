@@ -1,7 +1,7 @@
 @let queryParams = queryParams$ | async;
 
-@if (data.length < 1000) {
-  <table mat-table [dataSource]="data">
+@if ((data$ | async)) {
+  <table mat-table [dataSource]="tableDataSource">
     @for (column of tableColumns; track column.field;) {
       <ng-container [matColumnDef]="column.field">
         <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
@@ -16,10 +16,22 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" [attr.colspan]="tableColumns.length">No rows</td>
+      <td class="mat-cell" [attr.colspan]="tableColumns.length">
+        @if (loading$ | async) {
+          <loading-spinner></loading-spinner>
+        } @else {
+          No rows
+        }
+      </td>
     </tr>
   </table>
-} @else {
+  <mat-paginator
+    #paginator
+    [pageSizeOptions]="[20, 50, 100]"
+    showFirstLastButtons>
+  </mat-paginator>
+}
+<!-- @else {
   <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
     <table class="mat-mdc-table">
       <thead>
@@ -44,15 +56,15 @@
       </tr>
     </table>
   </cdk-virtual-scroll-viewport>
-}
+} -->
 
 <ng-template #columnCells let-model="model" let-column="column" let-index="index">
   @if (column.type === 'index') {
-    {{ index + 1 }}
+    {{ (index + 1 + (paginator.pageIndex * paginator.pageSize)) }}
   } @else if (column.type === 'id') {
     <a routerLink="{{ idRouteParams | idRoute : model[column.field] }}" [queryParams]="queryParams">{{ model[column.field] }}</a>
   } @else if (column.type === 'date') {
-    {{ model[column.field] | customDate }}
+    {{ model[column.field] | customDate : 'd.M.yyyy' }}
   } @else if (column.type === 'boolean') {
     {{ model[column.field] === 0 ? 'No' : 'Yes' }}
   } @else if (column.type === 'published') {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
@@ -17,6 +17,7 @@ import { TableSortingComponent } from '../../components/table-sorting/table-sort
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-facsimiles',
@@ -43,17 +44,24 @@ export class FacsimilesComponent {
   selectedProject$: Observable<string | null> = new Observable<string | null>();
   facsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
   filteredFacsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
+  private facsimilesSource = new BehaviorSubject<FacsimileCollection[]>([]);
+  facsimilesResult$: Observable<FacsimileCollection[]> = this.facsimilesSource.asObservable();
 
   loader$: Subject<void> = new Subject<void>();
   sortParams$: Observable<{ key: string, value: string }[]> = new Observable<{ key: string, value: string }[]>();
   filterParams$: Observable<{ key: string, value: string, header: string }[]> = new Observable<{ key: string, value: string, header: string }[]>();
 
+  loading$: Observable<boolean> = new Observable<boolean>();
+
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
-    private snackbar: MatSnackBar
-  ) { }
+    private snackbar: MatSnackBar,
+    private loadingService: LoadingService
+  ) {
+    this.loading$ = this.loadingService.loading$;
+  }
 
   ngOnInit() {
     this.selectedProject$ = this.projectService.selectedProject$;
@@ -128,6 +136,9 @@ export class FacsimilesComponent {
       })
 
     );
+    this.filteredFacsimileCollections$.subscribe(facsimiles => {
+      this.facsimilesSource.next(facsimiles);
+    });
 
   }
 

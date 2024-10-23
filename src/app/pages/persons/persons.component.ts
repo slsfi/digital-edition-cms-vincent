@@ -42,8 +42,12 @@ export class PersonsComponent {
   selectedProject$!: Observable<string | null>;
   queryParams$: Observable<any> = new Observable<any>();
   allSubjectsLength: number = 0;
+  filteredSubjectsLength: number = 0;
 
   loading$: Observable<boolean>;
+
+  private personsSource = new BehaviorSubject<Person[]>([]);
+  persons$: Observable<Person[]> = this.personsSource.asObservable();
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
@@ -70,7 +74,6 @@ export class PersonsComponent {
     { field: 'previous_last_name', header: 'Previous last name', filterable: false, type: 'string', editable: false },
     { field: 'project_id', header: 'Project ID', filterable: false, type: 'number', editable: false },
     { field: 'source', header: 'Source', filterable: false, type: 'string', editable: false },
-    // { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
     { field: 'type', header: 'Type', filterable: true, type: 'type', editable: true, required: true, editOrder: 4 },
   ]
 
@@ -134,9 +137,14 @@ export class PersonsComponent {
         if (queryParams['type']) {
           subjects = subjects.filter(project => project.type === queryParams['type']);
         }
+        this.filteredSubjectsLength = subjects.length;
         return subjects;
       })
     );
+
+    this.filteredSubjects$.subscribe(persons => {
+      this.personsSource.next(persons);
+    });
   }
 
   edit(person: Person | null = null) {

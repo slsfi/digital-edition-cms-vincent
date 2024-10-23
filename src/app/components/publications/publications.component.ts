@@ -20,6 +20,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'publications',
@@ -65,13 +66,21 @@ export class PublicationsComponent {
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
   filteredPublications$: Observable<Publication[]> = new Observable<Publication[]>();
+  private publicationsSource = new BehaviorSubject<Publication[]>([]);
+  publicationsResult$: Observable<Publication[]> = this.publicationsSource.asObservable();
+  publicationsAmount: number = 0;
+  filteredPublicationsAmount: number = 0;
 
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comment$: Observable<PublicationComment> = new Observable<PublicationComment>();
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = new Observable<Version[]>();
+  private versionsSource = new BehaviorSubject<Version[]>([]);
+  versionsResult$: Observable<Version[]> = this.versionsSource.asObservable();
   manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
+  private manuscriptsSource = new BehaviorSubject<Manuscript[]>([]);
+  manuscriptsResult$: Observable<Manuscript[]> = this.manuscriptsSource.asObservable();
 
   versionColumnsData: Column[] = [
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
@@ -120,8 +129,11 @@ export class PublicationsComponent {
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
-    private snackbar: MatSnackBar
-  ) { }
+    private snackbar: MatSnackBar,
+    private loadingService: LoadingService
+  ) {
+    this.loading$ = this.loadingService.loading$;
+   }
 
   ngOnInit() {
     this.queryParams$ = this.queryParamsService.queryParams$;
@@ -180,6 +192,8 @@ export class PublicationsComponent {
       map(([publications, params]) => {
         const queryParams: QueryParamType = {};
 
+        this.publicationsAmount = publications.length;
+
         params.keys.forEach(key => {
           const k = params.get(key);
           if (k) {
@@ -197,6 +211,8 @@ export class PublicationsComponent {
           publications = publications.filter(publication => publication.id === parseInt(queryParams['id']));
         }
 
+        this.filteredPublicationsAmount = publications.length;
+
         let filteredPublications = [...publications];
         if (queryParams['sort'] && queryParams['direction']) {
           filteredPublications = filteredPublications.sort((a: any, b: any) => {
@@ -211,6 +227,10 @@ export class PublicationsComponent {
         return filteredPublications;
       })
     );
+
+    this.filteredPublications$.subscribe(publications => {
+      this.publicationsSource.next(publications);
+    });
 
     this.selectedPublication$ = combineLatest([this.publications$, this.publicationId$]).pipe(
       filter(([publications, publicationId]) => publicationId != null),
@@ -244,6 +264,9 @@ export class PublicationsComponent {
         )
       )
     );
+    this.versions$.subscribe(versions => {
+      this.versionsSource.next(versions);
+    });
 
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
       startWith(0),
@@ -258,6 +281,9 @@ export class PublicationsComponent {
         )
       )
     );
+    this.manuscripts$.subscribe(manuscripts => {
+      this.manuscriptsSource.next(manuscripts);
+    });
 
   }
 

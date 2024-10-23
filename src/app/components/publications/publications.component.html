@@ -1,6 +1,5 @@
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
-@let publicationsAmount = (publications$ | async)?.length ?? 0;
 
 <ng-template #loadingOverlay>
   <ng-container *ngIf="selectedProject$ | async as selectedProject">
@@ -18,9 +17,8 @@
   <div class="publications">
     <div class="content">
       <div class="list">
-        <ng-container *ngIf="filteredPublications$ | async as publications else loadingOverlay">
           <div class="header-row">
-            <h3>Publications ({{publications.length}} / {{ publicationsAmount }})</h3>
+            <h3>Publications ({{filteredPublicationsAmount}} / {{ publicationsAmount }})</h3>
             <div class="actions">
               <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
               <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
@@ -28,13 +26,12 @@
             </div>
           </div>
           <custom-table
-            [data]="publications"
+            [data$]="publicationsResult$"
             [columns]="publicationColumnsData"
             [selectedId]="publicationId$ | async"
             [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
             (editRow)="editPublication($event, publicationCollectionId)">
           </custom-table>
-        </ng-container>
       </div>
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
@@ -66,42 +63,40 @@
                 </mat-card>
               </ng-container>
 
-              <ng-container *ngIf="versions$ | async as versions else loading">
-                <mat-card appearance="outlined">
-                  <mat-card-header>
-                    <mat-card-title>
-                      Versions
-                      <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content>
-                    <custom-table
-                      [data]="versions"
-                      [columns]="versionColumnsData"
-                      (editRow)="editVersion($event, selectedPublication.id)"
-                      (editRowSecondary)="editSelectedFileTable('version', $event)">
-                    </custom-table>
-                  </mat-card-content>
-                </mat-card>
-              </ng-container>
-              <ng-container *ngIf="manuscripts$ | async as manuscripts else loading">
-                <mat-card appearance="outlined">
-                  <mat-card-header>
-                    <mat-card-title>
-                      Manuscripts
-                      <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content>
-                    <custom-table
-                      [data]="manuscripts"
-                      [columns]="manuscriptColumnsData"
-                      (editRow)="editManuscript($event, selectedPublication.id)"
-                      (editRowSecondary)="editSelectedFileTable('manuscript', $event)">
-                    </custom-table>
-                  </mat-card-content>
-                </mat-card>
-              </ng-container>
+              <mat-card appearance="outlined">
+                <mat-card-header>
+                  <mat-card-title>
+                    Versions
+                    <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <custom-table
+                    [data$]="versionsResult$"
+                    [columns]="versionColumnsData"
+                    (editRow)="editVersion($event, selectedPublication.id)"
+                    (editRowSecondary)="editSelectedFileTable('version', $event)">
+                  </custom-table>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined">
+                <mat-card-header>
+                  <mat-card-title>
+                    Manuscripts
+                    <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <custom-table
+                    [data$]="manuscriptsResult$"
+                    [columns]="manuscriptColumnsData"
+                    (editRow)="editManuscript($event, selectedPublication.id)"
+                    (editRowSecondary)="editSelectedFileTable('manuscript', $event)">
+                  </custom-table>
+                </mat-card-content>
+              </mat-card>
+
             </div>
           </ng-container>
         </ng-container>

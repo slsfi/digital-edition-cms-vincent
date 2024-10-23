@@ -16,6 +16,7 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-projects',
@@ -30,6 +31,8 @@ import { CustomTableComponent } from "../../components/custom-table/custom-table
 })
 export class ProjectsComponent {
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  private projectsSource = new BehaviorSubject<Project[]>([]);
+  projectsResult$: Observable<Project[]> = this.projectsSource.asObservable();
   projects$: Observable<Project[]> = new Observable<Project[]>();
   filteredProjects$: Observable<Project[]> = new Observable<Project[]>();
   columnsData: Column[] = [
@@ -43,13 +46,18 @@ export class ProjectsComponent {
   displayedColumns: string[] = this.columnsData.map(column => column.field);
   url$ = new Observable<string>();
 
+  loading$: Observable<boolean>;
+
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
     private router: Router,
     private queryParamsService: QueryParamsService,
-    private snackBar: MatSnackBar
-  ) { }
+    private snackBar: MatSnackBar,
+    private loadingService: LoadingService
+  ) {
+    this.loading$ = this.loadingService.loading$;
+   }
 
   ngAfterViewInit() {
     this.projects$ = this.loader$.asObservable().pipe(
@@ -80,6 +88,10 @@ export class ProjectsComponent {
         return projects;
       })
     );
+
+    this.filteredProjects$.subscribe(projects => {
+      this.projectsSource.next(projects);
+    });
 
   }
 

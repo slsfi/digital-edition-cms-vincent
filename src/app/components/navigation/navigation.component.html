@@ -5,7 +5,7 @@
   @if (availableProjects) {
     <mat-form-field>
       <mat-label>Selected Project</mat-label>
-      <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
+      <mat-select [value]="selectedProject" (selectionChange)="changeProject($event); toggleMenu();">
         @for (project of availableProjects; track project.name) {
           <mat-option [value]="project.name">
             {{ project.name }}

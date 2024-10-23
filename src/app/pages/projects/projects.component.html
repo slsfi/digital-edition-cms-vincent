@@ -7,12 +7,9 @@
     </div>
 
   </div>
-
-  <ng-container *ngIf="filteredProjects$ | async as projects else loading">
-    <custom-table [data]="projects" [columns]="columnsData" (editRow)="editProject($event)"></custom-table>
-  </ng-container>
+  @if (loading$ | async) {
+    <loading-spinner></loading-spinner>
+  } @else {
+    <custom-table [data$]="projectsResult$" [columns]="columnsData" (editRow)="editProject($event)"></custom-table>
+  }
 </div>
-
-<ng-template #loading>
-  <loading-spinner [overlay]="true"></loading-spinner>
-</ng-template>
