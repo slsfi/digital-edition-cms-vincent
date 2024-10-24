@@ -40,10 +40,13 @@ export class TableFiltersComponent {
 
   submit(event: Event) {
     event.preventDefault();
-    const params: QueryParamType = {};
-    Object.entries(this.form.value).forEach(([key, value]) => {
-      if (value != '') {
-        params[key] = (value as string).toLowerCase();
+    const params = this.form.value;
+    Object.keys(params).forEach((key) => {
+      const value = params[key];
+      if (params[key] === '') {
+        params[key] = undefined;
+      } else if (typeof value === 'string') {
+        params[key] = value.toLowerCase();
       }
     });
     this.queryParamsService.addQueryParams(params);
