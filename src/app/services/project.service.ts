@@ -4,7 +4,7 @@ import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload, PersonResponse, TranslationRequest, TranslationRequestPost } from '../models/person';
 import { Manuscript, ManuscriptRequest, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
-import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../models/facsimile';
+import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 
 @Injectable({
@@ -63,7 +63,9 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url).pipe(
+          map((response: FacsimileCollectionResponse) => response.data)
+        );
       }
     ));
   }

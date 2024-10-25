@@ -1,3 +1,9 @@
+import { ApiResponse } from "./project";
+
+export interface FacsimileCollectionResponse extends ApiResponse {
+  data: FacsimileCollection[];
+}
+
 export interface FacsimileCollection {
   date_created: string;
   date_modified: string | null;
