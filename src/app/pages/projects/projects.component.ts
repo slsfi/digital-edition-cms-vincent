@@ -34,9 +34,9 @@ export class ProjectsComponent {
   private projectsSource = new BehaviorSubject<Project[]>([]);
   projectsResult$: Observable<Project[]> = this.projectsSource.asObservable();
   columnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false },
-    { field: 'name', header: 'Name', type: 'string', filterable: true, editable: true },
-    { field: 'published', header: 'Published', type: 'published', filterable: true, editable: true },
+    { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
+    { field: 'name', header: 'Name', type: 'string', filterable: true, editable: true, filterType: 'contains' },
+    { field: 'published', header: 'Published', type: 'published', filterable: true, editable: true, filterType: 'equals' },
     { field: 'date_created', header: 'Date Created', type: 'date', filterable: false, editable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', filterable: false, editable: false },
     { field: 'action', header: 'Action', type: 'action', filterable: false }

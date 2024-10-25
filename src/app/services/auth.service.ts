@@ -4,13 +4,15 @@ import { inject, Injectable } from '@angular/core';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Project } from '../models/project';
+import { ProjectService } from './project.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private apiService: ApiService, private router: Router) {
+  constructor(private apiService: ApiService, private router: Router, private projectService: ProjectService) {
     if (this.getAccessToken()) {
       this.isAuthenticated$.next(true);
     } else {
@@ -33,7 +35,6 @@ export class AuthService {
           const { access_token, refresh_token, user_projects } = response;
           localStorage.setItem('access_token', access_token);
           localStorage.setItem('refresh_token', refresh_token);
-          localStorage.setItem('user_projects', user_projects.join(','));
           this.router.navigate(['/']);
           this.isAuthenticated$.next(true);
         },
@@ -84,13 +85,5 @@ export class AuthService {
 
   getRefreshToken(): string | null {
     return localStorage.getItem('refresh_token');
-  }
-
-  getUserProjects(): string[] {
-    const projects = localStorage.getItem('user_projects');
-    if (projects) {
-      return projects.split(',');
-    }
-    return [];
   }
 }

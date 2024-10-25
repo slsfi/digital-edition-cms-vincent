@@ -5,7 +5,7 @@ import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } f
 import { Person, PersonPayload, TranslationRequest, TranslationRequestPost } from '../models/person';
 import { Manuscript, ManuscriptRequest, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../models/facsimile';
-import { AddProjectData, EditProjectData, Project } from '../models/project';
+import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,6 @@ import { AddProjectData, EditProjectData, Project } from '../models/project';
 export class ProjectService {
 
   selectedProject$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-
 
   constructor(private apiService: ApiService) {
     if (localStorage.getItem('selected_project')) {
@@ -25,14 +24,10 @@ export class ProjectService {
     if (!this.apiService.environment) {
       return new Observable<Project[]>();
     }
-    const url = `${this.apiService.prefixedUrl}/projects/`;
+    const url = `${this.apiService.prefixedUrl}/projects/list/`;
     return this.apiService.get(url).pipe(
-      map((projects: Project[]) => {
-        const userProjects = (localStorage.getItem('user_projects') || '').split(',');
-        if (userProjects.length) {
-          return projects.filter(project => userProjects.includes(project.name));
-        }
-        return projects;
+      map((response: ProjectResponse) => {
+        return response.data;
       })
     );
   }

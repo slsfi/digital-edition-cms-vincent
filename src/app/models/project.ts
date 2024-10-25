@@ -1,3 +1,9 @@
+export interface ProjectResponse {
+  success: boolean;
+  message: string;
+  data: Project[];
+}
+
 export interface Project {
   date_created: string;
   date_modified: string | null;

@@ -79,10 +79,14 @@ export class CustomTableComponent {
               const filterType = column.filterType ?? 'equals';
               if (queryParams[field]) {
                 data = data.filter((item: any) => {
-                  if (typeof item[field] === 'string') {
-                    return item[field].toLowerCase().includes(queryParams[field]);
+                  const value = item[field];
+                  if (typeof value === 'string') {
+                    return value.toLowerCase().includes(queryParams[field]);
                   } else {
-                    return item[field] === queryParams[field];
+                    if (typeof value === 'number') {
+                      return value === Number(queryParams[field]);
+                    }
+                    return value === queryParams[field];
                   }
                 });
               }
