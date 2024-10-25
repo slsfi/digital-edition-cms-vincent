@@ -120,7 +120,6 @@ export class PublicationsComponent {
     { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
   ]
 
-  queryParams$ = new Observable<any>();
   sortParams$: Observable<any[]> = new Observable<any[]>();
   filterParams$: Observable<any[]> = new Observable<any[]>();
 
@@ -136,30 +135,8 @@ export class PublicationsComponent {
    }
 
   ngOnInit() {
-    this.queryParams$ = this.queryParamsService.queryParams$;
-    this.sortParams$ = this.queryParams$.pipe(
-      map(params => {
-        const sort = params['sort'];
-        const direction = params['direction'];
-        if (sort && direction) {
-          return [{ key: sort, value: direction }];
-        }
-        return [];
-      })
-    );
-
-    this.filterParams$ = this.queryParams$.pipe(
-      map(params => {
-        const keys = ['name', 'published', 'id'];
-        const res: any[] = [];
-        keys.forEach(key => {
-          if (params[key]) {
-            res.push({ key, value: params[key] });
-          }
-        });
-        return res;
-      })
-    );
+    this.sortParams$ = this.queryParamsService.sortParams$;
+    this.filterParams$ = this.queryParamsService.filterParams$;
 
     const paramMap$ = this.route.paramMap;
 

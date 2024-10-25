@@ -92,30 +92,9 @@ export class PublicationCollectionsComponent {
       map(params => params.get('collectionId'))
     );
 
-    this.sortParams$ = this.queryParamsService.queryParams$.pipe(
-      map(params => {
-        const sort = params['sort'];
-        const direction = params['direction'];
-        if (sort && direction) {
-          return [{ key: sort, value: direction }];
-        }
-        return [];
-      })
-    );
+    this.sortParams$ = this.queryParamsService.sortParams$;
 
-    this.filterParams$ = this.queryParamsService.queryParams$.pipe(
-      map(params => {
-        const keys = ['name', 'published', 'id'];
-        const res: any[] = [];
-        Object.entries(params).forEach(([key, value]) => {
-          if (keys.includes(key)) {
-            const header = this.publicationCollectionColumnsData.find(column => column.field === key)?.header;
-            res.push({ key, value, header });
-          }
-        });
-        return res;
-      })
-    );
+    this.filterParams$ = this.queryParamsService.filterParams$;
 
     const publicationCollectionsShared$ = this.publicationCollectionsLoader$.pipe(
       startWith(void 0),

@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatTableModule } from '@angular/material/table';
-import { Column } from '../../models/column';
+import { Column, QueryParamType } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -48,8 +48,8 @@ export class FacsimilesComponent {
   facsimilesResult$: Observable<FacsimileCollection[]> = this.facsimilesSource.asObservable();
 
   loader$: Subject<void> = new Subject<void>();
-  sortParams$: Observable<{ key: string, value: string }[]> = new Observable<{ key: string, value: string }[]>();
-  filterParams$: Observable<{ key: string, value: string, header: string }[]> = new Observable<{ key: string, value: string, header: string }[]>();
+  sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
+  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
 
   loading$: Observable<boolean> = new Observable<boolean>();
 
@@ -66,30 +66,8 @@ export class FacsimilesComponent {
   ngOnInit() {
     this.selectedProject$ = this.projectService.selectedProject$;
 
-    this.sortParams$ = this.queryParamsService.queryParams$.pipe(
-      map(params => {
-        const sort = params['sort'];
-        const direction = params['direction'];
-        if (sort && direction) {
-          return [{ key: sort, value: direction }];
-        }
-        return [];
-      })
-    );
-
-    this.filterParams$ = this.queryParamsService.queryParams$.pipe(
-      map(params => {
-        const keys = ['title', 'description', 'id'];
-        const res: any[] = [];
-        Object.entries(params).forEach(([key, value]) => {
-          if (keys.includes(key)) {
-            const header = this.columnsData.find(column => column.field === key)?.header;
-            res.push({ key, value, header });
-          }
-        });
-        return res;
-      })
-    );
+    this.sortParams$ = this.queryParamsService.sortParams$;
+    this.filterParams$ = this.queryParamsService.filterParams$;
 
     const facsimileCollectionsShared$ = this.loader$.pipe(
       startWith(0),
