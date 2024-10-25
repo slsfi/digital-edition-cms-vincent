@@ -2,7 +2,7 @@ import { Publication } from './../models/publication';
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
-import { Person, PersonPayload, TranslationRequest, TranslationRequestPost } from '../models/person';
+import { Person, PersonPayload, PersonResponse, TranslationRequest, TranslationRequestPost } from '../models/person';
 import { Manuscript, ManuscriptRequest, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
@@ -264,10 +264,16 @@ export class ProjectService {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects`;
-        return this.apiService.get(url);
-      }
-    ));
+        const url = `${this.apiService.prefixedUrl}/${project}/subjects/list/`;
+        return this.apiService.get(url).pipe(
+          map((response: PersonResponse) => response.data),
+          catchError((err) => {
+            return of([] as Person[])
+          })
+        )
+      })
+    );
+
   }
 
   addSubject(payload: PersonPayload): Observable<Person> {

@@ -1,7 +1,8 @@
+@let projectSelected = (selectedProject$ | async) != null;
 <div class="container">
   <div class="header-row">
     <h1>Index of persons management</h1>
-    <div class="actions">
+    <div class="actions" *ngIf="projectSelected">
       <ng-container *ngIf="filterParams$ | async as filterParams">
         <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
       </ng-container>
@@ -9,18 +10,18 @@
     </div>
   </div>
 
-  <ng-container *ngIf="(selectedProject$ | async) == null">
-    <p>Please select a project</p>
-  </ng-container>
-
     @if (loading$ | async) {
       <loading-spinner></loading-spinner>
     } @else {
-      <custom-table
-        [data$]="persons$"
-        [columns]="columnsData"
-        (editRow)="edit($event)">
-      </custom-table>
+      @if (!projectSelected) {
+        <p>Please select a project</p>
+      } @else {
+        <custom-table
+          [data$]="persons$"
+          [columns]="columnsData"
+          (editRow)="edit($event)">
+        </custom-table>
+      }
     }
 </div>
 

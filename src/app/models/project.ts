@@ -1,6 +1,9 @@
-export interface ProjectResponse {
+export interface ApiResponse {
   success: boolean;
   message: string;
+}
+
+export interface ProjectResponse extends ApiResponse {
   data: Project[];
 }
 

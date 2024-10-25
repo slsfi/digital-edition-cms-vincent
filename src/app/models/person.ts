@@ -1,4 +1,9 @@
+import { ApiResponse } from "./project";
 import { Deleted } from "./publication";
+
+export interface PersonResponse extends ApiResponse {
+  data: Person[];
+}
 
 export interface Person {
   alias: string | null;

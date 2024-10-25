@@ -88,11 +88,7 @@ export class PersonsComponent {
       startWith(null),
       debounce(i => timer(500)),
       switchMap(() => combineLatest([this.projectService.getSubjects(), this.projectService.selectedProject$]).pipe(
-        map(([subjects, selectedProject]) => {
-          return subjects
-            .map(subject => ({ ...subject, sortColumn: subject.last_name || subject.full_name || '' }))
-            .sort((a, b) => a.sortColumn.localeCompare(b.sortColumn));
-        })
+        map(([subjects, selectedProject]) => subjects)
       )),
     ).subscribe(persons => {
       this.personsSource.next(persons);
