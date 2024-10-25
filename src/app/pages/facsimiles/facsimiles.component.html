@@ -7,11 +7,8 @@
 <div class="container">
   <h1>Facsimile management</h1>
 
-
   @if (!selectedProject) {
     <p>Please select a project</p>
-  } @else if (loading$ | async) {
-    <loading-spinner></loading-spinner>
   } @else if (collectionId) {
     @if (selectedCollection) {
       <facsimile-collection [collection]="selectedCollection"></facsimile-collection>
@@ -33,31 +30,6 @@
       (editRow)="editCollection($event)"
       (openRow)="open($event)">
     </custom-table>
-}
-    <!-- @if (collectionId) {
-      @if (selectedCollection) {
-        <facsimile-collection [collection]="selectedCollection"></facsimile-collection>
-      } @else {
-        <loading-spinner></loading-spinner>
-      }
-    } @else if (loading$ | async) {
-        <loading-spinner></loading-spinner>
-    } @else {
-      <div class="header-row">
-        <h2>Facsimile collections</h2>
-        <div class="actions">
-          <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
-          <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-          <button mat-flat-button (click)="editCollection()"><mat-icon>add</mat-icon>Add</button>
-        </div>
-      </div>
-      <custom-table
-        [data$]="facsimilesResult$"
-        [columns]="columnsData"
-        [loadingData]="loadingData"
-        (editRow)="editCollection($event)"
-        (openRow)="open($event)">
-      </custom-table>
-    } -->
+  }
 
 </div>

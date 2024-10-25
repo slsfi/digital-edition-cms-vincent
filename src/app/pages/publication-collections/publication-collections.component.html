@@ -10,7 +10,7 @@
 <div class="publications">
   <div class="header">
     <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
-      <button mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></button>
+      <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
       <h2>{{ selectedPublicationCollection.name }} </h2>
     </ng-container>
   </div>

@@ -114,6 +114,8 @@ export class FileUploadComponent {
               const statusString = event.status.toString()
               if (statusString.startsWith("2")) {
                 queueObject.status = FileQueueStatus.Success;
+                observer.next();
+                observer.complete();
               }
             }
           },

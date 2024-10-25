@@ -1,16 +1,16 @@
 import { Component, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { FacsimileCollection } from '../../models/facsimile';
 import { FacsimileFileComponent } from "../facsimile-file/facsimile-file.component";
 import { MatIconModule } from '@angular/material/icon';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
-import { Observable } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'facsimile-collection',
   standalone: true,
-  imports: [FacsimileFileComponent, MatIconModule, FileUploadComponent],
+  imports: [FacsimileFileComponent, MatIconModule, FileUploadComponent, MatButtonModule, RouterLink],
   templateUrl: './facsimile-collection.component.html',
   styleUrl: './facsimile-collection.component.scss'
 })
