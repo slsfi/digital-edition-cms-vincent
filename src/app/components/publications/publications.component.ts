@@ -65,11 +65,8 @@ export class PublicationsComponent {
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
-  filteredPublications$: Observable<Publication[]> = new Observable<Publication[]>();
   private publicationsSource = new BehaviorSubject<Publication[]>([]);
   publicationsResult$: Observable<Publication[]> = this.publicationsSource.asObservable();
-  publicationsAmount: number = 0;
-  filteredPublicationsAmount: number = 0;
 
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comment$: Observable<PublicationComment> = new Observable<PublicationComment>();
@@ -165,53 +162,7 @@ export class PublicationsComponent {
 
     this.publications$ = publicationsShared$;
 
-    this.filteredPublications$ = combineLatest([publicationsShared$, this.route.queryParamMap]).pipe(
-      map(([publications, params]) => {
-        const queryParams: QueryParamType = {};
-
-        this.publicationsAmount = publications.length;
-
-        params.keys.forEach(key => {
-          const k = params.get(key);
-          if (k) {
-            queryParams[key] = k;
-          }
-        });
-
-        if (queryParams['name']) {
-          publications = publications.filter(publication => publication.name.toLowerCase().includes(queryParams['name']));
-        }
-        if (queryParams['published']) {
-          publications = publications.filter(publication => publication.published === parseInt(queryParams['published']));
-        }
-        if (queryParams['id']) {
-          publications = publications.filter(publication => publication.id === parseInt(queryParams['id']));
-        }
-
-        this.filteredPublicationsAmount = publications.length;
-
-        let filteredPublications = [...publications];
-        if (queryParams['sort'] && queryParams['direction']) {
-          filteredPublications = filteredPublications.sort((a: any, b: any) => {
-            let aValue = a[queryParams['sort']];
-            let bValue = b[queryParams['sort']];
-            if (typeof aValue === 'string') {
-              aValue = aValue.toLowerCase();
-              bValue = bValue.toLowerCase();
-            }
-            if (queryParams['direction'] === 'asc') {
-              return aValue > bValue ? 1 : -1;
-            } else {
-              return aValue < bValue ? 1 : -1;
-            }
-          });
-        }
-
-        return filteredPublications;
-      })
-    );
-
-    this.filteredPublications$.subscribe(publications => {
+    this.publications$.subscribe(publications => {
       this.publicationsSource.next(publications);
     });
 

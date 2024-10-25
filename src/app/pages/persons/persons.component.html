@@ -2,8 +2,8 @@
   <div class="header-row">
     <h1>Index of persons management</h1>
     <div class="actions">
-      <ng-container *ngIf="queryParams$ | async as queryParams">
-        <button mat-flat-button [matBadge]="queryParams.length > 0 ? queryParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
+      <ng-container *ngIf="filterParams$ | async as filterParams">
+        <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
       </ng-container>
       <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
     </div>
@@ -13,20 +13,6 @@
     <p>Please select a project</p>
   </ng-container>
 
-  <!-- <ng-container *ngIf="filteredSubjects$ | async as subjects else loading"> -->
-    <div class="header-row">
-      <div class="active-filters">
-        <span>Selected filters:</span>
-        <ng-container *ngIf="queryParams$ | async as queryParams">
-          <mat-chip-set aria-label="active filters">
-            @for (filter of queryParams; track filter.header) {
-              <mat-chip>{{ filter.header }}: {{ filter.value }}</mat-chip>
-            }
-          </mat-chip-set>
-        </ng-container>
-      </div>
-      <div>{{ filteredSubjectsLength }} / {{ allSubjectsLength }} </div>
-    </div>
     @if (loading$ | async) {
       <loading-spinner></loading-spinner>
     } @else {
@@ -36,7 +22,6 @@
         (editRow)="edit($event)">
       </custom-table>
     }
-  <!-- </ng-container> -->
 </div>
 
 

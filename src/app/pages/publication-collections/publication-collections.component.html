@@ -18,14 +18,13 @@
 
 <ng-template #publicationCollections>
     <div class="header-row">
-      <h3>Publication collections ({{filteredCollectionsAmount}} / {{allCollectionsAmount}})</h3>
       <div class="actions">
         <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
         <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
         <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
       </div>
     </div>
-    @if (loading$ | async) {
+    @if (loading$ | async) {
       <loading-spinner></loading-spinner>
     } @else {
       <custom-table
@@ -35,7 +34,6 @@
         (editRow)="editPublicationCollection($event)">
       </custom-table>
     }
-
 
 </ng-template>
 

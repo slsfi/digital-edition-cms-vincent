@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, startWith, Subject, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
@@ -29,9 +29,9 @@ import { LoadingService } from '../../services/loading.service';
 export class FacsimilesComponent {
 
   columnsData: Column[] = [
-    { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false },
-    { field: 'title', header: 'Title', filterable: true, type: 'string', editable: true,},
-    { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true },
+    { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false, filterType: 'equals' },
+    { field: 'title', header: 'Title', filterable: true, type: 'string', editable: true, filterType: 'contains' },
+    { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'number_of_pages', header: 'Number of pages', filterable: false, type: 'number', editable: true },
     { field: 'page_comment', header: 'Page comment', filterable: false, type: 'string', editable: true },
     { field: 'start_page_number', header: 'Start page number', filterable: false, type: 'number', editable: true },
@@ -69,52 +69,14 @@ export class FacsimilesComponent {
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
 
-    const facsimileCollectionsShared$ = this.loader$.pipe(
+    this.loader$.pipe(
       startWith(0),
       switchMap(() => combineLatest([this.selectedProject$, this.projectService.getFacsimileCollections()]).pipe(
         map(([project, facsimiles]) => {
           return facsimiles;
         })
       )),
-      shareReplay(1)
-    );
-
-    this.facsimileCollections$ = facsimileCollectionsShared$;
-
-    this.filteredFacsimileCollections$ = combineLatest([facsimileCollectionsShared$, this.queryParamsService.queryParams$]).pipe(
-      map(([facsimiles, queryParams]) => {
-
-        if (queryParams['title']) {
-          facsimiles = facsimiles.filter(facsimile => facsimile.title.toLowerCase().includes(queryParams['title']));
-        }
-        if (queryParams['description']) {
-          facsimiles = facsimiles.filter(facsimile => facsimile.description?.toLowerCase().includes(queryParams['description']));
-        }
-        if (queryParams['id']) {
-          facsimiles = facsimiles.filter(facsimile => facsimile.id === parseInt(queryParams['id']));
-        }
-
-        let filteredFacsimiles = [...facsimiles];
-        if (queryParams['sort'] && queryParams['direction']) {
-          filteredFacsimiles = filteredFacsimiles.sort((a: any, b: any) => {
-            let aValue = a[queryParams['sort']];
-            let bValue = b[queryParams['sort']];
-            if (typeof aValue === 'string') {
-              aValue = aValue.toLowerCase();
-              bValue = bValue.toLowerCase();
-            }
-            if (queryParams['direction'] === 'asc') {
-              return aValue > bValue ? 1 : -1;
-            } else {
-              return aValue < bValue ? 1 : -1;
-            }
-          });
-        }
-        return filteredFacsimiles;
-      })
-
-    );
-    this.filteredFacsimileCollections$.subscribe(facsimiles => {
+    ).subscribe(facsimiles => {
       this.facsimilesSource.next(facsimiles);
     });
 

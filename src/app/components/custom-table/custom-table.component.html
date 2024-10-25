@@ -1,6 +1,10 @@
 @let queryParams = queryParams$ | async;
 
 @if ((data$ | async)) {
+  @if (tableDataSource.data.length > 0) {
+    <div>{{ filteredCount }} / {{ originalCount }}</div>
+  }
+
   <table mat-table [dataSource]="tableDataSource">
     @for (column of tableColumns; track column.field;) {
       <ng-container [matColumnDef]="column.field">

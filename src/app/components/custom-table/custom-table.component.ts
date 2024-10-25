@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column } from '../../models/column';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, filter } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { LoadingService } from '../../services/loading.service';
@@ -45,6 +45,10 @@ export class CustomTableComponent {
   queryParams$ = new Observable<any>();
   loading$: Observable<boolean> = new Observable<boolean>();
 
+  originalCount: number = 0;
+  filteredCount: number = 0;
+  test = false;
+
   constructor(private queryParamsService: QueryParamsService, private loadingService: LoadingService) {
     this.loading$ = this.loadingService.loading$;
   }
@@ -59,8 +63,53 @@ export class CustomTableComponent {
 
   ngAfterViewInit() {
     this.tableDataSource.paginator = this.paginator;
-    this.data$.subscribe(data => {
-      this.tableDataSource.data = data;
+
+    // timeout for handling ExpressionChangedAfterItHasBeenCheckedError
+    // and actually it makes table to render faster!
+    setTimeout(() => {
+      combineLatest([this.data$, this.queryParams$])
+        .pipe(
+          map(([data, queryParams]) => {
+            this.originalCount = data.length;
+
+            // Filtering
+            const filterableColumns = this.tableColumns.filter(column => column.filterable);
+            filterableColumns.forEach(column => {
+              const field = column.field;
+              const filterType = column.filterType ?? 'equals';
+              if (queryParams[field]) {
+                data = data.filter((item: any) => {
+                  if (typeof item[field] === 'string') {
+                    return item[field].toLowerCase().includes(queryParams[field]);
+                  } else {
+                    return item[field] === queryParams[field];
+                  }
+                });
+              }
+            });
+            this.filteredCount = data.length;
+
+            // Sorting
+            if (queryParams['sort'] && queryParams['direction']) {
+              data = data.sort((a: any, b: any) => {
+                let aValue = a[queryParams['sort']];
+                let bValue = b[queryParams['sort']];
+                if (typeof aValue === 'string') {
+                  aValue = aValue.toLowerCase();
+                  bValue = bValue.toLowerCase();
+                }
+                if (queryParams['direction'] === 'asc') {
+                  return aValue > bValue ? 1 : -1;
+                } else {
+                  return aValue < bValue ? 1 : -1;
+                }
+              });
+            }
+            return data;
+          })
+        ).subscribe(data => {
+          this.tableDataSource.data = data;
+        });
     });
   }
 
@@ -71,4 +120,5 @@ export class CustomTableComponent {
   editSecondary(model: any) {
     this.editRowSecondary.emit(model);
   }
+
 }

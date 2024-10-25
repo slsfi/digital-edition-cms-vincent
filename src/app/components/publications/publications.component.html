@@ -18,7 +18,6 @@
     <div class="content">
       <div class="list">
           <div class="header-row">
-            <h3>Publications ({{filteredPublicationsAmount}} / {{ publicationsAmount }})</h3>
             <div class="actions">
               <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
               <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>

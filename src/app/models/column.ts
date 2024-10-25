@@ -3,6 +3,7 @@ export interface Column {
   header: string;
   type: string;
   filterable?: boolean;
+  filterType?: 'equals' | 'contains';
   editable?: boolean;
   required?: boolean;
   editOrder?: number;

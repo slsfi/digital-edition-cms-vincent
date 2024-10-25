@@ -33,8 +33,6 @@ export class ProjectsComponent {
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   private projectsSource = new BehaviorSubject<Project[]>([]);
   projectsResult$: Observable<Project[]> = this.projectsSource.asObservable();
-  projects$: Observable<Project[]> = new Observable<Project[]>();
-  filteredProjects$: Observable<Project[]> = new Observable<Project[]>();
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false },
     { field: 'name', header: 'Name', type: 'string', filterable: true, editable: true },
@@ -51,8 +49,6 @@ export class ProjectsComponent {
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
-    private router: Router,
-    private queryParamsService: QueryParamsService,
     private snackBar: MatSnackBar,
     private loadingService: LoadingService
   ) {
@@ -60,36 +56,11 @@ export class ProjectsComponent {
    }
 
   ngAfterViewInit() {
-    this.projects$ = this.loader$.asObservable().pipe(
+    this.loader$.asObservable().pipe(
       startWith(null),
       debounce(i => timer(500)),
       switchMap(() => this.projectService.getProjects()),
-    )
-    // Listen for URL changes, start with the current URL to ensure the stream has an initial value
-    this.url$ = this.router.events.pipe(
-      filter((event: any) => event instanceof NavigationEnd),
-      startWith(this.router.url), // Ensure the initial URL is emitted when the component is initialized
-      map((event: any) => event instanceof NavigationEnd ? event.url : event)
-    );
-    this.filteredProjects$ = combineLatest([this.projects$, this.url$]).pipe(
-      map(([projects, url]) => {
-        const queryParams = this.queryParamsService.getQueryParams();
-        // Filter projects based on query params
-        if (queryParams['name']) {
-          projects = projects.filter(project => project.name.includes(queryParams['name']));
-        }
-        if (queryParams['published']) {
-          projects = projects.filter(project => project.published === parseInt(queryParams['published']));
-        }
-        if (queryParams['id']) {
-          projects = projects.filter(project => project.id === parseInt(queryParams['id']));
-        }
-
-        return projects;
-      })
-    );
-
-    this.filteredProjects$.subscribe(projects => {
+    ).subscribe(projects => {
       this.projectsSource.next(projects);
     });
 

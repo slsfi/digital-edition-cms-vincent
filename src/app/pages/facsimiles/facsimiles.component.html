@@ -1,6 +1,4 @@
 @let selectedProject = selectedProject$ | async;
-@let facsimiles = filteredFacsimileCollections$ | async;
-@let totalFacsimiles = (facsimileCollections$ | async)?.length;
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
 
@@ -14,28 +12,16 @@
       <button mat-flat-button (click)="editCollection()"><mat-icon>add</mat-icon>Add</button>
     </div>
   </div>
-  <ng-container *ngIf="facsimiles else loading">
-    <div class="total">
-      <span>{{ facsimiles.length }} / {{ totalFacsimiles }}</span>
-    </div>
-    @if (loading$ | async) {
+  @if (!selectedProject) {
+    <p>Please select a project</p>
+  } @else if (loading$ | async) {
       <loading-spinner></loading-spinner>
-    } @else {
-    <custom-table
-      [data$]="facsimilesResult$"
-      [columns]="columnsData"
-      (editRow)="editCollection($event)">
-    </custom-table>
-  }
-
-  </ng-container>
-
-  <ng-template #loading>
-    @if (!selectedProject) {
-      <p>Please select a project</p>
-    } @else {
-      <loading-spinner></loading-spinner>
-    }
-  </ng-template>
+  } @else {
+  <custom-table
+    [data$]="facsimilesResult$"
+    [columns]="columnsData"
+    (editRow)="editCollection($event)">
+  </custom-table>
+}
 
 </div>

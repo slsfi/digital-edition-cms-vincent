@@ -60,12 +60,8 @@ export class PublicationCollectionsComponent {
 
   publicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
-  filteredPublicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
   private collectionsSource = new BehaviorSubject<PublicationCollection[]>([]);
   publicationCollectionsResult$: Observable<PublicationCollection[]> = this.collectionsSource.asObservable();
-
-  allCollectionsAmount: number = 0;
-  filteredCollectionsAmount: number = 0;
 
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
@@ -93,7 +89,6 @@ export class PublicationCollectionsComponent {
     );
 
     this.sortParams$ = this.queryParamsService.sortParams$;
-
     this.filterParams$ = this.queryParamsService.filterParams$;
 
     const publicationCollectionsShared$ = this.publicationCollectionsLoader$.pipe(
@@ -110,52 +105,7 @@ export class PublicationCollectionsComponent {
       map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
     );
 
-    this.filteredPublicationCollections$ = combineLatest([publicationCollectionsShared$, this.route.queryParamMap]).pipe(
-      map(([publications, params]) => {
-        this.allCollectionsAmount = publications.length;
-        const queryParams: QueryParamType = {};
-
-        params.keys.forEach(key => {
-          const k = params.get(key);
-          if (k) {
-            queryParams[key] = k;
-          }
-        });
-
-        if (queryParams['name']) {
-          publications = publications.filter(publication => publication.name.toLowerCase().includes(queryParams['name']));
-        }
-        if (queryParams['published']) {
-          publications = publications.filter(publication => publication.published === parseInt(queryParams['published']));
-        }
-        if (queryParams['id']) {
-          publications = publications.filter(publication => publication.id === parseInt(queryParams['id']));
-        }
-
-        this.filteredCollectionsAmount = publications.length;
-
-        let filteredPublications = [...publications];
-        if (queryParams['sort'] && queryParams['direction']) {
-          filteredPublications = filteredPublications.sort((a: any, b: any) => {
-            let aValue = a[queryParams['sort']];
-            let bValue = b[queryParams['sort']];
-            if (typeof aValue === 'string') {
-              aValue = aValue.toLowerCase();
-              bValue = bValue.toLowerCase();
-            }
-            if (queryParams['direction'] === 'asc') {
-              return aValue > bValue ? 1 : -1;
-            } else {
-              return aValue < bValue ? 1 : -1;
-            }
-          });
-        }
-
-        return filteredPublications;
-      })
-    );
-
-    this.filteredPublicationCollections$.subscribe(publications => {
+    this.publicationCollections$.subscribe(publications => {
       this.collectionsSource.next(publications);
     });
 
