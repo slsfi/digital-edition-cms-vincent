@@ -1,4 +1,4 @@
-import { Publication } from './../models/publication';
+import { LinkTextToPublicationRequest, ManuscriptResponse, Publication, PublicationCollectionResponse, PublicationCommentResponse, PublicationResponse, VersionResponse } from './../models/publication';
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
@@ -93,7 +93,9 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url).pipe(
+          map((response: PublicationCollectionResponse) => response.data)
+        );
       }
     ));
   }
@@ -123,7 +125,9 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url).pipe(
+          map((response: PublicationResponse) => response.data)
+        );
       }
     ));
   }
@@ -150,27 +154,25 @@ export class ProjectService {
     );
   }
 
-  getReadingTextForPublication(collectionId: string, publicationId: string): Observable<ReadingText> {
+  linkTextToPublication(publicationId: number, payload: LinkTextToPublicationRequest) {
+    // /<project>/publication/<publication_id>/link_text/
     return this.selectedProject$.pipe(
-      filter(project => {
-        return !!project
-      }),
+      filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/text/${collectionId}/${publicationId}/est`;
-        return this.apiService.get(url);
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/link_text/`;
+        return this.apiService.post(url, payload);
       }),
-      catchError(() => of({} as ReadingText))
+      catchError(() => of())
     );
   }
 
   getCommentForPublication(collectionId: string, publicationId: string): Observable<PublicationComment> {
-    // /<project>/publication/<publication_id>/comments/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
         return this.apiService.get(url).pipe(
-          map((comments: PublicationComment[]) => comments[0] || {} as PublicationComment)
+          map((response: PublicationCommentResponse) => response.data[0] || {} as PublicationComment)
         )
       }),
       catchError(() => of({} as PublicationComment))
@@ -189,13 +191,14 @@ export class ProjectService {
     );
   }
 
-  getVersionsForPublication(collectionId: string, publicationId: string): Observable<Version[]> {
-      // /<project>/publication/<publication_id>/versions/
+  getVersionsForPublication(publicationId: string): Observable<Version[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url).pipe(
+          map((response: VersionResponse) => response.data)
+        );
       }),
       catchError(() => of([]))
     );
@@ -225,13 +228,14 @@ export class ProjectService {
     );
   }
 
-  getManuscriptsForPublication(collectionId: string, publicationId: string): Observable<Manuscript[]> {
-    // /<project>/publication/<publication_id>/manuscripts/
+  getManuscriptsForPublication(publicationId: string): Observable<Manuscript[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url).pipe(
+          map((response: ManuscriptResponse) => response.data)
+        );
       }),
       catchError(() => of([] as Manuscript[]))
     );

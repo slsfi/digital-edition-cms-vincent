@@ -194,7 +194,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getVersionsForPublication(collectionId as string, publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.projectService.getVersionsForPublication(publicationId as string))
         )
       )
     );
@@ -211,7 +211,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getManuscriptsForPublication(collectionId as string, publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.projectService.getManuscriptsForPublication(publicationId as string))
         )
       )
     );
@@ -273,10 +273,8 @@ export class PublicationsComponent {
 
       const succesMessage = 'Filename saved';
       const errorMessage = 'Error editing filename';
-
+      const data = { original_filename: filePath }
       if (type === 'text') {
-
-        const data = { original_filename: filePath }
         this.projectService.editPublication(editId, data).subscribe({
           next: () => {
             this.publicationsLoader$.next();
@@ -287,7 +285,6 @@ export class PublicationsComponent {
           }
         });
       } else if (type === 'comment') {
-        const data = { filename: filePath }
         this.projectService.editComment(editId, data).subscribe({
           next: () => {
             this.commentLoader$.next(0);
@@ -298,7 +295,6 @@ export class PublicationsComponent {
           }
         });
       } else if (type === 'version') {
-        const data = { filename: filePath }
         this.projectService.editVersion(editId, data).subscribe({
           next: () => {
             this.versionsLoader$.next(0);
@@ -309,7 +305,6 @@ export class PublicationsComponent {
           }
         });
       } else if (type === 'manuscript') {
-        const data = { filename: filePath }
         this.projectService.editManuscript(editId, data).subscribe({
           next: () => {
             this.manuscriptsLoader$.next(0);
@@ -337,19 +332,14 @@ export class PublicationsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const payload = {
-          title: result.form.value.name,
-          filename: result.form.value.original_filename,
-          published: result.form.value.published ? result.form.value.published : null,
-          sort_order: result.form.value.sort_order,
-          version_type: result.form.value.type,
-        }
+        const payload = result.form.getRawValue();
+        payload['text_type'] = 'version';
 
         let req;
         if (version?.id) {
           req = this.projectService.editVersion(version.id, payload);
         } else {
-          req = this.projectService.addVersion(publicationId, payload);
+          req = this.projectService.linkTextToPublication(publicationId, payload);
         }
         req.subscribe({
           next: () => {
@@ -379,18 +369,14 @@ export class PublicationsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const payload = {
-          title: result.form.value.name,
-          filename: result.form.value.original_filename,
-          published: result.form.value.published ? result.form.value.published : null,
-          sort_order: result.form.value.sort_order,
-        }
+        const payload = result.form.getRawValue();
+        payload['text_type'] = 'manuscript';
 
         let req;
         if (manuscript?.id) {
           req = this.projectService.editManuscript(manuscript.id, payload);
         } else {
-          req = this.projectService.addManuscript(publicationId, payload);
+          req = this.projectService.linkTextToPublication(publicationId, payload);
         }
         req.subscribe({
           next: () => {

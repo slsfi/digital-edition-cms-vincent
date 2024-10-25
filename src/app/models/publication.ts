@@ -1,3 +1,9 @@
+import { ApiResponse } from "./project";
+
+export interface PublicationCollectionResponse extends ApiResponse {
+  data: PublicationCollection[];
+}
+
 export interface PublicationCollection {
   collection_intro_filename: string | null;
   collection_intro_published: number;
@@ -17,6 +23,10 @@ export interface PublicationCollectionRequest {
   name: string;
   published: Published;
   deleted?: Deleted;
+}
+
+export interface PublicationResponse extends ApiResponse {
+  data: Publication[];
 }
 
 export interface Publication {
@@ -50,6 +60,10 @@ export interface ReadingText {
   content: string;
   language: string;
 }
+
+export interface PublicationCommentResponse extends ApiResponse {
+  data: PublicationComment[];
+}
 export interface PublicationComment {
   date_created: string;
   date_modified: string | null;
@@ -60,8 +74,12 @@ export interface PublicationComment {
 }
 
 export interface PublicationCommentRequest {
-  filename: string;
+  original_filename: string;
   published?: Published;
+}
+
+export interface VersionResponse extends ApiResponse {
+  data: Version[];
 }
 
 export interface Version {
@@ -79,11 +97,15 @@ export interface Version {
 }
 
 export interface VersionRequest {
-  title?: string
-  filename: string;
+  name?: string
+  original_filename: string;
   published?: Published;
   sort_order?: number;
   version_type?: number;
+}
+
+export interface ManuscriptResponse extends ApiResponse {
+  data: Manuscript[];
 }
 
 export interface Manuscript {
@@ -101,8 +123,8 @@ export interface Manuscript {
 }
 
 export interface ManuscriptRequest {
-  title?: string;
-  filename: string;
+  name?: string;
+  original_filename: string;
   published?: Published;
   sort_order?: number;
 }
@@ -121,4 +143,17 @@ export enum Published {
 export enum Deleted {
   NotDeleted = 0,
   Deleted = 1,
+}
+
+export interface LinkTextToPublicationRequest {
+  text_type: 'comment' | 'manuscript' | 'version';
+  original_filename: string;
+  name?: string;
+  published?: Published;
+  published_by?: string;
+  legacy_id?: number;
+  type?: number;
+  section_id?: number;
+  sort_order?: number;
+  language?: string;
 }

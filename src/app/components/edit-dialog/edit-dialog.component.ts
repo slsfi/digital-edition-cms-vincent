@@ -31,7 +31,7 @@ interface InputData {
 })
 export class EditDialogComponent {
 
-  constructor(private projectService: ProjectService) { }
+  constructor() { }
 
   readonly data = inject<InputData>(MAT_DIALOG_DATA);
 

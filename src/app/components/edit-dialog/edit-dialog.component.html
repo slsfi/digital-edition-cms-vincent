@@ -51,7 +51,7 @@
                   cdkAutosizeMaxRows="7"
                   ></textarea>
               </ng-container>
-              <ng-container *ngIf="column.type === 'string' || column.type === 'number'">
+              <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'id'">
                 <input matInput [formControlName]="column.field" />
               </ng-container>
             </mat-form-field>
