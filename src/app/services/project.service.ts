@@ -201,16 +201,16 @@ export class ProjectService {
     );
   }
 
-  getCommentForPublication(collectionId: string, publicationId: string): Observable<PublicationComment> {
+  getCommentsForPublication(collectionId: string, publicationId: string): Observable<PublicationComment[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
         return this.apiService.get(url).pipe(
-          map((response: PublicationCommentResponse) => response.data[0] || {} as PublicationComment)
+          map((response: PublicationCommentResponse) => response.data)
         )
       }),
-      catchError(() => of({} as PublicationComment))
+      catchError(() => of([]))
     );
   }
 

@@ -69,7 +69,7 @@ export class PublicationsComponent {
   publicationsResult$: Observable<Publication[]> = this.publicationsSource.asObservable();
 
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  comment$: Observable<PublicationComment> = new Observable<PublicationComment>();
+  comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = new Observable<Version[]>();
   private versionsSource = new BehaviorSubject<Version[]>([]);
@@ -115,6 +115,16 @@ export class PublicationsComponent {
     { field: 'published', header: 'Published', type: 'published', editable: true },
     { field: 'section_id', header: 'Section ID', type: 'number', editable: false },
     { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
+  ]
+
+  commentsColumnData: Column[] = [
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': false },
+    { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
+  ]
+  allCommentsColumnData: Column[] = [
+    ...this.commentsColumnData,
+    { field: 'published', header: 'Published', type: 'published', editable: true },
+    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
   ]
 
   sortParams$: Observable<any[]> = new Observable<any[]>();
@@ -171,7 +181,7 @@ export class PublicationsComponent {
       map(([publications, publicationId]) => publications.find(publication => publication.id === parseInt(publicationId as string)) ?? null)
     );
 
-    this.comment$ = this.commentLoader$.asObservable().pipe(
+    this.comments$ = this.commentLoader$.asObservable().pipe(
       startWith(0),
       debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
@@ -180,7 +190,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getCommentForPublication(collectionId as string, publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.projectService.getCommentsForPublication(collectionId as string, publicationId as string))
         )
       )
     );
@@ -254,8 +264,9 @@ export class PublicationsComponent {
     });
   }
 
-  editSelectedFileTable(type: 'text' | 'comment' | 'version' | 'manuscript', model: any) {
-    this.editSelectedFile(type, model.original_filename, model.id);
+  editSelectedFileTable(type: 'text' | 'comment' | 'version' | 'manuscript', model: any, editId: number | null = null) {
+    console.log('edit', model)
+    this.editSelectedFile(type, model.original_filename, editId ?? model.id);
   }
 
   editSelectedFile(type: 'text' | 'comment' | 'version' | 'manuscript', filename: string | null = '', editId: number) {
@@ -385,6 +396,39 @@ export class PublicationsComponent {
           },
           error: () => {
             this.snackbar.open('Error editing manuscript', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+  }
+
+  editComment(comment: PublicationComment | null, publicationId: number) {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
+      width: '400px',
+      data: {
+        model: comment ?? {},
+        columns: this.allCommentsColumnData
+          .filter(column => column.type !== 'action')
+          .sort((a: any, b: any) => b.editable - a.editable),
+        title: 'Comment'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        let req;
+        if (comment?.id) {
+          req = this.projectService.editComment(publicationId, result.form.value);
+        } else {
+          req = this.projectService.editComment(publicationId, result.form.value);
+        }
+        req.subscribe({
+          next: () => {
+            this.commentLoader$.next(0);
+            this.snackbar.open('Comment saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error editing comment', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

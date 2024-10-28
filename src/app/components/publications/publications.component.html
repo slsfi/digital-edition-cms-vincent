@@ -47,19 +47,20 @@
                   </div>
                 </mat-card-content>
               </mat-card>
-              <ng-container *ngIf="comment$ | async as comment else loading">
                 <mat-card appearance="outlined">
-                  <mat-card-header>
-                    <mat-card-title>Comment</mat-card-title>
-                  </mat-card-header>
                   <mat-card-content>
-                    <div class="file-row">
-                      <div><span>Filename:</span> {{ comment.original_filename.split('/').join(' / ') }}</div>
-                      <button mat-icon-button (click)="editSelectedFile('comment', comment.original_filename, selectedPublication.id)"><mat-icon>edit</mat-icon></button>
-                    </div>
+                    <custom-table
+                      [data$]="comments$"
+                      [columns]="commentsColumnData"
+                      (editRow)="editComment($event, selectedPublication.id)"
+                      (editRowSecondary)="editSelectedFileTable('comment', $event, selectedPublication.id)">
+                      <ng-content custom-table-title>Comments</ng-content>
+                      <ng-content custom-table-actions>
+                        <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                      </ng-content>
+                    </custom-table>
                   </mat-card-content>
                 </mat-card>
-              </ng-container>
 
               <mat-card appearance="outlined">
                 <mat-card-content>
