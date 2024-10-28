@@ -4,7 +4,7 @@ import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Person, PersonPayload, PersonResponse, TranslationRequest, TranslationRequestPost } from '../models/person';
 import { Manuscript, ManuscriptRequest, PublicationCollection, PublicationCollectionRequest, PublicationComment, PublicationCommentRequest, PublicationRequest, ReadingText, Version, VersionRequest } from '../models/publication';
-import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse } from '../models/facsimile';
+import { EditPublicationFacsimileRequest, FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse } from '../models/facsimile';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 
 @Injectable({
@@ -297,6 +297,42 @@ export class ProjectService {
         return this.apiService.post(url, data);
       }
     ));
+  }
+
+  getFacsimilesForPublication(publicationId: string): Observable<PublicationFacsimile[]> {
+    // /<project>/publication/<publication_id>/facsimiles/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/facsimiles/`;
+        return this.apiService.get(url).pipe(map((response: PublicationFacsimileResponse) => response.data));
+      }),
+      catchError(() => of([]))
+    );
+  }
+
+  editFacsimileForPublication(data: EditPublicationFacsimileRequest) {
+    // /<project>/facsimile_collection/facsimile/edit/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/facsimile/edit/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
+  }
+
+  linkFacsimileToPublication(publicationId: number, data: LinkPublicationToFacsimileRequest) {
+    // /<project>/facsimile_collection/<collection_id>/link/
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${publicationId}/link/`;
+        return this.apiService.post(url, data);
+      }),
+      catchError(() => of())
+    );
   }
 
   getSubjects(): Observable<Person[]> {

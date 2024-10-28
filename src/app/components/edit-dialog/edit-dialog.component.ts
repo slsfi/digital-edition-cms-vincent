@@ -10,7 +10,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { ProjectService } from '../../services/project.service';
 import { TranslationsComponent } from '../translations/translations.component';
 import { personTypeOptions } from '../../models/person';
 import { MatIconModule } from '@angular/material/icon';
@@ -60,7 +59,7 @@ export class EditDialogComponent {
     this.form = new FormGroup({});
 
     this.columns.forEach((column) => {
-      let value: string | number | null | Date = this.data.model[column.field] || '';
+      let value: string | number | null | Date = this.data.model[column.field];
 
       const validators = [];
       if (column.required) {

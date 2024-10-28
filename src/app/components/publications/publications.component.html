@@ -36,6 +36,7 @@
           <h3>{{ selectedPublication.name }} </h3>
           <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
             <div class="cards">
+
               <mat-card appearance="outlined">
                 <mat-card-header>
                   <mat-card-title>Reading text</mat-card-title>
@@ -47,29 +48,30 @@
                   </div>
                 </mat-card-content>
               </mat-card>
-                <mat-card appearance="outlined">
-                  <mat-card-content>
-                    <custom-table
-                      [data$]="comments$"
-                      [columns]="commentsColumnData"
-                      (editRow)="editComment($event, selectedPublication.id)">
-                      <ng-content custom-table-title>Comments</ng-content>
-                      <ng-content custom-table-actions>
-                        <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                      </ng-content>
-                    </custom-table>
-                  </mat-card-content>
-                </mat-card>
 
               <mat-card appearance="outlined">
                 <mat-card-content>
                   <custom-table
-                    [data$]="versionsResult$"
-                    [columns]="versionColumnsData"
-                    (editRow)="editVersion($event, selectedPublication.id)">
-                    <ng-content custom-table-title>Versions</ng-content>
+                    [data$]="comments$"
+                    [columns]="commentsColumnData"
+                    (editRow)="editComment($event, selectedPublication.id)">
+                    <ng-content custom-table-title>Comments</ng-content>
                     <ng-content custom-table-actions>
-                      <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                      <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    </ng-content>
+                  </custom-table>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined">
+                <mat-card-content>
+                  <custom-table
+                    [data$]="facsimilesResult$"
+                    [columns]="facsimileColumnData"
+                    (editRow)="editFacsimile($event, selectedPublication.id)">
+                    <ng-content custom-table-title>Facsimiles</ng-content>
+                    <ng-content custom-table-actions>
+                      <a mat-flat-button routerLink="facsimiles/new"><mat-icon>add</mat-icon>Add</a>
                     </ng-content>
                   </custom-table>
                 </mat-card-content>
@@ -84,6 +86,20 @@
                     <ng-content custom-table-title>Manuscripts</ng-content>
                     <ng-content custom-table-actions>
                       <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    </ng-content>
+                  </custom-table>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined">
+                <mat-card-content>
+                  <custom-table
+                    [data$]="versionsResult$"
+                    [columns]="versionColumnsData"
+                    (editRow)="editVersion($event, selectedPublication.id)">
+                    <ng-content custom-table-title>Versions</ng-content>
+                    <ng-content custom-table-actions>
+                      <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
                     </ng-content>
                   </custom-table>
                 </mat-card-content>

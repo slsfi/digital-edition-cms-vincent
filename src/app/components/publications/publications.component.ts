@@ -21,6 +21,7 @@ import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
+import { PublicationFacsimile } from '../../models/facsimile';
 
 @Component({
   selector: 'publications',
@@ -70,14 +71,21 @@ export class PublicationsComponent {
 
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
+
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = new Observable<Version[]>();
   private versionsSource = new BehaviorSubject<Version[]>([]);
   versionsResult$: Observable<Version[]> = this.versionsSource.asObservable();
+
   manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
   private manuscriptsSource = new BehaviorSubject<Manuscript[]>([]);
   manuscriptsResult$: Observable<Manuscript[]> = this.manuscriptsSource.asObservable();
+
+  facsimilesLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
+  private facsimilesSource = new BehaviorSubject<PublicationFacsimile[]>([]);
+  facsimilesResult$: Observable<PublicationFacsimile[]> = this.facsimilesSource.asObservable();
 
   versionColumnsData: Column[] = [
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
@@ -125,6 +133,28 @@ export class PublicationsComponent {
     ...this.commentsColumnData,
     { field: 'published', header: 'Published', type: 'published', editable: true },
     { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
+  ]
+
+  facsimileColumnData: Column[] = [
+    { field: 'title', header: 'Title', type: 'string', editable: true },
+    { field: 'external_url', header: 'External URL', type: 'string', editable: true },
+    { field: 'page_nr', header: 'Page Number', type: 'number', editable: true },
+    { field: 'section_id', header: 'Section ID', type: 'number', editable: true },
+    { field: 'priority', header: 'Priority', type: 'number', editable: true },
+    { field: 'actions', header: 'Actions', type: 'action', editable: false },
+  ]
+  allFacsimileColumnData: Column[] = [
+    ...this.facsimileColumnData,
+    { field: 'id', header: 'ID', type: 'number', editable: false },
+    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
+    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
+    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
+    { field: 'description', header: 'Description', type: 'string', editable: false },
+    { field: 'publication_facsimile_collection_id', header: 'Publication Facsimile Collection ID', type: 'number', editable: false },
+    { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
+    { field: 'publication_manuscript_id', header: 'Publication Manuscript ID', type: 'number', editable: false },
+    { field: 'publication_version_id', header: 'Publication Version ID', type: 'number', editable: false },
+    { field: 'type', header: 'Type', type: 'number', editable: false },
   ]
 
   sortParams$: Observable<any[]> = new Observable<any[]>();
@@ -227,6 +257,23 @@ export class PublicationsComponent {
     );
     this.manuscripts$.subscribe(manuscripts => {
       this.manuscriptsSource.next(manuscripts);
+    });
+
+    this.facsimiles$ = this.facsimilesLoader$.asObservable().pipe(
+      startWith(0),
+      debounce(() => timer(500)),
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
+        .pipe(
+          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
+          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
+            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
+          ),
+          switchMap(([collectionId, publicationId]) => this.projectService.getFacsimilesForPublication(publicationId as string))
+        )
+      )
+    );
+    this.facsimiles$.subscribe(facsimiles => {
+      this.facsimilesSource.next(facsimiles);
     });
 
   }
@@ -428,6 +475,47 @@ export class PublicationsComponent {
           },
           error: () => {
             this.snackbar.open('Error editing comment', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+  }
+
+  editFacsimile(facsimile: PublicationFacsimile | null, publicationId: number) {
+    const columns = this.allFacsimileColumnData
+      .filter(column => column.type !== 'action')
+      .sort((a: any, b: any) => b.editable - a.editable)
+    const dialogRef = this.dialog.open(EditDialogComponent, {
+      width: '400px',
+      data: {
+        model: facsimile ?? {},
+        columns,
+        title: 'Facsimile',
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = result.form.getRawValue();
+        columns.forEach(column => {
+          if (column.type === 'number') {
+            payload[column.field] = Number(payload[column.field]);
+          }
+        });
+
+        let req;
+        if (facsimile?.id) {
+          req = this.projectService.editFacsimileForPublication(payload);
+        } else {
+          req = this.projectService.linkFacsimileToPublication(publicationId, result.form);
+        }
+        req.subscribe({
+          next: () => {
+            this.facsimilesLoader$.next(0);
+            this.snackbar.open('Facsimile saved', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error editing facsimile', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

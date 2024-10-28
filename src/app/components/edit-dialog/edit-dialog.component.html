@@ -62,7 +62,7 @@
                   ></textarea>
               </ng-container>
               <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'id'">
-                <input matInput [formControlName]="column.field" />
+                <input matInput [formControlName]="column.field" [type]="column.type === 'number' ? 'number' : 'text'" />
               </ng-container>
             </mat-form-field>
           </ng-template>
