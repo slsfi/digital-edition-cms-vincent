@@ -1,9 +1,17 @@
 @let queryParams = queryParams$ | async;
 
 @if ((data$ | async)) {
-  @if (tableDataSource.data.length > 0) {
-    <div>{{ filteredCount }} / {{ originalCount }}</div>
-  }
+  <div class="header-row">
+    <h4 class="row-actions">
+      <ng-content select="[custom-table-title]"></ng-content>
+      @if (tableDataSource.data.length > 0) {
+        {{ filteredCount }} / {{ originalCount }}
+      }
+    </h4>
+    <div class="actions">
+      <ng-content select="[custom-table-actions]"></ng-content>
+    </div>
+  </div>
 
   <table mat-table [dataSource]="tableDataSource">
     @for (column of tableColumns; track column.field;) {

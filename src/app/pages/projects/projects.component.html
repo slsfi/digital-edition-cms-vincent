@@ -1,15 +1,16 @@
 <div class="container">
-  <div class="header-row">
-    <h1>Project management</h1>
-    <div class="actions">
-      <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
-      <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
-    </div>
-
-  </div>
+  <h1>Project management</h1>
   @if (loading$ | async) {
     <loading-spinner></loading-spinner>
   } @else {
-    <custom-table [data$]="projectsResult$" [columns]="columnsData" (editRow)="editProject($event)"></custom-table>
+    <custom-table
+      [data$]="projectsResult$"
+      [columns]="columnsData"
+      (editRow)="editProject($event)">
+      <ng-content custom-table-actions>
+        <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
+        <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
+      </ng-content>
+    </custom-table>
   }
 </div>

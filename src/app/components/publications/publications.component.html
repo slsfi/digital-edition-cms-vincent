@@ -17,20 +17,19 @@
   <div class="publications">
     <div class="content">
       <div class="list">
-          <div class="header-row">
-            <div class="actions">
-              <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
-              <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-              <button mat-flat-button (click)="editPublication(null, publicationCollectionId)"><mat-icon>add</mat-icon>Add</button>
-            </div>
-          </div>
-          <custom-table
-            [data$]="publicationsResult$"
-            [columns]="publicationColumnsData"
-            [selectedId]="publicationId$ | async"
-            [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
-            (editRow)="editPublication($event, publicationCollectionId)">
-          </custom-table>
+        <custom-table
+          [data$]="publicationsResult$"
+          [columns]="publicationColumnsData"
+          [selectedId]="publicationId$ | async"
+          [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
+          (editRow)="editPublication($event, publicationCollectionId)">
+          <ng-content custom-table-title>Publications</ng-content>
+          <ng-content custom-table-actions>
+            <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
+            <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
+            <button mat-flat-button (click)="editPublication(null, publicationCollectionId)"><mat-icon>add</mat-icon>Add</button>
+          </ng-content>
+        </custom-table>
       </div>
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
@@ -63,35 +62,31 @@
               </ng-container>
 
               <mat-card appearance="outlined">
-                <mat-card-header>
-                  <mat-card-title>
-                    Versions
-                    <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                  </mat-card-title>
-                </mat-card-header>
                 <mat-card-content>
                   <custom-table
                     [data$]="versionsResult$"
                     [columns]="versionColumnsData"
                     (editRow)="editVersion($event, selectedPublication.id)"
                     (editRowSecondary)="editSelectedFileTable('version', $event)">
+                    <ng-content custom-table-title>Versions</ng-content>
+                    <ng-content custom-table-actions>
+                      <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    </ng-content>
                   </custom-table>
                 </mat-card-content>
               </mat-card>
 
               <mat-card appearance="outlined">
-                <mat-card-header>
-                  <mat-card-title>
-                    Manuscripts
-                    <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                  </mat-card-title>
-                </mat-card-header>
                 <mat-card-content>
                   <custom-table
                     [data$]="manuscriptsResult$"
                     [columns]="manuscriptColumnsData"
                     (editRow)="editManuscript($event, selectedPublication.id)"
                     (editRowSecondary)="editSelectedFileTable('manuscript', $event)">
+                    <ng-content custom-table-title>Manuscripts</ng-content>
+                    <ng-content custom-table-actions>
+                      <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    </ng-content>
                   </custom-table>
                 </mat-card-content>
               </mat-card>
