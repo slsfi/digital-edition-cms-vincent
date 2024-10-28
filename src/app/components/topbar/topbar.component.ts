@@ -1,3 +1,4 @@
+import { ApiService } from './../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,10 +20,12 @@ export class TopbarComponent {
 
   isAuthenticated$: Observable<boolean> = new Observable<boolean>();
   selectedProject$: Observable<string | null> = new Observable<string | null>();
+  environment$: Observable<string | null> = new Observable<string | null>();
 
-  constructor(private authService: AuthService, private projectService: ProjectService) {
+  constructor(private authService: AuthService, private projectService: ProjectService, private apiService: ApiService) {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
     this.selectedProject$ = this.projectService.selectedProject$;
+    this.environment$ = this.apiService.environment$;
   }
 
   toggleMenu() {

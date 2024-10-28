@@ -9,7 +9,9 @@ import { LoadingService } from './loading.service';
 })
 export class ApiService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.environment$.next(localStorage.getItem('environment') || null)
+   }
 
   environment$ = new BehaviorSubject<string|null>(null);
   prefix: string = '/digitaledition';

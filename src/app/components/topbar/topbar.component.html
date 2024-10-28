@@ -4,8 +4,13 @@
       <mat-icon>menu</mat-icon>
     </button>
   </ng-container>
-  <h1 class="title">Vincent – CMS for the SLS Digital Edition Platform</h1>
-  <ng-container *ngIf="selectedProject$ | async as selectedProject">
-    <h4 class="title" *ngIf="selectedProject">Project: {{selectedProject}}</h4>
-  </ng-container>
+  <div class="topbar">
+    <h1>Vincent – CMS for the SLS Digital Edition Platform</h1>
+    <ng-container *ngIf="selectedProject$ | async as selectedProject">
+      <div *ngIf="selectedProject">Project: {{selectedProject}}</div>
+    </ng-container>
+    <ng-container *ngIf="environment$ | async as environment">
+      <div *ngIf="environment">Environment: {{environment}}</div>
+    </ng-container>
+  </div>
 </mat-toolbar>
