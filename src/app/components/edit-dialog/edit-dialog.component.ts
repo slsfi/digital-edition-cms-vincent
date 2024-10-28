@@ -14,6 +14,7 @@ import { ProjectService } from '../../services/project.service';
 import { TranslationsComponent } from '../translations/translations.component';
 import { personTypeOptions } from '../../models/person';
 import { MatIconModule } from '@angular/material/icon';
+import { FileTreeComponent } from "../file-tree/file-tree.component";
 
 interface InputData {
   model: any;
@@ -24,7 +25,7 @@ interface InputData {
 @Component({
   selector: 'edit-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe, TranslationsComponent, MatIconModule],
+  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe, TranslationsComponent, MatIconModule, FileTreeComponent],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-dialog.component.html',
   styleUrl: './edit-dialog.component.scss'
@@ -41,6 +42,11 @@ export class EditDialogComponent {
   personTypes = personTypeOptions;
 
   fieldForTranslate: string | null = null;
+  fileSelectorVisible = false;
+
+  get originalFilenameControl() {
+    return this.form.controls['original_filename'];
+  }
 
   ngOnInit() {
     const copiedColumns = this.data.columns.map((column) => ({ ...column }));
@@ -84,6 +90,19 @@ export class EditDialogComponent {
 
   showTranslations(column: Column) {
     this.fieldForTranslate = column.field;
+  }
+
+  showFileSelector() {
+    this.fileSelectorVisible = true;
+  }
+
+  hideFileSelector() {
+    this.fileSelectorVisible = false;
+  }
+
+  fileSelected(filename: string) {
+    this.fileSelectorVisible = false;
+    this.originalFilenameControl.setValue(filename);
   }
 
 }

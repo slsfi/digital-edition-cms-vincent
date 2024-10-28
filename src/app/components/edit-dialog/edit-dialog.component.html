@@ -1,7 +1,17 @@
 <h2 mat-dialog-title>{{ data.model.id ? 'Edit' : 'Add' }} {{ data.title }}</h2>
 <mat-dialog-content>
 
-  @if (fieldForTranslate == null) {
+  @if (fileSelectorVisible) {
+    <div class="bordered">
+      <file-tree
+        [onlyFiles]="true"
+        [value]="originalFilenameControl.value"
+        (close)="fileSelectorVisible = false"
+        (valueChange)="fileSelected($event)"
+        (close)="hideFileSelector()">
+      </file-tree>
+    </div>
+  } @else if (fieldForTranslate == null) {
     <form *ngIf="data.columns.length" [formGroup]="form" id="edit-form">
       @for (column of columns; track column.field) {
         <div>
@@ -61,6 +71,11 @@
               <button mat-flat-button type="button" (click)="showTranslations(column)"><mat-icon>language</mat-icon>{{column.header}} translations</button>
             </div>
           }
+          @if (column.field === 'original_filename') {
+            <div class="translations">
+              <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
+            </div>
+          }
         </div>
       }
     </form>
@@ -70,6 +85,13 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>Cancel</button>
-  <button *ngIf="form" mat-button [mat-dialog-close]="{ type: data.model.id ? 'Edit' : 'Add', form }" type="button" [disabled]="!form.valid || fieldForTranslate != null "
-    form="edit-form">{{ data.model.id ? 'Edit' : 'Add' }}</button>
+  <button
+    *ngIf="form"
+    mat-button
+    [mat-dialog-close]="{ type: data.model.id ? 'Edit' : 'Add', form }"
+    type="button"
+    [disabled]="!form.valid || fieldForTranslate != null || fileSelectorVisible"
+    form="edit-form">
+      {{ data.model.id ? 'Edit' : 'Add' }}
+    </button>
 </mat-dialog-actions>

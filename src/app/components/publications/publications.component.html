@@ -52,8 +52,7 @@
                     <custom-table
                       [data$]="comments$"
                       [columns]="commentsColumnData"
-                      (editRow)="editComment($event, selectedPublication.id)"
-                      (editRowSecondary)="editSelectedFileTable('comment', $event, selectedPublication.id)">
+                      (editRow)="editComment($event, selectedPublication.id)">
                       <ng-content custom-table-title>Comments</ng-content>
                       <ng-content custom-table-actions>
                         <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
@@ -67,8 +66,7 @@
                   <custom-table
                     [data$]="versionsResult$"
                     [columns]="versionColumnsData"
-                    (editRow)="editVersion($event, selectedPublication.id)"
-                    (editRowSecondary)="editSelectedFileTable('version', $event)">
+                    (editRow)="editVersion($event, selectedPublication.id)">
                     <ng-content custom-table-title>Versions</ng-content>
                     <ng-content custom-table-actions>
                       <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
@@ -82,8 +80,7 @@
                   <custom-table
                     [data$]="manuscriptsResult$"
                     [columns]="manuscriptColumnsData"
-                    (editRow)="editManuscript($event, selectedPublication.id)"
-                    (editRowSecondary)="editSelectedFileTable('manuscript', $event)">
+                    (editRow)="editManuscript($event, selectedPublication.id)">
                     <ng-content custom-table-title>Manuscripts</ng-content>
                     <ng-content custom-table-actions>
                       <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>

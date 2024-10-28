@@ -81,7 +81,7 @@ export class PublicationsComponent {
 
   versionColumnsData: Column[] = [
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': false },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
   ]
   versionDisplayedColumns: string[] = this.versionColumnsData.map(column => column.field);
@@ -100,7 +100,7 @@ export class PublicationsComponent {
 
   manuscriptColumnsData: Column[] = [
     { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': false },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
   ]
   manuscriptDisplayedColumns: string[] = this.manuscriptColumnsData.map(column => column.field);
@@ -118,7 +118,7 @@ export class PublicationsComponent {
   ]
 
   commentsColumnData: Column[] = [
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': false },
+    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
     { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
   ]
   allCommentsColumnData: Column[] = [
@@ -265,7 +265,6 @@ export class PublicationsComponent {
   }
 
   editSelectedFileTable(type: 'text' | 'comment' | 'version' | 'manuscript', model: any, editId: number | null = null) {
-    console.log('edit', model)
     this.editSelectedFile(type, model.original_filename, editId ?? model.id);
   }
 

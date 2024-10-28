@@ -1,5 +1,33 @@
-<h2 mat-dialog-title>File selector</h2>
-<mat-dialog-content>
+@if (onlyFiles) {
+  <button mat-icon-button type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
+  @if (loading) {
+    <loading-spinner></loading-spinner>
+  }
+  <ng-container [ngTemplateOutlet]="fileTree"></ng-container>
+} @else {
+  <mat-dialog-content>
+
+    <ng-container [ngTemplateOutlet]="fileTree"></ng-container>
+    @if (loading) {
+      <loading-spinner></loading-spinner>
+    }
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <div><span class="selected">selected:</span> {{ selectedNodes.join(' / ') }}</div>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-button
+      [mat-dialog-close]="selectedNodes"
+      [disabled]="selectedNodes.length === 0"
+      (click)="selected()">
+      Select
+    </button>
+  </mat-dialog-actions>
+}
+
+<ng-template #fileTree>
   <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl">
     <!-- Node template for leaf nodes -->
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
@@ -19,15 +47,4 @@
       </div>
     </mat-tree-node>
   </mat-tree>
-
-  @if (loading) {
-    <loading-spinner></loading-spinner>
-  }
-
-</mat-dialog-content>
-
-<mat-dialog-actions>
-  <div><span class="selected">selected:</span> {{ selectedNodes.join(' / ') }}</div>
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="selectedNodes" [disabled]="selectedNodes.length === 0">Select</button>
-</mat-dialog-actions>
+</ng-template>

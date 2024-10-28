@@ -31,7 +31,10 @@ export class FileTreeComponent {
   readonly filename = inject<string>(MAT_DIALOG_DATA);
 
   @Input() value: string | null = '';
+  @Input() onlyFiles: boolean = false;
   @Output() valueChange = new EventEmitter<string>();
+  @Output() fileSelected = new EventEmitter<string>();
+  @Output() close = new EventEmitter<void>();
 
   treeControl: FlatTreeControl<FlatTreeNode>;
   treeFlattener: MatTreeFlattener<TreeNode, FlatTreeNode>;
@@ -68,8 +71,10 @@ export class FileTreeComponent {
     if (this.value) {
       this.selectedNodes = this.value.split('/');
     }
-    if (this.filename) {
+    if (this.filename && typeof this.filename === 'string') {
       this.selectedNodes = this.filename.split('/');
+    } else {
+      this.selectedNodes = this.value?.split('/') || [];
     }
   }
 
@@ -142,6 +147,14 @@ export class FileTreeComponent {
   isSelected(node: FlatTreeNode): boolean {
     const idx = this.selectedNodes.indexOf(node.name);
     return idx === node.level;
+  }
+
+  selected() {
+    this.fileSelected.emit(this.selectedNodes.join('/'));
+  }
+
+  previous() {
+    this.close.emit();
   }
 
 }
