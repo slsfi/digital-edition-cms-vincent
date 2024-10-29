@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'field-translations',
@@ -34,7 +35,7 @@ export class TranslationsComponent {
 
   form!: FormGroup;
 
-  constructor(private projectService: ProjectService) { }
+  constructor(private translationService: TranslationService) { }
 
   get originalText() {
     return this.data()[this.field() as keyof Person];
@@ -48,7 +49,7 @@ export class TranslationsComponent {
     }
     this.fieldTranslations$ = this.translationLoader$.asObservable().pipe(
       filter(() => translationId != null),
-      switchMap(() => this.projectService.getTranslations(translationId, requestData)),
+      switchMap(() => this.translationService.getTranslations(translationId, requestData)),
       tap((translations) => {
         const activeLanguages = translations.map(t => t.language);
         this.filteredLanguages = languageOptions.filter(l => !activeLanguages.includes(l.value));
@@ -81,9 +82,9 @@ export class TranslationsComponent {
     let req;
     if (this.mode() === 'edit') {
       const translationId = this.data().translation_id as number;
-      req = this.projectService.editTranslation(translationId, data)
+      req = this.translationService.editTranslation(translationId, data)
     } else {
-      req = this.projectService.addTranslation(data)
+      req = this.translationService.addTranslation(data)
     }
     req.subscribe(() => {
       this.translationLoader$.next(0);
