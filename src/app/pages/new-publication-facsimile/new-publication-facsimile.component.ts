@@ -19,6 +19,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { PublicationService } from '../../services/publication.service';
 
 @Component({
   selector: 'app-new-publication-facsimile',
@@ -49,7 +50,7 @@ export class NewPublicationFacsimileComponent {
   ]
 
   constructor(
-    private projectService: ProjectService,
+    private publicationService: PublicationService,
     private facsimileService: FacsimileService,
     private queryParamsService: QueryParamsService,
     private dialog: MatDialog,
@@ -70,7 +71,7 @@ export class NewPublicationFacsimileComponent {
       this.facsimilesSource.next(facsimiles);
     });
     const publicationId = parseInt(this.route.snapshot.paramMap.get('publicationId') as string);
-    this.publication$ = this.projectService.getPublication(publicationId);
+    this.publication$ = this.publicationService.getPublication(publicationId);
     this.form = new FormGroup({
       publication_id: new FormControl<number>(publicationId, [Validators.required]),
       page_nr: new FormControl<number | null>(null),
@@ -105,7 +106,7 @@ export class NewPublicationFacsimileComponent {
     if (!payload.priority) {
       delete payload.priority;
     }
-    this.projectService.linkFacsimileToPublication(payload.facsimile_collection_id, payload).subscribe({
+    this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload).subscribe({
       next: (response) => {
         this.snackbar.open('Facsimile linked to publication', 'Close', { panelClass: 'snackbar-success' });
         this.router.navigate(this.publicationsPath);

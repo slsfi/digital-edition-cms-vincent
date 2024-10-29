@@ -22,6 +22,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
 import { PublicationFacsimile } from '../../models/facsimile';
+import { PublicationService } from '../../services/publication.service';
 
 @Component({
   selector: 'publications',
@@ -161,7 +162,7 @@ export class PublicationsComponent {
   filterParams$: Observable<any[]> = new Observable<any[]>();
 
   constructor(
-    private projectService: ProjectService,
+    private publicationService: PublicationService,
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
@@ -185,7 +186,7 @@ export class PublicationsComponent {
       map(params => params.get('publicationId'))
     );
 
-    this.selectedProject$ = this.projectService.selectedProject$;
+    this.selectedProject$ = this.publicationService.selectedProject$;
 
     const publicationsShared$ = this.publicationsLoader$.pipe(
       startWith(void 0),
@@ -194,7 +195,7 @@ export class PublicationsComponent {
         .pipe(
           filter(([project, collectionId]) => collectionId != null),
           distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
-          switchMap(([project, collectionId]) => this.projectService.getPublications(collectionId as string))
+          switchMap(([project, collectionId]) => this.publicationService.getPublications(collectionId as string))
         )
       ),
       shareReplay(1)
@@ -220,7 +221,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getCommentsForPublication(collectionId as string, publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string))
         )
       )
     );
@@ -234,7 +235,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getVersionsForPublication(publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.publicationService.getVersionsForPublication(publicationId as string))
         )
       )
     );
@@ -251,7 +252,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getManuscriptsForPublication(publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.publicationService.getManuscriptsForPublication(publicationId as string))
         )
       )
     );
@@ -268,7 +269,7 @@ export class PublicationsComponent {
           distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
             prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
           ),
-          switchMap(([collectionId, publicationId]) => this.projectService.getFacsimilesForPublication(publicationId as string))
+          switchMap(([collectionId, publicationId]) => this.publicationService.getFacsimilesForPublication(publicationId as string))
         )
       )
     );
@@ -294,9 +295,9 @@ export class PublicationsComponent {
       if (result) {
         let req;
         if (publication?.id) {
-          req = this.projectService.editPublication(publication.id, result.form.value);
+          req = this.publicationService.editPublication(publication.id, result.form.value);
         } else {
-          req = this.projectService.addPublication(parseInt(collectionId), result.form.value);
+          req = this.publicationService.addPublication(parseInt(collectionId), result.form.value);
         }
         req.subscribe({
           next: () => {
@@ -332,7 +333,7 @@ export class PublicationsComponent {
       const errorMessage = 'Error editing filename';
       const data = { original_filename: filePath }
       if (type === 'text') {
-        this.projectService.editPublication(editId, data).subscribe({
+        this.publicationService.editPublication(editId, data).subscribe({
           next: () => {
             this.publicationsLoader$.next();
             this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
@@ -342,7 +343,7 @@ export class PublicationsComponent {
           }
         });
       } else if (type === 'comment') {
-        this.projectService.editComment(editId, data).subscribe({
+        this.publicationService.editComment(editId, data).subscribe({
           next: () => {
             this.commentLoader$.next(0);
             this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
@@ -352,7 +353,7 @@ export class PublicationsComponent {
           }
         });
       } else if (type === 'version') {
-        this.projectService.editVersion(editId, data).subscribe({
+        this.publicationService.editVersion(editId, data).subscribe({
           next: () => {
             this.versionsLoader$.next(0);
             this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
@@ -362,7 +363,7 @@ export class PublicationsComponent {
           }
         });
       } else if (type === 'manuscript') {
-        this.projectService.editManuscript(editId, data).subscribe({
+        this.publicationService.editManuscript(editId, data).subscribe({
           next: () => {
             this.manuscriptsLoader$.next(0);
             this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
@@ -394,9 +395,9 @@ export class PublicationsComponent {
 
         let req;
         if (version?.id) {
-          req = this.projectService.editVersion(version.id, payload);
+          req = this.publicationService.editVersion(version.id, payload);
         } else {
-          req = this.projectService.linkTextToPublication(publicationId, payload);
+          req = this.publicationService.linkTextToPublication(publicationId, payload);
         }
         req.subscribe({
           next: () => {
@@ -431,9 +432,9 @@ export class PublicationsComponent {
 
         let req;
         if (manuscript?.id) {
-          req = this.projectService.editManuscript(manuscript.id, payload);
+          req = this.publicationService.editManuscript(manuscript.id, payload);
         } else {
-          req = this.projectService.linkTextToPublication(publicationId, payload);
+          req = this.publicationService.linkTextToPublication(publicationId, payload);
         }
         req.subscribe({
           next: () => {
@@ -464,9 +465,9 @@ export class PublicationsComponent {
       if (result) {
         let req;
         if (comment?.id) {
-          req = this.projectService.editComment(publicationId, result.form.value);
+          req = this.publicationService.editComment(publicationId, result.form.value);
         } else {
-          req = this.projectService.editComment(publicationId, result.form.value);
+          req = this.publicationService.editComment(publicationId, result.form.value);
         }
         req.subscribe({
           next: () => {
@@ -505,9 +506,9 @@ export class PublicationsComponent {
 
         let req;
         if (facsimile?.id) {
-          req = this.projectService.editFacsimileForPublication(payload);
+          req = this.publicationService.editFacsimileForPublication(payload);
         } else {
-          req = this.projectService.linkFacsimileToPublication(publicationId, result.form);
+          req = this.publicationService.linkFacsimileToPublication(publicationId, result.form);
         }
         req.subscribe({
           next: () => {

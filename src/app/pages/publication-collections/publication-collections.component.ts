@@ -2,11 +2,10 @@ import { LoadingService } from './../../services/loading.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column, QueryParamType } from '../../models/column';
+import { Column } from '../../models/column';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -20,6 +19,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { PublicationService } from '../../services/publication.service';
 
 @Component({
   selector: 'publication-collections',
@@ -71,7 +71,7 @@ export class PublicationCollectionsComponent {
   loading$: Observable<boolean> = new Observable<boolean>();
 
   constructor(
-    private projectService: ProjectService,
+    private publicationService: PublicationService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private queryParamsService: QueryParamsService,
@@ -82,7 +82,7 @@ export class PublicationCollectionsComponent {
    }
 
   ngOnInit() {
-    this.selectedProject$ = this.projectService.selectedProject$;
+    this.selectedProject$ = this.publicationService.selectedProject$;
 
     this.publicationCollectionId$ = this.route.paramMap.pipe(
       map(params => params.get('collectionId'))
@@ -93,7 +93,7 @@ export class PublicationCollectionsComponent {
 
     const publicationCollectionsShared$ = this.publicationCollectionsLoader$.pipe(
       startWith(void 0),
-      switchMap(() => combineLatest([this.selectedProject$, this.projectService.getPublicationCollections()])),
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationService.getPublicationCollections()])),
       map(([project, publications]) => publications),
       shareReplay(1)
     );
@@ -127,9 +127,9 @@ export class PublicationCollectionsComponent {
       if (result) {
         let req;
         if (publicationCollection?.id) {
-          req = this.projectService.editPublicationCollection(publicationCollection.id, result.form.value);
+          req = this.publicationService.editPublicationCollection(publicationCollection.id, result.form.value);
         } else {
-          req = this.projectService.addPublicationCollection(result.form.value);
+          req = this.publicationService.addPublicationCollection(result.form.value);
         }
         req.subscribe({
           next: () => {
