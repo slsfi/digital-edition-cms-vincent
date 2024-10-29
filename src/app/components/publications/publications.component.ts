@@ -4,7 +4,6 @@ import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter,
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -22,6 +21,7 @@ import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
 import { PublicationFacsimile } from '../../models/facsimile';
 import { PublicationService } from '../../services/publication.service';
+import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData, allPublicationColumnsData, allVersionColumnsData, commentsColumnData, facsimileColumnData, manuscriptColumnsData, publicationColumnsData, versionColumnsData } from './columns';
 
 @Component({
   selector: 'publications',
@@ -35,130 +35,46 @@ import { PublicationService } from '../../services/publication.service';
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent {
-  publicationColumnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
-    { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true },
-    { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true },
-    { field: 'actions', header: 'Actions', type: 'action', editable: false },
-  ];
-  allPublicationColumnsData: Column[] = [
-    ...this.publicationColumnsData,
-    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
-    { field: 'genre', header: 'Genre', type: 'string', editable: true },
-    { field: 'language', header: 'Language', type: 'string', editable: true },
-    { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: true },
-    { field: 'original_filename', header: 'Original Filename', type: 'string', editable: true },
-    { field: 'original_publication_date', header: 'Original Publication Date', type: 'date', editable: true },
-    { field: 'publication_collection_id', header: 'Publication Collection ID', type: 'number', editable: false },
-    { field: 'publication_comment_id', header: 'Publication Comment ID', type: 'number', editable: true },
-    { field: 'published_by', header: 'Published By', type: 'string', editable: true },
-  ];
-  publicationDisplayedColumns: string[] = this.publicationColumnsData.map(column => column.field);
-
   loading$: Observable<boolean> = new Observable<boolean>();
   selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
-
+  sortParams$: Observable<any[]> = new Observable<any[]>();
+  filterParams$: Observable<any[]> = new Observable<any[]>();
+  // PUBLICATIONS
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
-
   publicationsLoader$: Subject<void> = new Subject<void>();
   publications$: Observable<Publication[]> = new Observable<Publication[]>();
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
   private publicationsSource = new BehaviorSubject<Publication[]>([]);
   publicationsResult$: Observable<Publication[]> = this.publicationsSource.asObservable();
-
-  commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
-
+  publicationColumnsData = publicationColumnsData;
+  allPublicationColumnsData = allPublicationColumnsData;
+  // VERSIONS
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = new Observable<Version[]>();
   private versionsSource = new BehaviorSubject<Version[]>([]);
   versionsResult$: Observable<Version[]> = this.versionsSource.asObservable();
-
+  versionColumnsData = versionColumnsData;
+  allVersionColumnsData = allVersionColumnsData;
+  // MANUSCRIPTS
   manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
   private manuscriptsSource = new BehaviorSubject<Manuscript[]>([]);
   manuscriptsResult$: Observable<Manuscript[]> = this.manuscriptsSource.asObservable();
-
+  manuscriptColumnsData = manuscriptColumnsData;
+  allManuscriptColumnsData = allManuscriptColumnsData;
+  // COMMENTS
+  commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
+  commentsColumnData = commentsColumnData
+  allCommentsColumnData = allCommentsColumnData;
+  // FACSIMILES
   facsimilesLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
   private facsimilesSource = new BehaviorSubject<PublicationFacsimile[]>([]);
   facsimilesResult$: Observable<PublicationFacsimile[]> = this.facsimilesSource.asObservable();
-
-  versionColumnsData: Column[] = [
-    { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
-    { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
-  ]
-  versionDisplayedColumns: string[] = this.versionColumnsData.map(column => column.field);
-  allVersionColumnsData: Column[] = [
-    ...this.versionColumnsData,
-    { field: 'published', header: 'Published', type: 'published', editable: true },
-    { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
-    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
-    { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
-    { field: 'section_id', header: 'Section ID', type: 'number', editable: false },
-    { field: 'type', header: 'Type', type: 'number', editable: true },
-    { field: 'id', header: 'ID', type: 'number', editable: false },
-  ]
-
-  manuscriptColumnsData: Column[] = [
-    { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
-    { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
-  ]
-  manuscriptDisplayedColumns: string[] = this.manuscriptColumnsData.map(column => column.field);
-  allManuscriptColumnsData: Column[] = [
-    ...this.manuscriptColumnsData,
-    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
-    { field: 'id', header: 'ID', type: 'number', editable: false },
-    { field: 'language', header: 'Language', type: 'string', editable: false },
-    { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
-    { field: 'published', header: 'Published', type: 'published', editable: true },
-    { field: 'section_id', header: 'Section ID', type: 'number', editable: false },
-    { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
-  ]
-
-  commentsColumnData: Column[] = [
-    { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
-    { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
-  ]
-  allCommentsColumnData: Column[] = [
-    ...this.commentsColumnData,
-    { field: 'published', header: 'Published', type: 'published', editable: true },
-    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
-  ]
-
-  facsimileColumnData: Column[] = [
-    { field: 'title', header: 'Title', type: 'string', editable: true },
-    { field: 'external_url', header: 'External URL', type: 'string', editable: true },
-    { field: 'page_nr', header: 'Page Number', type: 'number', editable: true },
-    { field: 'section_id', header: 'Section ID', type: 'number', editable: true },
-    { field: 'priority', header: 'Priority', type: 'number', editable: true },
-    { field: 'actions', header: 'Actions', type: 'action', editable: false },
-  ]
-  allFacsimileColumnData: Column[] = [
-    ...this.facsimileColumnData,
-    { field: 'id', header: 'ID', type: 'number', editable: false },
-    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
-    { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
-    { field: 'description', header: 'Description', type: 'string', editable: false },
-    { field: 'publication_facsimile_collection_id', header: 'Publication Facsimile Collection ID', type: 'number', editable: false },
-    { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
-    { field: 'publication_manuscript_id', header: 'Publication Manuscript ID', type: 'number', editable: false },
-    { field: 'publication_version_id', header: 'Publication Version ID', type: 'number', editable: false },
-    { field: 'type', header: 'Type', type: 'number', editable: false },
-  ]
-
-  sortParams$: Observable<any[]> = new Observable<any[]>();
-  filterParams$: Observable<any[]> = new Observable<any[]>();
+  facsimileColumnData = facsimileColumnData;
+  allFacsimileColumnData = allFacsimileColumnData;
 
   constructor(
     private publicationService: PublicationService,
@@ -174,17 +90,8 @@ export class PublicationsComponent {
   ngOnInit() {
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
-
-    const paramMap$ = this.route.paramMap;
-
-    this.publicationCollectionId$ = paramMap$.pipe(
-      map(params => params.get('collectionId'))
-    );
-
-    this.publicationId$ = paramMap$.pipe(
-      map(params => params.get('publicationId'))
-    );
-
+    this.publicationCollectionId$ = this.route.paramMap.pipe(map(params => params.get('collectionId')));
+    this.publicationId$ = this.route.paramMap.pipe(map(params => params.get('publicationId')));
     this.selectedProject$ = this.publicationService.selectedProject$;
 
     const publicationsShared$ = this.publicationsLoader$.pipe(
