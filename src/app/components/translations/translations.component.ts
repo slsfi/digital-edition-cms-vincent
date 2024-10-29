@@ -1,5 +1,4 @@
 import { Component, EventEmitter, input, Output, signal } from '@angular/core';
-import { languageOptions, nameForLanguage, Person, Translation, TranslationRequestPost } from '../../models/person';
 import { BehaviorSubject, filter, Observable, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslationService } from '../../services/translation.service';
+import { Person } from '../../models/person';
+import { languageOptions, nameForLanguage, Translation, TranslationRequestPost } from '../../models/translation';
 
 @Component({
   selector: 'field-translations',

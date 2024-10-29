@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter,
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column, QueryParamType } from '../../models/column';
+import { Column, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';

@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, s
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column } from '../../models/column';
+import { Column } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';

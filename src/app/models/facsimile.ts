@@ -1,5 +1,4 @@
-import { ApiResponse } from "./project";
-import { Deleted } from "./publication";
+import { ApiResponse, Deleted } from "./common";
 
 export interface FacsimileCollectionResponse extends ApiResponse {
   data: FacsimileCollection[];

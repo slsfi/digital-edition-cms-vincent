@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { NavigationEnd, Router } from '@angular/router';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { Column } from '../../models/column';
+import { Column } from '../../models/common';
 import { QueryParamsService } from '../../services/query-params.service';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';

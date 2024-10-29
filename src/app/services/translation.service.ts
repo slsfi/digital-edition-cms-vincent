@@ -1,8 +1,8 @@
 import { ProjectService } from './project.service';
 import { Injectable } from '@angular/core';
-import { TranslationRequest, TranslationRequestPost, TranslationResponse } from '../models/person';
 import { ApiService } from './api.service';
 import { filter, map, Observable, switchMap } from 'rxjs';
+import { TranslationRequest, TranslationRequestPost, TranslationResponse } from '../models/translation';
 
 @Injectable({
   providedIn: 'root'

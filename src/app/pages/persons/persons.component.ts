@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest, debounce, map, Observable, startWith, s
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
 import { MatTableModule } from '@angular/material/table';
-import { Column, QueryParamType } from '../../models/column';
+import { Column, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';

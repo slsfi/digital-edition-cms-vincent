@@ -1,7 +1,4 @@
-export interface ApiResponse {
-  success: boolean;
-  message: string;
-}
+import { ApiResponse } from "./common";
 
 export interface ProjectResponse extends ApiResponse {
   data: Project[];

@@ -13,3 +13,19 @@ export interface Column {
 export type QueryParamType = {
   [key: string]: string;
 }
+
+export enum Published {
+  NotPublished = 0,
+  PublishedInternally = 1,
+  PublishedExternally = 2,
+}
+
+export enum Deleted {
+  NotDeleted = 0,
+  Deleted = 1,
+}
+
+export interface ApiResponse {
+  success: boolean;
+  message: string;
+}

@@ -6,7 +6,7 @@ import { FacsimileCollection } from '../../models/facsimile';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
-import { Column } from '../../models/column';
+import { Column } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';

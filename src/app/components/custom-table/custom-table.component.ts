@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column } from '../../models/column';
+import { Column } from '../../models/common';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
