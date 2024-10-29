@@ -77,6 +77,9 @@
       @if (openUsed) {
         <button mat-icon-button (click)="open(model)"><mat-icon>photo_library</mat-icon></button>
       }
+      @if (deleteUsed) {
+        <button mat-icon-button (click)="delete(model)"><mat-icon>delete</mat-icon></button>
+      }
     </div>
   } @else if (column.field === 'original_filename') {
     {{ model[column.field].split('/').join(' / ') }}

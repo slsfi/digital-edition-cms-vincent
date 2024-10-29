@@ -41,10 +41,12 @@ export class CustomTableComponent {
   @Output() editRowSecondary: EventEmitter<any> = new EventEmitter<any>();
   @Output() openRow: EventEmitter<any> = new EventEmitter<any>();
   @Output() selectRow: EventEmitter<any> = new EventEmitter<any>();
+  @Output() deleteRow: EventEmitter<any> = new EventEmitter<any>();
 
   displayedColumns: string[] = [];
   editSecondaryUsed: boolean = false;
   openUsed: boolean = false;
+  deleteUsed: boolean = false;
   tableColumns: Column[] = [];
 
   tableDataSource = new MatTableDataSource<any>();
@@ -64,6 +66,7 @@ export class CustomTableComponent {
   ngOnInit() {
     this.queryParams$ = this.queryParamsService.queryParams$;
     this.editSecondaryUsed = this.editRowSecondary.observers.length > 0;
+    this.deleteUsed = this.deleteRow.observers.length > 0;
     this.openUsed = this.openRow.observers.length > 0;
     const indexColumn: Column = {field: 'index', header: '#', filterable: false, type: 'index'};
     this.tableColumns = this.showIndex ? [indexColumn, ...this.columns] : [...this.columns];
@@ -146,5 +149,9 @@ export class CustomTableComponent {
   selectionChanged(row: any) {
     this.selection.toggle(row);
     this.selectRow.emit(this.selection.selected);
+  }
+
+  delete(model: any) {
+    this.deleteRow.emit(model);
   }
 }

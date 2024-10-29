@@ -12,7 +12,8 @@
     <custom-table
       [data$]="persons$"
       [columns]="columnsData"
-      (editRow)="edit($event)">
+      (editRow)="edit($event)"
+      (deleteRow)="deleteRow($event)">
       <ng-content custom-table-title>Persons</ng-content>
       <ng-content custom-table-actions>
         <ng-container *ngIf="filterParams$ | async as filterParams">

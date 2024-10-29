@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest, debounce, map, Observable, startWith, s
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
 import { MatTableModule } from '@angular/material/table';
-import { Column, QueryParamType } from '../../models/common';
+import { Column, Deleted, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -19,6 +19,7 @@ import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.co
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { SubjectService } from '../../services/subject.service';
+import { ComfirmDialogComponent } from '../../components/comfirm-dialog/comfirm-dialog.component';
 
 @Component({
   selector: 'app-persons',
@@ -127,6 +128,30 @@ export class PersonsComponent {
         });
       }
     });
+  }
+
+  deleteRow(person: Person) {
+    const dialogRef = this.dialog.open(ComfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: 'Are you sure you want to delete this person?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const payload = { ...person, deleted: Deleted.Deleted };
+        this.subjectService.editSubject(person.id, payload).subscribe({
+          next: () => {
+            this.loader$.next(0);
+            this.snackaBar.open('Person deleted', 'Close', { panelClass: ['snackbar-success'] });
+          },
+        });
+      }
+    });
+
   }
 
   filterPersons() {
