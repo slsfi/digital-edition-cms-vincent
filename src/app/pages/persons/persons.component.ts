@@ -48,7 +48,6 @@ export class PersonsComponent {
     { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, required: true, editOrder: 2, translations: true },
     { field: 'date_born', header: 'Date Born', filterable: false, type: 'date', editable: true, editOrder: 3 },
     { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'date', editable: true, editOrder: 3 },
-    { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
     { field: 'action', header: 'Actions', filterable: false, type: 'action' },
   ]
 
@@ -66,6 +65,7 @@ export class PersonsComponent {
     { field: 'previous_last_name', header: 'Previous last name', filterable: false, type: 'string', editable: false },
     { field: 'project_id', header: 'Project ID', filterable: false, type: 'number', editable: false },
     { field: 'source', header: 'Source', filterable: false, type: 'string', editable: false },
+    { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
     { field: 'type', header: 'Type', filterable: true, type: 'type', editable: true, required: true, editOrder: 4 },
   ]
 
