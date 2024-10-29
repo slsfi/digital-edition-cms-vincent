@@ -59,11 +59,13 @@ export class FileTreeComponent {
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
     // Fetch file tree data
-    this.subscription = this.projectService.getProjectFileTree().pipe(
+    this.subscription = this.projectService.getFileTree().pipe(
       map((fileTree) => this.convertToTreeNode(fileTree))
     ).subscribe((data: TreeNode[]) => {
       this.dataSource.data = data;
-      this.loading = false;
+      if (data.length > 0) {
+        this.loading = false;
+      }
     });
   }
 

@@ -10,6 +10,7 @@ import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../mo
 export class ProjectService {
 
   selectedProject$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  fileTree$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   constructor(private apiService: ApiService) {
     if (localStorage.getItem('selected_project')) {
@@ -37,6 +38,15 @@ export class ProjectService {
   editProject(id: number, payload: EditProjectData) {
     const url = `${this.apiService.prefixedUrl}/projects/${id}/edit/`;
     return this.apiService.post(url, payload);
+  }
+
+  getFileTree(): Observable<any> {
+    if (!this.fileTree$.value) {
+      this.getProjectFileTree().subscribe((fileTree) => {
+        this.fileTree$.next(fileTree);
+      });
+    }
+    return this.fileTree$;
   }
 
   getProjectFileTree() {
