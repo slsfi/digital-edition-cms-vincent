@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
-import { Person, PersonPayload, PersonResponse, TranslationRequest, TranslationRequestPost, TranslationResponse } from '../models/person';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 
 @Injectable({
@@ -63,41 +62,6 @@ export class ProjectService {
   setSelectedProject(project: string | null) {
     this.selectedProject$.next(project);
     localStorage.setItem('selected_project', project || '');
-  }
-
-  getSubjects(): Observable<Person[]> {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects/list/`;
-        return this.apiService.get(url).pipe(
-          map((response: PersonResponse) => response.data),
-          catchError((err) => {
-            return of([] as Person[])
-          })
-        )
-      })
-    );
-  }
-
-  addSubject(payload: PersonPayload): Observable<Person> {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects/new/`;
-        return this.apiService.post(url, payload);
-      })
-    );
-  }
-
-  editSubject(id: number, payload: PersonPayload): Observable<Person> {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects/${id}/edit/`;
-        return this.apiService.post(url, payload);
-      })
-    );
   }
 
 }

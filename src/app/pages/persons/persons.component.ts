@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, debounce, map, Observable, startWith, switchMap, timer } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
 import { MatTableModule } from '@angular/material/table';
@@ -19,6 +18,7 @@ import { LoadingService } from '../../services/loading.service';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { SubjectService } from '../../services/subject.service';
 
 @Component({
   selector: 'app-persons',
@@ -72,14 +72,14 @@ export class PersonsComponent {
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
   constructor(
-    private projectService: ProjectService,
+    private subjectService: SubjectService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private loadingService: LoadingService,
     private snackaBar: MatSnackBar
   ) {
     this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.projectService.selectedProject$;
+    this.selectedProject$ = this.subjectService.selectedProject$;
     this.filterParams$ = this.queryParamsService.filterParams$;
   }
 
@@ -87,7 +87,7 @@ export class PersonsComponent {
     this.loader$.asObservable().pipe(
       startWith(null),
       debounce(i => timer(500)),
-      switchMap(() => combineLatest([this.projectService.getSubjects(), this.projectService.selectedProject$]).pipe(
+      switchMap(() => combineLatest([this.subjectService.getSubjects(), this.subjectService.selectedProject$]).pipe(
         map(([subjects, selectedProject]) => subjects)
       )),
     ).subscribe(persons => {
@@ -112,9 +112,9 @@ export class PersonsComponent {
       if (result) {
         let req;
         if (person?.id) {
-          req = this.projectService.editSubject(person.id, result.form.value);
+          req = this.subjectService.editSubject(person.id, result.form.value);
         } else {
-          req = this.projectService.addSubject(result.form.value);
+          req = this.subjectService.addSubject(result.form.value);
         }
         req.subscribe({
           next: () => {

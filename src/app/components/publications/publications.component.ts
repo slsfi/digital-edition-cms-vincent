@@ -1,7 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter, map, Observable, shareReplay, startWith, Subject, switchMap, timer } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';

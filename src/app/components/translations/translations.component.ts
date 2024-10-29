@@ -1,6 +1,5 @@
 import { Component, EventEmitter, input, Output, signal } from '@angular/core';
 import { languageOptions, nameForLanguage, Person, Translation, TranslationRequestPost } from '../../models/person';
-import { ProjectService } from '../../services/project.service';
 import { BehaviorSubject, filter, Observable, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
