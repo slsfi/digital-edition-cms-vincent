@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
-import { Person, PersonPayload, PersonResponse, TranslationRequest, TranslationRequestPost } from '../models/person';
+import { Person, PersonPayload, PersonResponse, TranslationRequest, TranslationRequestPost, TranslationResponse } from '../models/person';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 
 @Injectable({
@@ -128,7 +128,9 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/translations/${translation_id}/list/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post(url, data).pipe(
+          map((response: TranslationResponse) => response.data)
+        );
       })
     );
   }

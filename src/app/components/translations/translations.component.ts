@@ -1,7 +1,7 @@
 import { Component, EventEmitter, input, Output, signal } from '@angular/core';
 import { languageOptions, nameForLanguage, Person, Translation, TranslationRequestPost } from '../../models/person';
 import { ProjectService } from '../../services/project.service';
-import { BehaviorSubject, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -40,22 +40,20 @@ export class TranslationsComponent {
     return this.data()[this.field() as keyof Person];
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     const translationId = this.data().translation_id as number;
     const requestData: TranslationRequestPost = {
       table_name: 'subject',
       field_name: this.field(),
     }
     this.fieldTranslations$ = this.translationLoader$.asObservable().pipe(
+      filter(() => translationId != null),
       switchMap(() => this.projectService.getTranslations(translationId, requestData)),
       tap((translations) => {
         const activeLanguages = translations.map(t => t.language);
         this.filteredLanguages = languageOptions.filter(l => !activeLanguages.includes(l.value));
       })
     )
-
-    this.projectService.getTranslations(translationId, requestData);
-
     this.form = new FormGroup({
       table_name: new FormControl({ value: 'subject', disabled: true }),
       field_name: new FormControl({ value: this.field(), disabled: true }),
@@ -64,9 +62,9 @@ export class TranslationsComponent {
       translation_id: new FormControl({ value: this.data().translation_id, disabled: true }),
       parent_id: new FormControl({ value: this.data().id, disabled: true }),
       neutral_text: new FormControl({ value: this.data()[this.field() as keyof Person], disabled: true }),
+      translation_text_id: new FormControl({ value: null, disabled: true }),
       deleted: new FormControl({ value: 0, disabled: true }),
     });
-
   }
 
   get deleted() {
@@ -80,27 +78,25 @@ export class TranslationsComponent {
   onSubmitTranslation(event: Event) {
     event.preventDefault();
     const data = this.form.getRawValue()
-    const translationId = this.data().translation_id as number;
+    let req;
     if (this.mode() === 'edit') {
-      this.projectService.editTranslation(translationId, data).subscribe(() => {});
+      const translationId = this.data().translation_id as number;
+      req = this.projectService.editTranslation(translationId, data)
     } else {
-      this.projectService.addTranslation(data).subscribe(() => {});
+      req = this.projectService.addTranslation(data)
     }
-    this.translationLoader$.next(0);
+    req.subscribe(() => {
+      this.translationLoader$.next(0);
+    });
     this.mode.set('');
   }
 
   editTranslation(translation: Translation) {
     this.mode.set('edit');
-    this.form.setValue({
-      table_name: 'subject',
-      field_name: this.field(),
+    this.form.patchValue({
       text: translation.text,
       language: translation.language,
-      neutral_text: this.data()[this.field() as keyof Person],
-      translation_id: translation.translation_id,
-      parent_id: this.data().id,
-      deleted: 0
+      translation_text_id: translation.translation_text_id,
     })
     this.deleted.enable();
     this.language.disable();
@@ -108,9 +104,13 @@ export class TranslationsComponent {
 
   addTranslation() {
     this.mode.set('add');
-    this.form.reset();
     this.deleted.disable();
     this.language.enable();
+    this.form.patchValue({
+      text: '',
+      language: '',
+      translation_text_id: null,
+    })
   }
 
   previous() {

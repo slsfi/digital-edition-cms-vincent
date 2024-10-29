@@ -62,6 +62,10 @@ export const personTypeOptions = [
   { label: 'Person', value: PersonType.PERSON },
   { label: 'Playman', value: PersonType.PLAYMAN }
 ];
+
+export interface TranslationResponse extends ApiResponse {
+  data: Translation[];
+}
 export interface Translation {
   field_name: string;
   language: Langugage;
