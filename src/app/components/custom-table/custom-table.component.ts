@@ -35,6 +35,7 @@ export class CustomTableComponent {
   @Input() selectedId: string | null = null;
   @Input() loadingData = false;
   @Input() selectable = false;
+  @Input() paginationEnabled = true;
 
   @Output() editRow: EventEmitter<any> = new EventEmitter<any>();
   @Output() editRowSecondary: EventEmitter<any> = new EventEmitter<any>();
@@ -73,7 +74,9 @@ export class CustomTableComponent {
   }
 
   ngAfterViewInit() {
-    this.tableDataSource.paginator = this.paginator;
+    if (this.paginationEnabled) {
+      this.tableDataSource.paginator = this.paginator;
+    }
 
     // timeout for handling ExpressionChangedAfterItHasBeenCheckedError
     // and actually it makes table to render faster!

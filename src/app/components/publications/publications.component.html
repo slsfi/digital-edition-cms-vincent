@@ -46,6 +46,7 @@
                   <custom-table
                     [data$]="comments$"
                     [columns]="commentsColumnData"
+                    [paginationEnabled]="false"
                     (editRow)="editComment($event, selectedPublication.id)">
                     <ng-content custom-table-title>Comments</ng-content>
                     <ng-content custom-table-actions>
@@ -60,6 +61,7 @@
                   <custom-table
                     [data$]="facsimilesResult$"
                     [columns]="facsimileColumnData"
+                    [paginationEnabled]="false"
                     (editRow)="editFacsimile($event, selectedPublication.id)">
                     <ng-content custom-table-title>Facsimiles</ng-content>
                     <ng-content custom-table-actions>
@@ -74,6 +76,7 @@
                   <custom-table
                     [data$]="manuscriptsResult$"
                     [columns]="manuscriptColumnsData"
+                    [paginationEnabled]="false"
                     (editRow)="editManuscript($event, selectedPublication.id)">
                     <ng-content custom-table-title>Manuscripts</ng-content>
                     <ng-content custom-table-actions>
@@ -88,6 +91,7 @@
                   <custom-table
                     [data$]="versionsResult$"
                     [columns]="versionColumnsData"
+                    [paginationEnabled]="false"
                     (editRow)="editVersion($event, selectedPublication.id)">
                     <ng-content custom-table-title>Versions</ng-content>
                     <ng-content custom-table-actions>
