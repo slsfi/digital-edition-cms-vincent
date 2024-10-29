@@ -1,3 +1,4 @@
+import { FacsimileService } from './../../services/facsimile.service';
 import { Component } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -49,6 +50,7 @@ export class NewPublicationFacsimileComponent {
 
   constructor(
     private projectService: ProjectService,
+    private facsimileService: FacsimileService,
     private queryParamsService: QueryParamsService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
@@ -63,7 +65,7 @@ export class NewPublicationFacsimileComponent {
   }
 
   ngOnInit() {
-    this.facsimileCollections$ = this.projectService.getFacsimileCollections();
+    this.facsimileCollections$ = this.facsimileService.getFacsimileCollections();
     this.facsimileCollections$.subscribe(facsimiles => {
       this.facsimilesSource.next(facsimiles);
     });

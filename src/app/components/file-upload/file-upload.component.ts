@@ -2,13 +2,13 @@ import { Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BehaviorSubject, from, mergeMap, Observable, Subscription } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
 import { HttpEventType, HttpHeaderResponse, HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { FacsimileService } from '../../services/facsimile.service';
 
 enum FileQueueStatus {
   Pending = 'pending',
@@ -46,7 +46,7 @@ export class FileUploadComponent {
   collectionId = input.required<number>();
   numberOfPages = input.required<number>();
 
-  constructor(private projectService: ProjectService, private snackbar: MatSnackBar) { }
+  constructor(private facsimileService: FacsimileService, private snackbar: MatSnackBar) { }
 
   _queue: FileQueueObject[] = [];
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
@@ -103,7 +103,7 @@ export class FileUploadComponent {
       const formData = new FormData();
       formData.append('facsimile', file, file.name);
 
-      queueObject.request = this.projectService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData)
+      queueObject.request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData)
         .subscribe({
           next: event => {
             if (event.type == HttpEventType.UploadProgress) {

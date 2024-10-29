@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ProjectService } from '../../services/project.service';
+import { RouterLink } from '@angular/router';
 import { FacsimileCollection } from '../../models/facsimile';
 import { FacsimileFileComponent } from "../facsimile-file/facsimile-file.component";
 import { MatIconModule } from '@angular/material/icon';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { MatButtonModule } from '@angular/material/button';
+import { FacsimileService } from '../../services/facsimile.service';
 
 @Component({
   selector: 'facsimile-collection',
@@ -21,16 +21,12 @@ export class FacsimileCollectionComponent {
   range: number[] = [];
   firstImageIsValid = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private projectService: ProjectService
-  ) {
-   }
+  constructor(private fascimileService: FacsimileService) { }
 
   ngOnInit() {
     this.range = Array.from({ length: this.collection.number_of_pages ?? 0 }, (_, i) => i + 1);
     // Check first image url
-    this.projectService.getFacsimileImagePath(this.collection.id, 1, 1).subscribe
+    this.fascimileService.getFacsimileImagePath(this.collection.id, 1, 1).subscribe
     ({
       next: (path) => {
         this.checkImage(path)
@@ -42,7 +38,7 @@ export class FacsimileCollectionComponent {
   }
 
   checkImage(path: string) {
-    this.projectService.getFacsimileFile(path)
+    this.fascimileService.getFacsimileFile(path)
       .subscribe({
         next: (res) => {
           this.firstImageIsValid = res.status === 200;

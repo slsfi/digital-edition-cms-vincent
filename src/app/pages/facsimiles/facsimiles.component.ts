@@ -20,6 +20,7 @@ import { CustomTableComponent } from "../../components/custom-table/custom-table
 import { LoadingService } from '../../services/loading.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FacsimileCollectionComponent } from '../../components/facsimile-collection/facsimile-collection.component';
+import { FacsimileService } from '../../services/facsimile.service';
 
 @Component({
   selector: 'app-facsimiles',
@@ -63,7 +64,7 @@ export class FacsimilesComponent {
   selectedFacsimileCollection$: Observable<FacsimileCollection | null> = new Observable<FacsimileCollection | null>();
 
   constructor(
-    private projectService: ProjectService,
+    private facsimileService: FacsimileService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private snackbar: MatSnackBar,
@@ -77,14 +78,14 @@ export class FacsimilesComponent {
   ngOnInit() {
     this.collectionId$ = this.route.params.pipe(map(params => params['id']));
 
-    this.selectedProject$ = this.projectService.selectedProject$;
+    this.selectedProject$ = this.facsimileService.selectedProject$;
 
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
 
     const facsimileCollectionsShared$ = this.loader$.pipe(
       startWith(0),
-      switchMap(() => combineLatest([this.selectedProject$, this.projectService.getFacsimileCollections()]).pipe(
+      switchMap(() => combineLatest([this.selectedProject$, this.facsimileService.getFacsimileCollections()]).pipe(
         map(([project, facsimiles]) => {
           return facsimiles;
         })
@@ -124,7 +125,7 @@ export class FacsimilesComponent {
 
         let req;
         if (collection?.id) {
-          req = this.projectService.editFacsimileCollection(collection.id, payload)
+          req = this.facsimileService.editFacsimileCollection(collection.id, payload)
         } else {
           const data: FacsimileCollectionCreateRequest = {
             title: payload.title,
@@ -134,7 +135,7 @@ export class FacsimilesComponent {
             numberOfPages: payload.number_of_pages,
             startPageNumber: payload.start_page_number,
           };
-          req = this.projectService.addFacsimileCollection(data);
+          req = this.facsimileService.addFacsimileCollection(data);
         }
         req.subscribe({
           next: () => {

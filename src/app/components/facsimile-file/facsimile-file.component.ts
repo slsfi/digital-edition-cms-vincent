@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
-import {  catchError, Observable } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { FacsimileService } from '../../services/facsimile.service';
 
 @Component({
   selector: 'facsimile-file',
@@ -17,10 +17,10 @@ export class FacsimileFileComponent {
 
   imagePath$: Observable<string> = new Observable<string>();
 
-  constructor(private projectService: ProjectService) { }
+  constructor(private facsimileService: FacsimileService) { }
 
   ngOnInit() {
-    this.imagePath$ = this.projectService.getFacsimileImagePath(this.collectionId(), this.pageNumber(), this.zoom());
+    this.imagePath$ = this.facsimileService.getFacsimileImagePath(this.collectionId(), this.pageNumber(), this.zoom());
   }
 
 }
