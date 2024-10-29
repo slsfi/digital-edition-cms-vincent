@@ -7,6 +7,7 @@
     [data$]="projectsResult$"
     [columns]="columnsData"
     (editRow)="editProject($event)">
+    <ng-content custom-table-title>Projects</ng-content>
     <ng-content custom-table-actions>
       <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
       <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>

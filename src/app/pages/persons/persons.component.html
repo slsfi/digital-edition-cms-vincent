@@ -13,6 +13,7 @@
       [data$]="persons$"
       [columns]="columnsData"
       (editRow)="edit($event)">
+      <ng-content custom-table-title>Persons</ng-content>
       <ng-content custom-table-actions>
         <ng-container *ngIf="filterParams$ | async as filterParams">
           <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
