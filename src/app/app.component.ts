@@ -9,12 +9,11 @@ import { filter, map, Observable } from 'rxjs';
 import { ProjectService } from './services/project.service';
 import { TopbarComponent } from './components/topbar/topbar.component';
 import { NavigationComponent } from './components/navigation/navigation.component';
-import { LoadingIndicatorComponent } from "./components/loading-indicator/loading-indicator.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MatProgressSpinnerModule, MatSidenavModule, TopbarComponent, NavigationComponent, LoadingIndicatorComponent],
+  imports: [RouterOutlet, CommonModule, MatProgressSpinnerModule, MatSidenavModule, TopbarComponent, NavigationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
