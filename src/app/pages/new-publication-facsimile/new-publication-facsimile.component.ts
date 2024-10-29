@@ -20,13 +20,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PublicationService } from '../../services/publication.service';
+import { LoadingService } from '../../services/loading.service';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-new-publication-facsimile',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomTableComponent, MatIconModule, MatBadgeModule, MatButtonModule,
-    MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink
+    MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent
   ],
   templateUrl: './new-publication-facsimile.component.html',
   styleUrl: './new-publication-facsimile.component.scss'
@@ -36,6 +38,7 @@ export class NewPublicationFacsimileComponent {
   facsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
   filterParams$: Observable<any> = new Observable<any>();
   publication$: Observable<Publication> = new Observable<Publication>();
+  loading$: Observable<boolean>;
 
   private facsimilesSource = new BehaviorSubject<FacsimileCollection[]>([]);
   facsimilesResult$: Observable<FacsimileCollection[]> = this.facsimilesSource.asObservable();
@@ -56,7 +59,9 @@ export class NewPublicationFacsimileComponent {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router,
-    private snackbar: MatSnackBar) {
+    private snackbar: MatSnackBar,
+    private loadingService: LoadingService) {
+      this.loading$ = this.loadingService.loading$;
       this.filterParams$ = this.queryParamsService.filterParams$
   }
 

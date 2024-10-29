@@ -18,8 +18,8 @@
 
 <ng-template #publicationCollections>
   @if (loading$ | async) {
-    <loading-spinner></loading-spinner>
-  } @else {
+    <loading-spinner [overlay]="true"></loading-spinner>
+  }
     <custom-table
       [data$]="publicationCollectionsResult$"
       [columns]="publicationCollectionColumnsData"
@@ -32,7 +32,7 @@
         <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
       </ng-content>
     </custom-table>
-  }
+
 </ng-template>
 
 <ng-template #loading>

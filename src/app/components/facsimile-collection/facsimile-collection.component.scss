@@ -5,10 +5,15 @@
 .images {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 5px;
+
+  .image {
+    border: solid 1px #ccc;
+  }
 
   .image > div {
     text-align: center;
+    background-color: #ccc;
   }
 
 }

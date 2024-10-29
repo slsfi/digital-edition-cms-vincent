@@ -7,19 +7,20 @@
 <div class="container">
   <h1>Facsimile management</h1>
 
+  @if (loading$ | async) {
+    <loading-spinner [overlay]="true"></loading-spinner>
+  }
+
   @if (!selectedProject) {
     <p>Please select a project</p>
   } @else if (collectionId) {
     @if (selectedCollection) {
       <facsimile-collection [collection]="selectedCollection"></facsimile-collection>
-    } @else {
-      <loading-spinner></loading-spinner>
     }
   } @else {
     <custom-table
       [data$]="facsimilesResult$"
       [columns]="columnsData"
-      [loadingData]="loadingData"
       (editRow)="editCollection($event)"
       (openRow)="open($event)">
        <ng-content custom-table-title>Facsimiles collections</ng-content>

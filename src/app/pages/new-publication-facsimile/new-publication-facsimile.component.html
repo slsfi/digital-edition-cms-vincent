@@ -7,6 +7,10 @@
 
 <h3>Please select facsimile collection to link with publication @if (publication) { {{ publication.name }} }</h3>
 
+@if (loading$ | async) {
+  <loading-spinner [overlay]="true"></loading-spinner>
+}
+
 <form [formGroup]="form" (ngSubmit)="submit($event)">
   <div class="fields">
     <mat-form-field>

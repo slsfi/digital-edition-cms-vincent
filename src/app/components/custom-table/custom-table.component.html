@@ -4,7 +4,7 @@
   <div class="header-row">
     <h4 class="row-actions">
       <ng-content select="[custom-table-title]"></ng-content>
-      @if (tableDataSource.data.length > 0) {
+      @if (tableDataSource.data) {
         {{ filteredCount }} / {{ originalCount }}
       }
     </h4>
@@ -43,11 +43,7 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" [attr.colspan]="tableColumns.length">
-        @if ((loading$ | async) || loadingData) {
-          <loading-spinner></loading-spinner>
-        } @else {
-          No rows
-        }
+        No rows
       </td>
     </tr>
   </table>
@@ -57,32 +53,6 @@
     showFirstLastButtons>
   </mat-paginator>
 }
-<!-- @else {
-  <cdk-virtual-scroll-viewport itemSize="52" class="viewport">
-    <table class="mat-mdc-table">
-      <thead>
-        <tr>
-          @for (column of tableColumns; track column.field) {
-            <th [ngClass]="{'index': column.type === 'index'}">{{ column.header }}</th>
-          }
-        </tr>
-      </thead>
-      <tr *ngIf="!data.length">
-        <td [attr.colspan]="tableColumns.length">No data</td>
-      </tr>
-      <tr *cdkVirtualFor="let model of data; let i = index;">
-        @for (column of tableColumns; track column.field) {
-          <td [ngClass]="{'index': column.type === 'index'}">
-            <ng-container
-              [ngTemplateOutlet]="columnCells"
-              [ngTemplateOutletContext]="{ column, model, index: i }">
-            </ng-container>
-          </td>
-        }
-      </tr>
-    </table>
-  </cdk-virtual-scroll-viewport>
-} -->
 
 <ng-template #columnCells let-model="model" let-column="column" let-index="index">
   @if (column.type === 'index') {

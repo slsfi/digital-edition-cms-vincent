@@ -1,16 +1,16 @@
 <div class="container">
   <h1>Project management</h1>
   @if (loading$ | async) {
-    <loading-spinner></loading-spinner>
-  } @else {
-    <custom-table
-      [data$]="projectsResult$"
-      [columns]="columnsData"
-      (editRow)="editProject($event)">
-      <ng-content custom-table-actions>
-        <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
-        <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
-      </ng-content>
-    </custom-table>
+    <loading-spinner [overlay]="true"></loading-spinner>
   }
+  <custom-table
+    [data$]="projectsResult$"
+    [columns]="columnsData"
+    (editRow)="editProject($event)">
+    <ng-content custom-table-actions>
+      <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
+      <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
+    </ng-content>
+  </custom-table>
+
 </div>

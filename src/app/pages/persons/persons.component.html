@@ -3,23 +3,23 @@
   <h1>Index of persons management</h1>
 
   @if (loading$ | async) {
-    <loading-spinner></loading-spinner>
+    <loading-spinner [overlay]="true"></loading-spinner>
+  }
+
+  @if (!projectSelected) {
+    <p>Please select a project</p>
   } @else {
-    @if (!projectSelected) {
-      <p>Please select a project</p>
-    } @else {
-      <custom-table
-        [data$]="persons$"
-        [columns]="columnsData"
-        (editRow)="edit($event)">
-        <ng-content custom-table-actions>
-          <ng-container *ngIf="filterParams$ | async as filterParams">
-            <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
-          </ng-container>
-          <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
-        </ng-content>
-      </custom-table>
-    }
+    <custom-table
+      [data$]="persons$"
+      [columns]="columnsData"
+      (editRow)="edit($event)">
+      <ng-content custom-table-actions>
+        <ng-container *ngIf="filterParams$ | async as filterParams">
+          <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
+        </ng-container>
+        <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
+      </ng-content>
+    </custom-table>
   }
 </div>
 
