@@ -78,7 +78,7 @@
         <button mat-icon-button (click)="open(model)"><mat-icon>photo_library</mat-icon></button>
       }
     </div>
-  } @else if (column.field === 'original_fieldname') {
+  } @else if (column.field === 'original_filename') {
     {{ model[column.field].split('/').join(' / ') }}
   } @else {
     {{ model[column.field] }}
