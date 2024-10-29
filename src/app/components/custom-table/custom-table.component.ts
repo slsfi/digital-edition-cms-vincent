@@ -8,18 +8,20 @@ import { RouterLink } from '@angular/router';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column } from '../../models/column';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
-import { BehaviorSubject, combineLatest, map, Observable, filter } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { LoadingService } from '../../services/loading.service';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'custom-table',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, RouterLink, MatIconModule, MatButtonModule, CustomDatePipe, IdRoutePipe,
-    ScrollingModule, MatPaginatorModule, LoadingSpinnerComponent
+    ScrollingModule, MatPaginatorModule, LoadingSpinnerComponent, MatCheckboxModule
   ],
   providers: [DatePipe],
   templateUrl: './custom-table.component.html',
@@ -32,10 +34,12 @@ export class CustomTableComponent {
   @Input() showIndex: boolean = true;
   @Input() selectedId: string | null = null;
   @Input() loadingData = false;
+  @Input() selectable = false;
 
   @Output() editRow: EventEmitter<any> = new EventEmitter<any>();
   @Output() editRowSecondary: EventEmitter<any> = new EventEmitter<any>();
   @Output() openRow: EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectRow: EventEmitter<any> = new EventEmitter<any>();
 
   displayedColumns: string[] = [];
   editSecondaryUsed: boolean = false;
@@ -50,7 +54,7 @@ export class CustomTableComponent {
 
   originalCount: number = 0;
   filteredCount: number = 0;
-  test = false;
+  selection: SelectionModel<any> = new SelectionModel<any>(false, []);
 
   constructor(private queryParamsService: QueryParamsService, private loadingService: LoadingService) {
     this.loading$ = this.loadingService.loading$;
@@ -63,6 +67,9 @@ export class CustomTableComponent {
     const indexColumn: Column = {field: 'index', header: '#', filterable: false, type: 'index'};
     this.tableColumns = this.showIndex ? [indexColumn, ...this.columns] : [...this.columns];
     this.displayedColumns = this.tableColumns.map(column => column.field);
+    if (this.selectable) {
+      this.displayedColumns = ['select', ...this.displayedColumns];
+    }
   }
 
   ngAfterViewInit() {
@@ -131,5 +138,10 @@ export class CustomTableComponent {
 
   open(model: any) {
     this.openRow.emit(model);
+  }
+
+  selectionChanged(row: any) {
+    this.selection.toggle(row);
+    this.selectRow.emit(this.selection.selected);
   }
 }

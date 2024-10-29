@@ -7,6 +7,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './guards/auth.guard';
 import { HomeComponent } from './pages/home/home.component';
 import { PublicationCollectionsComponent } from './pages/publication-collections/publication-collections.component';
+import { NewPublicationFacsimileComponent } from './pages/new-publication-facsimile/new-publication-facsimile.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'publication-collections', component: PublicationCollectionsComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId', component: PublicationCollectionsComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId/publication/:publicationId', component: PublicationCollectionsComponent, canActivate: [authGuard] },
+  { path: 'publication-collections/:collectionId/publication/:publicationId/facsimiles/new', component: NewPublicationFacsimileComponent, canActivate: [authGuard] },
   { path: 'facsimiles', component: FacsimilesComponent, canActivate: [authGuard] },
   { path: 'facsimiles/:id', component: FacsimilesComponent, canActivate: [authGuard] },
   { path: 'persons', component: PersonsComponent, canActivate: [authGuard] },

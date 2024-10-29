@@ -155,6 +155,19 @@ export class ProjectService {
     ));
   }
 
+  getPublication(publicationId: number): Observable<Publication> {
+    // /<project>/publication/<publication_id>
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}`;
+        return this.apiService.get(url).pipe(
+          map((response: Publication[]) => response[0])
+        );
+      }
+    ));
+  }
+
   getPublications(collectionId: string): Observable<Publication[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
@@ -323,15 +336,14 @@ export class ProjectService {
     );
   }
 
-  linkFacsimileToPublication(publicationId: number, data: LinkPublicationToFacsimileRequest) {
+  linkFacsimileToPublication(facsimileCollectionId: number, data: LinkPublicationToFacsimileRequest) {
     // /<project>/facsimile_collection/<collection_id>/link/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${publicationId}/link/`;
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${facsimileCollectionId}/link/`;
         return this.apiService.post(url, data);
-      }),
-      catchError(() => of())
+      })
     );
   }
 

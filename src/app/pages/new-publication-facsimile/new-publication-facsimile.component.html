@@ -1,0 +1,55 @@
+@let filterParams = filterParams$ | async;
+@let publication = publication$ | async;
+
+<h1>Facsimile management</h1>
+
+<a mat-icon-button [routerLink]="publicationsPath"><mat-icon>west</mat-icon></a>
+
+<h3>Please select facsimile collection to link with publication @if (publication) { {{ publication.name }} }</h3>
+
+<form [formGroup]="form" (ngSubmit)="submit($event)">
+  <div class="fields">
+    <mat-form-field>
+      <mat-label>Page number</mat-label>
+      <input matInput type="number" formControlName="page_nr" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Section ID</mat-label>
+      <input matInput type="number" formControlName="section_id" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Priority</mat-label>
+      <input matInput type="number" formControlName="priority" />
+    </mat-form-field>
+  </div>
+  <div class="fields">
+    <mat-form-field>
+      <mat-label>Facsimile collection</mat-label>
+      <input matInput type="number" [readonly]="true" formControlName="facsimile_collection_id" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Publication ID</mat-label>
+      <input matInput type="number" [readonly]="true" formControlName="publication_id" />
+    </mat-form-field>
+    <button mat-flat-button type="submit" [disabled]="!form.valid">Link</button>
+  </div>
+
+
+</form>
+
+<custom-table
+  [data$]="facsimilesResult$"
+  [columns]="columns"
+  [selectable]="true"
+  (selectRow)="setSelectedRow($event)">
+  <ng-content custom-table-title>Facsimile collections</ng-content>
+  <ng-content custom-table-actions>
+    <button
+      mat-flat-button
+      [matBadge]="filterParams && filterParams?.length ? filterParams.length : null"
+      (click)="filter()">
+        <mat-icon>filter_list</mat-icon>
+        Filter
+    </button>
+  </ng-content>
+</custom-table>
