@@ -41,8 +41,6 @@ export class FileTreeComponent {
   dataSource: MatTreeFlatDataSource<TreeNode, FlatTreeNode>;
   loading: boolean = true;
 
-  subscription;
-
   selectedNodes: string[] = [];
 
   constructor(private projectService: ProjectService) {
@@ -57,16 +55,6 @@ export class FileTreeComponent {
       this.isExpandable
     );
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-    // Fetch file tree data
-    this.subscription = this.projectService.getFileTree().pipe(
-      map((fileTree) => this.convertToTreeNode(fileTree))
-    ).subscribe((data: TreeNode[]) => {
-      this.dataSource.data = data;
-      if (data.length > 0) {
-        this.loading = false;
-      }
-    });
   }
 
   ngOnInit() {
@@ -80,8 +68,18 @@ export class FileTreeComponent {
     }
   }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+  ngAfterViewInit() {
+    // Fetch file tree data
+    setTimeout(() => {
+      this.projectService.getFileTree().pipe(
+        map((fileTree) => this.convertToTreeNode(fileTree))
+      ).subscribe((data: TreeNode[]) => {
+        this.dataSource.data = data;
+        if (data.length > 0) {
+          this.loading = false;
+        }
+      });
+    });
   }
 
   get selectedNodeName() {
