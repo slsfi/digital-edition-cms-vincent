@@ -221,67 +221,27 @@ export class PublicationsComponent {
     });
   }
 
-  editSelectedFileTable(type: 'text' | 'comment' | 'version' | 'manuscript', model: any, editId: number | null = null) {
-    this.editSelectedFile(type, model.original_filename, editId ?? model.id);
-  }
-
-  editSelectedFile(type: 'text' | 'comment' | 'version' | 'manuscript', filename: string | null = '', editId: number) {
+  editSelectedText(publication: Publication) {
     const dialogRef = this.dialog.open(FileTreeComponent, {
-      data: filename
+      data: publication.original_filename
     });
 
     dialogRef.afterClosed().subscribe(result => {
-
       if (!result) {
         return;
       }
       const filePath = result.join('/');
+      const data = { original_filename: filePath };
 
-
-      const succesMessage = 'Filename saved';
-      const errorMessage = 'Error editing filename';
-      const data = { original_filename: filePath }
-      if (type === 'text') {
-        this.publicationService.editPublication(editId, data).subscribe({
-          next: () => {
-            this.publicationsLoader$.next();
-            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
-          }
-        });
-      } else if (type === 'comment') {
-        this.publicationService.editComment(editId, data).subscribe({
-          next: () => {
-            this.commentLoader$.next(0);
-            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
-          }
-        });
-      } else if (type === 'version') {
-        this.publicationService.editVersion(editId, data).subscribe({
-          next: () => {
-            this.versionsLoader$.next(0);
-            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
-          }
-        });
-      } else if (type === 'manuscript') {
-        this.publicationService.editManuscript(editId, data).subscribe({
-          next: () => {
-            this.manuscriptsLoader$.next(0);
-            this.snackbar.open(succesMessage, 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open(errorMessage, 'Close', { panelClass: ['snackbar-error'] });
-          }
-        });
-      }
+      this.publicationService.editPublication(publication.id, data).subscribe({
+        next: () => {
+          this.publicationsLoader$.next();
+          this.snackbar.open('Filename saved', 'Close', { panelClass: ['snackbar-success'] });
+        },
+        error: () => {
+          this.snackbar.open('Error editing filename', 'Close', { panelClass: ['snackbar-error'] });
+        }
+      });
     });
   }
 

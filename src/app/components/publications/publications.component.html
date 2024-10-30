@@ -36,7 +36,7 @@
                 <mat-card-content>
                   <div class="file-row">
                     <div><span>Filename:</span> {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}</div>
-                    <button mat-icon-button (click)="editSelectedFile('text', selectedPublication.original_filename, selectedPublication.id)"><mat-icon>edit</mat-icon></button>
+                    <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
                   </div>
                 </mat-card-content>
               </mat-card>
