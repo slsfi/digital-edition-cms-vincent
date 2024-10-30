@@ -6,7 +6,8 @@
   <custom-table
     [data$]="projectsResult$"
     [columns]="columnsData"
-    (editRow)="editProject($event)">
+    (editRow)="editProject($event)"
+    (deleteRow)="deleteProject($event)">
     <ng-content custom-table-title>Projects</ng-content>
     <ng-content custom-table-actions>
       <button mat-flat-button (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>

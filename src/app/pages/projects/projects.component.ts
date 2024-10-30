@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounce, filter, map, Observable, startWith, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, debounce, Observable, startWith, switchMap, timer } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { EditProjectData, Project } from '../../models/project';
@@ -7,23 +7,22 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { NavigationEnd, Router } from '@angular/router';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { Column } from '../../models/common';
-import { QueryParamsService } from '../../services/query-params.service';
+import { Column, Deleted } from '../../models/common';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent,
-    CustomTableComponent, CustomTableComponent
+    CustomTableComponent, CustomTableComponent,
   ],
   providers: [DatePipe],
   templateUrl: './projects.component.html',
@@ -68,7 +67,13 @@ export class ProjectsComponent {
 
   editProject(project: Project | null = null) {
     const columns = this.columnsData.filter(column => column.field != 'action').map(column => {
-      return { ...column, editable: column.field === 'published' ? (project != null) : column.editable }
+      let editable = column.editable;
+      if (column.field === 'published') {
+        editable = project != null;
+      } else if (column.field === 'name') {
+        editable = project == null;
+      }
+      return { ...column, editable }
     })
     const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '300px',
@@ -106,6 +111,32 @@ export class ProjectsComponent {
     this.dialog.open(TableFiltersComponent, {
       width: '250px',
       data: columns
+    });
+  }
+
+  deleteProject(project: Project) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '250px',
+      data: {
+        message: 'Are you sure you want to delete this project?',
+        cancelText: 'No',
+        confirmText: 'Delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const payload = { ...project, deleted: Deleted.Deleted };
+        this.projectService.editProject(project.id, payload).subscribe({
+          next: () => {
+            this.loader$.next(0);
+            this.snackBar.open('Project deleted successfully', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackBar.open('Error deleting project', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
     });
   }
 

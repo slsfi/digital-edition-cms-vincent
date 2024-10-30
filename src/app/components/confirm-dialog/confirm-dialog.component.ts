@@ -13,10 +13,10 @@ export interface ConfirmDialogData {
   selector: 'app-comfirm-dialog',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
-  templateUrl: './comfirm-dialog.component.html',
-  styleUrl: './comfirm-dialog.component.scss'
+  templateUrl: './confirm-dialog.component.html',
+  styleUrl: './confirm-dialog.component.scss'
 })
-export class ComfirmDialogComponent {
+export class ConfirmDialogComponent {
   @Input() message: string = '';
   @Input() cancelText: string = 'Cancel';
   @Input() confirmText: string = 'Confirm';

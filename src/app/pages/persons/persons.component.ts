@@ -19,7 +19,7 @@ import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.co
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { SubjectService } from '../../services/subject.service';
-import { ComfirmDialogComponent } from '../../components/comfirm-dialog/comfirm-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-persons',
@@ -131,7 +131,7 @@ export class PersonsComponent {
   }
 
   deleteRow(person: Person) {
-    const dialogRef = this.dialog.open(ComfirmDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
         message: 'Are you sure you want to delete this person?',
