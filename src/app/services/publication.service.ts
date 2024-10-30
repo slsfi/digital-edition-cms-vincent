@@ -2,8 +2,15 @@ import { ProjectService } from './project.service';
 import { Injectable } from '@angular/core';
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
-import { LinkTextToPublicationRequest, Manuscript, ManuscriptRequest, ManuscriptResponse, Publication, PublicationCollection, PublicationCollectionRequest, PublicationCollectionResponse, PublicationComment, PublicationCommentRequest, PublicationCommentResponse, PublicationRequest, PublicationResponse, Version, VersionRequest, VersionResponse } from '../models/publication';
-import { EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse } from '../models/facsimile';
+import {
+  LinkTextToPublicationRequest, Manuscript, ManuscriptRequest, ManuscriptResponse, Publication, PublicationAddRequest,
+  PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse,
+  PublicationComment, PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
+  Version, VersionRequest, VersionResponse
+} from '../models/publication';
+import {
+  EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse
+ } from '../models/facsimile';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +35,7 @@ export class PublicationService {
     ));
   }
 
-  editPublicationCollection(collectionId: number, data: PublicationCollectionRequest) {
+  editPublicationCollection(collectionId: number, data: PublicationCollectionEditRequest) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -38,7 +45,7 @@ export class PublicationService {
     ));
   }
 
-  addPublicationCollection(data: PublicationCollectionRequest) {
+  addPublicationCollection(data: PublicationCollectionAddRequest) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -73,7 +80,7 @@ export class PublicationService {
     ));
   }
 
-  editPublication(publicationId: number, data: PublicationRequest) {
+  editPublication(publicationId: number, data: PublicationEditRequest) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -84,7 +91,7 @@ export class PublicationService {
     );
   }
 
-  addPublication(collectionId: number,data: PublicationRequest) {
+  addPublication(collectionId: number,data: PublicationAddRequest) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {

@@ -1,4 +1,5 @@
 import { ApiResponse, Deleted, Published } from "./common";
+import { Langugage } from "./translation";
 
 export interface PublicationCollectionResponse extends ApiResponse {
   data: PublicationCollection[];
@@ -19,10 +20,18 @@ export interface PublicationCollection {
   title: string;
 }
 
-export interface PublicationCollectionRequest {
+export interface PublicationCollectionAddRequest {
   name: string;
   published: Published;
-  deleted?: Deleted;
+}
+
+export interface PublicationCollectionEditRequest {
+  name: string;
+  pubished: Published;
+  deleted: Deleted;
+  cascade_deleted: boolean;
+  cascase_published: boolean;
+
 }
 
 export interface PublicationResponse extends ApiResponse {
@@ -43,16 +52,29 @@ export interface Publication {
   publication_comment_id: number | null;
   published: Published;
 }
-export interface PublicationRequest {
-  publication_collection_id?: number | null;
-  publication_comment_id?: number | null;
-  name?: string;
-  original_filename: string  | null;
-  original_publication_date?: string | null;
+export interface PublicationAddRequest {
+  name: string;
+  publication_comment_id?: number;
   published?: Published;
-  language?: string | null;
-  genre?: string | null;
+  legacy_id?: string;
+  original_filename?: string;
+  genre?: string;
+  original_publication_date?: string;
+  language?: Langugage;
+}
+
+export interface PublicationEditRequest {
+  publication_collection_id?: number;
+  publication_comment_id?: number;
+  name?: string;
+  original_filename?: string;
+  original_publication_date?: string;
+  published?: Published;
+  language?: Langugage;
+  genre?: string;
   deleted?: Deleted;
+  cascade_deleted?: boolean;
+  cascase_published?: boolean;
 }
 
 export interface ReadingText {

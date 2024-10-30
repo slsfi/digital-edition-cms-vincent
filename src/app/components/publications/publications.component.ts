@@ -361,11 +361,13 @@ export class PublicationsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        const payload = result.form.getRawValue();
+        payload['text_type'] = 'comment';
         let req;
         if (comment?.id) {
-          req = this.publicationService.editComment(publicationId, result.form.value);
+          req = this.publicationService.editComment(publicationId, payload);
         } else {
-          req = this.publicationService.editComment(publicationId, result.form.value);
+          req = this.publicationService.linkTextToPublication(publicationId, payload);
         }
         req.subscribe({
           next: () => {
