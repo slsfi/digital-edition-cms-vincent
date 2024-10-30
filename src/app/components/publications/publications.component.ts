@@ -66,6 +66,8 @@ export class PublicationsComponent {
   // COMMENTS
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
+  private commentsSource = new BehaviorSubject<PublicationComment[]>([]);
+  commentsResult$: Observable<PublicationComment[]> = this.commentsSource.asObservable();
   commentsColumnData = commentsColumnData
   allCommentsColumnData = allCommentsColumnData;
   // FACSIMILES
@@ -131,6 +133,9 @@ export class PublicationsComponent {
         )
       )
     );
+    this.comments$.subscribe(comments => {
+      this.commentsSource.next(comments);
+    });
 
     this.versions$ = this.versionsLoader$.asObservable().pipe(
       startWith(0),

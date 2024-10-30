@@ -44,7 +44,7 @@
               <mat-card appearance="outlined">
                 <mat-card-content>
                   <custom-table
-                    [data$]="comments$"
+                    [data$]="commentsResult$"
                     [columns]="commentsColumnData"
                     [paginationEnabled]="false"
                     (editRow)="editComment($event, selectedPublication.id)">
