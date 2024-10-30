@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
-import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
+import { FacsimileCollection } from '../../models/facsimile';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatTableModule } from '@angular/material/table';
 import { Column, Deleted, QueryParamType } from '../../models/common';
@@ -19,7 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FacsimileCollectionComponent } from '../../components/facsimile-collection/facsimile-collection.component';
+import { FacsimileCollectionComponent } from '../facsimile-collection/facsimile-collection.component';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
@@ -65,9 +64,6 @@ export class FacsimilesComponent {
   loading$: Observable<boolean> = new Observable<boolean>();
   loadingData = true;
 
-  collectionId$: Observable<string | null> = new Observable<string | null>();
-  selectedFacsimileCollection$: Observable<FacsimileCollection | null> = new Observable<FacsimileCollection | null>();
-
   constructor(
     private facsimileService: FacsimileService,
     private dialog: MatDialog,
@@ -81,8 +77,6 @@ export class FacsimilesComponent {
   }
 
   ngOnInit() {
-    this.collectionId$ = this.route.params.pipe(map(params => params['id']));
-
     this.selectedProject$ = this.facsimileService.selectedProject$;
 
     this.sortParams$ = this.queryParamsService.sortParams$;
@@ -100,18 +94,10 @@ export class FacsimilesComponent {
 
     this.facsimileCollections$ = facsimileCollectionsShared$;
 
-
     this.facsimileCollections$.subscribe(facsimiles => {
       this.loadingData = false;
       this.facsimilesSource.next(facsimiles);
     });
-
-    this.selectedFacsimileCollection$ = combineLatest([facsimileCollectionsShared$, this.collectionId$]).pipe(
-      map(([facsimiles, id]) => {
-        return facsimiles.find(facsimile => facsimile.id === parseInt(id as string)) ?? null;
-      })
-    );
-
   }
 
   editCollection(collection: FacsimileCollection | null = null) {

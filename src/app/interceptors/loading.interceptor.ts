@@ -8,7 +8,6 @@ export const SkipLoading =
 
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const loadingService = inject(LoadingService);
-
   if (req.context.get(SkipLoading)) {
     return next(req);
   }

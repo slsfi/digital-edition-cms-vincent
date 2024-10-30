@@ -3,6 +3,8 @@ import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse } from '../models/facsimile';
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { HttpContext } from '@angular/common/http';
+import { SkipLoading } from '../interceptors/loading.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +24,19 @@ export class FacsimileService {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
         return this.apiService.get(url).pipe(
           map((response: FacsimileCollectionResponse) => response.data)
+        );
+      }
+    ));
+  }
+
+  getFacsimileCollection(collectionId: number): Observable<FacsimileCollection> {
+    // /<project>/facsimiles/collections/<facsimile_collection_ids>
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/collections/${collectionId}`;
+        return this.apiService.get(url).pipe(
+          map((response: FacsimileCollection[]) => response[0])
         );
       }
     ));
@@ -75,7 +90,7 @@ export class FacsimileService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/${collectionId}/${pageNumber}`;
-        return this.apiService.post(url, formData, { reportProgress: true, observe: 'events' });
+        return this.apiService.post(url, formData, { reportProgress: true, observe: 'events', context: new HttpContext().set(SkipLoading, true) });
       }
     ));
   }

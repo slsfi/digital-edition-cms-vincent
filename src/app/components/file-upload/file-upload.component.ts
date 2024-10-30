@@ -52,6 +52,7 @@ export class FileUploadComponent {
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
   file: File | undefined;
   uploadInProgress = false;
+  allUploaded = false;
 
   onFileSelected(event: Event) {
     if (event.target) {
@@ -88,11 +89,12 @@ export class FileUploadComponent {
     this.uploadInProgress = true;
 
     throttledFiles$.subscribe({
-      next: () => console.log('File uploaded'),
-      error: err => console.log('Error uploading file:', err),
+      next: () => {},
+      error: err => this.snackbar.open('Error uploading file', 'Close', { panelClass: 'snackbar-error' }),
       complete: () => {
-        console.log('All files uploaded')
         this.uploadInProgress = false;
+        this.allUploaded = true;
+        this.snackbar.open('All files uploaded', 'Close', { panelClass: 'snackbar-success' });
       },
     });
   }

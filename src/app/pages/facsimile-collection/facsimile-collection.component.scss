@@ -6,9 +6,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+  margin: 0;
+  padding: 0;
 
   .image {
     border: solid 1px #ccc;
+    display: flex;
+    flex-direction: column;
   }
 
   .image > div {
@@ -20,4 +24,8 @@
 
 .pages {
   margin: 20px 0;
+}
+
+facsimile-file {
+  height: 100px;
 }

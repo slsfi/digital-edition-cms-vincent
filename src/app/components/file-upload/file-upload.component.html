@@ -2,13 +2,13 @@
 
 @if (queue && queue.length) {
   <div class="actions">
-    <button mat-flat-button [disabled]="uploadInProgress" (click)="uploadFiles()">
+    <button mat-flat-button [disabled]="uploadInProgress || allUploaded" (click)="uploadFiles()">
       <mat-icon>cloud_upload</mat-icon>Upload
     </button>
-    <button mat-flat-button [disabled]="uploadInProgress" (click)="clearQueue()">
+    <button mat-flat-button [disabled]="uploadInProgress || allUploaded" (click)="clearQueue()">
       <mat-icon>delete</mat-icon>Clear
     </button>
-    <button mat-flat-button [disabled]="!uploadInProgress" (click)="cancelUploads()">
+    <button mat-flat-button [disabled]="!uploadInProgress || allUploaded" (click)="cancelUploads()">
       <mat-icon>cancel</mat-icon>Cancel
     </button>
   </div>

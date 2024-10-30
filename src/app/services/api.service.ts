@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { LoadingService } from './loading.service';
 
 @Injectable({
   providedIn: 'root'

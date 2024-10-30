@@ -1,23 +1,16 @@
 @let selectedProject = selectedProject$ | async;
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
-@let selectedCollection = selectedFacsimileCollection$ | async;
-@let collectionId = collectionId$ | async;
 
 <div class="container">
   <h1>Facsimile management</h1>
 
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
-
   @if (!selectedProject) {
     <p>Please select a project</p>
-  } @else if (collectionId) {
-    @if (selectedCollection) {
-      <facsimile-collection [collection]="selectedCollection"></facsimile-collection>
-    }
   } @else {
+    @if (loading$ | async) {
+      <loading-spinner [overlay]="true"></loading-spinner>
+    }
     <custom-table
       [data$]="facsimilesResult$"
       [columns]="columnsData"
