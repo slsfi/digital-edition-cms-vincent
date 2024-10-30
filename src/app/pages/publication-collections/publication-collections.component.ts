@@ -116,9 +116,7 @@ export class PublicationCollectionsComponent {
       width: '400px',
       data: {
         model: publicationCollection ?? {},
-        columns: this.allPublicationCollectionColumns
-          .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable),
+        columns: this.allPublicationCollectionColumns,
         title: 'Publication Collection'
       }
     });

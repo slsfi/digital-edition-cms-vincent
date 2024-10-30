@@ -190,9 +190,7 @@ export class PublicationsComponent {
       width: '400px',
       data: {
         model: publication ?? {},
-        columns: this.allPublicationColumnsData
-          .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable),
+        columns: this.allPublicationColumnsData,
         title: 'Publication'
       }
     });
@@ -287,9 +285,7 @@ export class PublicationsComponent {
       width: '400px',
       data: {
         model: version ?? {},
-        columns: this.allVersionColumnsData
-          .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable),
+        columns: this.allVersionColumnsData,
         title: 'Version'
       }
     });
@@ -324,9 +320,7 @@ export class PublicationsComponent {
       width: '400px',
       data: {
         model: manuscript ?? {},
-        columns: this.allManuscriptColumnsData
-          .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable),
+        columns: this.allManuscriptColumnsData,
         title: 'Manuscript'
       }
     });
@@ -360,9 +354,7 @@ export class PublicationsComponent {
       width: '400px',
       data: {
         model: comment ?? {},
-        columns: this.allCommentsColumnData
-          .filter(column => column.type !== 'action')
-          .sort((a: any, b: any) => b.editable - a.editable),
+        columns: this.allCommentsColumnData,
         title: 'Comment'
       }
     });

@@ -48,7 +48,11 @@ export class EditDialogComponent {
   }
 
   ngOnInit() {
-    const copiedColumns = this.data.columns.map((column) => ({ ...column }));
+    const copiedColumns = this.data.columns
+      .map((column) => ({ ...column }))
+      .filter(column => column.type !== 'action' && column.type !== 'index')
+      .sort((a: any, b: any) => b.editable - a.editable)
+      .sort((a: any, b: any) => a.editOrder - b.editOrder);
     copiedColumns.forEach((column) => {
       if (column.type === 'date' && this.isBCDate(this.data.model[column.field])) {
         column.type = 'string';

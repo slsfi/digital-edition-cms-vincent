@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest } from '../../models/facsimile';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatTableModule } from '@angular/material/table';
-import { Column, QueryParamType } from '../../models/common';
+import { Column, Deleted, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ import { LoadingService } from '../../services/loading.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FacsimileCollectionComponent } from '../../components/facsimile-collection/facsimile-collection.component';
 import { FacsimileService } from '../../services/facsimile.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-facsimiles',
@@ -39,11 +40,15 @@ export class FacsimilesComponent {
     { field: 'title', header: 'Title', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'number_of_pages', header: 'Number of pages', filterable: false, type: 'number', editable: true },
-    // { field: 'page_comment', header: 'Page comment', filterable: false, type: 'string', editable: true },
     { field: 'start_page_number', header: 'Start page number', filterable: false, type: 'number', editable: true },
     { field: 'external_url', header: 'External URL', filterable: true, type: 'string', editable: true },
-    // { field: 'folder_path', header: 'Folder path', filterable: false, type: 'string', editable: true },
     { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
+  ]
+  allColumnData = [
+    ...this.columnsData,
+    { field: 'page_comment', header: 'Page comment', filterable: false, type: 'string', editable: false },
+    { field: 'deleted', header: 'Deleted', filterable: false, type: 'boolean', editable: false },
+    { field: 'folder_path', header: 'Folder path', filterable: false, type: 'string', editable: false },
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
@@ -113,7 +118,7 @@ export class FacsimilesComponent {
     const dialogRef = this.dialog.open(EditDialogComponent, {
       data: {
         model: collection ?? {},
-        columns: this.columnsData.filter(column => column.type != 'action'),
+        columns: this.allColumnData,
         title: 'Fascimile collection'
       }
     });
@@ -121,21 +126,13 @@ export class FacsimilesComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
 
-        const payload = result.form.value as FacsimileCollectionEditRequest;
+        const payload = result.form.getRawValue();
 
         let req;
         if (collection?.id) {
           req = this.facsimileService.editFacsimileCollection(collection.id, payload)
         } else {
-          const data: FacsimileCollectionCreateRequest = {
-            title: payload.title,
-            description: payload.description,
-            folderPath: payload.folder_path,
-            externalUrl: payload.external_url,
-            numberOfPages: payload.number_of_pages,
-            startPageNumber: payload.start_page_number,
-          };
-          req = this.facsimileService.addFacsimileCollection(data);
+          req = this.facsimileService.addFacsimileCollection(payload);
         }
         req.subscribe({
           next: () => {
@@ -168,6 +165,33 @@ export class FacsimilesComponent {
       width: '250px',
       data: columns
     });
+  }
+
+  deleteFacsimileCollection(collection: FacsimileCollection) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+
+      data: {
+        message: 'Are you sure you want to delete this collection?',
+        cancelText: 'Cancel',
+        confirmText: 'Delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = { ...collection, deleted: Deleted.Deleted };
+        this.facsimileService.editFacsimileCollection(collection.id, payload).subscribe({
+          next: () => {
+            this.loader$.next();
+            this.snackbar.open('Facsimile collection deleted', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error deleting facsimile collection', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+
   }
 
 }

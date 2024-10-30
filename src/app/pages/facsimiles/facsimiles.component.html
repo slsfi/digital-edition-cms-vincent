@@ -22,7 +22,8 @@
       [data$]="facsimilesResult$"
       [columns]="columnsData"
       (editRow)="editCollection($event)"
-      (openRow)="open($event)">
+      (openRow)="open($event)"
+      (deleteRow)="deleteFacsimileCollection($event)">
        <ng-content custom-table-title>Facsimiles collections</ng-content>
        <ng-content custom-table-actions>
         <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>

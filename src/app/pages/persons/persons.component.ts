@@ -101,10 +101,7 @@ export class PersonsComponent {
       width: '500px',
       data: {
         model: person ?? {},
-        columns: this.allColumns
-          .filter(column => column.type !== 'action' && column.type !== 'index')
-          .sort((a: any, b: any) => b.editable - a.editable)
-          .sort((a: any, b: any) => a.editOrder - b.editOrder),
+        columns: this.allColumns,
         title: 'Person'
       }
     });

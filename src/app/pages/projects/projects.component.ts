@@ -79,7 +79,7 @@ export class ProjectsComponent {
       width: '300px',
       data: {
         model: project ?? {},
-        columns: columns.sort((a: any, b: any) => b.editable - a.editable),
+        columns: columns,
         title: 'Project'
       }
     });
