@@ -21,7 +21,12 @@ import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
 import { PublicationFacsimile } from '../../models/facsimile';
 import { PublicationService } from '../../services/publication.service';
-import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData, allPublicationColumnsData, allVersionColumnsData, commentsColumnData, facsimileColumnData, manuscriptColumnsData, publicationColumnsData, versionColumnsData } from './columns';
+import {
+  allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData, allPublicationColumnsData, allVersionColumnsData,
+  commentsColumnData, facsimileColumnData, manuscriptColumnsData, publicationColumnsData, versionColumnsData
+} from './columns';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { Deleted } from '../../models/common';
 
 @Component({
   selector: 'publications',
@@ -382,6 +387,106 @@ export class PublicationsComponent {
           },
           error: () => {
             this.snackbar.open('Error editing facsimile', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+  }
+
+  deleteFacsimile(facsimile: PublicationFacsimile) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        message: 'Are you sure you want to delete this facsimile?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = { id: facsimile.id, deleted: Deleted.Deleted };
+        this.publicationService.editFacsimileForPublication(payload).subscribe({
+          next: () => {
+            this.facsimilesLoader$.next(0);
+            this.snackbar.open('Facsimile deleted', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error deleting facsimile', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+  }
+
+  deleteManuscript(manuscript: Manuscript) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        message: 'Are you sure you want to delete this manuscript?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = { deleted: Deleted.Deleted };
+        this.publicationService.editManuscript(manuscript.id, payload).subscribe({
+          next: () => {
+            this.manuscriptsLoader$.next(0);
+            this.snackbar.open('Manuscript deleted', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error deleting manuscript', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+  }
+
+  deleteVersion(version: Version) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        message: 'Are you sure you want to delete this version?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = { deleted: Deleted.Deleted };
+        this.publicationService.editVersion(version.id, payload).subscribe({
+          next: () => {
+            this.versionsLoader$.next(0);
+            this.snackbar.open('Version deleted', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error deleting version', 'Close', { panelClass: ['snackbar-error'] });
+          }
+        });
+      }
+    });
+  }
+
+  deleteComment(comment: PublicationComment, publicationId: number) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        message: 'Are you sure you want to delete this comment?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = { deleted: Deleted.Deleted };
+        this.publicationService.editComment(publicationId, payload).subscribe({
+          next: () => {
+            this.commentLoader$.next(0);
+            this.snackbar.open('Comment deleted', 'Close', { panelClass: ['snackbar-success'] });
+          },
+          error: () => {
+            this.snackbar.open('Error deleting comment', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

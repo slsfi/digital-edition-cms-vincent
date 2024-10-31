@@ -1,46 +1,41 @@
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
+@let selectedProject = selectedProject$ | async;
 
 <h1>Text collection management</h1>
 
-<ng-container *ngIf="(selectedProject$ | async) == null">
+@if (selectedProject == null) {
   <p>Please select a project</p>
-</ng-container>
-
-<div class="publications">
-  <div class="header">
-    <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
-      <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
-      <h2>{{ selectedPublicationCollection.name }} </h2>
-    </ng-container>
+} @else {
+  <div class="publications">
+    <div class="header">
+      <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
+        <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
+        <h2>{{ selectedPublicationCollection.name }} </h2>
+      </ng-container>
+    </div>
   </div>
-</div>
 
-<ng-template #publicationCollections>
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
-    <custom-table
-      [data$]="publicationCollectionsResult$"
-      [columns]="publicationCollectionColumnsData"
-      [idRouteParams]="['/publication-collections/']"
-      (editRow)="editPublicationCollection($event)">
-      <ng-content custom-table-title>Publication collections</ng-content>
-      <ng-content custom-table-actions>
-        <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
-        <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-        <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
-      </ng-content>
-    </custom-table>
+  <ng-template #publicationCollections>
+    @if (loading$ | async) {
+      <loading-spinner [overlay]="true"></loading-spinner>
+    }
+      <custom-table
+        [data$]="publicationCollectionsResult$"
+        [columns]="publicationCollectionColumnsData"
+        [idRouteParams]="['/publication-collections/']"
+        (editRow)="editPublicationCollection($event)">
+        <ng-content custom-table-title>Publication collections</ng-content>
+        <ng-content custom-table-actions>
+          <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
+          <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
+          <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
+        </ng-content>
+      </custom-table>
 
-</ng-template>
+  </ng-template>
 
-<ng-template #loading>
-  <ng-container *ngIf="selectedProject$ | async as selectedProject">
-    <loading-spinner [overlay]="true"></loading-spinner>
+  <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">
+    <publications></publications>
   </ng-container>
-</ng-template>
-
-<ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">
-  <publications></publications>
-</ng-container>
+}

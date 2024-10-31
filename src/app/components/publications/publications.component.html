@@ -26,83 +26,85 @@
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
           <h3>{{ selectedPublication.name }} </h3>
-          <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
-            <div class="cards">
+          <div class="cards">
 
-              <mat-card appearance="outlined">
-                <mat-card-header>
-                  <mat-card-title>Reading text</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="file-row">
-                    <div><span>Filename:</span> {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}</div>
-                    <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
-                  </div>
-                </mat-card-content>
-              </mat-card>
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Reading text</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="file-row">
+                  <div><span>Filename:</span> {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}</div>
+                  <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
+                </div>
+              </mat-card-content>
+            </mat-card>
 
-              <mat-card appearance="outlined">
-                <mat-card-content>
-                  <custom-table
-                    [data$]="commentsResult$"
-                    [columns]="commentsColumnData"
-                    [paginationEnabled]="false"
-                    (editRow)="editComment($event, selectedPublication.id)">
-                    <ng-content custom-table-title>Comments</ng-content>
-                    <ng-content custom-table-actions>
-                      <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                    </ng-content>
-                  </custom-table>
-                </mat-card-content>
-              </mat-card>
+            <mat-card appearance="outlined">
+              <mat-card-content>
+                <custom-table
+                  [data$]="commentsResult$"
+                  [columns]="commentsColumnData"
+                  [paginationEnabled]="false"
+                  (editRow)="editComment($event, selectedPublication.id)"
+                  (deleteRow)="deleteComment($event, selectedPublication.id)">
+                  <ng-content custom-table-title>Comments</ng-content>
+                  <ng-content custom-table-actions>
+                    <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                  </ng-content>
+                </custom-table>
+              </mat-card-content>
+            </mat-card>
 
-              <mat-card appearance="outlined">
-                <mat-card-content>
-                  <custom-table
-                    [data$]="facsimilesResult$"
-                    [columns]="facsimileColumnData"
-                    [paginationEnabled]="false"
-                    (editRow)="editFacsimile($event, selectedPublication.id)">
-                    <ng-content custom-table-title>Facsimiles</ng-content>
-                    <ng-content custom-table-actions>
-                      <a mat-flat-button routerLink="facsimiles/new"><mat-icon>add</mat-icon>Add</a>
-                    </ng-content>
-                  </custom-table>
-                </mat-card-content>
-              </mat-card>
+            <mat-card appearance="outlined">
+              <mat-card-content>
+                <custom-table
+                  [data$]="facsimilesResult$"
+                  [columns]="facsimileColumnData"
+                  [paginationEnabled]="false"
+                  (editRow)="editFacsimile($event, selectedPublication.id)"
+                  (deleteRow)="deleteFacsimile($event)">
+                  <ng-content custom-table-title>Facsimiles</ng-content>
+                  <ng-content custom-table-actions>
+                    <a mat-flat-button routerLink="facsimiles/new"><mat-icon>add</mat-icon>Add</a>
+                  </ng-content>
+                </custom-table>
+              </mat-card-content>
+            </mat-card>
 
-              <mat-card appearance="outlined">
-                <mat-card-content>
-                  <custom-table
-                    [data$]="manuscriptsResult$"
-                    [columns]="manuscriptColumnsData"
-                    [paginationEnabled]="false"
-                    (editRow)="editManuscript($event, selectedPublication.id)">
-                    <ng-content custom-table-title>Manuscripts</ng-content>
-                    <ng-content custom-table-actions>
-                      <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                    </ng-content>
-                  </custom-table>
-                </mat-card-content>
-              </mat-card>
+            <mat-card appearance="outlined">
+              <mat-card-content>
+                <custom-table
+                  [data$]="manuscriptsResult$"
+                  [columns]="manuscriptColumnsData"
+                  [paginationEnabled]="false"
+                  (editRow)="editManuscript($event, selectedPublication.id)"
+                  (deleteRow)="deleteManuscript($event)">
+                  <ng-content custom-table-title>Manuscripts</ng-content>
+                  <ng-content custom-table-actions>
+                    <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                  </ng-content>
+                </custom-table>
+              </mat-card-content>
+            </mat-card>
 
-              <mat-card appearance="outlined">
-                <mat-card-content>
-                  <custom-table
-                    [data$]="versionsResult$"
-                    [columns]="versionColumnsData"
-                    [paginationEnabled]="false"
-                    (editRow)="editVersion($event, selectedPublication.id)">
-                    <ng-content custom-table-title>Versions</ng-content>
-                    <ng-content custom-table-actions>
-                      <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                    </ng-content>
-                  </custom-table>
-                </mat-card-content>
-              </mat-card>
+            <mat-card appearance="outlined">
+              <mat-card-content>
+                <custom-table
+                  [data$]="versionsResult$"
+                  [columns]="versionColumnsData"
+                  [paginationEnabled]="false"
+                  (editRow)="editVersion($event, selectedPublication.id)"
+                  (deleteRow)="deleteVersion($event)">
+                  <ng-content custom-table-title>Versions</ng-content>
+                  <ng-content custom-table-actions>
+                    <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                  </ng-content>
+                </custom-table>
+              </mat-card-content>
+            </mat-card>
 
-            </div>
-          </ng-container>
+          </div>
         </ng-container>
       </div>
     </div>

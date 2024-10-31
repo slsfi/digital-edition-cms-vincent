@@ -3,10 +3,10 @@ import { Injectable } from '@angular/core';
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import {
-  LinkTextToPublicationRequest, Manuscript, ManuscriptRequest, ManuscriptResponse, Publication, PublicationAddRequest,
+  LinkTextToPublicationRequest, Manuscript, ManuscriptEditRequest, ManuscriptRequest, ManuscriptResponse, Publication, PublicationAddRequest,
   PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse,
   PublicationComment, PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
-  Version, VersionRequest, VersionResponse
+  Version, VersionEditRequest, VersionResponse
 } from '../models/publication';
 import {
   EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse
@@ -152,24 +152,12 @@ export class PublicationService {
     );
   }
 
-  editVersion(versionId: number, data: VersionRequest) {
+  editVersion(versionId: number, data: VersionEditRequest) {
     // /<project>/versions/<version_id>/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/versions/${versionId}/edit/`;
-        return this.apiService.post(url, data);
-      }),
-      catchError(() => of())
-    );
-  }
-
-  addVersion(publicationId: number, data: VersionRequest) {
-    // /<project>/publication/<publication_id>/versions/new/
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/new/`;
         return this.apiService.post(url, data);
       }),
       catchError(() => of())
@@ -189,7 +177,7 @@ export class PublicationService {
     );
   }
 
-  editManuscript(manuscriptId: number, data: ManuscriptRequest) {
+  editManuscript(manuscriptId: number, data: ManuscriptEditRequest) {
     // /<project>/manuscripts/<manuscript_id>/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
@@ -199,17 +187,6 @@ export class PublicationService {
       }),
       catchError(() => of())
     );
-  }
-
-  addManuscript(publicationId: number, data: ManuscriptRequest) {
-    // /<project>/publication/<publication_id>/manuscripts/new/
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/new/`;
-        return this.apiService.post(url, data);
-      }
-    ));
   }
 
   getFacsimilesForPublication(publicationId: string): Observable<PublicationFacsimile[]> {

@@ -96,8 +96,9 @@ export interface PublicationComment {
 }
 
 export interface PublicationCommentRequest {
-  original_filename: string;
+  original_filename?: string;
   published?: Published;
+  deleted?: Deleted;
 }
 
 export interface VersionResponse extends ApiResponse {
@@ -118,12 +119,15 @@ export interface Version {
   type: number;
 }
 
-export interface VersionRequest {
-  name?: string
-  original_filename: string;
+export interface VersionEditRequest {
+  publication_id?: number;
+  deleted?: Deleted;
   published?: Published;
+  original_filename?: string;
+  name?: string
+  type?: number;
+  section_id?: number;
   sort_order?: number;
-  version_type?: number;
 }
 
 export interface ManuscriptResponse extends ApiResponse {
@@ -144,6 +148,16 @@ export interface Manuscript {
   sort_order: number;
 }
 
+export interface ManuscriptEditRequest {
+  publication_id?: number;
+  deleted?: Deleted;
+  published?: Published;
+  original_filename?: string;
+  name?: string;
+  section_id?: number;
+  sort_order?: number;
+  language?: Langugage;
+}
 export interface ManuscriptRequest {
   name?: string;
   original_filename: string;
