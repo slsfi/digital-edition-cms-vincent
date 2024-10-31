@@ -1,16 +1,24 @@
-<mat-toolbar [class.center]="(isAuthenticated$ | async) === false">
-  <ng-container *ngIf="(isAuthenticated$ | async) === true">
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"  (click)="toggleMenu()">
-      <mat-icon>menu</mat-icon>
-    </button>
-  </ng-container>
-  <div class="topbar">
-    <h1>Vincent – CMS for the SLS Digital Edition Platform</h1>
-    <ng-container *ngIf="selectedProject$ | async as selectedProject">
-      <div *ngIf="selectedProject">Project: {{selectedProject}}</div>
+@let isAuthenticated = isAuthenticated$ | async;
+@let selectedProject = selectedProject$ | async;
+
+<mat-toolbar [class.center]="isAuthenticated === false">
+  <div class="title">
+    <ng-container *ngIf="isAuthenticated === true">
+      <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"  (click)="toggleMenu()">
+        <mat-icon>menu</mat-icon>
+      </button>
     </ng-container>
+    <div>Vincent - Digital Edition CMS</div>
+  </div>
+  <div class="topbar">
+
+    <div *ngIf="isAuthenticated">
+      Project:
+      <mat-chip [highlighted]="selectedProject">{{selectedProject ? selectedProject : 'not selected'}}</mat-chip>
+    </div>
+
     <ng-container *ngIf="environment$ | async as environment">
-      <div *ngIf="environment">Environment: {{environment}}</div>
+      <div *ngIf="environment">Environment: <mat-chip highlighted>{{environment}}</mat-chip> </div>
     </ng-container>
   </div>
 </mat-toolbar>

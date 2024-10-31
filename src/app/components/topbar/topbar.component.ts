@@ -7,11 +7,12 @@ import { Observable } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { ProjectService } from '../../services/project.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'topbar',
   standalone: true,
-  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule, MatChipsModule],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })
