@@ -25,7 +25,7 @@
             </mat-form-field>
           } @else {
             @if (column.field === 'cascade_published') {
-              <div [ngStyle]="{'margin-bottom': '20px'}">
+              <div *ngIf="data.model?.id" [ngStyle]="{'margin-bottom': '20px'}">
                 <mat-slide-toggle formControlName="cascade_published">{{ column.header }}</mat-slide-toggle>
               </div>
             } @else {

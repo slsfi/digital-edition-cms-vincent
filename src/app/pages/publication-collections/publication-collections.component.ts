@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, s
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column } from '../../models/common';
+import { Column, Deleted } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -20,6 +20,7 @@ import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.co
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { PublicationService } from '../../services/publication.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'publication-collections',
@@ -128,6 +129,30 @@ export class PublicationCollectionsComponent {
           next: () => {
             this.publicationCollectionsLoader$.next();
             this.snackbar.open('Publication Collection saved', 'Close', { panelClass: ['snackbar-success'] });
+          }
+        });
+      }
+    });
+  }
+
+  deletePublicationCollection(collection: PublicationCollection) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        showCascadeBoolean: true,
+        cascadeText: 'Cascade delete',
+        message: 'Are you sure you want to delete this publication collection?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.value) {
+        const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
+        this.publicationService.editPublicationCollection(collection.id, payload).subscribe({
+          next: () => {
+            this.publicationCollectionsLoader$.next();
+            this.snackbar.open('Publication collection deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
       }

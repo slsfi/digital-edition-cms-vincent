@@ -152,7 +152,6 @@ export class FacsimilesComponent {
 
   deleteFacsimileCollection(collection: FacsimileCollection) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-
       data: {
         message: 'Are you sure you want to delete this collection?',
         cancelText: 'Cancel',
@@ -161,7 +160,7 @@ export class FacsimilesComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+      if (result.value) {
         const payload = { ...collection, deleted: Deleted.Deleted };
         this.facsimileService.editFacsimileCollection(collection.id, payload).subscribe({
           next: () => {

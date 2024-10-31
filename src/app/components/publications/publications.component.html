@@ -13,7 +13,8 @@
             [columns]="publicationColumnsData"
             [selectedId]="publicationId$ | async"
             [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
-            (editRow)="editPublication($event, publicationCollectionId)">
+            (editRow)="editPublication($event, publicationCollectionId)"
+            (deleteRow)="deletePublication($event)">
             <ng-content custom-table-title>Publications</ng-content>
             <ng-content custom-table-actions>
               <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>

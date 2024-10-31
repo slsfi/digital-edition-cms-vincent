@@ -1,7 +1,10 @@
 <mat-dialog-content>
   <h2 id="title">{{ message }}</h2>
+  @if (showCascadeBoolean) {
+    <mat-slide-toggle [(ngModel)]="cascadeBoolean" color="primary">{{ cascadeText }}</mat-slide-toggle>
+  }
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="false">{{ cancelText }}</button>
-  <button mat-flat-button [mat-dialog-close]="true" cdkFocusInitial>{{ confirmText }}</button>
+  <button mat-button [mat-dialog-close]="{value: false}">{{ cancelText }}</button>
+  <button mat-flat-button [mat-dialog-close]="{value: true, cascadeBoolean}" cdkFocusInitial>{{ confirmText }}</button>
 </mat-dialog-actions>

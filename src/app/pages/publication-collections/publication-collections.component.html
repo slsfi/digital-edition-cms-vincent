@@ -24,7 +24,8 @@
         [data$]="publicationCollectionsResult$"
         [columns]="publicationCollectionColumnsData"
         [idRouteParams]="['/publication-collections/']"
-        (editRow)="editPublicationCollection($event)">
+        (editRow)="editPublicationCollection($event)"
+        (deleteRow)="deletePublicationCollection($event)">
         <ng-content custom-table-title>Publication collections</ng-content>
         <ng-content custom-table-actions>
           <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
