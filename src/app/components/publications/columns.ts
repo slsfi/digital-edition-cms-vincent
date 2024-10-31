@@ -8,6 +8,7 @@ export const publicationColumnsData: Column[] = [
 ];
 export const allPublicationColumnsData: Column[] = [
   ...publicationColumnsData,
+  { field: 'cascade_published', header: 'Cascade Published', type: 'boolean', editable: true },
   { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
   { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },

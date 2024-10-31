@@ -26,11 +26,11 @@ export interface PublicationCollectionAddRequest {
 }
 
 export interface PublicationCollectionEditRequest {
-  name: string;
-  pubished: Published;
-  deleted: Deleted;
-  cascade_deleted: boolean;
-  cascase_published: boolean;
+  name?: string;
+  pubished?: Published;
+  deleted?: Deleted;
+  cascade_deleted?: boolean;
+  cascase_published?: boolean;
 
 }
 

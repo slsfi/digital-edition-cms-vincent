@@ -14,6 +14,7 @@ import { TranslationsComponent } from '../translations/translations.component';
 import { personTypeOptions } from '../../models/person';
 import { MatIconModule } from '@angular/material/icon';
 import { FileTreeComponent } from "../file-tree/file-tree.component";
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 interface InputData {
   model: any;
@@ -24,7 +25,10 @@ interface InputData {
 @Component({
   selector: 'edit-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, CustomDatePipe, TranslationsComponent, MatIconModule, FileTreeComponent],
+  imports: [
+    MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatDatepickerModule, CustomDatePipe, TranslationsComponent, MatIconModule, FileTreeComponent, MatSlideToggleModule
+  ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-dialog.component.html',
   styleUrl: './edit-dialog.component.scss'
@@ -63,15 +67,19 @@ export class EditDialogComponent {
     this.form = new FormGroup({});
 
     this.columns.forEach((column) => {
-      let value: string | number | null | Date = this.data.model[column.field];
+      let value: string | number | null | Date | boolean = this.data.model[column.field];
 
       const validators = [];
       if (column.required) {
         validators.push(Validators.required);
       }
 
-      if (column.type === 'date' && value != null) {
+      if (column.type === 'date' && value != null && typeof value != 'boolean') {
         value = value === '' ? null : new Date(value);
+      }
+
+      if (column.field === 'cascade_published') {
+        value = false;
       }
 
       this.form.addControl(

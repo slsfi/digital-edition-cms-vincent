@@ -216,6 +216,11 @@ export class PublicationsComponent {
         req.subscribe({
           next: () => {
             this.publicationsLoader$.next();
+            if (result.form.value.cascade_published === true) {
+              this.manuscriptsLoader$.next(0);
+              this.versionsLoader$.next(0);
+              this.commentLoader$.next(0);
+            }
             this.snackbar.open('Publication saved', 'Close', { panelClass: ['snackbar-success'] });
           },
         });
