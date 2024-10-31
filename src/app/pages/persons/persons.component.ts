@@ -47,8 +47,8 @@ export class PersonsComponent {
     { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'string', editable: true, editOrder: 5, filterType: 'equals' },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true, editOrder: 1, filterType: 'contains' },
     { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, editOrder: 2, translations: true },
-    { field: 'date_born', header: 'Date Born', filterable: false, type: 'date', editable: true, editOrder: 3 },
-    { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'date', editable: true, editOrder: 3 },
+    { field: 'date_born', header: 'Date Born', filterable: false, type: 'string', editable: true, editOrder: 3 },
+    { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'string', editable: true, editOrder: 3 },
     { field: 'action', header: 'Actions', filterable: false, type: 'action' },
   ]
 

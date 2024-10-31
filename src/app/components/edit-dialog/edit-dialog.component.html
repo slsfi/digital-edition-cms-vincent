@@ -15,7 +15,7 @@
     <form *ngIf="data.columns.length" [formGroup]="form" id="edit-form">
       @for (column of columns; track column.field) {
         <div>
-          <ng-container *ngIf="column.type === 'date' else otherTypes">
+          @if (column.type === 'date') {
             <!-- for some reason styles don't work if this is done similarly -->
             <mat-form-field>
               <mat-label>{{ column.header }}</mat-label>
@@ -23,35 +23,30 @@
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
-          </ng-container>
-
-          <ng-template #otherTypes>
+          } @else {
             <mat-form-field>
               <mat-label>{{ column.header }}</mat-label>
-              <ng-container *ngIf="column.type === 'boolean'">
+              @if (column.type === 'boolean') {
                 <mat-select [formControlName]="column.field">
                   <mat-option>Any</mat-option>
                   <mat-option [value]="0">No</mat-option>
                   <mat-option [value]="1">Yes</mat-option>
                 </mat-select>
-              </ng-container>
-              <ng-container *ngIf="column.type === 'type'">
+              } @else if (column.type === 'type') {
                 <mat-select [formControlName]="column.field">
                   <mat-option>Any</mat-option>
                   @for (type of personTypes; track type.value) {
                     <mat-option [value]="type.value">{{ type.label }}</mat-option>
                   }
                 </mat-select>
-              </ng-container>
-              <ng-container *ngIf="column.type === 'published'">
+              } @else if (column.type === 'published') {
                 <mat-select [formControlName]="column.field">
                   <mat-option>Any</mat-option>
                   <mat-option [value]="0">Not published</mat-option>
                   <mat-option [value]="1">Internally</mat-option>
                   <mat-option [value]="2">Externally</mat-option>
                 </mat-select>
-              </ng-container>
-              <ng-container *ngIf="column.type === 'textarea'">
+              } @else if (column.type === 'textarea') {
                 <textarea
                   matInput
                   [formControlName]="column.field"
@@ -60,12 +55,15 @@
                   cdkAutosizeMinRows="1"
                   cdkAutosizeMaxRows="7"
                   ></textarea>
-              </ng-container>
-              <ng-container *ngIf="column.type === 'string' || column.type === 'number' || column.type === 'id'">
-                <input matInput [formControlName]="column.field" [type]="column.type === 'number' ? 'number' : 'text'" />
-              </ng-container>
+              } @else {
+                <input matInput
+                  [formControlName]="column.field"
+                  [type]="column.type === 'number' ? 'number' : 'text'"
+                  [placeholder]="column.field === 'date_born' || column.field === 'date_deceased' ? 'YYYY or YYYY-MM-DD' : ''"
+                />
+              }
             </mat-form-field>
-          </ng-template>
+          }
           @if (column.translations && data.model?.id) {
             <div class="translations">
               <button mat-flat-button type="button" (click)="showTranslations(column)"><mat-icon>language</mat-icon>{{column.header}} translations</button>
