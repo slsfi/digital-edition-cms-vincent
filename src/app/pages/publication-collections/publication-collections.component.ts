@@ -41,17 +41,11 @@ export class PublicationCollectionsComponent {
   ];
   allPublicationCollectionColumns: Column[] = [
     ...this.publicationCollectionColumnsData,
-    { field: 'collection_intro_filename', header: 'Collection Intro Filename', type: 'string', editable: false },
-    { field: 'collection_intro_published', header: 'Collection Intro Published', type: 'published', editable: false },
-    { field: 'collection_title_filename', header: 'Collection Title Filename', type: 'string', editable: false },
-    { field: 'collection_title_published', header: 'Collection Title Published', type: 'published', editable: false },
     { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: false },
     { field: 'name_translation_id', header: 'Name Translation ID', type: 'string', editable: false },
     { field: 'project_id', header: 'Project ID', type: 'number', editable: false },
-    { field: 'publication_collection_introduction_id', header: 'Publication Collection Introduction ID', type: 'number', editable: false },
-    { field: 'title', header: 'Title', type: 'string', editable: false },
   ];
   publicationCollectionDisplayedColumns: string[] = this.publicationCollectionColumnsData.map(column => column.field);
   publicationCollectionsLoader$: Subject<void> = new Subject<void>();
