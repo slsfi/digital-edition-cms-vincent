@@ -133,9 +133,6 @@ export class PublicationCollectionsComponent {
           next: () => {
             this.publicationCollectionsLoader$.next();
             this.snackbar.open('Publication Collection saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error saving publication collection', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

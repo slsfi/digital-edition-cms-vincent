@@ -55,7 +55,6 @@ export class ProjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/get_tree/`;
         return this.apiService.get(url);
       }),
-      catchError(() => of([]))
     );
   }
 

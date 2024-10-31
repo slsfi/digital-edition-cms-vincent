@@ -124,9 +124,6 @@ export class FacsimilesComponent {
           next: () => {
             this.loader$.next();
             this.snackbar.open('Facsimile collection saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error editing facsimile collection', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -170,9 +167,6 @@ export class FacsimilesComponent {
           next: () => {
             this.loader$.next();
             this.snackbar.open('Facsimile collection deleted', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error deleting facsimile collection', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

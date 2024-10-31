@@ -115,9 +115,6 @@ export class NewPublicationFacsimileComponent {
       next: (response) => {
         this.snackbar.open('Facsimile linked to publication', 'Close', { panelClass: 'snackbar-success' });
         this.router.navigate(this.publicationsPath);
-      },
-      error: (error) => {
-        this.snackbar.open('Error linking facsimile to publication', 'Close', { panelClass: 'snackbar-error' });
       }
     });
   }

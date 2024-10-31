@@ -118,10 +118,7 @@ export class PersonsComponent {
           next: () => {
             this.loader$.next(0);
             this.snackaBar.open('Person saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackaBar.open('Error saving person', 'Close', { panelClass: ['snackbar-error'] });
-          },
+          }
         });
       }
     });

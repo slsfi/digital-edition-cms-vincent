@@ -41,9 +41,6 @@ export class FacsimileCollectionComponent {
     ({
       next: (path) => {
         this.checkImage(path)
-      },
-      error: (err) => {
-        console.log('error', err);
       }
     })
   }
@@ -53,9 +50,6 @@ export class FacsimileCollectionComponent {
       .subscribe({
         next: (res) => {
           this.firstImageIsValid = res.status === 200;
-        },
-        error: (err) => {
-          console.log('error', err);
         }
     })
   }

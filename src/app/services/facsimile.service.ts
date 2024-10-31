@@ -30,7 +30,6 @@ export class FacsimileService {
   }
 
   getFacsimileCollection(collectionId: number): Observable<FacsimileCollection> {
-    // /<project>/facsimiles/collections/<facsimile_collection_ids>
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -63,13 +62,10 @@ export class FacsimileService {
   }
 
   getFacsimileFile(url: string) {
-    // "/<project>/facsimiles/<collection_id>/<number>/<zoom_level>"
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
-        return this.apiService.get(url).pipe(
-          catchError(err => of(err))
-        )
+        return this.apiService.get(url)
       }
     ));
   }
@@ -85,7 +81,6 @@ export class FacsimileService {
   }
 
   uploadFacsimileFile(collectionId: number, pageNumber: number, formData: FormData) {
-    // /<project>/facsimiles/<collection_id>/<page_number>
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {

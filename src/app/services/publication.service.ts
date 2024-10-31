@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import {
-  LinkTextToPublicationRequest, Manuscript, ManuscriptEditRequest, ManuscriptRequest, ManuscriptResponse, Publication, PublicationAddRequest,
+  LinkTextToPublicationRequest, Manuscript, ManuscriptEditRequest, ManuscriptResponse, Publication, PublicationAddRequest,
   PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse,
   PublicationComment, PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
   Version, VersionEditRequest, VersionResponse
@@ -11,6 +11,7 @@ import {
 import {
   EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse
  } from '../models/facsimile';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class PublicationService {
 
   selectedProject$;
 
-  constructor(private apiService: ApiService, private projectService: ProjectService) {
+  constructor(private apiService: ApiService, private projectService: ProjectService, private snackbar: MatSnackBar) {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
@@ -31,8 +32,8 @@ export class PublicationService {
         return this.apiService.get(url).pipe(
           map((response: PublicationCollectionResponse) => response.data)
         );
-      }
-    ));
+      }),
+    );
   }
 
   editPublicationCollection(collectionId: number, data: PublicationCollectionEditRequest) {
@@ -41,8 +42,8 @@ export class PublicationService {
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/edit/`;
         return this.apiService.post(url, data);
-      }
-    ));
+      }),
+    );
   }
 
   addPublicationCollection(data: PublicationCollectionAddRequest) {
@@ -51,12 +52,11 @@ export class PublicationService {
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/new/`;
         return this.apiService.post(url, data);
-      }
-    ));
+      }),
+    );
   }
 
   getPublication(publicationId: number): Observable<Publication> {
-    // /<project>/publication/<publication_id>
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -64,8 +64,8 @@ export class PublicationService {
         return this.apiService.get(url).pipe(
           map((response: Publication[]) => response[0])
         );
-      }
-    ));
+      }),
+    );
   }
 
   getPublications(collectionId: string): Observable<Publication[]> {
@@ -76,8 +76,8 @@ export class PublicationService {
         return this.apiService.get(url).pipe(
           map((response: PublicationResponse) => response.data)
         );
-      }
-    ));
+      }),
+    );
   }
 
   editPublication(publicationId: number, data: PublicationEditRequest) {
@@ -87,7 +87,6 @@ export class PublicationService {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/edit/`;
         return this.apiService.post(url, data);
       }),
-      catchError(() => of())
     );
   }
 
@@ -98,19 +97,16 @@ export class PublicationService {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/new/`;
         return this.apiService.post(url, data);
       }),
-      catchError(() => of())
     );
   }
 
   linkTextToPublication(publicationId: number, payload: LinkTextToPublicationRequest) {
-    // /<project>/publication/<publication_id>/link_text/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/link_text/`;
         return this.apiService.post(url, payload);
       }),
-      catchError(() => of())
     );
   }
 
@@ -123,19 +119,16 @@ export class PublicationService {
           map((response: PublicationCommentResponse) => response.data)
         )
       }),
-      catchError(() => of([]))
     );
   }
 
   editComment(publicationId: number, data: PublicationCommentRequest) {
-    // /<project>/publication/<publication_id>/comment/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comment/edit/`;
         return this.apiService.post(url, data);
       }),
-      catchError(() => of())
     );
   }
 
@@ -148,19 +141,16 @@ export class PublicationService {
           map((response: VersionResponse) => response.data)
         );
       }),
-      catchError(() => of([]))
     );
   }
 
   editVersion(versionId: number, data: VersionEditRequest) {
-    // /<project>/versions/<version_id>/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/versions/${versionId}/edit/`;
         return this.apiService.post(url, data);
       }),
-      catchError(() => of())
     );
   }
 
@@ -173,7 +163,6 @@ export class PublicationService {
           map((response: ManuscriptResponse) => response.data)
         );
       }),
-      catchError(() => of([] as Manuscript[]))
     );
   }
 
@@ -185,42 +174,36 @@ export class PublicationService {
         const url = `${this.apiService.prefixedUrl}/${project}/manuscripts/${manuscriptId}/edit/`;
         return this.apiService.post(url, data);
       }),
-      catchError(() => of())
     );
   }
 
   getFacsimilesForPublication(publicationId: string): Observable<PublicationFacsimile[]> {
-    // /<project>/publication/<publication_id>/facsimiles/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/facsimiles/`;
         return this.apiService.get(url).pipe(map((response: PublicationFacsimileResponse) => response.data));
       }),
-      catchError(() => of([]))
     );
   }
 
   editFacsimileForPublication(data: EditPublicationFacsimileRequest) {
-    // /<project>/facsimile_collection/facsimile/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/facsimile/edit/`;
         return this.apiService.post(url, data);
       }),
-      catchError(() => of())
     );
   }
 
   linkFacsimileToPublication(facsimileCollectionId: number, data: LinkPublicationToFacsimileRequest) {
-    // /<project>/facsimile_collection/<collection_id>/link/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${facsimileCollectionId}/link/`;
         return this.apiService.post(url, data);
-      })
+      }),
     );
   }
 

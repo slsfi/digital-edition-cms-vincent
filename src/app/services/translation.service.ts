@@ -17,7 +17,6 @@ export class TranslationService {
 
 
   addTranslation(payload: TranslationRequest) {
-    // /<project>/translation/new/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -28,7 +27,6 @@ export class TranslationService {
   }
 
   editTranslation(translation_id: number, payload: TranslationRequest) {
-    // /<project>/translations/<translation_id>/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -39,7 +37,6 @@ export class TranslationService {
   }
 
   getTranslations(translation_id: number, data: TranslationRequestPost): Observable<any> {
-    // /<project>/translations/<translation_id>/list/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {

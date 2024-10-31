@@ -218,9 +218,6 @@ export class PublicationsComponent {
             this.publicationsLoader$.next();
             this.snackbar.open('Publication saved', 'Close', { panelClass: ['snackbar-success'] });
           },
-          error: () => {
-            this.snackbar.open('Error editing publication', 'Close', { panelClass: ['snackbar-error'] });
-          }
         });
       }
     });
@@ -243,9 +240,6 @@ export class PublicationsComponent {
           this.publicationsLoader$.next();
           this.snackbar.open('Filename saved', 'Close', { panelClass: ['snackbar-success'] });
         },
-        error: () => {
-          this.snackbar.open('Error editing filename', 'Close', { panelClass: ['snackbar-error'] });
-        }
       });
     });
   }
@@ -276,10 +270,6 @@ export class PublicationsComponent {
             this.versionsLoader$.next(0);
             this.snackbar.open('Version saved', 'Close', { panelClass: ['snackbar-success'] });
           },
-          error: () => {
-            this.snackbar.open('Error editing version', 'Close', { panelClass: ['snackbar-error'] });
-          }
-
         });
       }
     });
@@ -299,6 +289,7 @@ export class PublicationsComponent {
       if (result) {
         const payload = result.form.getRawValue();
         payload['text_type'] = 'manuscript';
+        payload['published'] = 5;
 
         let req;
         if (manuscript?.id) {
@@ -310,9 +301,6 @@ export class PublicationsComponent {
           next: () => {
             this.manuscriptsLoader$.next(0);
             this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error editing manuscript', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -344,9 +332,6 @@ export class PublicationsComponent {
             this.commentLoader$.next(0);
             this.snackbar.open('Comment saved', 'Close', { panelClass: ['snackbar-success'] });
           },
-          error: () => {
-            this.snackbar.open('Error editing comment', 'Close', { panelClass: ['snackbar-error'] });
-          }
         });
       }
     });
@@ -384,9 +369,6 @@ export class PublicationsComponent {
           next: () => {
             this.facsimilesLoader$.next(0);
             this.snackbar.open('Facsimile saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error editing facsimile', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -409,9 +391,6 @@ export class PublicationsComponent {
           next: () => {
             this.facsimilesLoader$.next(0);
             this.snackbar.open('Facsimile deleted', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error deleting facsimile', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -434,9 +413,6 @@ export class PublicationsComponent {
           next: () => {
             this.manuscriptsLoader$.next(0);
             this.snackbar.open('Manuscript deleted', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error deleting manuscript', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -459,9 +435,6 @@ export class PublicationsComponent {
           next: () => {
             this.versionsLoader$.next(0);
             this.snackbar.open('Version deleted', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error deleting version', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -484,9 +457,6 @@ export class PublicationsComponent {
           next: () => {
             this.commentLoader$.next(0);
             this.snackbar.open('Comment deleted', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackbar.open('Error deleting comment', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

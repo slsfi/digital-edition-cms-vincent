@@ -97,9 +97,6 @@ export class ProjectsComponent {
           next: () => {
             this.loader$.next(0);
             this.snackBar.open('Project saved successfully', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackBar.open('Error saving project', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }
@@ -131,9 +128,6 @@ export class ProjectsComponent {
           next: () => {
             this.loader$.next(0);
             this.snackBar.open('Project deleted successfully', 'Close', { panelClass: ['snackbar-success'] });
-          },
-          error: () => {
-            this.snackBar.open('Error deleting project', 'Close', { panelClass: ['snackbar-error'] });
           }
         });
       }

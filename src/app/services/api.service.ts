@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
@@ -8,7 +9,7 @@ import { catchError, map } from 'rxjs/operators';
 })
 export class ApiService {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private snackbar: MatSnackBar) {
     this.environment$.next(localStorage.getItem('environment') || null)
    }
 
@@ -30,13 +31,17 @@ export class ApiService {
     return `${this.environment}${this.prefix}`;
   }
 
+  handleError(error: HttpErrorResponse) {
+    const message = error.error.message || error.message || 'An error occurred';
+    this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error' });
+    return throwError(() => error);
+  }
+
   post(url: string, body: any, options: any = {}) {
     return this.http.post(url, body, options)
       .pipe(
         map((response: any) => response),
-        catchError((error) => {
-          throw error;
-        })
+        catchError((error) => this.handleError(error))
       )
   }
 
@@ -44,10 +49,7 @@ export class ApiService {
     return this.http.get(url, options)
       .pipe(
         map((response: any) => response),
-        catchError((error) => {
-          console.error("get error", error);
-          throw error;
-        })
+        catchError((error) => this.handleError(error))
       )
   }
 

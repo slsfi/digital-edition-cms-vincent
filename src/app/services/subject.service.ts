@@ -22,9 +22,6 @@ export class SubjectService {
         const url = `${this.apiService.prefixedUrl}/${project}/subjects/list/`;
         return this.apiService.get(url).pipe(
           map((response: PersonResponse) => response.data),
-          catchError((err) => {
-            return of([] as Person[])
-          })
         )
       })
     );

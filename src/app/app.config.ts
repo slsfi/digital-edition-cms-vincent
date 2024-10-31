@@ -3,7 +3,7 @@ import { provideRouter, withComponentInputBinding, withRouterConfig } from '@ang
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
@@ -20,6 +20,6 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAnimationsAsync(),
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
-    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 3000 } },
+    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 5000 } },
   ],
 };
