@@ -14,7 +14,7 @@ export const allPublicationColumnsData: Column[] = [
   { field: 'genre', header: 'Genre', type: 'string', editable: true },
   { field: 'language', header: 'Language', type: 'string', editable: true },
   { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: true },
-  { field: 'original_filename', header: 'Original Filename', type: 'string', editable: true },
+  { field: 'original_filename', header: 'Original Filename', type: 'textarea', editable: true },
   { field: 'original_publication_date', header: 'Original Publication Date', type: 'date', editable: true },
   { field: 'publication_collection_id', header: 'Publication Collection ID', type: 'number', editable: false },
   { field: 'publication_comment_id', header: 'Publication Comment ID', type: 'number', editable: true },
@@ -22,7 +22,7 @@ export const allPublicationColumnsData: Column[] = [
 ];
 export const versionColumnsData: Column[] = [
   { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-  { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+  { field: 'original_filename', 'header': 'Filename', 'type': 'textarea', 'editable': true },
   { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
 ]
 export const allVersionColumnsData: Column[] = [
@@ -39,7 +39,7 @@ export const allVersionColumnsData: Column[] = [
 ]
 export const manuscriptColumnsData: Column[] = [
   { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true },
-  { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+  { field: 'original_filename', 'header': 'Filename', 'type': 'textarea', 'editable': true },
   { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
 ]
 
@@ -56,7 +56,7 @@ export const allManuscriptColumnsData: Column[] = [
   { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true },
 ]
 export const commentsColumnData: Column[] = [
-  { field: 'original_filename', 'header': 'Filename', 'type': 'string', 'editable': true },
+  { field: 'original_filename', 'header': 'Filename', 'type': 'textarea', 'editable': true },
   { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
 ]
 export const allCommentsColumnData: Column[] = [
