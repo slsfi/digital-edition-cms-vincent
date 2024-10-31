@@ -40,7 +40,7 @@ export class AuthService {
         },
         error: (err) => {
           this.logout();
-          this.snackbar.open('Failed: ' + err.error.msg, 'Close', { panelClass: 'snackbar-error' });
+          this.snackbar.open(err.error.msg, 'Close', { panelClass: 'snackbar-error' });
         }
       });
   }
