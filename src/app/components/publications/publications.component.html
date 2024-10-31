@@ -25,16 +25,24 @@
       </div>
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
-          <h3>{{ selectedPublication.name }} </h3>
           <div class="cards">
 
             <mat-card appearance="outlined">
               <mat-card-header>
-                <mat-card-title>Reading text</mat-card-title>
+                <mat-card-title>{{ selectedPublication.name }}</mat-card-title>
               </mat-card-header>
               <mat-card-content>
+                <div class="rows">
+                  <div> ID: {{ selectedPublication.id }}</div>
+                  <div>Genre: {{ selectedPublication.genre }}</div>
+                  <div>Original publication date: {{ selectedPublication.original_publication_date | customDate: 'YYYY-MM-dd' }}</div>
+                  <div>Language: {{ selectedPublication.language }}</div>
+                </div>
                 <div class="file-row">
-                  <div><span>Filename:</span> {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}</div>
+                  <div>
+                    <span> Reading text:</span>
+                    {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}
+                  </div>
                   <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
                 </div>
               </mat-card-content>

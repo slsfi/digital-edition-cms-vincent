@@ -37,9 +37,19 @@ td.selected {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-top: solid 1px #d5d4d4;
+  margin-top: 20px;
+  padding-top: 10px;
 
   span {
     font-weight: 600;
+  }
+}
+
+.rows {
+  margin-top: 10px;
+  > div {
+    padding: 5px 0;
   }
 }
 

@@ -9,7 +9,7 @@ export class CustomDatePipe implements PipeTransform {
 
   constructor(private datePipe: DatePipe) {}
 
-  transform(value: string, format: string = 'd.M.yyyy HH:mm'): string {
+  transform(value: string | null, format: string = 'd.M.yyyy HH:mm'): string {
     if (!value) {
       return '';
     }
@@ -28,6 +28,13 @@ export class CustomDatePipe implements PipeTransform {
     // Fallback to Angular DatePipe for AD dates
     const parsedDate = (typeof value === 'string') ? new Date(value) : value;
     if (parsedDate.toString() === 'Invalid Date') {
+      // Try to get only the year from value (e.g. '2021-xx-xx' -> '2021')
+      const yearRegex = /^(\d{4})/;
+      const yearMatch = value.match(yearRegex);
+      if (yearMatch) {
+        return yearMatch[1];
+      }
+
       return '';
     }
     return this.datePipe.transform(parsedDate, format) || '';

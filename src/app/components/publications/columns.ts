@@ -15,9 +15,9 @@ export const allPublicationColumnsData: Column[] = [
   { field: 'language', header: 'Language', type: 'string', editable: true },
   { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: true },
   { field: 'original_filename', header: 'Original Filename', type: 'textarea', editable: true },
-  { field: 'original_publication_date', header: 'Original Publication Date', type: 'date', editable: true },
+  { field: 'original_publication_date', header: 'Original Publication Date', type: 'string', editable: true },
   { field: 'publication_collection_id', header: 'Publication Collection ID', type: 'number', editable: false },
-  { field: 'publication_comment_id', header: 'Publication Comment ID', type: 'number', editable: true },
+  { field: 'publication_comment_id', header: 'Publication Comment ID', type: 'number', editable: false },
   { field: 'published_by', header: 'Published By', type: 'string', editable: true },
 ];
 export const versionColumnsData: Column[] = [
