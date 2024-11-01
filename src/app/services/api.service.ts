@@ -31,25 +31,27 @@ export class ApiService {
     return `${this.environment}${this.prefix}`;
   }
 
-  handleError(error: HttpErrorResponse) {
+  handleError(error: HttpErrorResponse, disableErrorMessage: boolean = false) {
     const message = error.error.message || error.message || 'An error occurred';
-    this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error' });
+    if (!disableErrorMessage) {
+      this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error' });
+    }
     return throwError(() => error);
   }
 
-  post(url: string, body: any, options: any = {}) {
+  post(url: string, body: any, options: any = {}, disableErrorMessage: boolean = false) {
     return this.http.post(url, body, options)
       .pipe(
         map((response: any) => response),
-        catchError((error) => this.handleError(error))
+        catchError((error) => this.handleError(error, disableErrorMessage))
       )
   }
 
-  get(url: string, options: any = {}) {
+  get(url: string, options: any = {}, disableErrorMessage: boolean = false) {
     return this.http.get(url, options)
       .pipe(
         map((response: any) => response),
-        catchError((error) => this.handleError(error))
+        catchError((error) => this.handleError(error, disableErrorMessage))
       )
   }
 

@@ -65,6 +65,7 @@ export class AuthService {
         }),
         catchError((error) => {
           this.refreshTokenInProgress = false;
+          console.log('refreshToken error', error);
           this.logout();
           return throwError(() => error);
         })
@@ -75,6 +76,7 @@ export class AuthService {
   logout(): void {
     localStorage.clear();
     this.apiService.setEnvironment(null);
+    this.projectService.selectedProject$.next(null);
     this.isAuthenticated$.next(false);
   }
 

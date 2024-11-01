@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, EventEmitter, input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BehaviorSubject, from, mergeMap, Observable, Subscription } from 'rxjs';
@@ -43,8 +43,11 @@ class FileQueueObject {
 })
 export class FileUploadComponent {
 
+  @Output() filesUploaded: EventEmitter<void> = new EventEmitter<void>();
+
   collectionId = input.required<number>();
   numberOfPages = input.required<number>();
+  missingFileNumbers = input.required<number[]>();
 
   constructor(private facsimileService: FacsimileService, private snackbar: MatSnackBar) { }
 
@@ -58,13 +61,15 @@ export class FileUploadComponent {
     if (event.target) {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length) {
-        if (target.files.length !== this.numberOfPages()) {
-          this.snackbar.open('Number of files must match number of pages', 'Close', { panelClass: 'snackbar-warning' });
+        if (target.files.length !== this.missingFileNumbers().length) {
+          this.snackbar.open(`Number of files must match with missing images (${this.missingFileNumbers().length})`, 'Close', { panelClass: 'snackbar-warning' });
           return;
         }
         const files = target.files;
         for (let i = 0; i < files.length; i++) {
-          this.addToQueue(files[i], i + 1);
+          const file = files[i];
+          const number = this.missingFileNumbers()[i];
+          this.addToQueue(file, number);
         }
       }
     }
@@ -94,7 +99,9 @@ export class FileUploadComponent {
       complete: () => {
         this.uploadInProgress = false;
         this.allUploaded = true;
+        this.filesUploaded.emit();
         this.snackbar.open('All files uploaded', 'Close', { panelClass: 'snackbar-success' });
+
       },
     });
   }

@@ -294,7 +294,6 @@ export class PublicationsComponent {
       if (result) {
         const payload = result.form.getRawValue();
         payload['text_type'] = 'manuscript';
-        payload['published'] = 5;
 
         let req;
         if (manuscript?.id) {
@@ -358,11 +357,6 @@ export class PublicationsComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const payload = result.form.getRawValue();
-        columns.forEach(column => {
-          if (column.type === 'number') {
-            payload[column.field] = Number(payload[column.field]);
-          }
-        });
 
         let req;
         if (facsimile?.id) {

@@ -70,14 +70,20 @@ export class FacsimileService {
     ));
   }
 
-  getFacsimileImagePath(collectionId: number, pageNumber: number, zoomLevel: 1|2|3|4 = 1) {
+  verifyFacsimileFile(collectionId: number, fileNr: number | string, zoomLevel: 1|2|3|4 = 1) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
-      map(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/${collectionId}/${pageNumber}/${zoomLevel}`;
-        return url.replace('/testing/', 'https://api.sls.fi/');
-      })
-    );
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/verify-facsimile-file/${collectionId}/${fileNr}/${zoomLevel}`;
+        return this.apiService.get(url, {}, true);
+      }
+    ));
+  }
+
+  getFacsimileImagePath(collectionId: number, pageNumber: number, zoomLevel: 1|2|3|4 = 1): string {
+    const project = this.selectedProject$.getValue();
+    const url = `${this.apiService.prefixedUrl}/${project}/get-single-facsimile-file/${collectionId}/${pageNumber}/${zoomLevel}`
+    return url;
   }
 
   uploadFacsimileFile(collectionId: number, pageNumber: number, formData: FormData) {

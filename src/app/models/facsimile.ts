@@ -74,3 +74,9 @@ export interface LinkPublicationToFacsimileRequest {
   priority: number;
   type: number;
 }
+
+export interface VerifyFacsimileFileResponse extends ApiResponse {
+  data?: {
+    missing_file_numbers: number[];
+  };
+}

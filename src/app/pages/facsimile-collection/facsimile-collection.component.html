@@ -2,34 +2,51 @@
 <h2>Facsimile collection</h2>
 
 
-
-@if (loading$ | async) {
-  <loading-spinner [overlay]="true"></loading-spinner>
-}
 <ng-container *ngIf="facsimile$ | async as facsimile">
   <h3>{{ facsimile.title }}</h3>
   <div class="pages">number of pages: {{ facsimile.number_of_pages }}</div>
 
 
-  @if (firstImageIsValid) {
+    <h2>Images</h2>
     <div class="images">
-      @for (page of [].constructor(facsimile.number_of_pages); track page; let i = $index) {
+      @for (page of [].constructor(facsimile.number_of_pages); track i; let i = $index) {
         <div class="image">
           <div>{{ i + 1 }}</div>
-            <facsimile-file [collectionId]="facsimile.id" [pageNumber]="i + 1"></facsimile-file>
+            @if (missingFileNumbers.includes(i + 1)) {
+              <mat-icon class="img error">block</mat-icon>
+            } @else {
+              <mat-icon class="img success">check_circle</mat-icon>
+            }
         </div>
       } @empty {
         <p>No pages</p>
       }
     </div>
-  } @else {
-    @if (facsimile.number_of_pages) {
-      <file-upload
-        [collectionId]="facsimile.id"
-        [numberOfPages]="facsimile.number_of_pages">
-      </file-upload>
+
+    @if (missingFileNumbers.length) {
+      <h2>Upload</h2>
+      <p>
+        Missing images:
+        @if (missingFileNumbers.length === 1) {
+          {{ missingFileNumbers[0] }}
+        } @else {
+          {{ missingFileNumbers[0] }} - {{ missingFileNumbers[missingFileNumbers.length -1] }}
+        }
+
+      </p>
+      @if (facsimile.number_of_pages) {
+        <file-upload
+          [collectionId]="facsimile.id"
+          [numberOfPages]="facsimile.number_of_pages"
+          [missingFileNumbers]="missingFileNumbers"
+          (filesUploaded)="vefifyFacsimileFiles()">
+        </file-upload>
+      } @else {
+        <p>No pages</p>
+      }
     } @else {
-      <p>No pages</p>
+      <p>All images are uploaded</p>
     }
-  }
+
+
 </ng-container>

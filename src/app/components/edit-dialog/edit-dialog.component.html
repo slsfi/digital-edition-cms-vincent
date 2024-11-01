@@ -60,12 +60,13 @@
                     cdkAutosizeMinRows="1"
                     cdkAutosizeMaxRows="7"
                     ></textarea>
+                } @else if (column.type === 'number') {
+                  <input matInput [formControlName]="column.field" type="number"/>
                 } @else {
                   <input matInput
                     [formControlName]="column.field"
-                    [type]="column.type === 'number' ? 'number' : 'text'"
-                    [placeholder]="column.field === 'date_born' || column.field === 'date_deceased' ? 'YYYY or YYYY-MM-DD' : ''"
-                  />
+                    type="text"
+                    [placeholder]="column.field === 'date_born' || column.field === 'date_deceased' ? 'YYYY or YYYY-MM-DD' : ''" />
                 }
               </mat-form-field>
           }

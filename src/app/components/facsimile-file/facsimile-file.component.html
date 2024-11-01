@@ -1,4 +1,4 @@
 <img
-  [src]="imagePath$ | async"
-  [alt]="'Facsimile from page ' + pageNumber()"
+  [attr.src]="imageUrl$ | async"
+  [alt]="'Facsimile page ' + pageNumber"
 />
