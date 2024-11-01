@@ -95,7 +95,7 @@ export class FileUploadComponent {
 
     throttledFiles$.subscribe({
       next: () => {},
-      error: err => this.snackbar.open('Error uploading file', 'Close', { panelClass: 'snackbar-error' }),
+      error: err => this.snackbar.open('Error uploading file', 'Close', { panelClass: 'snackbar-error', duration: undefined }),
       complete: () => {
         this.uploadInProgress = false;
         this.allUploaded = true;

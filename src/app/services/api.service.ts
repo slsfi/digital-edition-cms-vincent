@@ -32,9 +32,9 @@ export class ApiService {
   }
 
   handleError(error: HttpErrorResponse, disableErrorMessage: boolean = false) {
-    const message = error.error.message || error.message || 'An error occurred';
     if (!disableErrorMessage) {
-      this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error' });
+      const message = error.error.message || error.error.msg || error.message || 'An error occurred';
+      this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error', duration: undefined });
     }
     return throwError(() => error);
   }

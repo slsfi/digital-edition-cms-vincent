@@ -40,7 +40,6 @@ export class AuthService {
         },
         error: (err) => {
           this.logout();
-          this.snackbar.open(err.error.msg, 'Close', { panelClass: 'snackbar-error' });
         }
       });
   }
