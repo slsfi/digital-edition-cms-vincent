@@ -29,3 +29,17 @@ export interface ApiResponse {
   success: boolean;
   message: string;
 }
+
+export interface NavigationItem {
+  label: string;
+  route: string;
+  icon: string;
+}
+
+export const navigationItems: NavigationItem[] = [
+  { label: 'Home', route: '/', icon: 'home' },
+  { label: 'Projects management', route: '/projects', icon: 'hub' },
+  { label: 'Text collection management', route: '/publication-collections', icon: 'library_books' },
+  { label: 'Facsimile management', route: '/facsimiles', icon: 'photo_library' },
+  { label: 'Index of persons management', route: '/persons', icon: 'groups' },
+]

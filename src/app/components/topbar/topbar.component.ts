@@ -8,11 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProjectService } from '../../services/project.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'topbar',
   standalone: true,
-  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule, MatChipsModule],
+  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })

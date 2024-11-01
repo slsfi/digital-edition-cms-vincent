@@ -1,1 +1,40 @@
-<p>main works!</p>
+@let availableProjects = availableProjects$ | async;
+@let selectedProject = selectedProject$ | async;
+
+<div class="container">
+
+  <div class="content">
+    <h1>Home</h1>
+
+    <mat-divider></mat-divider>
+    <h2>Which project to edit?</h2>
+
+    @if (availableProjects) {
+      <mat-form-field>
+        <mat-label>Selected Project</mat-label>
+        <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
+          @for (project of availableProjects; track project.name) {
+            <mat-option [value]="project.name">
+              {{ project.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    <mat-divider></mat-divider>
+    <h2>Where to?</h2>
+
+    <div class="nav-items">
+      <mat-nav-list>
+        @for (item of navItems; track item.route) {
+          <a mat-list-item [routerLink]="item.route">
+            <div class="nav-link">
+              <mat-icon>{{item.icon}}</mat-icon>
+              {{ item.label}}
+            </div>
+          </a>
+        }
+      </mat-nav-list>
+    </div>
+  </div>
+</div>

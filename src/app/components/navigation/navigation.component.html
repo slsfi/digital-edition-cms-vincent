@@ -1,26 +1,14 @@
-@let availableProjects = availableProjects$ | async;
-@let selectedProject = selectedProject$ | async;
-
 <div class="menu">
-  @if (availableProjects) {
-    <mat-form-field>
-      <mat-label>Selected Project</mat-label>
-      <mat-select [value]="selectedProject" (selectionChange)="changeProject($event); toggleMenu();">
-        @for (project of availableProjects; track project.name) {
-          <mat-option [value]="project.name">
-            {{ project.name }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  }
   <mat-divider></mat-divider>
   <mat-nav-list>
-    <a mat-list-item routerLink="/" (click)="toggleMenu()">Home</a>
-    <a mat-list-item routerLink="/projects" (click)="toggleMenu()">Project management</a>
-    <a mat-list-item routerLink="/publication-collections" (click)="toggleMenu()">Text collection management</a>
-    <a mat-list-item routerLink="/facsimiles" (click)="toggleMenu()">Facsimile management</a>
-    <a mat-list-item routerLink="/persons" (click)="toggleMenu()">Index of persons management</a>
+    @for (item of navItems; track item.route) {
+      <a mat-list-item [routerLink]="item.route" (click)="toggleMenu()">
+        <div class="nav-link">
+          <mat-icon>{{item.icon}}</mat-icon>
+          {{ item.label}}
+        </div>
+      </a>
+    }
   </mat-nav-list>
   <mat-divider></mat-divider>
   <mat-nav-list>
