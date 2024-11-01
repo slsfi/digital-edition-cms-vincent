@@ -42,7 +42,12 @@ export class PublicationCollectionsComponent {
   ];
   allPublicationCollectionColumns: Column[] = [
     ...this.publicationCollectionColumnsData,
-    { field: 'cascade_published', header: 'Cascade Published', type: 'boolean', editable: true },
+    {
+      field: 'cascade_published',
+      header: 'Also apply selected published status to all publications in the collection including any comments, manuscripts or variants linked to the publications.',
+      type: 'boolean',
+      editable: true
+    },
     { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: false },
@@ -108,11 +113,15 @@ export class PublicationCollectionsComponent {
   }
 
   editPublicationCollection(publicationCollection: PublicationCollection | null = null) {
+    let columns = this.allPublicationCollectionColumns;
+    if (publicationCollection == null) {
+      columns = columns.filter(column => column.editable);
+    }
     const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '400px',
       data: {
         model: publicationCollection ?? {},
-        columns: this.allPublicationCollectionColumns,
+        columns,
         title: 'Publication Collection'
       }
     });
@@ -139,7 +148,7 @@ export class PublicationCollectionsComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         showCascadeBoolean: true,
-        cascadeText: 'Cascade delete',
+        cascadeText: 'Also delete all publications in the collection including any comments, manuscripts or variants linked to the publications.',
         message: 'Are you sure you want to delete this publication collection?',
         confirmText: 'Delete',
         cancelText: 'Cancel'

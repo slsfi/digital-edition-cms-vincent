@@ -65,7 +65,7 @@ export interface PublicationAddRequest {
 
 export interface PublicationEditRequest {
   publication_collection_id?: number;
-  publication_comment_id?: number;
+  publication_comment_id?: number | null;
   name?: string;
   original_filename?: string;
   original_publication_date?: string;

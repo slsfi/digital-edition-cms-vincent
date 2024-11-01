@@ -82,8 +82,12 @@ export class EditDialogComponent {
         value = false;
       }
 
-      if (column.field === 'published' && value == null) {
+      if (column.field === 'published' && !this.data.model?.id) {
         value = 1;
+      }
+
+      if (column.type === 'type' && !this.data.model?.id) {
+        value = 2;
       }
 
       this.form.addControl(

@@ -67,7 +67,7 @@ export class PersonsComponent {
     { field: 'project_id', header: 'Project ID', filterable: false, type: 'number', editable: false },
     { field: 'source', header: 'Source', filterable: false, type: 'string', editable: true },
     { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
-    { field: 'type', header: 'Type', filterable: true, type: 'type', editable: true, editOrder: 4 },
+    { field: 'type', header: 'Type', filterable: true, type: 'person_type', editable: true, editOrder: 4 },
   ]
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);

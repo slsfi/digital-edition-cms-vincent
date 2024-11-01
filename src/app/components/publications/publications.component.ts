@@ -458,6 +458,12 @@ export class PublicationsComponent {
             this.snackbar.open('Comment deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
+
+        this.publicationService.editPublication(publicationId, { publication_comment_id: null }).subscribe({
+          next: () => {
+            this.publicationsLoader$.next();
+          }
+        });
       }
     });
   }
@@ -466,7 +472,7 @@ export class PublicationsComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         showCascadeBoolean: true,
-        cascadeText: 'Cascade delete',
+        cascadeText: 'Also delete any comments, manuscripts or variants linked to the publication.',
         message: 'Are you sure you want to delete this publication?',
         confirmText: 'Delete',
         cancelText: 'Cancel'

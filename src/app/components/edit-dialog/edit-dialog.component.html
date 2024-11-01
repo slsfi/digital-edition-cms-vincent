@@ -37,7 +37,13 @@
                     <mat-option [value]="0">No</mat-option>
                     <mat-option [value]="1">Yes</mat-option>
                   </mat-select>
+
                 } @else if (column.type === 'type') {
+                  <mat-select [formControlName]="column.field">
+                    <mat-option [value]="1">Base Text</mat-option>
+                    <mat-option [value]="2">Variant</mat-option>
+                  </mat-select>
+                } @else if (column.type === 'person_type') {
                   <mat-select [formControlName]="column.field">
                     <mat-option>Any</mat-option>
                     @for (type of personTypes; track type.value) {

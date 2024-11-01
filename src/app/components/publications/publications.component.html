@@ -35,9 +35,9 @@
               <mat-card-content>
                 <div class="rows">
                   <div> ID: {{ selectedPublication.id }}</div>
-                  <div>Genre: {{ selectedPublication.genre }}</div>
-                  <div>Original publication date: {{ selectedPublication.original_publication_date | customDate: 'YYYY-MM-dd' }}</div>
+                  <div>Date of Origin: {{ selectedPublication.original_publication_date | customDate: 'YYYY-MM-dd' }}</div>
                   <div>Language: {{ selectedPublication.language }}</div>
+                  <div>Genre: {{ selectedPublication.genre }}</div>
                 </div>
                 <div class="file-row">
                   <div>
@@ -59,7 +59,7 @@
                   (deleteRow)="deleteComment($event, selectedPublication.id)">
                   <ng-content custom-table-title>Comments</ng-content>
                   <ng-content custom-table-actions>
-                    <button mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+                    <button [disabled]="!!selectedPublication.publication_comment_id" mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
                   </ng-content>
                 </custom-table>
               </mat-card-content>
