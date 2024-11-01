@@ -4,7 +4,7 @@
     <mat-form-field>
       <mat-label>Field</mat-label>
       <mat-select formControlName="field">
-        @for (column of data; track column.field) {
+        @for (column of columns; track column.field) {
           <mat-option [value]="column.field">{{ column.header }}</mat-option>
         }
       </mat-select>

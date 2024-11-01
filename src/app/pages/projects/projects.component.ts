@@ -38,7 +38,7 @@ export class ProjectsComponent {
     { field: 'published', header: 'Published', type: 'published', filterable: true, editable: true, filterType: 'equals' },
     { field: 'date_created', header: 'Date Created', type: 'date', filterable: false, editable: false },
     { field: 'date_modified', header: 'Date Modified', type: 'date', filterable: false, editable: false },
-    { field: 'action', header: 'Action', type: 'action', filterable: false }
+    { field: 'actions', header: 'Action', type: 'action', filterable: false }
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
   url$ = new Observable<string>();

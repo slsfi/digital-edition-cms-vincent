@@ -49,7 +49,7 @@ export class PersonsComponent {
     { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, editOrder: 2, translations: true },
     { field: 'date_born', header: 'Date Born', filterable: false, type: 'string', editable: true, editOrder: 3 },
     { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'string', editable: true, editOrder: 3 },
-    { field: 'action', header: 'Actions', filterable: false, type: 'action' },
+    { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
   ]
 
   allColumns: Column[] = [

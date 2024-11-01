@@ -495,10 +495,9 @@ export class PublicationsComponent {
   }
 
   sort() {
-    const columns = this.publicationColumnsData.filter(column => column.field !== 'action');
     this.dialog.open(TableSortingComponent, {
       width: '250px',
-      data: columns
+      data: this.publicationColumnsData
     });
   }
 }

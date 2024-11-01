@@ -23,12 +23,15 @@ export class TableSortingComponent {
   form!: FormGroup;
   readonly data = inject<Column[]>(MAT_DIALOG_DATA);
 
+  columns: Column[] = [];
+
   ngOnInit() {
     const queryParams = this.queryParamsService.getQueryParams();
     this.form = new FormGroup({
       field: new FormControl(queryParams['sort'], Validators.required),
       direction: new FormControl(queryParams['direction'] ?? 'asc', Validators.required)
     });
+    this.columns = this.data.filter(column => column.filterable);
   }
 
   get field() {
