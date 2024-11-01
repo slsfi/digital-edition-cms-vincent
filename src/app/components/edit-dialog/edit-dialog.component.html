@@ -46,7 +46,6 @@
                   </mat-select>
                 } @else if (column.type === 'published') {
                   <mat-select [formControlName]="column.field">
-                    <mat-option>Any</mat-option>
                     <mat-option [value]="0">Not published</mat-option>
                     <mat-option [value]="1">Internally</mat-option>
                     <mat-option [value]="2">Externally</mat-option>

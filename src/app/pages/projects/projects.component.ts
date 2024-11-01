@@ -68,9 +68,7 @@ export class ProjectsComponent {
   editProject(project: Project | null = null) {
     const columns = this.columnsData.filter(column => column.field != 'action').map(column => {
       let editable = column.editable;
-      if (column.field === 'published') {
-        editable = project != null;
-      } else if (column.field === 'name') {
+      if (column.field === 'name') {
         editable = project == null;
       }
       return { ...column, editable }

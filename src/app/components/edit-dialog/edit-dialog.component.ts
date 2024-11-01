@@ -82,6 +82,10 @@ export class EditDialogComponent {
         value = false;
       }
 
+      if (column.field === 'published' && value == null) {
+        value = 1;
+      }
+
       this.form.addControl(
         column.field,
         new FormControl({ value, disabled: !column.editable }, { validators })
