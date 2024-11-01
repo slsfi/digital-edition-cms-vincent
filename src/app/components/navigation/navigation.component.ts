@@ -6,7 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Project } from '../../models/project';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -25,7 +25,9 @@ export class NavigationComponent {
   selectedProject$: Observable<string | null>;
 
   constructor(private projectService: ProjectService, private authService: AuthService) {
-    this.availableProjects$ = this.projectService.getProjects();
+    this.availableProjects$ = this.projectService.getProjects().pipe(
+      map((projects) => projects.sort((a, b) => a.name.localeCompare(b.name)))
+    );
     this.selectedProject$ = this.projectService.selectedProject$;
    }
 
