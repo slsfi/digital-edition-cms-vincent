@@ -25,3 +25,32 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+
+## Directory structure
+
+### Components
+Contains components used in pages
+
+### guards
+Route guards
+
+### Interceptors
+Http interceptors
+
+### Models
+Typescript interfaces, enums and commonly used data
+
+### Pages
+Components which are used as base route components in app.routes.ts
+
+### Pipes
+custom pipes
+
+### Services
+- Api - handle http requests
+- Auth - handle user authentication
+- QueryParams - Get and set query params
+- Loading - stores loading state, connected with loading interceptor
+- GET and EDIT data
+  - Facsimile, Project, Publication, Subject, Translations
