@@ -1,5 +1,3 @@
-@let queryParams = queryParams$ | async;
-
 <div class="header-row">
   <h4 class="row-actions">
     <ng-content select="[custom-table-title]"></ng-content>
@@ -49,15 +47,17 @@
 <mat-paginator
   *ngIf="paginationEnabled"
   #paginator
-  [pageSizeOptions]="[20, 50, 100]"
-  showFirstLastButtons>
+  [hidePageSize]="true"
+  [pageSizeOptions]="[20]"
+  showFirstLastButtons
+  (page)="pageChanged($event)">
 </mat-paginator>
 
 <ng-template #columnCells let-model="model" let-column="column" let-index="index">
   @if (column.type === 'index') {
     {{ paginator ? (index + 1 + (paginator.pageIndex * paginator.pageSize)) : (index + 1) }}
   } @else if (column.type === 'id') {
-    <a routerLink="{{ idRouteParams | idRoute : model[column.field] }}" [queryParams]="queryParams">{{ model[column.field] }}</a>
+    <a routerLink="{{ idRouteParams | idRoute : model[column.field] }}">{{ model[column.field] }}</a>
   } @else if (column.type === 'date') {
     {{ model[column.field] | customDate : 'd.M.yyyy' }}
   } @else if (column.type === 'boolean') {

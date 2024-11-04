@@ -10,7 +10,7 @@ import { Column } from '../../models/common';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
 import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { LoadingService } from '../../services/loading.service';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -55,6 +55,7 @@ export class CustomTableComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   queryParams$ = new Observable<any>();
+  pageParams$ = new Observable<any>();
   loading$: Observable<boolean> = new Observable<boolean>();
 
   originalCount: number = 0;
@@ -67,6 +68,7 @@ export class CustomTableComponent {
 
   ngOnInit() {
     this.queryParams$ = this.queryParamsService.queryParams$;
+    this.pageParams$ = this.queryParamsService.pageParams$;
     this.editSecondaryUsed = this.editRowSecondary.observers.length > 0;
     this.deleteUsed = this.deleteRow.observers.length > 0;
     this.openUsed = this.openRow.observers.length > 0;
@@ -132,6 +134,12 @@ export class CustomTableComponent {
             return data;
           })
         ).subscribe(data => {
+          // set paginator page index
+          const pageNumber = this.queryParamsService.getPageNumber() ?? 1;
+          if (pageNumber && this.tableDataSource.paginator) {
+            this.tableDataSource.paginator.pageIndex = Number(pageNumber) - 1;
+          }
+          // set data to table
           this.tableDataSource.data = data;
         });
     });
@@ -161,5 +169,9 @@ export class CustomTableComponent {
 
   delete(model: any) {
     this.deleteRow.emit(model);
+  }
+
+  pageChanged(event: PageEvent) {
+    this.queryParamsService.addQueryParams({page: (event.pageIndex + 1).toString()});
   }
 }

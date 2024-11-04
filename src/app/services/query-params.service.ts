@@ -16,6 +16,8 @@ export class QueryParamsService {
 
   filterParams$: Observable<QueryParamType[]>;
 
+  pageParams$: Observable<QueryParamType[]>;
+
   constructor(private router: Router, private route: ActivatedRoute) {
     this.queryParams$ = this.route.queryParams;
 
@@ -32,7 +34,7 @@ export class QueryParamsService {
 
     this.filterParams$ = this.queryParams$.pipe(
       map(params => {
-        const skipKeys = ['sort', 'direction'];
+        const skipKeys = ['sort', 'direction', 'page'];
         const res: QueryParamType[] = [];
         Object.entries(params).map(([key, value]) => {
           if (!skipKeys.includes(key)) {
@@ -42,6 +44,20 @@ export class QueryParamsService {
         return res
       })
     );
+
+    this.pageParams$ = this.queryParams$.pipe(
+      map(params => {
+        const page = params['page'];
+        if (page) {
+          return [{ key: 'page', value: page }];
+        }
+        return [];
+      })
+    );
+  }
+
+  getPageNumber(): string {
+    return this.router.parseUrl(this.router.url).queryParams['page'];
   }
 
   getQueryParams() {
