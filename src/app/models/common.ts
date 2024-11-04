@@ -9,6 +9,7 @@ export interface Column {
   editOrder?: number;
   translations?: boolean;
   parentTranslationField?: string;
+  visible?: boolean;
 }
 
 export type QueryParamType = {

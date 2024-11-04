@@ -50,6 +50,7 @@ export class PersonsComponent {
     { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, editOrder: 2, translations: true },
     { field: 'date_born', header: 'Date Born', filterable: false, type: 'string', editable: true, editOrder: 3 },
     { field: 'date_deceased', header: 'Date Deceased', filterable: false, type: 'string', editable: true, editOrder: 3 },
+    { field: 'type', header: 'Type', visible: false, filterable: true, type: 'person_type', editable: true, editOrder: 4 },
     { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
   ]
 
@@ -68,7 +69,6 @@ export class PersonsComponent {
     { field: 'project_id', header: 'Project ID', filterable: false, type: 'number', editable: false },
     { field: 'source', header: 'Source', filterable: false, type: 'string', editable: true },
     { field: 'translation_id', header: 'Translation ID', filterable: false, type: 'string', editable: false },
-    { field: 'type', header: 'Type', filterable: true, type: 'person_type', editable: true, editOrder: 4 },
   ]
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);

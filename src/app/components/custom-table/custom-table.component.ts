@@ -50,6 +50,7 @@ export class CustomTableComponent {
   openUsed: boolean = false;
   deleteUsed: boolean = false;
   tableColumns: Column[] = [];
+  originalColumns: Column[] = [];
 
   tableDataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -72,8 +73,10 @@ export class CustomTableComponent {
     this.editSecondaryUsed = this.editRowSecondary.observers.length > 0;
     this.deleteUsed = this.deleteRow.observers.length > 0;
     this.openUsed = this.openRow.observers.length > 0;
+    this.originalColumns = this.columns;
     const indexColumn: Column = {field: 'index', header: '#', filterable: false, type: 'index'};
-    this.tableColumns = this.showIndex ? [indexColumn, ...this.columns] : [...this.columns];
+    const columns = this.columns.filter(column => column.visible !== false);
+    this.tableColumns = this.showIndex ? [indexColumn, ...columns] : [...columns];
     this.displayedColumns = this.tableColumns.map(column => column.field);
     if (this.selectable) {
       this.displayedColumns = ['select', ...this.displayedColumns];
@@ -93,9 +96,8 @@ export class CustomTableComponent {
           takeUntil(this.destroy$),
           map(([data, queryParams]) => {
             this.originalCount = data.length;
-
             // Filtering
-            const filterableColumns = this.tableColumns.filter(column => column.filterable);
+            const filterableColumns = this.originalColumns.filter(column => column.filterable);
             filterableColumns.forEach(column => {
               const field = column.field;
               const filterType = column.filterType ?? 'equals';
@@ -103,7 +105,11 @@ export class CustomTableComponent {
                 data = data.filter((item: any) => {
                   const value = item[field];
                   if (typeof value === 'string') {
-                    return value.toLowerCase().includes(queryParams[field]);
+                    if (filterType === 'contains') {
+                      return value.toLowerCase().includes(queryParams[field]);
+                    } else {
+                      return value.toLowerCase() === queryParams[field];
+                    }
                   } else {
                     if (typeof value === 'number') {
                       return value === Number(queryParams[field]);
