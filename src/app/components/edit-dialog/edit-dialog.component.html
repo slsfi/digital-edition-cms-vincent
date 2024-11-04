@@ -90,7 +90,12 @@
       }
     </form>
   } @else {
-    <field-translations [field]="fieldForTranslate" [data]="data.model" (close)="fieldForTranslate = null"></field-translations>
+    <field-translations
+      [field]="fieldForTranslate"
+      [data]="data.model"
+      [parentTranslationField]="parentTranslationField"
+      (close)="fieldForTranslate = null">
+    </field-translations>
   }
 </mat-dialog-content>
 <mat-dialog-actions>

@@ -36,7 +36,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 export class PublicationCollectionsComponent {
   publicationCollectionColumnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
-    { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true },
+    { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true, translations: true, parentTranslationField: 'name_translation_id' },
     { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true },
     { field: 'actions', header: 'Actions', type: 'action', editable: false },
   ];

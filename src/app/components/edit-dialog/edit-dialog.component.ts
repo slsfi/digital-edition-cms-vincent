@@ -45,6 +45,7 @@ export class EditDialogComponent {
   personTypes = personTypeOptions;
 
   fieldForTranslate: string | null = null;
+  parentTranslationField: string | undefined;
   fileSelectorVisible = false;
 
   get originalFilenameControl() {
@@ -109,6 +110,7 @@ export class EditDialogComponent {
 
   showTranslations(column: Column) {
     this.fieldForTranslate = column.field;
+    this.parentTranslationField = column.parentTranslationField;
   }
 
   showFileSelector() {

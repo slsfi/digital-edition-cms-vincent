@@ -23,6 +23,7 @@ export class TranslationsComponent {
 
   field = input.required<string>();
   data = input.required<Person>();
+  parentTranslationField = input<string>();
 
   mode = signal<'edit' | 'add' | ''>('');
 
@@ -65,6 +66,7 @@ export class TranslationsComponent {
       neutral_text: new FormControl({ value: this.data()[this.field() as keyof Person], disabled: true }),
       translation_text_id: new FormControl({ value: null, disabled: true }),
       deleted: new FormControl({ value: 0, disabled: true }),
+      parent_translation_field: new FormControl({ value: this.parentTranslationField(), disabled: true }),
     });
   }
 
