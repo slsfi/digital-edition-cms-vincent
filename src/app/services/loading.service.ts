@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,10 +19,19 @@ export class LoadingService {
     }
   }
 
+  /**
+   * Turn off loading spinner
+   * minimum time is 0.5s
+   */
   loadingOff() {
     this.counter--;
-    if (this.counter === 0) {
-      this.loadingSubject.next(false);
+    if (this.counter <= 0) {
+      const timerSubscription = timer(500).subscribe(() => {
+        if (this.counter <= 0) {
+          this.loadingSubject.next(false);
+        }
+        timerSubscription.unsubscribe();
+      });
     }
   }
 
