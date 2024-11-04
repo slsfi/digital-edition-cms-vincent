@@ -26,22 +26,25 @@ export const allPublicationColumnsData: Column[] = [
 export const versionColumnsData: Column[] = [
   { field: 'name', header: 'Name', type: 'string', editable: true, editOrder: 2 },
   { field: 'original_filename', header: 'Version File Path', type: 'textarea', editable: true, editOrder: 1 },
+  { field: 'type', header: 'Type', type: 'type', editable: true, editOrder: 4 },
+  { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true, editOrder: 5 },
+  { field: 'section_id', header: 'Section ID', type: 'number', editable: false, editOrder: 6 },
   { field: 'actions', header: 'Actions', type: 'action', editable: false },
 ]
 export const allVersionColumnsData: Column[] = [
   ...versionColumnsData,
   { field: 'published', header: 'Published', type: 'published', editable: true, editOrder: 3 },
-  { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true, editOrder: 5 },
   { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
   { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
-  { field: 'section_id', header: 'Section ID', type: 'number', editable: false, editOrder: 6 },
-  { field: 'type', header: 'Type', type: 'type', editable: true, editOrder: 4 },
   { field: 'id', header: 'ID', type: 'number', editable: false },
 ]
 export const manuscriptColumnsData: Column[] = [
   { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true, editOrder: 2 },
   { field: 'original_filename', 'header': 'Manuscript File Path', 'type': 'textarea', 'editable': true, editOrder: 1 },
+  { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 4 },
+  { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true, editOrder: 5 },
+  { field: 'section_id', header: 'Section ID', type: 'number', editable: true, editOrder: 6 },
   { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
 ]
 
@@ -50,11 +53,8 @@ export const allManuscriptColumnsData: Column[] = [
   { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
   { field: 'id', header: 'ID', type: 'number', editable: false },
-  { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 4 },
   { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
   { field: 'published', header: 'Published', type: 'published', editable: true, editOrder: 3 },
-  { field: 'section_id', header: 'Section ID', type: 'number', editable: true, editOrder: 6 },
-  { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true, editOrder: 5 },
 ]
 export const commentsColumnData: Column[] = [
   { field: 'original_filename', header: 'Filename', type: 'textarea', editable: true },
