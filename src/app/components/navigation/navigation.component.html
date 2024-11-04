@@ -2,7 +2,7 @@
   <mat-divider></mat-divider>
   <mat-nav-list>
     @for (item of navItems; track item.route) {
-      <a mat-list-item [routerLink]="item.route" (click)="toggleMenu()">
+      <a mat-list-item [routerLink]="item.route" [activated]="item.route === currentUrl" (click)="toggleMenu()">
         <div class="nav-link">
           <mat-icon>{{item.icon}}</mat-icon>
           {{ item.label}}

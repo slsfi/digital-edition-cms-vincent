@@ -5,7 +5,7 @@
 <main class="main">
   <topbar (onMenuToggle)="drawer.toggle()"></topbar>
   <mat-drawer-container class="drawer">
-    <mat-drawer #drawer mode="over">
+    <mat-drawer #drawer mode="over" [autoFocus]="false">
       @if ((isAuthenticated$ | async) === true) {
         <navigation (onMenuToggle)="drawer.toggle()"></navigation>
       }

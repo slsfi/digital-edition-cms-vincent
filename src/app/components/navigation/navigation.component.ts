@@ -5,7 +5,7 @@ import { MatListModule } from '@angular/material/list';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { navigationItems } from '../../models/common';
 
 @Component({
@@ -20,7 +20,13 @@ export class NavigationComponent {
 
   navItems = navigationItems;
 
-  constructor(private projectService: ProjectService, private authService: AuthService) { }
+  currentUrl: string = '';
+
+  constructor(private projectService: ProjectService, private authService: AuthService, private router: Router) {
+    this.router.events.subscribe(() => {
+      this.currentUrl = '/' + this.router.url.split('/')[1];
+    });
+  }
 
   logout() {
     this.authService.logout();
