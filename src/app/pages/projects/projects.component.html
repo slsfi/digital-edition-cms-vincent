@@ -4,7 +4,7 @@
     <loading-spinner [overlay]="true"></loading-spinner>
   }
   <custom-table
-    [data$]="projectsResult$"
+    [data$]="projects$"
     [columns]="columnsData"
     (editRow)="editProject($event)"
     (deleteRow)="deleteProject($event)">

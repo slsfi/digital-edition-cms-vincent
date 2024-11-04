@@ -1,7 +1,7 @@
 import { LoadingService } from './../../services/loading.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap } from 'rxjs';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -55,20 +55,15 @@ export class PublicationCollectionsComponent {
     { field: 'project_id', header: 'Project ID', type: 'number', editable: false },
   ];
   publicationCollectionDisplayedColumns: string[] = this.publicationCollectionColumnsData.map(column => column.field);
-  publicationCollectionsLoader$: Subject<void> = new Subject<void>();
+  loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  publicationCollections$: Observable<PublicationCollection[]> = of([]);
 
-  selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
-
-  publicationCollections$: Observable<PublicationCollection[]> = new Observable<PublicationCollection[]>();
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
-  private collectionsSource = new BehaviorSubject<PublicationCollection[]>([]);
-  publicationCollectionsResult$: Observable<PublicationCollection[]> = this.collectionsSource.asObservable();
-
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
+  selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
   sortParams$: Observable<any[]> = new Observable<any[]>();
   filterParams$: Observable<any[]> = new Observable<any[]>();
-
   loading$: Observable<boolean> = new Observable<boolean>();
 
   constructor(
@@ -92,23 +87,16 @@ export class PublicationCollectionsComponent {
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
 
-    const publicationCollectionsShared$ = this.publicationCollectionsLoader$.pipe(
-      startWith(void 0),
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationService.getPublicationCollections()])),
-      map(([project, publications]) => publications),
-      shareReplay(1)
+    this.publicationCollections$ = this.loader$.asObservable().pipe(
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationService.getPublicationCollections()]).pipe(
+        map(([project, publications]) => publications)
+      )),
     );
 
-    this.publicationCollections$ = publicationCollectionsShared$;
-
-    this.selectedPublicationCollection$ = combineLatest([publicationCollectionsShared$, this.publicationCollectionId$]).pipe(
+    this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
       filter(([publications, collectionId]) => collectionId != null),
       map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
     );
-
-    this.publicationCollections$.subscribe(publications => {
-      this.collectionsSource.next(publications);
-    });
 
   }
 
@@ -136,7 +124,7 @@ export class PublicationCollectionsComponent {
         }
         req.subscribe({
           next: () => {
-            this.publicationCollectionsLoader$.next();
+            this.loader$.next(0);
             this.snackbar.open('Publication Collection saved', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
@@ -160,7 +148,7 @@ export class PublicationCollectionsComponent {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
         this.publicationService.editPublicationCollection(collection.id, payload).subscribe({
           next: () => {
-            this.publicationCollectionsLoader$.next();
+            this.loader$.next(0);
             this.snackbar.open('Publication collection deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounce, map, Observable, startWith, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
 import { MatTableModule } from '@angular/material/table';
@@ -39,8 +39,9 @@ export class PersonsComponent {
   filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
   loading$: Observable<boolean>;
 
-  private personsSource = new BehaviorSubject<Person[]>([]);
-  persons$: Observable<Person[]> = this.personsSource.asObservable();
+  // private personsSource = new BehaviorSubject<Person[]>([]);
+  // persons$: Observable<Person[]> = this.personsSource.asObservable();
+  persons$: Observable<Person[]> = of([]);
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false, filterType: 'equals' },
@@ -84,16 +85,12 @@ export class PersonsComponent {
     this.filterParams$ = this.queryParamsService.filterParams$;
   }
 
-  ngAfterViewInit() {
-    this.loader$.asObservable().pipe(
-      startWith(null),
-      debounce(i => timer(500)),
+  ngOnInit() {
+    this.persons$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.subjectService.getSubjects(), this.subjectService.selectedProject$]).pipe(
         map(([subjects, selectedProject]) => subjects)
       )),
-    ).subscribe(persons => {
-      this.personsSource.next(persons);
-    });
+    );
   }
 
   edit(person: Person | null = null) {

@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounce, distinctUntilChanged, filter, map, Observable, shareReplay, startWith, Subject, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, of, switchMap } from 'rxjs';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -46,40 +46,30 @@ export class PublicationsComponent {
   filterParams$: Observable<any[]> = new Observable<any[]>();
   // PUBLICATIONS
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
-  publicationsLoader$: Subject<void> = new Subject<void>();
-  publications$: Observable<Publication[]> = new Observable<Publication[]>();
+  publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  publications$: Observable<Publication[]> = of([]);
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
-  private publicationsSource = new BehaviorSubject<Publication[]>([]);
-  publicationsResult$: Observable<Publication[]> = this.publicationsSource.asObservable();
   publicationColumnsData = publicationColumnsData;
   allPublicationColumnsData = allPublicationColumnsData;
   // VERSIONS
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  versions$: Observable<Version[]> = new Observable<Version[]>();
-  private versionsSource = new BehaviorSubject<Version[]>([]);
-  versionsResult$: Observable<Version[]> = this.versionsSource.asObservable();
+  versions$: Observable<Version[]> = of([]);
   versionColumnsData = versionColumnsData;
   allVersionColumnsData = allVersionColumnsData;
   // MANUSCRIPTS
   manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  manuscripts$: Observable<Manuscript[]> = new Observable<Manuscript[]>();
-  private manuscriptsSource = new BehaviorSubject<Manuscript[]>([]);
-  manuscriptsResult$: Observable<Manuscript[]> = this.manuscriptsSource.asObservable();
+  manuscripts$: Observable<Manuscript[]> = of([]);
   manuscriptColumnsData = manuscriptColumnsData;
   allManuscriptColumnsData = allManuscriptColumnsData;
   // COMMENTS
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  comments$: Observable<PublicationComment[]> = new Observable<PublicationComment[]>();
-  private commentsSource = new BehaviorSubject<PublicationComment[]>([]);
-  commentsResult$: Observable<PublicationComment[]> = this.commentsSource.asObservable();
+  comments$: Observable<PublicationComment[]> = of([]);
   commentsColumnData = commentsColumnData
   allCommentsColumnData = allCommentsColumnData;
   // FACSIMILES
   facsimilesLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
-  private facsimilesSource = new BehaviorSubject<PublicationFacsimile[]>([]);
-  facsimilesResult$: Observable<PublicationFacsimile[]> = this.facsimilesSource.asObservable();
   facsimileColumnData = facsimileColumnData;
   allFacsimileColumnData = allFacsimileColumnData;
 
@@ -101,97 +91,53 @@ export class PublicationsComponent {
     this.publicationId$ = this.route.paramMap.pipe(map(params => params.get('publicationId')));
     this.selectedProject$ = this.publicationService.selectedProject$;
 
-    const publicationsShared$ = this.publicationsLoader$.pipe(
-      startWith(void 0),
-      debounce(() => timer(500)),
+    this.publications$ = this.publicationsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$])
         .pipe(
-          filter(([project, collectionId]) => collectionId != null),
-          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([project, collectionId]) => this.publicationService.getPublications(collectionId as string))
         )
       ),
-      shareReplay(1)
-    );
-
-    this.publications$ = publicationsShared$;
-
-    this.publications$.subscribe(publications => {
-      this.publicationsSource.next(publications);
-    });
+    )
 
     this.selectedPublication$ = combineLatest([this.publications$, this.publicationId$]).pipe(
-      filter(([publications, publicationId]) => publicationId != null),
       map(([publications, publicationId]) => publications.find(publication => publication.id === parseInt(publicationId as string)) ?? null)
     );
 
     this.comments$ = this.commentLoader$.asObservable().pipe(
-      startWith(0),
-      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-          ),
+          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([collectionId, publicationId]) => this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string))
         )
       )
     );
-    this.comments$.subscribe(comments => {
-      this.commentsSource.next(comments);
-    });
 
     this.versions$ = this.versionsLoader$.asObservable().pipe(
-      startWith(0),
-      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-          ),
+          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([collectionId, publicationId]) => this.publicationService.getVersionsForPublication(publicationId as string))
         )
       )
     );
-    this.versions$.subscribe(versions => {
-      this.versionsSource.next(versions);
-    });
 
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
-      startWith(0),
-      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-          ),
+          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([collectionId, publicationId]) => this.publicationService.getManuscriptsForPublication(publicationId as string))
         )
       )
     );
-    this.manuscripts$.subscribe(manuscripts => {
-      this.manuscriptsSource.next(manuscripts);
-    });
 
     this.facsimiles$ = this.facsimilesLoader$.asObservable().pipe(
-      startWith(0),
-      debounce(() => timer(500)),
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          filter(([collectionId, publicationId]) => collectionId != null && publicationId != null),
-          distinctUntilChanged(([prevCollectionId, prevPublicationId], [nextCollectionId, nextPublicationId]) =>
-            prevCollectionId === nextCollectionId && prevPublicationId === nextPublicationId
-          ),
+          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([collectionId, publicationId]) => this.publicationService.getFacsimilesForPublication(publicationId as string))
         )
       )
     );
-    this.facsimiles$.subscribe(facsimiles => {
-      this.facsimilesSource.next(facsimiles);
-    });
 
   }
 
@@ -215,7 +161,7 @@ export class PublicationsComponent {
         }
         req.subscribe({
           next: () => {
-            this.publicationsLoader$.next();
+            this.publicationsLoader$.next(0);
             if (result.form.value.cascade_published === true) {
               this.manuscriptsLoader$.next(0);
               this.versionsLoader$.next(0);
@@ -242,7 +188,7 @@ export class PublicationsComponent {
 
       this.publicationService.editPublication(publication.id, data).subscribe({
         next: () => {
-          this.publicationsLoader$.next();
+          this.publicationsLoader$.next(0);
           this.snackbar.open('Filename saved', 'Close', { panelClass: ['snackbar-success'] });
         },
       });
@@ -461,7 +407,7 @@ export class PublicationsComponent {
 
         this.publicationService.editPublication(publicationId, { publication_comment_id: null }).subscribe({
           next: () => {
-            this.publicationsLoader$.next();
+            this.publicationsLoader$.next(0);
           }
         });
       }
@@ -484,7 +430,7 @@ export class PublicationsComponent {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
         this.publicationService.editPublication(publication.id, payload).subscribe({
           next: () => {
-            this.publicationsLoader$.next();
+            this.publicationsLoader$.next(0);
             this.snackbar.open('Publication deleted', 'Close', { panelClass: ['snackbar-success'] });
           },
         });

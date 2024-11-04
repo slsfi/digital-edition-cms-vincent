@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, debounce, Observable, startWith, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { EditProjectData, Project } from '../../models/project';
@@ -30,8 +30,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 })
 export class ProjectsComponent {
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  private projectsSource = new BehaviorSubject<Project[]>([]);
-  projectsResult$: Observable<Project[]> = this.projectsSource.asObservable();
+  projects$: Observable<Project[]> = of([]);
+
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
     { field: 'name', header: 'Name', type: 'string', filterable: true, editable: true, filterType: 'contains' },
@@ -41,7 +41,6 @@ export class ProjectsComponent {
     { field: 'actions', header: 'Action', type: 'action', filterable: false }
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
-  url$ = new Observable<string>();
 
   loading$: Observable<boolean>;
 
@@ -54,15 +53,10 @@ export class ProjectsComponent {
     this.loading$ = this.loadingService.loading$;
    }
 
-  ngAfterViewInit() {
-    this.loader$.asObservable().pipe(
-      startWith(null),
-      debounce(i => timer(500)),
-      switchMap(() => this.projectService.getProjects()),
-    ).subscribe(projects => {
-      this.projectsSource.next(projects);
-    });
-
+  ngOnInit() {
+    this.projects$ = this.loader$.asObservable().pipe(
+      switchMap(() => this.projectService.getProjects())
+    );
   }
 
   editProject(project: Project | null = null) {

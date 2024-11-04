@@ -9,7 +9,7 @@
           <loading-spinner [overlay]="true"></loading-spinner>
         }
           <custom-table
-            [data$]="publicationsResult$"
+            [data$]="publications$"
             [columns]="publicationColumnsData"
             [selectedId]="publicationId$ | async"
             [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
@@ -52,7 +52,7 @@
             <mat-card appearance="outlined">
               <mat-card-content>
                 <custom-table
-                  [data$]="commentsResult$"
+                  [data$]="comments$"
                   [columns]="commentsColumnData"
                   [paginationEnabled]="false"
                   (editRow)="editComment($event, selectedPublication.id)"
@@ -68,7 +68,7 @@
             <mat-card appearance="outlined">
               <mat-card-content>
                 <custom-table
-                  [data$]="facsimilesResult$"
+                  [data$]="facsimiles$"
                   [columns]="facsimileColumnData"
                   [paginationEnabled]="false"
                   (editRow)="editFacsimile($event, selectedPublication.id)"
@@ -84,7 +84,7 @@
             <mat-card appearance="outlined">
               <mat-card-content>
                 <custom-table
-                  [data$]="manuscriptsResult$"
+                  [data$]="manuscripts$"
                   [columns]="manuscriptColumnsData"
                   [paginationEnabled]="false"
                   (editRow)="editManuscript($event, selectedPublication.id)"
@@ -100,7 +100,7 @@
             <mat-card appearance="outlined">
               <mat-card-content>
                 <custom-table
-                  [data$]="versionsResult$"
+                  [data$]="versions$"
                   [columns]="versionColumnsData"
                   [paginationEnabled]="false"
                   (editRow)="editVersion($event, selectedPublication.id)"

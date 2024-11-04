@@ -24,11 +24,3 @@
     </custom-table>
   }
 </div>
-
-
-
-<ng-template #loading>
-  <ng-container *ngIf="selectedProject$ | async as selectedProject">
-    <loading-spinner [overlay]="true"></loading-spinner>
-  </ng-container>
-</ng-template>

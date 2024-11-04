@@ -12,7 +12,7 @@
       <loading-spinner [overlay]="true"></loading-spinner>
     }
     <custom-table
-      [data$]="facsimilesResult$"
+      [data$]="facsimileCollections$"
       [columns]="columnsData"
       (editRow)="editCollection($event)"
       (openRow)="open($event)"

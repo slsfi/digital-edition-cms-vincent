@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, startWith, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FacsimileCollection } from '../../models/facsimile';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -17,7 +17,7 @@ import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.co
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FacsimileCollectionComponent } from '../facsimile-collection/facsimile-collection.component';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
@@ -52,12 +52,8 @@ export class FacsimilesComponent {
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
   selectedProject$: Observable<string | null> = new Observable<string | null>();
-  facsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
-  filteredFacsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
-  private facsimilesSource = new BehaviorSubject<FacsimileCollection[]>([]);
-  facsimilesResult$: Observable<FacsimileCollection[]> = this.facsimilesSource.asObservable();
-
-  loader$: Subject<void> = new Subject<void>();
+  facsimileCollections$: Observable<FacsimileCollection[]> = of([]);
+  loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
   filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
 
@@ -71,7 +67,6 @@ export class FacsimilesComponent {
     private snackbar: MatSnackBar,
     private loadingService: LoadingService,
     private router: Router,
-    private route: ActivatedRoute
   ) {
     this.loading$ = this.loadingService.loading$;
   }
@@ -82,22 +77,13 @@ export class FacsimilesComponent {
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
 
-    const facsimileCollectionsShared$ = this.loader$.pipe(
-      startWith(0),
+    this.facsimileCollections$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.facsimileService.getFacsimileCollections()]).pipe(
         map(([project, facsimiles]) => {
           return facsimiles;
         })
       )),
-      shareReplay(1)
     );
-
-    this.facsimileCollections$ = facsimileCollectionsShared$;
-
-    this.facsimileCollections$.subscribe(facsimiles => {
-      this.loadingData = false;
-      this.facsimilesSource.next(facsimiles);
-    });
   }
 
   editCollection(collection: FacsimileCollection | null = null) {
@@ -122,7 +108,7 @@ export class FacsimilesComponent {
         }
         req.subscribe({
           next: () => {
-            this.loader$.next();
+            this.loader$.next(0);
             this.snackbar.open('Facsimile collection saved', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
@@ -164,7 +150,7 @@ export class FacsimilesComponent {
         const payload = { ...collection, deleted: Deleted.Deleted };
         this.facsimileService.editFacsimileCollection(collection.id, payload).subscribe({
           next: () => {
-            this.loader$.next();
+            this.loader$.next(0);
             this.snackbar.open('Facsimile collection deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });

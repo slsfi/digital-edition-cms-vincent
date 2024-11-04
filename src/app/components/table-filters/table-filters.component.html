@@ -23,7 +23,7 @@
           <ng-container *ngIf="field.type === 'string' || field.type === 'number' || field.type === 'id'">
             <input matInput [formControlName]="field.field" />
           </ng-container>
-          <ng-container *ngIf="field.type === 'type'">
+          <ng-container *ngIf="field.type === 'person_type' ">
             <mat-select [formControlName]="field.field">
               <mat-option>Any</mat-option>
               @for (type of personTypes; track type.value) {

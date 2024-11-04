@@ -21,7 +21,7 @@
       <loading-spinner [overlay]="true"></loading-spinner>
     }
       <custom-table
-        [data$]="publicationCollectionsResult$"
+        [data$]="publicationCollections$"
         [columns]="publicationCollectionColumnsData"
         [idRouteParams]="['/publication-collections/']"
         (editRow)="editPublicationCollection($event)"
