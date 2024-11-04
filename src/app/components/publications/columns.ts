@@ -65,7 +65,7 @@ export const allCommentsColumnData: Column[] = [
   { field: 'published', header: 'Published', type: 'published', editable: true },
 ]
 export const facsimileColumnData: Column[] = [
-  { field: 'title', header: 'Title', type: 'string', editable: true },
+  { field: 'title', header: 'Title', type: 'string', editable: false },
   { field: 'external_url', header: 'External URL', type: 'string', editable: true },
   { field: 'page_nr', header: 'Page Number', type: 'number', editable: true },
   { field: 'section_id', header: 'Section ID', type: 'number', editable: true },
