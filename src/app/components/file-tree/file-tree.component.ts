@@ -3,7 +3,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule, MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
-import { map } from 'rxjs';
+import { map, Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { CommonModule } from '@angular/common';
@@ -29,6 +29,8 @@ interface FlatTreeNode {
 })
 export class FileTreeComponent {
   readonly filename = inject<string>(MAT_DIALOG_DATA);
+
+  private destroy$ = new Subject<void>();
 
   @Input() value: string | null = '';
   @Input() onlyFiles: boolean = false;
@@ -72,6 +74,7 @@ export class FileTreeComponent {
     // Fetch file tree data
     setTimeout(() => {
       this.projectService.getFileTree().pipe(
+        takeUntil(this.destroy$),
         map((fileTree) => this.convertToTreeNode(fileTree))
       ).subscribe((data: TreeNode[]) => {
         this.dataSource.data = data;
@@ -80,6 +83,11 @@ export class FileTreeComponent {
         }
       });
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get selectedNodeName() {

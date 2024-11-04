@@ -1,7 +1,6 @@
 import { FacsimileService } from './../../services/facsimile.service';
 import { Component } from '@angular/core';
-import { ProjectService } from '../../services/project.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FacsimileCollection } from '../../models/facsimile';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -40,9 +39,6 @@ export class NewPublicationFacsimileComponent {
   publication$: Observable<Publication> = new Observable<Publication>();
   loading$: Observable<boolean>;
 
-  private facsimilesSource = new BehaviorSubject<FacsimileCollection[]>([]);
-  facsimilesResult$: Observable<FacsimileCollection[]> = this.facsimilesSource.asObservable();
-
   form!: FormGroup;
 
   columns: Column[] = [
@@ -72,9 +68,7 @@ export class NewPublicationFacsimileComponent {
 
   ngOnInit() {
     this.facsimileCollections$ = this.facsimileService.getFacsimileCollections();
-    this.facsimileCollections$.subscribe(facsimiles => {
-      this.facsimilesSource.next(facsimiles);
-    });
+
     const publicationId = parseInt(this.route.snapshot.paramMap.get('publicationId') as string);
     this.publication$ = this.publicationService.getPublication(publicationId);
     this.form = new FormGroup({

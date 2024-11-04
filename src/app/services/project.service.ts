@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of, switchMap, take } from 'rxjs';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 
 @Injectable({
@@ -41,7 +41,7 @@ export class ProjectService {
 
   getFileTree(): Observable<any> {
     if (!this.fileTree$.value) {
-      this.getProjectFileTree().subscribe((fileTree) => {
+      this.getProjectFileTree().pipe(take(1)).subscribe((fileTree) => {
         this.fileTree$.next(fileTree);
       });
     }

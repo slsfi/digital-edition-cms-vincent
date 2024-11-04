@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { navigationItems } from '../../models/common';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'navigation',
@@ -21,11 +22,19 @@ export class NavigationComponent {
   navItems = navigationItems;
 
   currentUrl: string = '';
+  private destroy$ = new Subject<void>();
 
   constructor(private projectService: ProjectService, private authService: AuthService, private router: Router) {
-    this.router.events.subscribe(() => {
-      this.currentUrl = '/' + this.router.url.split('/')[1];
-    });
+    this.router.events
+    .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentUrl = '/' + this.router.url.split('/')[1];
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   logout() {

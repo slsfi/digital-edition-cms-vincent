@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column } from '../../models/common';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
-import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { LoadingService } from '../../services/loading.service';
@@ -42,6 +42,8 @@ export class CustomTableComponent {
   @Output() openRow: EventEmitter<any> = new EventEmitter<any>();
   @Output() selectRow: EventEmitter<any> = new EventEmitter<any>();
   @Output() deleteRow: EventEmitter<any> = new EventEmitter<any>();
+
+  private destroy$ = new Subject<void>();
 
   displayedColumns: string[] = [];
   editSecondaryUsed: boolean = false;
@@ -86,6 +88,7 @@ export class CustomTableComponent {
     setTimeout(() => {
       combineLatest([this.data$, this.queryParams$])
         .pipe(
+          takeUntil(this.destroy$),
           map(([data, queryParams]) => {
             this.originalCount = data.length;
 
@@ -132,6 +135,11 @@ export class CustomTableComponent {
           this.tableDataSource.data = data;
         });
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   edit(model: any) {
