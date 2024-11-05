@@ -51,27 +51,22 @@ export class PublicationsComponent {
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
   publicationColumnsData = publicationColumnsData;
-  allPublicationColumnsData = allPublicationColumnsData;
   // VERSIONS
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = of([]);
   versionColumnsData = versionColumnsData;
-  allVersionColumnsData = allVersionColumnsData;
   // MANUSCRIPTS
   manuscriptsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   manuscripts$: Observable<Manuscript[]> = of([]);
   manuscriptColumnsData = manuscriptColumnsData;
-  allManuscriptColumnsData = allManuscriptColumnsData;
   // COMMENTS
   commentLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   comments$: Observable<PublicationComment[]> = of([]);
   commentsColumnData = commentsColumnData
-  allCommentsColumnData = allCommentsColumnData;
   // FACSIMILES
   facsimilesLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
   facsimileColumnData = facsimileColumnData;
-  allFacsimileColumnData = allFacsimileColumnData;
 
   constructor(
     private publicationService: PublicationService,
@@ -143,10 +138,9 @@ export class PublicationsComponent {
 
   editPublication(publication: Publication | null = null, collectionId: string) {
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '400px',
       data: {
         model: publication ?? {},
-        columns: this.allPublicationColumnsData,
+        columns: allPublicationColumnsData,
         title: 'Publication'
       }
     });
@@ -197,10 +191,9 @@ export class PublicationsComponent {
 
   editVersion(version: Version | null, publicationId: number) {
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '400px',
       data: {
         model: version ?? {},
-        columns: this.allVersionColumnsData,
+        columns: allVersionColumnsData,
         title: 'Version'
       }
     });
@@ -228,10 +221,9 @@ export class PublicationsComponent {
 
   editManuscript(manuscript: Manuscript | null, publicationId: number) {
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '400px',
       data: {
         model: manuscript ?? {},
-        columns: this.allManuscriptColumnsData,
+        columns: allManuscriptColumnsData,
         title: 'Manuscript'
       }
     });
@@ -259,10 +251,9 @@ export class PublicationsComponent {
 
   editComment(comment: PublicationComment | null, publicationId: number) {
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '400px',
       data: {
         model: comment ?? {},
-        columns: this.allCommentsColumnData,
+        columns: allCommentsColumnData,
         title: 'Comment'
       }
     });
@@ -288,11 +279,10 @@ export class PublicationsComponent {
   }
 
   editFacsimile(facsimile: PublicationFacsimile | null, publicationId: number) {
-    const columns = this.allFacsimileColumnData
+    const columns = allFacsimileColumnData
       .filter(column => column.type !== 'action')
       .sort((a: any, b: any) => b.editable - a.editable)
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '400px',
       data: {
         model: facsimile ?? {},
         columns,
@@ -441,14 +431,12 @@ export class PublicationsComponent {
   filter() {
     const columns = this.publicationColumnsData.filter(column => column.filterable);
     this.dialog.open(TableFiltersComponent, {
-      width: '250px',
       data: columns
     });
   }
 
   sort() {
     this.dialog.open(TableSortingComponent, {
-      width: '250px',
       data: this.publicationColumnsData
     });
   }

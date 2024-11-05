@@ -106,7 +106,6 @@ export class PublicationCollectionsComponent {
       columns = columns.filter(column => column.editable);
     }
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '400px',
       data: {
         model: publicationCollection ?? {},
         columns,
@@ -159,7 +158,6 @@ export class PublicationCollectionsComponent {
   filter() {
     const columns = this.allPublicationCollectionColumns.filter(column => column.filterable);
     this.dialog.open(TableFiltersComponent, {
-      width: '250px',
       data: columns
     });
   }
@@ -167,7 +165,6 @@ export class PublicationCollectionsComponent {
   sort() {
     const columns = this.publicationCollectionColumnsData.filter(column => column.field !== 'action');
     this.dialog.open(TableSortingComponent, {
-      width: '250px',
       data: columns
     });
   }

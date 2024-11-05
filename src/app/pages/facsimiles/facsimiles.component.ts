@@ -123,7 +123,6 @@ export class FacsimilesComponent {
   filter() {
     const columns = this.columnsData.filter(column => column.filterable);
     this.dialog.open(TableFiltersComponent, {
-      width: '250px',
       data: columns
     });
   }
@@ -131,7 +130,6 @@ export class FacsimilesComponent {
   sort() {
     const columns = this.columnsData.filter(column => column.filterable);
     this.dialog.open(TableSortingComponent, {
-      width: '250px',
       data: columns
     });
   }

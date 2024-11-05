@@ -68,7 +68,6 @@ export class ProjectsComponent {
       return { ...column, editable }
     })
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '300px',
       data: {
         model: project ?? {},
         columns: columns,
@@ -98,14 +97,12 @@ export class ProjectsComponent {
   filterProjects() {
     const columns = this.columnsData.filter(column => column.filterable);
     this.dialog.open(TableFiltersComponent, {
-      width: '250px',
       data: columns
     });
   }
 
   deleteProject(project: Project) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '250px',
       data: {
         message: 'Are you sure you want to delete this project?',
         cancelText: 'No',

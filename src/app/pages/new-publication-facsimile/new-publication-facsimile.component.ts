@@ -83,7 +83,6 @@ export class NewPublicationFacsimileComponent {
   filter() {
     const columns = this.columns.filter(column => column.filterable);
     this.dialog.open(TableFiltersComponent, {
-      width: '250px',
       data: columns
     });
   }

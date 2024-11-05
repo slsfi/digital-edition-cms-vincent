@@ -95,7 +95,6 @@ export class PersonsComponent {
 
   edit(person: Person | null = null) {
     const dialogRef = this.dialog.open(EditDialogComponent, {
-      width: '500px',
       data: {
         model: person ?? {},
         columns: this.allColumns,
@@ -123,7 +122,6 @@ export class PersonsComponent {
 
   deleteRow(person: Person) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
       data: {
         message: 'Are you sure you want to delete this person?',
         confirmText: 'Delete',
@@ -148,7 +146,6 @@ export class PersonsComponent {
   filterPersons() {
     const columns = this.allColumns.filter(column => column.filterable);
     this.dialog.open(TableFiltersComponent, {
-      width: '250px',
       data: columns
     });
   }
