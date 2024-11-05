@@ -39,7 +39,7 @@ export class ApiService {
     return throwError(() => error);
   }
 
-  post(url: string, body: any, options: any = {}, disableErrorMessage: boolean = false) {
+  post(url: string, body?: any, options: any = {}, disableErrorMessage: boolean = false) {
     return this.http.post(url, body, options)
       .pipe(
         map((response: any) => response),

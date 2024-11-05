@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { BehaviorSubject, filter, map, Observable, of, switchMap, take } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take } from 'rxjs';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
 import { HttpContext } from '@angular/common/http';
 import { SkipLoading } from '../interceptors/loading.interceptor';
@@ -65,4 +65,25 @@ export class ProjectService {
     localStorage.setItem('selected_project', project || '');
   }
 
+  getGitRepoDetails() {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/git-repo-details`;
+        return this.apiService.get(url).pipe(
+          map((response: any) => response.data)
+        );
+      }),
+    );
+  }
+
+  pullChangesFromGitRemote() {
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/sync_files/`;
+        return this.apiService.post(url);
+      }),
+    );
+  }
 }
