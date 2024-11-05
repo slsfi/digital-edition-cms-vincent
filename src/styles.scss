@@ -5,6 +5,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .container {
   width: calc(100vw - 8em);
+
+  @media screen and (max-width: 960px) {
+    width: calc(100vw - 4em);
+
+  }
 }
 
 .header-row {

@@ -4,7 +4,7 @@
 <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
   <div class="publications">
     <div class="content">
-      <div class="list">
+      <div class="list" *ngIf="(isSmallScreen && (publicationId$ | async) == null) || !isSmallScreen">
         @if (loading$ | async) {
           <loading-spinner [overlay]="true"></loading-spinner>
         }
@@ -27,27 +27,29 @@
       <div>
         <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
           <div class="cards">
-
-            <mat-card appearance="outlined">
-              <mat-card-header>
-                <mat-card-title>{{ selectedPublication.name }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="rows">
-                  <div> ID: {{ selectedPublication.id }}</div>
-                  <div>Date of Origin: {{ selectedPublication.original_publication_date | customDate: 'YYYY-MM-dd' }}</div>
-                  <div>Language: {{ selectedPublication.language }}</div>
-                  <div>Genre: {{ selectedPublication.genre }}</div>
-                </div>
-                <div class="file-row">
-                  <div>
-                    <span> Reading text:</span>
-                    {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}
+            <div class="title-card">
+              <a *ngIf="isSmallScreen" mat-icon-button [routerLink]="['/publication-collections', publicationCollectionId]"><mat-icon>west</mat-icon></a>
+              <mat-card appearance="outlined">
+                <mat-card-header>
+                  <mat-card-title>{{ selectedPublication.name }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="rows">
+                    <div> ID: {{ selectedPublication.id }}</div>
+                    <div>Date of Origin: {{ selectedPublication.original_publication_date | customDate: 'YYYY-MM-dd' }}</div>
+                    <div>Language: {{ selectedPublication.language }}</div>
+                    <div>Genre: {{ selectedPublication.genre }}</div>
                   </div>
-                  <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
-                </div>
-              </mat-card-content>
-            </mat-card>
+                  <div class="file-row">
+                    <div>
+                      <span> Reading text:</span>
+                      {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}
+                    </div>
+                    <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
 
             <mat-card appearance="outlined">
               <mat-card-content>

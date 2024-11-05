@@ -27,6 +27,7 @@ import {
 } from './columns';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { Deleted } from '../../models/common';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'publications',
@@ -68,15 +69,19 @@ export class PublicationsComponent {
   facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
   facsimileColumnData = facsimileColumnData;
 
+  isSmallScreen: boolean = false;
+
   constructor(
     private publicationService: PublicationService,
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private snackbar: MatSnackBar,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.loading$ = this.loadingService.loading$;
+    this.isSmallScreen = this.breakpointObserver.isMatched('(max-width: 960px)');
    }
 
   ngOnInit() {

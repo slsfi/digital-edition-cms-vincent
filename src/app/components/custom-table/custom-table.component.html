@@ -10,40 +10,42 @@
   </div>
 </div>
 
-<table mat-table [dataSource]="tableDataSource">
-  @if (selectable) {
-    <ng-container matColumnDef="select">
-      <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox [disabled]="true"></mat-checkbox>
-      </th>
-      <td mat-cell *matCellDef="let row">
-        <mat-checkbox
-          (click)="$event.stopPropagation()"
-          (change)="selectionChanged(row)"
-          [checked]="selection.isSelected(row)">
-        </mat-checkbox>
+<div class="table-container">
+  <table mat-table [dataSource]="tableDataSource">
+    @if (selectable) {
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [disabled]="true"></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="selectionChanged(row)"
+            [checked]="selection.isSelected(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+    }
+    @for (column of tableColumns; track column.field;) {
+      <ng-container [matColumnDef]="column.field">
+        <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
+        <td [ngClass]="{'index': column.type === 'index', 'selected': model.id.toString() === selectedId }" mat-cell *matCellDef="let model; let i = index;">
+          <ng-container
+            [ngTemplateOutlet]="columnCells"
+            [ngTemplateOutletContext]="{ column, model, index: i }">
+          </ng-container>
+        </td>
+      </ng-container>
+    }
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="tableColumns.length">
+        No rows
       </td>
-    </ng-container>
-  }
-  @for (column of tableColumns; track column.field;) {
-    <ng-container [matColumnDef]="column.field">
-      <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
-      <td [ngClass]="{'index': column.type === 'index', 'selected': model.id.toString() === selectedId }" mat-cell *matCellDef="let model; let i = index;">
-        <ng-container
-          [ngTemplateOutlet]="columnCells"
-          [ngTemplateOutletContext]="{ column, model, index: i }">
-        </ng-container>
-      </td>
-    </ng-container>
-  }
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  <tr class="mat-row" *matNoDataRow>
-    <td class="mat-cell" [attr.colspan]="tableColumns.length">
-      No rows
-    </td>
-  </tr>
-</table>
+    </tr>
+  </table>
+</div>
 <mat-paginator
   *ngIf="paginationEnabled"
   #paginator
