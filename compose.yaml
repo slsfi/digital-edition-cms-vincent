@@ -1,0 +1,10 @@
+services:
+  web:
+    extra_hosts:
+      - "api.sls.fi:172.16.2.136"
+      - "granska-api.sls.fi:172.16.2.136"
+      - "testa-api.sls.fi:10.0.32.143"
+    image: ghcr.io/slsfi/digital-edition-cms-vincent:main
+    ports:
+      - "8082:80"
+    restart: unless-stopped
