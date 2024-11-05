@@ -20,6 +20,7 @@ interface InputData {
   model: any;
   columns: Column[];
   title: string;
+  tableName: string;
 }
 
 @Component({

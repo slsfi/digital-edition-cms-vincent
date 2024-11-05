@@ -98,7 +98,8 @@ export class PersonsComponent {
       data: {
         model: person ?? {},
         columns: this.allColumns,
-        title: 'Person'
+        title: 'Person',
+        tableName: 'subject',
       }
     });
 

@@ -91,6 +91,7 @@
     </form>
   } @else {
     <field-translations
+      [tableName]="data.tableName"
       [field]="fieldForTranslate"
       [data]="data.model"
       [parentTranslationField]="parentTranslationField"
