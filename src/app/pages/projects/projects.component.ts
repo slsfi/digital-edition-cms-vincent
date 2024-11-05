@@ -1,3 +1,4 @@
+import { QueryParamsService } from './../../services/query-params.service';
 import { Component } from '@angular/core';
 import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
@@ -16,13 +17,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent,
-    CustomTableComponent, CustomTableComponent,
+    CustomTableComponent, CustomTableComponent, MatBadgeModule
   ],
   providers: [DatePipe],
   templateUrl: './projects.component.html',
@@ -31,6 +33,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 export class ProjectsComponent {
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   projects$: Observable<Project[]> = of([]);
+  filterParams$: Observable<any>;
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
@@ -48,9 +51,11 @@ export class ProjectsComponent {
     private projectService: ProjectService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private queryParamsService: QueryParamsService
   ) {
     this.loading$ = this.loadingService.loading$;
+    this.filterParams$ = this.queryParamsService.filterParams$
    }
 
   ngOnInit() {

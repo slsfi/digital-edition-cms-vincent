@@ -34,7 +34,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
   standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
-    FileTreeComponent, MatCardModule, MatBadgeModule, CustomTableComponent, CustomTableComponent
+    FileTreeComponent, MatCardModule, MatBadgeModule, CustomTableComponent
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
