@@ -1,3 +1,4 @@
+import { XmlMetadata } from './../../models/publication';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +16,7 @@ import { personTypeOptions } from '../../models/person';
 import { MatIconModule } from '@angular/material/icon';
 import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { PublicationService } from '../../services/publication.service';
 
 interface InputData {
   model: any;
@@ -36,7 +38,7 @@ interface InputData {
 })
 export class EditDialogComponent {
 
-  constructor() { }
+  constructor(private publicationService: PublicationService) { }
 
   readonly data = inject<InputData>(MAT_DIALOG_DATA);
 
@@ -51,6 +53,10 @@ export class EditDialogComponent {
 
   get originalFilenameControl() {
     return this.form.controls['original_filename'];
+  }
+
+  get showMetadataButton() {
+    return this.data.title != 'Comments'
   }
 
   ngOnInit() {
@@ -125,6 +131,22 @@ export class EditDialogComponent {
   fileSelected(filename: string) {
     this.fileSelectorVisible = false;
     this.originalFilenameControl.setValue(filename);
+  }
+
+  getMetadata() {
+    this.publicationService.getMetadataFromXML(this.originalFilenameControl.value)
+      .subscribe(metadata => {
+        for (const key in metadata) {
+          if (metadata.hasOwnProperty(key)) {
+            const control = this.form.controls[key];
+            const value = metadata[key as keyof XmlMetadata];;
+            if (control && !!value && !this.form.value[key]) {
+              control.setValue(value);
+            }
+          }
+        }
+      });
+
   }
 
 }

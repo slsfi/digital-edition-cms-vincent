@@ -170,6 +170,16 @@ export interface ManuscriptResponse {
   manuscripts: Manuscript[];
 }
 
+export interface XmlMetadata {
+  genre: string;
+  language: string;
+  name: string;
+  original_publication_date: string;
+}
+
+export interface XmlMetadataResponse extends ApiResponse {
+  data: XmlMetadata;
+}
 
 
 export interface LinkTextToPublicationRequest {

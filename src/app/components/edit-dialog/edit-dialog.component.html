@@ -63,8 +63,8 @@
                     cdkTextareaAutosize
                     #autosize="cdkTextareaAutosize"
                     cdkAutosizeMinRows="1"
-                    cdkAutosizeMaxRows="7"
-                    ></textarea>
+                    cdkAutosizeMaxRows="7">
+                  </textarea>
                 } @else if (column.type === 'number') {
                   <input matInput [formControlName]="column.field" type="number"/>
                 } @else {
@@ -74,7 +74,7 @@
                     [placeholder]="column.field === 'date_born' || column.field === 'date_deceased' ? 'YYYY or YYYY-MM-DD' : ''" />
                 }
               </mat-form-field>
-          }
+            }
           }
           @if (column.translations && data.model?.id) {
             <div class="translations">
@@ -84,6 +84,12 @@
           @if (column.field === 'original_filename') {
             <div class="translations">
               <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
+              @if (originalFilenameControl.value != null && showMetadataButton)  {
+                <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()">
+                  <mat-icon>sync</mat-icon>
+                  Read XML metadata
+                </button>
+              }
             </div>
           }
         </div>
@@ -109,5 +115,5 @@
     [disabled]="!form.valid || fieldForTranslate != null || fileSelectorVisible"
     form="edit-form">
       {{ data.model.id ? 'Save' : 'Add' }}
-    </button>
+  </button>
 </mat-dialog-actions>
