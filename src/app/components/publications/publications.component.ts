@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable, of, switchMap } from 'rxjs';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -89,6 +89,7 @@ export class PublicationsComponent {
     this.publications$ = this.publicationsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$])
         .pipe(
+          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([project, collectionId]) => this.publicationService.getPublications(collectionId as string))
         )
       ),
