@@ -1,5 +1,6 @@
 .selectable {
   cursor: pointer;
+  word-break: break-all;
 
   &:hover {
     background-color: #f0f0f0;

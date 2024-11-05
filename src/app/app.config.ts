@@ -22,6 +22,6 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 5000 } },
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { width: '500px' } },
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { minWidth: '500px' } },
   ],
 };
