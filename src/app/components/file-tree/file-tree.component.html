@@ -15,7 +15,7 @@
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <div><span class="selected">selected:</span> {{ selectedNodes.join(' / ') }}</div>
+    <div class="selected-text" ><span class="selected">selected:</span> {{ selectedNodes.join(' / ') }}</div>
     <button mat-button mat-dialog-close>Cancel</button>
     <button
       mat-flat-button
@@ -28,11 +28,11 @@
 }
 
 <ng-template #fileTree>
-  <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl">
+  <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
     <!-- Node template for leaf nodes -->
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
       <button mat-icon-button disabled></button>
-      <span class="selectable" [ngClass]="{'selected': selectedNodeName === node.name}" (click)="select(node)">{{node.name}}</span>
+      <span class="selectable" [ngClass]="{'selected': selectedNodeName === node.name}" (click)="select(node);tree.collapseAll()">{{node.name}}</span>
     </mat-tree-node>
 
     <!-- Node template for expandable nodes -->
@@ -40,7 +40,7 @@
       <div class="expandable" [ngClass]="{'selected': isSelected(node) }" [attr.aria-label]="'toggle ' + node.name" matTreeNodeToggle>
         <button mat-icon-button >
           <mat-icon class="mat-icon-rtl-mirror">
-            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
           </mat-icon>
         </button>
         {{node.name}}

@@ -70,9 +70,9 @@ export class CustomTableComponent {
   ngOnInit() {
     this.queryParams$ = this.queryParamsService.queryParams$;
     this.pageParams$ = this.queryParamsService.pageParams$;
-    this.editSecondaryUsed = this.editRowSecondary.observers.length > 0;
-    this.deleteUsed = this.deleteRow.observers.length > 0;
-    this.openUsed = this.openRow.observers.length > 0;
+    this.editSecondaryUsed = this.editRowSecondary.observed;
+    this.deleteUsed = this.deleteRow.observed;
+    this.openUsed = this.openRow.observed;
     this.originalColumns = this.columns;
     const indexColumn: Column = {field: 'index', header: '#', filterable: false, type: 'index'};
     const columns = this.columns.filter(column => column.visible !== false);

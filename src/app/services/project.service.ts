@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, filter, map, Observable, of, switchMap, take } from 'rxjs';
 import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
+import { HttpContext } from '@angular/common/http';
+import { SkipLoading } from '../interceptors/loading.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +44,7 @@ export class ProjectService {
   getFileTree(): Observable<any> {
     if (!this.fileTree$.value) {
       this.getProjectFileTree().pipe(take(1)).subscribe((fileTree) => {
-        this.fileTree$.next(fileTree);
+        this.fileTree$.next(fileTree.data);
       });
     }
     return this.fileTree$;
@@ -53,7 +55,7 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/get_tree/`;
-        return this.apiService.get(url);
+        return this.apiService.get(url, { context: new HttpContext().set(SkipLoading, true)});
       }),
     );
   }
