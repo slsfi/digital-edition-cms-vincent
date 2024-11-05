@@ -102,7 +102,7 @@
   <button mat-button mat-dialog-close>Cancel</button>
   <button
     *ngIf="form"
-    mat-button
+    mat-flat-button
     [mat-dialog-close]="{ type: data.model.id ? 'Edit' : 'Add', form }"
     type="button"
     [disabled]="!form.valid || fieldForTranslate != null || fileSelectorVisible"

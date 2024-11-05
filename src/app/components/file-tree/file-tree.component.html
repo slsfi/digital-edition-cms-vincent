@@ -18,7 +18,7 @@
     <div><span class="selected">selected:</span> {{ selectedNodes.join(' / ') }}</div>
     <button mat-button mat-dialog-close>Cancel</button>
     <button
-      mat-button
+      mat-flat-button
       [mat-dialog-close]="selectedNodes"
       [disabled]="selectedNodes.length === 0"
       (click)="selected()">
