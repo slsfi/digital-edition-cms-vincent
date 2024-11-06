@@ -4,7 +4,6 @@
   @if (fileSelectorVisible) {
     <div class="bordered">
       <file-tree
-        [onlyFiles]="true"
         [value]="originalFilenameControl.value"
         (close)="fileSelectorVisible = false"
         (valueChange)="fileSelected($event)"

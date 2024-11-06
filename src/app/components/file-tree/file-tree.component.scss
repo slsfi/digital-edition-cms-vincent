@@ -17,13 +17,6 @@
   font-weight: 600;
 }
 
-.selected-text {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-bottom: 10px;
-}
-
 ::ng-deep .mat-tree-node {
   min-height: 0 !important;
 }

@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { MatDialog } from '@angular/material/dialog';
-import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatCardModule } from '@angular/material/card';
 import { TableFiltersComponent } from '../table-filters/table-filters.component';
 import { TableSortingComponent } from '../table-sorting/table-sorting.component';
@@ -28,13 +27,14 @@ import {
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { Deleted } from '../../models/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
 
 @Component({
   selector: 'publications',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
-    FileTreeComponent, MatCardModule, MatBadgeModule, CustomTableComponent
+    FileTreeDialogComponent, MatCardModule, MatBadgeModule, CustomTableComponent
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
@@ -175,7 +175,7 @@ export class PublicationsComponent {
   }
 
   editSelectedText(publication: Publication) {
-    const dialogRef = this.dialog.open(FileTreeComponent, {
+    const dialogRef = this.dialog.open(FileTreeDialogComponent, {
       data: publication.original_filename
     });
 
