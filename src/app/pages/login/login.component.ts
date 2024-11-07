@@ -49,15 +49,14 @@ export class LoginComponent {
   environments = [
     {value: 'https://api.sls.fi/', name: 'Production'},
     {value: 'https://granska-api.sls.fi/', name: 'Staging'},
-    {value: '/testing/', name: 'Development'},
+    {value: 'https://testa-api.sls.fi/', name: 'Development'},
     {value: ' ', name: 'Custom'}
   ];
 
   loginForm: FormGroup = new FormGroup({
-    // FIXME: remove default values
-    email: new FormControl('tomi@identio.fi', {nonNullable: true, validators: [Validators.required]}),
-    password: new FormControl('identio', {nonNullable: true, validators: [Validators.required]}),
-    environment: new FormControl('/testing/', {nonNullable: true, validators: [Validators.required]}),
+    email: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
+    password: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
+    environment: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
     customEnvironment: new FormControl('', {nonNullable: true, validators: [requiredIfEnvironmentIsCustom]})
   });
 

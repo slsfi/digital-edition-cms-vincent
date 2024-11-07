@@ -4,34 +4,14 @@
   gap: 10px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+.table-container {
+  overflow-x: auto;
+}
 
-  th, td {
-    background-color: #faf9fd;
-    padding: 0 16px;
-
-    &.selected {
-      background-color: #d5d4d4;
-    }
-  }
-
-  th {
-    height: 56px;
-  }
-
-  td {
-    height: 52px;
-    border-top: 1px solid #e0e0e0;
-  }
+.selected {
+  background-color: #d5d4d4;
 }
 
 .index {
   color: #c4c4c4;
-}
-
-.viewport {
-  height: calc(100vh - 360px);
 }

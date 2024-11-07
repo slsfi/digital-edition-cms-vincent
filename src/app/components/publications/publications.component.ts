@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { MatDialog } from '@angular/material/dialog';
-import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatCardModule } from '@angular/material/card';
 import { TableFiltersComponent } from '../table-filters/table-filters.component';
 import { TableSortingComponent } from '../table-sorting/table-sorting.component';
@@ -27,13 +26,15 @@ import {
 } from './columns';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { Deleted } from '../../models/common';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
 
 @Component({
   selector: 'publications',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
-    FileTreeComponent, MatCardModule, MatBadgeModule, CustomTableComponent, CustomTableComponent
+    FileTreeDialogComponent, MatCardModule, MatBadgeModule, CustomTableComponent
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
@@ -68,15 +69,19 @@ export class PublicationsComponent {
   facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
   facsimileColumnData = facsimileColumnData;
 
+  isSmallScreen: boolean = false;
+
   constructor(
     private publicationService: PublicationService,
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private snackbar: MatSnackBar,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.loading$ = this.loadingService.loading$;
+    this.isSmallScreen = this.breakpointObserver.isMatched('(max-width: 960px)');
    }
 
   ngOnInit() {
@@ -170,7 +175,7 @@ export class PublicationsComponent {
   }
 
   editSelectedText(publication: Publication) {
-    const dialogRef = this.dialog.open(FileTreeComponent, {
+    const dialogRef = this.dialog.open(FileTreeDialogComponent, {
       data: publication.original_filename
     });
 

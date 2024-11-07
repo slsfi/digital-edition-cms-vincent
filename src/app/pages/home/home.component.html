@@ -1,7 +1,11 @@
 @let availableProjects = availableProjects$ | async;
 @let selectedProject = selectedProject$ | async;
-
+@let details = repoDetails$ | async;
 <div class="container">
+
+  @if (loading$ | async) {
+    <loading-spinner [overlay]="true"></loading-spinner>
+  }
 
   <div class="content">
     <h1>Home</h1>
@@ -21,6 +25,21 @@
         </mat-select>
       </mat-form-field>
     }
+    @if (details != null) {
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Repository details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div>Repository: {{details.name}}</div>
+          <div>Branch: {{details.branch}}</div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button (click)="pullRepo()">Sync repository</button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
     <mat-divider></mat-divider>
     <h2>Where to?</h2>
 

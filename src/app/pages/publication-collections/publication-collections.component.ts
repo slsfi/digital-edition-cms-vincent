@@ -109,7 +109,8 @@ export class PublicationCollectionsComponent {
       data: {
         model: publicationCollection ?? {},
         columns,
-        title: 'Publication Collection'
+        title: 'Publication Collection',
+        tableName: 'publication_collection',
       }
     });
 

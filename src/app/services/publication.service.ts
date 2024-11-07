@@ -1,12 +1,12 @@
 import { ProjectService } from './project.service';
 import { Injectable } from '@angular/core';
-import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { filter, map, Observable, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   LinkTextToPublicationRequest, Manuscript, ManuscriptEditRequest, ManuscriptResponse, Publication, PublicationAddRequest,
   PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse,
   PublicationComment, PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
-  Version, VersionEditRequest, VersionResponse
+  Version, VersionEditRequest, VersionResponse, XmlMetadataResponse
 } from '../models/publication';
 import {
   EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse
@@ -203,6 +203,19 @@ export class PublicationService {
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${facsimileCollectionId}/link/`;
         return this.apiService.post(url, data);
+      }),
+    );
+  }
+
+  getMetadataFromXML(xmlPath: string) {
+    // <project>/get_metadata_from_xml/by_path/<path:file_path>
+    return this.selectedProject$.pipe(
+      filter(project => !!project),
+      switchMap(project => {
+        const url = `${this.apiService.prefixedUrl}/${project}/get_metadata_from_xml/by_path/${xmlPath}`;
+        return this.apiService.get(url).pipe(
+          map((response: XmlMetadataResponse) => response.data)
+        );
       }),
     );
   }

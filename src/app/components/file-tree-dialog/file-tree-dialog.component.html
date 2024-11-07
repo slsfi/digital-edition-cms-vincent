@@ -1,0 +1,15 @@
+
+  <mat-dialog-content>
+    <file-tree [(value)]="filePath"></file-tree>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <div class="selected-text" ><span class="selected">selected:</span>{{ selectedNodes.join(' / ')}}</div>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-flat-button
+      [mat-dialog-close]="selectedNodes"
+      [disabled]="selectedNodes.length === 0">
+      Select
+    </button>
+  </mat-dialog-actions>
