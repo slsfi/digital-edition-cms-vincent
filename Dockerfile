@@ -37,7 +37,7 @@ RUN npm run build
 # 2. Create final image from official nginx image.
 FROM nginx:${NGINX_IMAGE_TAG} AS final
 # Copy the dist/browser folder from the build image to the final, runtime image.
-COPY --from=build /digital-edition-cms-vincent/dist/browser /usr/share/nginx/html
+COPY --from=build /digital-edition-cms-vincent/dist/vincent-cms/browser /usr/share/nginx/html
 # Expose port 80 to the outside world
 EXPOSE 80
 # Start nginx server
