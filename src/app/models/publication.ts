@@ -53,7 +53,7 @@ export interface Publication {
   published: Published;
 }
 export interface PublicationAddRequest {
-  name: string;
+  name?: string;
   publication_comment_id?: number;
   published?: Published;
   legacy_id?: string;

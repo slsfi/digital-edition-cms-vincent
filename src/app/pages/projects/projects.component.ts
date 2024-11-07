@@ -116,7 +116,7 @@ export class ProjectsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { ...project, deleted: Deleted.Deleted };
         this.projectService.editProject(project.id, payload).subscribe({
           next: () => {

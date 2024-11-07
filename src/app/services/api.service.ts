@@ -14,7 +14,7 @@ export class ApiService {
    }
 
   environment$ = new BehaviorSubject<string|null>(null);
-  prefix: string = '/digitaledition';
+  prefix: string = 'digitaledition';
 
   setEnvironment(env: string | null) {
     this.environment$.next(env);

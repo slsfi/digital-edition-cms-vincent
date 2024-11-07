@@ -11,7 +11,6 @@ import {
 import {
   EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse
  } from '../models/facsimile';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +19,7 @@ export class PublicationService {
 
   selectedProject$;
 
-  constructor(private apiService: ApiService, private projectService: ProjectService, private snackbar: MatSnackBar) {
+  constructor(private apiService: ApiService, private projectService: ProjectService) {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
@@ -167,7 +166,6 @@ export class PublicationService {
   }
 
   editManuscript(manuscriptId: number, data: ManuscriptEditRequest) {
-    // /<project>/manuscripts/<manuscript_id>/edit/
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -208,7 +206,6 @@ export class PublicationService {
   }
 
   getMetadataFromXML(xmlPath: string) {
-    // <project>/get_metadata_from_xml/by_path/<path:file_path>
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {

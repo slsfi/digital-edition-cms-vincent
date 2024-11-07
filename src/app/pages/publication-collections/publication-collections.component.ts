@@ -144,7 +144,7 @@ export class PublicationCollectionsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
         this.publicationService.editPublicationCollection(collection.id, payload).subscribe({
           next: () => {

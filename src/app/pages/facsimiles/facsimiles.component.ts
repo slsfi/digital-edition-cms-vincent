@@ -144,7 +144,7 @@ export class FacsimilesComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { ...collection, deleted: Deleted.Deleted };
         this.facsimileService.editFacsimileCollection(collection.id, payload).subscribe({
           next: () => {

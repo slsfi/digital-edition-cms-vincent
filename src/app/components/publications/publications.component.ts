@@ -326,7 +326,7 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { id: facsimile.id, deleted: Deleted.Deleted };
         this.publicationService.editFacsimileForPublication(payload).subscribe({
           next: () => {
@@ -348,7 +348,7 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { deleted: Deleted.Deleted };
         this.publicationService.editManuscript(manuscript.id, payload).subscribe({
           next: () => {
@@ -370,7 +370,7 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { deleted: Deleted.Deleted };
         this.publicationService.editVersion(version.id, payload).subscribe({
           next: () => {
@@ -392,7 +392,7 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { deleted: Deleted.Deleted };
         this.publicationService.editComment(publicationId, payload).subscribe({
           next: () => {
@@ -422,7 +422,7 @@ export class PublicationsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value) {
+      if (result?.value) {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
         this.publicationService.editPublication(publication.id, payload).subscribe({
           next: () => {

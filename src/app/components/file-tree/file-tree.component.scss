@@ -2,9 +2,15 @@
   cursor: pointer;
   word-break: break-all;
 
-  &:hover {
-    background-color: #f0f0f0;
+  &:hover span {
+    background-color: #dadada;
+    border-radius: 2px;
   }
+}
+
+span.selectable:hover {
+  background-color: #dadada;
+  border-radius: 2px;
 }
 
 .expandable {
@@ -19,4 +25,8 @@
 
 ::ng-deep .mat-tree-node {
   min-height: 0 !important;
+}
+
+.mat-tree-node span {
+  padding: 4px 8px;
 }

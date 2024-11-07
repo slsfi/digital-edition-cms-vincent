@@ -3,25 +3,32 @@
   <button mat-icon-button type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
 }
 
-@if (loading) {
+@if (loading && showLoading) {
   <loading-spinner></loading-spinner>
 }
 <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
   <!-- Node template for leaf nodes -->
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
     <button mat-icon-button disabled></button>
-    <span class="selectable" [ngClass]="{'selected': selectedNodeName === node.name}" (click)="select(node);tree.collapseAll()">{{node.name}}</span>
+    <span
+        [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable}"
+        (click)="node.isSelectable ? select(node, tree) : null">
+      {{node.name}}
+    </span>
   </mat-tree-node>
 
   <!-- Node template for expandable nodes -->
   <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding matTreeNodePaddingIndent="20">
-    <div class="expandable" [ngClass]="{'selected': isSelected(node) }" [attr.aria-label]="'toggle ' + node.name" matTreeNodeToggle>
-      <button mat-icon-button >
+    <div
+        class="expandable"
+        [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable }"
+        [attr.aria-label]="'toggle ' + node.name" matTreeNodeToggle>
+      <button mat-icon-button>
         <mat-icon class="mat-icon-rtl-mirror">
           {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
         </mat-icon>
       </button>
-      {{node.name}}
+      <span (click)="node.isSelectable ? select(node, tree) : null"> {{node.name}}</span>
     </div>
   </mat-tree-node>
 </mat-tree>

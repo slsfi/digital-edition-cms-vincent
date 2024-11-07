@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTreeModule } from '@angular/material/tree';
+import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { map, Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
@@ -11,6 +11,7 @@ interface TreeNode {
   name: string;
   children: TreeNode[];
   level: number;
+  isSelectable: boolean;
 }
 
 @Component({
@@ -25,8 +26,11 @@ export class FileTreeComponent {
   private destroy$ = new Subject<void>();
 
   @Input() value: string | null = '';
+  @Input() selectFolder: boolean = false;
+  @Input() showLoading: boolean = true;
   @Output() valueChange = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
+  @Output() filesInFolder = new EventEmitter<string[]>();
 
   closeInUse = false;
   dataSource: TreeNode[] = [];
@@ -64,24 +68,32 @@ export class FileTreeComponent {
   }
 
   childrenAccessor = (node: TreeNode) => node.children ?? [];
-  hasChild = (_: number, node: TreeNode) => {
-    return node.children.length > 0;
-  }
+  hasChild = (_: number, node: TreeNode) => node.children.length > 0;
 
   convertToTreeNode(data: any, level: number = 0): TreeNode[] {
     const result: TreeNode[] = [];
 
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
+        let isSelectable = false;
+        if (key.split('.')[1] === 'xml' && !this.selectFolder) {
+          isSelectable = true;
+        }
         const node: TreeNode = {
           name: key,
           children: [],
-          level: level
+          level: level,
+          isSelectable
         };
 
         // If the value is an object, recurse
         if (data[key] && typeof data[key] === 'object') {
           node.children = this.convertToTreeNode(data[key], level + 1);
+          if (this.selectFolder) {
+            node.isSelectable = node.children.some(child => child.name.split('.')[1] === 'xml');
+          } else {
+            node.isSelectable = node.name.split('.')[1] === 'xml' ? true : false;
+          }
         }
 
         result.push(node);
@@ -91,12 +103,23 @@ export class FileTreeComponent {
     return result;
   }
 
-  select(node: TreeNode) {
-    this.selectedNodes = this.getNodes(node);
-    this.valueChange.emit(this.selectedNodes.join('/'));
+  select(node: TreeNode, tree: MatTree<TreeNode>) {
+    const nodes = this.getNodes(node);
+    if (this.selectFolder) {
+      const fileNames = [];
+      const lastItem = nodes[nodes.length - 1];
+      for (const item of lastItem.children.filter(child => child.name.split('.')[1] === 'xml')) {
+        fileNames.push([...nodes.map(node => node.name), item.name].join('/'));
+      }
+      this.filesInFolder.emit(fileNames);
+    } else {
+      this.selectedNodes = nodes.map(node => node.name);
+      this.valueChange.emit(this.selectedNodes.join('/'));
+    }
+    tree.collapseAll();
   }
 
-  getNodes(targetNode: TreeNode): string[] {
+  getNodes(targetNode: TreeNode): TreeNode[] {
     const path: TreeNode[] = [];
 
     function findPath(nodes: TreeNode[], target: TreeNode): boolean {
@@ -123,7 +146,7 @@ export class FileTreeComponent {
     // Start the recursive search
     findPath(this.dataSource, targetNode);
 
-    return path.map(node => node.name);
+    return path;
   }
 
   isSelected(node: TreeNode): boolean {

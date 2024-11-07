@@ -85,3 +85,15 @@ td.selected {
   justify-content: space-between;
   align-items: center;
 }
+
+.add-bundle {
+  color: var(--mdc-filled-button-label-text-color, var(--mat-app-on-primary));
+  background-color: var(--mdc-filled-button-container-color, var(--mat-app-primary));
+
+  &.mat-mdc-icon-button mat-icon {
+    height: 20px;
+    width: 20px;
+    font-size: 20px;
+  }
+
+}

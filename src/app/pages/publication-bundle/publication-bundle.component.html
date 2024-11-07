@@ -1,0 +1,95 @@
+@let collection = selectedPublicationCollection$ | async;
+@let collectionId = publicationCollectionId$ | async;
+@let loading = loading$ | async;
+
+<h1>Text collection management</h1>
+
+@if (loading) {
+  <loading-spinner [overlay]="true"></loading-spinner>
+}
+
+@if (collectionId) {
+  <div class="header">
+    <a mat-icon-button [routerLink]="['/publication-collections', collectionId]"><mat-icon>west</mat-icon></a>
+    @if (collection) {
+      <h2>Add multiple publications to {{ collection.name }}</h2>
+    }
+  </div>
+
+  @if (collection) {
+
+    @if (files.length === 0) {
+      <h3>Select folder / files</h3>
+      @if (saveFailures.length) {
+        <div class="error-box">
+          <h3>Failed to save the following files:</h3>
+
+          <ul>
+            @for (filename of saveFailures; track filename) {
+              <li>{{ filename }}</li>
+            }
+          </ul>
+      </div>
+      }
+      <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="selectedFiles($event)"></file-tree>
+    } @else {
+      <form [formGroup]="bundleForm" id="bundle-form" (ngSubmit)="onSubmit(collectionId)">
+        <h3>Fill data and save</h3>
+        <div>
+          <div class="published-row">
+            <div class="actions">
+              <mat-form-field>
+                <mat-label>Set published to all rows</mat-label>
+                <mat-select formControlName="published" (selectionChange)="publishedChanged($event)">
+                  @for (option of publishedOptions; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button type="button" mat-flat-button (click)="readMetadata()">Read XML metadata</button>
+            </div>
+            <div>
+              <button mat-button type="button" (click)="clearForm()">Clear</button>
+              <button mat-flat-button type="submit" form="bundle-form" [disabled]="!bundleForm.valid">Save</button>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+          <ng-container formArrayName="files">
+            <ng-container *ngFor="let bundleRow of files.controls; let i = index">
+              <div class="bundle-row" [formGroup]="bundleRow">
+                <span>{{ i + 1 }}</span>
+                <mat-form-field class="path">
+                  <mat-label>File path</mat-label>
+                  <textarea
+                    matInput
+                    formControlName="original_filename"
+                    cdkTextareaAutosize
+                    #autosize="cdkTextareaAutosize"
+                    cdkAutosizeMinRows="1"
+                    cdkAutosizeMaxRows="7">
+                  </textarea>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Name</mat-label>
+                  <input matInput formControlName="name" type="text"/>
+                </mat-form-field>
+                <mat-form-field class="language">
+                  <mat-label>Language</mat-label>
+                  <input matInput formControlName="language" type="text"/>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Genre</mat-label>
+                  <input matInput formControlName="genre" type="text"/>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Date of origin</mat-label>
+                  <input matInput formControlName="original_publication_date" type="text"/>
+                </mat-form-field>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+      </form>
+    }
+  }
+}

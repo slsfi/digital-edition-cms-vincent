@@ -131,7 +131,7 @@ export class PersonsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.value === true) {
+      if (result?.value === true) {
         const payload = { ...person, deleted: Deleted.Deleted };
         this.subjectService.editSubject(person.id, payload).subscribe({
           next: () => {
