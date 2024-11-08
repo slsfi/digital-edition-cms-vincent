@@ -31,7 +31,7 @@ export class HomeComponent {
   availableProjects$: Observable<Project[]>;
   selectedProject$;
   repoDetails$: Observable<RepoDetails | null>;
-  loading$: Observable<boolean>;
+  loading$;
   navItems = navigationItems.filter((item) => item.route !== '/');
 
   readonly panelOpenState = signal(false);

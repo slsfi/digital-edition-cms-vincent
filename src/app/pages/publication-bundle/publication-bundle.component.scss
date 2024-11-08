@@ -3,6 +3,14 @@
   gap: 10px;
   align-items: flex-end;
 
+  @media screen and (max-width: 1280px) {
+    gap: 4px;
+  }
+
+  @media screen and (max-width: 960px) {
+    flex-direction: column;
+  }
+
   span {
     width: 2%;
     align-self: center;
@@ -11,9 +19,19 @@
 }
 .mat-mdc-form-field {
   width: 15%;
+  min-width: 150px;
 
   &.path {
-    width: 38%
+    width: 38%;
+    min-width: 300px;
+
+    @media screen and (max-width: 960px) {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 960px) {
+    width: 100%;
   }
 }
 
