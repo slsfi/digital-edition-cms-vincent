@@ -130,6 +130,8 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
                 let bValue = (b as any)[queryParams['sort']];
                 if (typeof aValue === 'string') {
                   aValue = aValue.toLowerCase();
+                }
+                if (typeof bValue === 'string') {
                   bValue = bValue.toLowerCase();
                 }
                 if (queryParams['direction'] === 'asc') {
