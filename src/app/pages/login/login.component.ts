@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   valueChanges: Subscription = new Subscription();
 
-  loading$: Observable<boolean>;
+  loading$;
 
   ngOnInit() {
     this.valueChanges = this.environment.valueChanges.subscribe(() => {

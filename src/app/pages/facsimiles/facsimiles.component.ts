@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FacsimileCollection } from '../../models/facsimile';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatTableModule } from '@angular/material/table';
-import { Column, Deleted, QueryParamType } from '../../models/common';
+import { Column, Deleted } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -54,10 +54,10 @@ export class FacsimilesComponent implements OnInit {
   selectedProject$;
   facsimileCollections$: Observable<FacsimileCollection[]> = of([]);
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
-  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
+  sortParams$;
+  filterParams$;
 
-  loading$: Observable<boolean> = new Observable<boolean>();
+  loading$;
   loadingData = true;
 
   constructor(
@@ -70,12 +70,11 @@ export class FacsimilesComponent implements OnInit {
   ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.facsimileService.selectedProject$;
+    this.sortParams$ = this.queryParamsService.sortParams$;
+    this.filterParams$ = this.queryParamsService.filterParams$;
   }
 
   ngOnInit() {
-    this.sortParams$ = this.queryParamsService.sortParams$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
-
     this.facsimileCollections$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.facsimileService.getFacsimileCollections()]).pipe(
         map(([, facsimiles]) => {

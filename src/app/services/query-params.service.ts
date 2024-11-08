@@ -4,7 +4,6 @@ import { QueryParamType } from '../models/common';
 import { map, Observable } from 'rxjs';
 
 
-
 @Injectable({
   providedIn: 'root'
 })

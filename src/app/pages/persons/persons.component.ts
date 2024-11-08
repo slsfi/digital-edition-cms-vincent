@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from '
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
 import { MatTableModule } from '@angular/material/table';
-import { Column, Deleted, QueryParamType } from '../../models/common';
+import { Column, Deleted } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -36,8 +36,8 @@ export class PersonsComponent implements OnInit {
 
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   selectedProject$;
-  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
-  loading$: Observable<boolean>;
+  filterParams$;
+  loading$;
   persons$: Observable<Person[]> = of([]);
 
   columnsData: Column[] = [

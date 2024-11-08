@@ -39,7 +39,7 @@ interface BundleFormType {
   styleUrl: './publication-bundle.component.scss'
 })
 export class PublicationBundleComponent implements OnInit {
-  loading$: Observable<boolean>;
+  loading$;
   selectedProject$;
   publicationCollectionId$: Observable<string | null>;
   publicationCollections$: Observable<PublicationCollection[]> = of([]);

@@ -25,7 +25,7 @@ import {
   commentsColumnData, facsimileColumnData, manuscriptColumnsData, publicationColumnsData, versionColumnsData
 } from './columns';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { Column, Deleted, QueryParamType } from '../../models/common';
+import { Column, Deleted } from '../../models/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
 
@@ -41,10 +41,10 @@ import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.co
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent implements OnInit {
-  loading$: Observable<boolean> = new Observable<boolean>();
+  loading$;
   selectedProject$;
-  sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
-  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
+  sortParams$;
+  filterParams$;
   // PUBLICATIONS
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
@@ -66,7 +66,7 @@ export class PublicationsComponent implements OnInit {
   commentsColumnData = commentsColumnData
   // FACSIMILES
   facsimilesLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
+  facsimiles$: Observable<PublicationFacsimile[]> = of([]);
   facsimileColumnData = facsimileColumnData;
 
   isSmallScreen = false;
@@ -83,11 +83,11 @@ export class PublicationsComponent implements OnInit {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.publicationService.selectedProject$;
     this.isSmallScreen = this.breakpointObserver.isMatched('(max-width: 960px)');
+    this.sortParams$ = this.queryParamsService.sortParams$;
+    this.filterParams$ = this.queryParamsService.filterParams$;
    }
 
   ngOnInit() {
-    this.sortParams$ = this.queryParamsService.sortParams$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
     this.publicationCollectionId$ = this.route.paramMap.pipe(map(params => params.get('collectionId')));
     this.publicationId$ = this.route.paramMap.pipe(map(params => params.get('publicationId')));
 

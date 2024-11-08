@@ -5,7 +5,7 @@ import { FacsimileCollection } from '../../models/facsimile';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
-import { Column, QueryParamType } from '../../models/common';
+import { Column } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -35,9 +35,9 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 export class NewPublicationFacsimileComponent implements OnInit {
 
   facsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
-  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
+  filterParams$;
   publication$: Observable<Publication> = new Observable<Publication>();
-  loading$: Observable<boolean>;
+  loading$;
 
   form!: FormGroup;
 

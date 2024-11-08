@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { Column, Deleted, QueryParamType } from '../../models/common';
+import { Column, Deleted } from '../../models/common';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
@@ -33,7 +33,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 export class ProjectsComponent implements OnInit {
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   projects$: Observable<Project[]> = of([]);
-  filterParams$: Observable<QueryParamType[]>;
+  filterParams$;
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
@@ -45,7 +45,7 @@ export class ProjectsComponent implements OnInit {
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  loading$: Observable<boolean>;
+  loading$;
 
   constructor(
     private projectService: ProjectService,

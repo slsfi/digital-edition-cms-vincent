@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap 
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column, Deleted, QueryParamType } from '../../models/common';
+import { Column, Deleted } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -62,9 +62,9 @@ export class PublicationCollectionsComponent implements OnInit {
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
   selectedProject$;
-  sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
-  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
-  loading$: Observable<boolean> = new Observable<boolean>();
+  sortParams$;
+  filterParams$;
+  loading$;
 
   constructor(
     private publicationService: PublicationService,
@@ -76,15 +76,14 @@ export class PublicationCollectionsComponent implements OnInit {
   ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.publicationService.selectedProject$;
+    this.sortParams$ = this.queryParamsService.sortParams$;
+    this.filterParams$ = this.queryParamsService.filterParams$;
    }
 
   ngOnInit() {
     this.publicationCollectionId$ = this.route.paramMap.pipe(
       map(params => params.get('collectionId'))
     );
-
-    this.sortParams$ = this.queryParamsService.sortParams$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
 
     this.publicationCollections$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationService.getPublicationCollections()]).pipe(
