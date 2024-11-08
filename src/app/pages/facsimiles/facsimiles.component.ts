@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FacsimileCollection } from '../../models/facsimile';
@@ -13,7 +13,7 @@ import { TableFiltersComponent } from '../../components/table-filters/table-filt
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
-import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
@@ -32,7 +32,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'
 })
-export class FacsimilesComponent {
+export class FacsimilesComponent implements OnInit {
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false, filterType: 'equals' },
@@ -51,7 +51,7 @@ export class FacsimilesComponent {
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  selectedProject$: Observable<string | null> = new Observable<string | null>();
+  selectedProject$;
   facsimileCollections$: Observable<FacsimileCollection[]> = of([]);
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
@@ -69,17 +69,16 @@ export class FacsimilesComponent {
     private router: Router,
   ) {
     this.loading$ = this.loadingService.loading$;
+    this.selectedProject$ = this.facsimileService.selectedProject$;
   }
 
   ngOnInit() {
-    this.selectedProject$ = this.facsimileService.selectedProject$;
-
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
 
     this.facsimileCollections$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.facsimileService.getFacsimileCollections()]).pipe(
-        map(([project, facsimiles]) => {
+        map(([, facsimiles]) => {
           return facsimiles;
         })
       )),
@@ -87,13 +86,12 @@ export class FacsimilesComponent {
   }
 
   editCollection(collection: FacsimileCollection | null = null) {
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: collection ?? {},
-        columns: this.allColumnData,
-        title: 'Fascimile collection'
-      }
-    });
+    const data: EditDialogData<FacsimileCollection> = {
+      model: collection,
+      columns: this.allColumnData,
+      title: 'Fascimile collection'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

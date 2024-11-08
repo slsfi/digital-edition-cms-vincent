@@ -1,6 +1,7 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { QueryParamsService } from './../../services/query-params.service';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -27,54 +28,55 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
 })
-export class CustomTableComponent {
+export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
   @Input() columns: Column[] = [];
-  @Input() data$: Observable<any> = new BehaviorSubject<any>([]);
+  @Input() data$: Observable<T[]> = new BehaviorSubject<T[]>([]);
   @Input() idRouteParams: string[] = [];
-  @Input() showIndex: boolean = true;
+  @Input() showIndex = true;
   @Input() selectedId: string | null = null;
   @Input() loadingData = false;
   @Input() selectable = false;
   @Input() paginationEnabled = true;
 
-  @Output() editRow: EventEmitter<any> = new EventEmitter<any>();
-  @Output() editRowSecondary: EventEmitter<any> = new EventEmitter<any>();
-  @Output() openRow: EventEmitter<any> = new EventEmitter<any>();
-  @Output() selectRow: EventEmitter<any> = new EventEmitter<any>();
-  @Output() deleteRow: EventEmitter<any> = new EventEmitter<any>();
+  @Output() editRow: EventEmitter<T> = new EventEmitter<T>();
+  @Output() editRowSecondary: EventEmitter<T> = new EventEmitter<T>();
+  @Output() openRow: EventEmitter<T> = new EventEmitter<T>();
+  @Output() selectRow: EventEmitter<T[]> = new EventEmitter<T[]>();
+  @Output() deleteRow: EventEmitter<T> = new EventEmitter<T>();
 
   private destroy$ = new Subject<void>();
 
   displayedColumns: string[] = [];
-  editSecondaryUsed: boolean = false;
-  openUsed: boolean = false;
-  deleteUsed: boolean = false;
+  editSecondaryUsed = false;
+  openUsed = false;
+  deleteUsed = false;
   tableColumns: Column[] = [];
   originalColumns: Column[] = [];
 
-  tableDataSource = new MatTableDataSource<any>();
+  tableDataSource = new MatTableDataSource<T>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  queryParams$ = new Observable<any>();
-  pageParams$ = new Observable<any>();
-  loading$: Observable<boolean> = new Observable<boolean>();
+  queryParams$;
+  pageParams$;
+  loading$;
 
-  originalCount: number = 0;
-  filteredCount: number = 0;
-  selection: SelectionModel<any> = new SelectionModel<any>(false, []);
+  originalCount = 0;
+  filteredCount = 0;
+  selection: SelectionModel<T> = new SelectionModel<T>(false, []);
 
   constructor(private queryParamsService: QueryParamsService, private loadingService: LoadingService) {
     this.loading$ = this.loadingService.loading$;
+    this.queryParams$ = this.queryParamsService.queryParams$;
+    this.pageParams$ = this.queryParamsService.pageParams$;
   }
 
   ngOnInit() {
-    this.queryParams$ = this.queryParamsService.queryParams$;
-    this.pageParams$ = this.queryParamsService.pageParams$;
+
     this.editSecondaryUsed = this.editRowSecondary.observed;
     this.deleteUsed = this.deleteRow.observed;
     this.openUsed = this.openRow.observed;
     this.originalColumns = this.columns;
-    const indexColumn: Column = {field: 'index', header: '#', filterable: false, type: 'index'};
+    const indexColumn: Column = { field: 'index', header: '#', filterable: false, type: 'index' };
     const columns = this.columns.filter(column => column.visible !== false);
     this.tableColumns = this.showIndex ? [indexColumn, ...columns] : [...columns];
     this.displayedColumns = this.tableColumns.map(column => column.field);
@@ -102,8 +104,8 @@ export class CustomTableComponent {
               const field = column.field;
               const filterType = column.filterType ?? 'equals';
               if (queryParams[field]) {
-                data = data.filter((item: any) => {
-                  const value = item[field];
+                data = data.filter((item: T) => {
+                  const value = (item as any)[field];
                   if (typeof value === 'string') {
                     if (filterType === 'contains') {
                       return value.toLowerCase().includes(queryParams[field]);
@@ -123,9 +125,9 @@ export class CustomTableComponent {
 
             // Sorting
             if (queryParams['sort'] && queryParams['direction']) {
-              data = data.sort((a: any, b: any) => {
-                let aValue = a[queryParams['sort']];
-                let bValue = b[queryParams['sort']];
+              data = data.sort((a: T, b: T) => {
+                let aValue = (a as any)[queryParams['sort']];
+                let bValue = (b as any)[queryParams['sort']];
                 if (typeof aValue === 'string') {
                   aValue = aValue.toLowerCase();
                   bValue = bValue.toLowerCase();
@@ -156,28 +158,28 @@ export class CustomTableComponent {
     this.destroy$.complete();
   }
 
-  edit(model: any) {
+  edit(model: T) {
     this.editRow.emit(model);
   }
 
-  editSecondary(model: any) {
+  editSecondary(model: T) {
     this.editRowSecondary.emit(model);
   }
 
-  open(model: any) {
+  open(model: T) {
     this.openRow.emit(model);
   }
 
-  selectionChanged(row: any) {
+  selectionChanged(row: T) {
     this.selection.toggle(row);
     this.selectRow.emit(this.selection.selected);
   }
 
-  delete(model: any) {
+  delete(model: T) {
     this.deleteRow.emit(model);
   }
 
   pageChanged(event: PageEvent) {
-    this.queryParamsService.addQueryParams({page: (event.pageIndex + 1).toString()});
+    this.queryParamsService.addQueryParams({ page: (event.pageIndex + 1).toString() });
   }
 }

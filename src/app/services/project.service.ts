@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take } from 'rxjs';
-import { AddProjectData, EditProjectData, Project, ProjectResponse } from '../models/project';
+import { BehaviorSubject, filter, map, Observable, switchMap, take } from 'rxjs';
+import { AddProjectData, EditProjectData, FileTree, FileTreeResponse, Project, ProjectResponse, RepoDetails, RepoDetailsResponse } from '../models/project';
 import { HttpContext } from '@angular/common/http';
 import { SkipLoading } from '../interceptors/loading.interceptor';
 
@@ -11,7 +11,7 @@ import { SkipLoading } from '../interceptors/loading.interceptor';
 export class ProjectService {
 
   selectedProject$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  fileTree$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  fileTree$: BehaviorSubject<FileTree | null> = new BehaviorSubject<FileTree | null>(null);
 
   constructor(private apiService: ApiService) {
     if (localStorage.getItem('selected_project')) {
@@ -24,8 +24,8 @@ export class ProjectService {
       return new Observable<Project[]>();
     }
     const url = `${this.apiService.prefixedUrl}/projects/list/`;
-    return this.apiService.get(url).pipe(
-      map((response: ProjectResponse) => {
+    return this.apiService.get<ProjectResponse>(url).pipe(
+      map(response => {
         return response.data;
       })
     );
@@ -41,10 +41,10 @@ export class ProjectService {
     return this.apiService.post(url, payload);
   }
 
-  getFileTree(): Observable<any> {
+  getFileTree(): Observable<FileTree | null> {
     if (!this.fileTree$.value) {
-      this.getProjectFileTree().pipe(take(1)).subscribe((fileTree) => {
-        this.fileTree$.next(fileTree.data);
+      this.getProjectFileTree().pipe(take(1)).subscribe(fileTreeResponse => {
+        this.fileTree$.next(fileTreeResponse.data);
       });
     }
     return this.fileTree$;
@@ -55,7 +55,7 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/get_tree/`;
-        return this.apiService.get(url, { context: new HttpContext().set(SkipLoading, true)});
+        return this.apiService.get<FileTreeResponse>(url, { context: new HttpContext().set(SkipLoading, true)});
       }),
     );
   }
@@ -65,13 +65,13 @@ export class ProjectService {
     localStorage.setItem('selected_project', project || '');
   }
 
-  getGitRepoDetails() {
+  getGitRepoDetails(): Observable<RepoDetails> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/git-repo-details`;
-        return this.apiService.get(url).pipe(
-          map((response: any) => response.data)
+        return this.apiService.get<RepoDetailsResponse>(url).pipe(
+          map(response => response.data)
         );
       }),
     );

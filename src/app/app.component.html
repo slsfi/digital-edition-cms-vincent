@@ -3,11 +3,11 @@
 </style>
 
 <main class="main">
-  <topbar (onMenuToggle)="drawer.toggle()"></topbar>
+  <topbar (menuToggle)="drawer.toggle()"></topbar>
   <mat-drawer-container class="drawer">
     <mat-drawer #drawer mode="over" [autoFocus]="false">
       @if ((isAuthenticated$ | async) === true) {
-        <navigation (onMenuToggle)="drawer.toggle()"></navigation>
+        <navigation (menuToggle)="drawer.toggle()"></navigation>
       }
     </mat-drawer>
     <mat-drawer-content>

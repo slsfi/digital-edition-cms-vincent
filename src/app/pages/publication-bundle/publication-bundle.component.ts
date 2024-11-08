@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PublicationService } from '../../services/publication.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map, Observable, of, switchMap, combineLatest, from, mergeMap } from 'rxjs';
@@ -38,9 +38,9 @@ interface BundleFormType {
   templateUrl: './publication-bundle.component.html',
   styleUrl: './publication-bundle.component.scss'
 })
-export class PublicationBundleComponent {
+export class PublicationBundleComponent implements OnInit {
   loading$: Observable<boolean>;
-  selectedProject$: Observable<string | null>;
+  selectedProject$;
   publicationCollectionId$: Observable<string | null>;
   publicationCollections$: Observable<PublicationCollection[]> = of([]);
   selectedPublicationCollection$: Observable<PublicationCollection | undefined> = of(undefined);
@@ -104,9 +104,10 @@ export class PublicationBundleComponent {
     this.bundleForm.patchValue({ published: this.defaultPublished });
   }
 
-  publishedChanged(value: any) {
+  publishedChanged() {
+    const val = this.bundleForm.value.published as Published;
     this.files.controls.forEach(row => {
-      row.get('published')!.setValue(value);
+      row.get('published')!.setValue(val);
     });
   }
 
@@ -117,7 +118,6 @@ export class PublicationBundleComponent {
     );
 
     throttledData$.subscribe({
-      next: () => {},
       complete: () => {
         this.snackbar.open('All metadata received', 'Close', { panelClass: 'snackbar-success' });
       },
@@ -131,7 +131,7 @@ export class PublicationBundleComponent {
         .subscribe({
           next: (metadata: XmlMetadata) => {
             for (const key in metadata) {
-              if (metadata.hasOwnProperty(key)) {
+              if (Object.prototype.hasOwnProperty.call(metadata, key)) {
                 const control = row.get(key);
                 const value = metadata[key as keyof XmlMetadata];
                 if (control && !!value && !control.value) {
@@ -142,7 +142,7 @@ export class PublicationBundleComponent {
             observer.next();
             observer.complete();
           },
-          error: err => {
+          error: () => {
             observer.next();
             observer.complete();
           }
@@ -157,7 +157,6 @@ export class PublicationBundleComponent {
     );
 
     throrrledRequests$.subscribe({
-      next: () => {},
       complete: () => {
         this.snackbar.open('All publications added', 'Close', { panelClass: 'snackbar-success' });
         this.clearForm();
@@ -176,7 +175,7 @@ export class PublicationBundleComponent {
             observer.next();
             observer.complete();
           },
-          error: err => {
+          error: () => {
             observer.next();
             observer.complete();
           },

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, input, Output, signal } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, input, Output, signal } from '@angular/core';
 import { BehaviorSubject, filter, Observable, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,12 +17,14 @@ import { languageOptions, nameForLanguage, Translation, TranslationRequestPost }
   templateUrl: './translations.component.html',
   styleUrl: './translations.component.scss'
 })
-export class TranslationsComponent {
+export class TranslationsComponent implements AfterViewInit {
   @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
   field = input.required<string>();
-  data = input.required<any>();
-  tableName = input.required<string>();
+  translationIdd = input<number | undefined>();
+  parentId = input<number>();
+  originalText = input<string>();
+  tableName = input.required<string | undefined>();
   parentTranslationField = input<string>();
 
   mode = signal<'edit' | 'add' | ''>('');
@@ -40,15 +42,10 @@ export class TranslationsComponent {
 
   constructor(private translationService: TranslationService) { }
 
-  get originalText() {
-    return this.data()[this.field()];
-  }
-
   ngAfterViewInit() {
-    const parentTranslationField = this.parentTranslationField() ?? 'translation_id';
-    this.translationId = this.data()[parentTranslationField] as number;
+    this.translationId = this.translationIdd();
     const requestData: TranslationRequestPost = {
-      table_name: this.tableName(),
+      table_name: this.tableName() ?? '',
       field_name: this.field(),
     }
     this.fieldTranslations$ = this.translationLoader$.asObservable().pipe(
@@ -65,8 +62,8 @@ export class TranslationsComponent {
       text: new FormControl('', Validators.required),
       language: new FormControl('', Validators.required),
       translation_id: new FormControl({ value: this.translationId, disabled: true }),
-      parent_id: new FormControl({ value: this.data().id, disabled: true }),
-      neutral_text: new FormControl({ value: this.data()[this.field()], disabled: true }),
+      parent_id: new FormControl({ value: this.parentId(), disabled: true }),
+      neutral_text: new FormControl({ value: this.originalText(), disabled: true }),
       translation_text_id: new FormControl({ value: null, disabled: true }),
       deleted: new FormControl({ value: 0, disabled: true }),
       parent_translation_field: new FormControl({ value: this.parentTranslationField(), disabled: true }),
@@ -120,6 +117,7 @@ export class TranslationsComponent {
       text: '',
       language: '',
       translation_text_id: null,
+      translation_id: this.translationId,
     })
   }
 

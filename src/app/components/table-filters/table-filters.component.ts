@@ -1,7 +1,7 @@
 import { QueryParamsService } from './../../services/query-params.service';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Column, QueryParamType } from '../../models/common';
+import { Column } from '../../models/common';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -17,7 +17,7 @@ import { personTypeOptions } from '../../models/person';
   templateUrl: './table-filters.component.html',
   styleUrl: './table-filters.component.scss'
 })
-export class TableFiltersComponent {
+export class TableFiltersComponent implements OnInit {
 
   constructor(private queryParamsService: QueryParamsService) { }
 

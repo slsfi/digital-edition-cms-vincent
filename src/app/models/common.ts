@@ -12,9 +12,7 @@ export interface Column {
   visible?: boolean;
 }
 
-export type QueryParamType = {
-  [key: string]: string;
-}
+export type QueryParamType = Record<string, string>;
 
 export enum Published {
   NotPublished = 0,

@@ -9,7 +9,7 @@ export class CustomDatePipe implements PipeTransform {
 
   constructor(private datePipe: DatePipe) {}
 
-  transform(value: string | null, format: string = 'd.M.yyyy HH:mm'): string {
+  transform(value: string | null, format = 'd.M.yyyy HH:mm'): string {
     if (!value) {
       return '';
     }

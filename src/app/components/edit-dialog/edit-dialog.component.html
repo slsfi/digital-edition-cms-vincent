@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ data.model.id ? 'Edit' : 'Add' }} {{ data.title }}</h2>
+<h2 mat-dialog-title>{{ !modelId ? 'Edit' : 'Add' }} {{ data.title }}</h2>
 <mat-dialog-content>
 
   @if (fileSelectorVisible) {
@@ -10,7 +10,7 @@
         (close)="hideFileSelector()">
       </file-tree>
     </div>
-  } @else if (fieldForTranslate == null) {
+  } @else if (!fieldForTranslate) {
     <form *ngIf="data.columns.length" [formGroup]="form" id="edit-form">
       @for (column of columns; track column.field) {
         <div>
@@ -24,7 +24,7 @@
             </mat-form-field>
           } @else {
             @if (column.field === 'cascade_published') {
-              <div *ngIf="data.model?.id" [ngStyle]="{'margin-bottom': '20px'}">
+              <div *ngIf="!!modelId" [ngStyle]="{'margin-bottom': '20px'}">
                 <mat-slide-toggle formControlName="cascade_published">{{ column.header }}</mat-slide-toggle>
               </div>
             } @else {
@@ -75,7 +75,7 @@
               </mat-form-field>
             }
           }
-          @if (column.translations && data.model?.id) {
+          @if (column.translations && !!modelId) {
             <div class="translations">
               <button mat-flat-button type="button" (click)="showTranslations(column)"><mat-icon>language</mat-icon>{{column.header}} translations</button>
             </div>
@@ -83,7 +83,7 @@
           @if (column.field === 'original_filename') {
             <div class="translations">
               <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
-              @if (originalFilenameControl.value != null && showMetadataButton)  {
+              @if (!!originalFilenameControl.value && showMetadataButton)  {
                 <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()">
                   <mat-icon>sync</mat-icon>
                   Read XML metadata
@@ -98,7 +98,9 @@
     <field-translations
       [tableName]="data.tableName"
       [field]="fieldForTranslate"
-      [data]="data.model"
+      [translationIdd]="translationIdd"
+      [originalText]="originalText"
+      [parentId]="modelId"
       [parentTranslationField]="parentTranslationField"
       (close)="fieldForTranslate = null">
     </field-translations>
@@ -109,10 +111,10 @@
   <button
     *ngIf="form"
     mat-flat-button
-    [mat-dialog-close]="{ type: data.model.id ? 'Edit' : 'Add', form }"
+    [mat-dialog-close]="{ type: !!modelId ? 'Edit' : 'Add', form }"
     type="button"
-    [disabled]="!form.valid || fieldForTranslate != null || fileSelectorVisible"
+    [disabled]="!form.valid || fieldForTranslate !== null || fileSelectorVisible"
     form="edit-form">
-      {{ data.model.id ? 'Save' : 'Add' }}
+      {{ !!modelId ? 'Save' : 'Add' }}
   </button>
 </mat-dialog-actions>

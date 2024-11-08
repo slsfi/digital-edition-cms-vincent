@@ -4,7 +4,7 @@
 <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId">
   <div class="publications">
     <div class="content">
-      <div class="list" *ngIf="(isSmallScreen && (publicationId$ | async) == null) || !isSmallScreen">
+      <div class="list" *ngIf="(isSmallScreen && (publicationId$ | async) === null) || !isSmallScreen">
         @if (loading$ | async) {
           <loading-spinner [overlay]="true"></loading-spinner>
         }

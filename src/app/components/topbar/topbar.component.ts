@@ -18,10 +18,10 @@ import { RouterLink } from '@angular/router';
   styleUrl: './topbar.component.scss'
 })
 export class TopbarComponent {
-  @Output() onMenuToggle: EventEmitter<void> = new EventEmitter<void>();
+  @Output() menuToggle: EventEmitter<void> = new EventEmitter<void>();
 
   isAuthenticated$: Observable<boolean> = new Observable<boolean>();
-  selectedProject$: Observable<string | null> = new Observable<string | null>();
+  selectedProject$;
   environment$: Observable<string | null> = new Observable<string | null>();
 
   constructor(private authService: AuthService, private projectService: ProjectService, private apiService: ApiService) {
@@ -31,7 +31,7 @@ export class TopbarComponent {
   }
 
   toggleMenu() {
-    this.onMenuToggle.emit();
+    this.menuToggle.emit();
   }
 
 }

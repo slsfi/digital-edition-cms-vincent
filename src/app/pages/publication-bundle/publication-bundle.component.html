@@ -40,7 +40,7 @@
             <div class="actions">
               <mat-form-field>
                 <mat-label>Set published to all rows</mat-label>
-                <mat-select formControlName="published" (selectionChange)="publishedChanged($event)">
+                <mat-select formControlName="published" (selectionChange)="publishedChanged()">
                   @for (option of publishedOptions; track option.value) {
                     <mat-option [value]="option.value">{{ option.label }}</mat-option>
                   }

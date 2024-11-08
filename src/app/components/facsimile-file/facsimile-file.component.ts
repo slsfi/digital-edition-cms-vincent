@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ApiService } from '../../services/api.service';
@@ -13,12 +13,12 @@ import { SkipLoading } from '../../interceptors/loading.interceptor';
   templateUrl: './facsimile-file.component.html',
   styleUrl: './facsimile-file.component.scss'
 })
-export class FacsimileFileComponent {
+export class FacsimileFileComponent implements AfterViewInit {
   @Input({ required: true }) collectionId!: number;
   @Input({ required: true }) pageNumber!: number;
-  @Input() zoom: 1|2|3|4 = 1;
+  @Input() zoom: 1 | 2 | 3 | 4 = 1;
 
-  imagePath: string = '';
+  imagePath = '';
 
   private imageUrlSubject = new BehaviorSubject<string>('');
   imageUrl$ = this.imageUrlSubject.asObservable();
@@ -44,7 +44,6 @@ export class FacsimileFileComponent {
       .pipe(map(response => URL.createObjectURL(response)))
       .subscribe({
         next: url => this.imageUrlSubject.next(url),
-        error: () => {}
       });
   }
 

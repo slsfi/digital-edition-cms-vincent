@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './facsimile-collection.component.html',
   styleUrl: './facsimile-collection.component.scss'
 })
-export class FacsimileCollectionComponent {
+export class FacsimileCollectionComponent implements OnInit {
 
   collectionId: number;
   facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
@@ -37,7 +37,7 @@ export class FacsimileCollectionComponent {
 
   vefifyFacsimileFiles() {
     this.fascimileService.verifyFacsimileFile(this.collectionId, 'all').subscribe({
-      next: (response: VerifyFacsimileFileResponse) => {
+      next: response => {
         this.missingFileNumbers = response.data?.missing_file_numbers || [];
       },
       error: (error: HttpErrorResponse) => {

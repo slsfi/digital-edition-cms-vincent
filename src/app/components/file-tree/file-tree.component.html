@@ -9,10 +9,12 @@
 <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
   <!-- Node template for leaf nodes -->
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
-    <button mat-icon-button disabled></button>
-    <span
-        [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable}"
-        (click)="node.isSelectable ? select(node, tree) : null">
+    <button mat-icon-button disabled> </button>
+    <span [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable}"
+          tabindex="0"
+          (click)="node.isSelectable ? select(node, tree) : null"
+          (keydown.enter)="node.isSelectable ? select(node, tree) : null"
+          (keydown.space)="node.isSelectable ? select(node, tree) : null">
       {{node.name}}
     </span>
   </mat-tree-node>
@@ -28,7 +30,12 @@
           {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
         </mat-icon>
       </button>
-      <span (click)="node.isSelectable ? select(node, tree) : null"> {{node.name}}</span>
+      <span tabindex="0"
+            (click)="node.isSelectable ? select(node, tree) : null"
+            (keydown.enter)="node.isSelectable ? select(node, tree) : null"
+            (keydown.space)="node.isSelectable ? select(node, tree) : null">
+        {{node.name}}
+      </span>
     </div>
   </mat-tree-node>
 </mat-tree>

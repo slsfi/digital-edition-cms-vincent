@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Person } from '../../models/person';
@@ -15,7 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { LoadingService } from '../../services/loading.service';
-import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { SubjectService } from '../../services/subject.service';
@@ -32,15 +32,12 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   templateUrl: './persons.component.html',
   styleUrl: './persons.component.scss'
 })
-export class PersonsComponent {
+export class PersonsComponent implements OnInit {
 
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  selectedProject$!: Observable<string | null>;
+  selectedProject$;
   filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
   loading$: Observable<boolean>;
-
-  // private personsSource = new BehaviorSubject<Person[]>([]);
-  // persons$: Observable<Person[]> = this.personsSource.asObservable();
   persons$: Observable<Person[]> = of([]);
 
   columnsData: Column[] = [
@@ -88,20 +85,19 @@ export class PersonsComponent {
   ngOnInit() {
     this.persons$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.subjectService.getSubjects(), this.subjectService.selectedProject$]).pipe(
-        map(([subjects, selectedProject]) => subjects)
+        map(([subjects, ]) => subjects)
       )),
     );
   }
 
   edit(person: Person | null = null) {
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: person ?? {},
-        columns: this.allColumns,
-        title: 'Person',
-        tableName: 'subject',
-      }
-    });
+    const data: EditDialogData<Person> = {
+      model: person,
+      columns: this.allColumns,
+      title: 'Person',
+      tableName: 'subject',
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

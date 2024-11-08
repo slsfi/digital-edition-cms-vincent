@@ -3,7 +3,7 @@
 
 <div class="translations">
   <button mat-icon-button type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
-  @if (mode() != '') {
+  @if (mode() !== '') {
     <form [formGroup]="form" id="translation-form" (ngSubmit)="onSubmitTranslation($event)">
       <h4>{{mode() === 'edit' ? 'Edit' : 'Add'}} Translation for {{ field() }}</h4>
       <mat-form-field>
@@ -67,7 +67,7 @@
       <h2>original {{ field() }}</h2>
       <button mat-flat-button type="button" (click)="addTranslation()"><mat-icon>add</mat-icon>Add translation</button>
     </div>
-    <div>{{ originalText }}</div>
+    <div>{{ originalText() }}</div>
 
     @if (translations && translations.length) {
       <div class="edit-translations">

@@ -1,11 +1,11 @@
 import { LoadingService } from './../../services/loading.service';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap } from 'rxjs';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column, Deleted } from '../../models/common';
+import { Column, Deleted, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -16,7 +16,7 @@ import { TableFiltersComponent } from '../../components/table-filters/table-filt
 import { QueryParamsService } from '../../services/query-params.service';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
 import { MatBadgeModule } from '@angular/material/badge';
-import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { PublicationService } from '../../services/publication.service';
@@ -33,7 +33,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   templateUrl: './publication-collections.component.html',
   styleUrl: './publication-collections.component.scss'
 })
-export class PublicationCollectionsComponent {
+export class PublicationCollectionsComponent implements OnInit {
   publicationCollectionColumnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
     { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true, translations: true, parentTranslationField: 'name_translation_id' },
@@ -61,9 +61,9 @@ export class PublicationCollectionsComponent {
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
-  selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
-  sortParams$: Observable<any[]> = new Observable<any[]>();
-  filterParams$: Observable<any[]> = new Observable<any[]>();
+  selectedProject$;
+  sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
+  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
   loading$: Observable<boolean> = new Observable<boolean>();
 
   constructor(
@@ -75,11 +75,10 @@ export class PublicationCollectionsComponent {
     private loadingService: LoadingService
   ) {
     this.loading$ = this.loadingService.loading$;
+    this.selectedProject$ = this.publicationService.selectedProject$;
    }
 
   ngOnInit() {
-    this.selectedProject$ = this.publicationService.selectedProject$;
-
     this.publicationCollectionId$ = this.route.paramMap.pipe(
       map(params => params.get('collectionId'))
     );
@@ -89,12 +88,12 @@ export class PublicationCollectionsComponent {
 
     this.publicationCollections$ = this.loader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationService.getPublicationCollections()]).pipe(
-        map(([project, publications]) => publications)
+        map(([, publications]) => publications)
       )),
     );
 
     this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
-      filter(([publications, collectionId]) => collectionId != null),
+      filter(([, collectionId]) => collectionId != null),
       map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
     );
 
@@ -105,14 +104,13 @@ export class PublicationCollectionsComponent {
     if (publicationCollection == null) {
       columns = columns.filter(column => column.editable);
     }
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: publicationCollection ?? {},
-        columns,
-        title: 'Publication Collection',
-        tableName: 'publication_collection',
-      }
-    });
+    const data: EditDialogData<PublicationCollection> = {
+      model: publicationCollection,
+      columns,
+      title: 'Publication Collection',
+      tableName: 'publication_collection',
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

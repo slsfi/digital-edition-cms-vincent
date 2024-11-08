@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse } from '../models/facsimile';
-import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse, VerifyFacsimileFileResponse } from '../models/facsimile';
+import { filter, map, Observable, switchMap } from 'rxjs';
 import { HttpContext } from '@angular/common/http';
 import { SkipLoading } from '../interceptors/loading.interceptor';
 
@@ -22,8 +22,8 @@ export class FacsimileService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
-        return this.apiService.get(url).pipe(
-          map((response: FacsimileCollectionResponse) => response.data)
+        return this.apiService.get<FacsimileCollectionResponse>(url).pipe(
+          map(response => response.data)
         );
       }
     ));
@@ -34,8 +34,8 @@ export class FacsimileService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/collections/${collectionId}`;
-        return this.apiService.get(url).pipe(
-          map((response: FacsimileCollection[]) => response[0])
+        return this.apiService.get<FacsimileCollection[]>(url).pipe(
+          map(response => response[0])
         );
       }
     ));
@@ -64,7 +64,7 @@ export class FacsimileService {
   getFacsimileFile(url: string) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
-      switchMap(project => {
+      switchMap(() => {
         return this.apiService.get(url)
       }
     ));
@@ -75,7 +75,7 @@ export class FacsimileService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/verify-facsimile-file/${collectionId}/${fileNr}/${zoomLevel}`;
-        return this.apiService.get(url, {}, true);
+        return this.apiService.get<VerifyFacsimileFileResponse>(url, {}, true);
       }
     ));
   }

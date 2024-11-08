@@ -1,5 +1,5 @@
 import { QueryParamsService } from './../../services/query-params.service';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -9,10 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { Column, Deleted } from '../../models/common';
+import { Column, Deleted, QueryParamType } from '../../models/common';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
@@ -30,10 +30,10 @@ import { MatBadgeModule } from '@angular/material/badge';
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss'
 })
-export class ProjectsComponent {
+export class ProjectsComponent implements OnInit {
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   projects$: Observable<Project[]> = of([]);
-  filterParams$: Observable<any>;
+  filterParams$: Observable<QueryParamType[]>;
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
@@ -72,13 +72,12 @@ export class ProjectsComponent {
       }
       return { ...column, editable }
     })
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: project ?? {},
-        columns: columns,
-        title: 'Project'
-      }
-    });
+    const data: EditDialogData<Project> = {
+      model: project,
+      columns: columns,
+      title: 'Project'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

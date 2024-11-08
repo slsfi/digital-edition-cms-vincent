@@ -1,10 +1,9 @@
-import { BehaviorSubject, catchError, filter, map, Observable, take, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import { inject, Injectable } from '@angular/core';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Project } from '../models/project';
 import { ProjectService } from './project.service';
 
 @Injectable({
@@ -29,16 +28,16 @@ export class AuthService {
   login(email: string, password: string): void {
     const url = `${this.apiService.environment}auth/login`;
     const body: LoginRequest = { email, password };
-    this.apiService.post(url, body)
+    this.apiService.post<LoginResponse>(url, body)
       .subscribe({
-        next: (response: LoginResponse) => {
-          const { access_token, refresh_token, user_projects } = response;
+        next: (response) => {
+          const { access_token, refresh_token } = response;
           localStorage.setItem('access_token', access_token);
           localStorage.setItem('refresh_token', refresh_token);
           this.router.navigate(['/']);
           this.isAuthenticated$.next(true);
         },
-        error: (err) => {
+        error: () => {
           this.logout();
         }
       });
@@ -54,8 +53,8 @@ export class AuthService {
       this.refreshTokenInProgress = true;
       const url = `${this.apiService.environment}auth/refresh`;
       const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
-      return this.apiService.post(url, null, { headers }).pipe(
-        map((response: RefreshTokenResponse) => {
+      return this.apiService.post<RefreshTokenResponse>(url, null, { headers }).pipe(
+        map((response) => {
           const { access_token } = response;
           localStorage.setItem('access_token', access_token);
           this.refreshTokenInProgress = false;
@@ -64,7 +63,6 @@ export class AuthService {
         }),
         catchError((error) => {
           this.refreshTokenInProgress = false;
-          console.log('refreshToken error', error);
           this.logout();
           return throwError(() => error);
         })

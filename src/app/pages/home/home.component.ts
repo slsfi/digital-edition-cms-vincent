@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';
-import { Project } from '../../models/project';
+import { Project, RepoDetails } from '../../models/project';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,8 +29,8 @@ import { MatCardModule } from '@angular/material/card';
 export class HomeComponent {
 
   availableProjects$: Observable<Project[]>;
-  selectedProject$: Observable<string | null>;
-  repoDetails$: Observable<any>;
+  selectedProject$;
+  repoDetails$: Observable<RepoDetails | null>;
   loading$: Observable<boolean>;
   navItems = navigationItems.filter((item) => item.route !== '/');
 
@@ -43,7 +43,7 @@ export class HomeComponent {
     );
     this.selectedProject$ = this.projectService.selectedProject$;
     this.repoDetails$ = this.selectedProject$.pipe(
-      switchMap((project) =>
+      switchMap(() =>
         this.projectService.getGitRepoDetails().pipe(
           catchError(() => of(null))
         )

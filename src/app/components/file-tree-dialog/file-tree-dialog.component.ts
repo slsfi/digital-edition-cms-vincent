@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule } from '@angular/material/tree';
@@ -17,12 +17,10 @@ import { FileTreeComponent } from '../file-tree/file-tree.component';
   templateUrl: './file-tree-dialog.component.html',
   styleUrl: './file-tree-dialog.component.scss'
 })
-export class FileTreeDialogComponent {
+export class FileTreeDialogComponent implements OnInit {
   readonly filename = inject<string>(MAT_DIALOG_DATA);
 
-  filePath: string = '';
-
-  constructor() {}
+  filePath = '';
 
   ngOnInit() {
     this.filePath = this.filename;

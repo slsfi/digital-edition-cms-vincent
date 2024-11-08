@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { ProjectService } from '../../services/project.service';
@@ -16,12 +16,12 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.scss'
 })
-export class NavigationComponent {
-  @Output() onMenuToggle: EventEmitter<void> = new EventEmitter<void>();
+export class NavigationComponent implements OnDestroy {
+  @Output() menuToggle: EventEmitter<void> = new EventEmitter<void>();
 
   navItems = navigationItems;
 
-  currentUrl: string = '';
+  currentUrl = '';
   private destroy$ = new Subject<void>();
 
   constructor(private projectService: ProjectService, private authService: AuthService, private router: Router) {
@@ -44,7 +44,7 @@ export class NavigationComponent {
   }
 
   toggleMenu() {
-    this.onMenuToggle.emit();
+    this.menuToggle.emit();
   }
 
 }

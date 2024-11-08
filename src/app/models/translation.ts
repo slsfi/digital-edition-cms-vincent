@@ -1,7 +1,11 @@
 import { ApiResponse, Deleted } from "./common";
 
-export interface TranslationResponse extends ApiResponse {
+export interface TranslationsResponse extends ApiResponse {
   data: Translation[];
+}
+
+export interface TranslationResponse extends ApiResponse {
+  data: Translation;
 }
 export interface Translation {
   field_name: string;

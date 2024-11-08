@@ -1,11 +1,11 @@
 import { FacsimileService } from './../../services/facsimile.service';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FacsimileCollection } from '../../models/facsimile';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
-import { Column } from '../../models/common';
+import { Column, QueryParamType } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -32,10 +32,10 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
   templateUrl: './new-publication-facsimile.component.html',
   styleUrl: './new-publication-facsimile.component.scss'
 })
-export class NewPublicationFacsimileComponent {
+export class NewPublicationFacsimileComponent implements OnInit {
 
   facsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
-  filterParams$: Observable<any> = new Observable<any>();
+  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
   publication$: Observable<Publication> = new Observable<Publication>();
   loading$: Observable<boolean>;
 
@@ -68,7 +68,6 @@ export class NewPublicationFacsimileComponent {
 
   ngOnInit() {
     this.facsimileCollections$ = this.facsimileService.getFacsimileCollections();
-
     const publicationId = parseInt(this.route.snapshot.paramMap.get('publicationId') as string);
     this.publication$ = this.publicationService.getPublication(publicationId);
     this.form = new FormGroup({
@@ -105,7 +104,7 @@ export class NewPublicationFacsimileComponent {
       delete payload.priority;
     }
     this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload).subscribe({
-      next: (response) => {
+      next: () => {
         this.snackbar.open('Facsimile linked to publication', 'Close', { panelClass: 'snackbar-success' });
         this.router.navigate(this.publicationsPath);
       }

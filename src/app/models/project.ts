@@ -21,3 +21,30 @@ export interface EditProjectData {
 export interface AddProjectData {
   name: string;
 }
+
+export interface RepoDetails {
+  branch: string;
+  name: string;
+}
+
+export interface RepoDetailsResponse extends ApiResponse {
+  data: RepoDetails;
+}
+
+// Dynamic file tree structure,
+// example: {
+//     "Det_forsta_angfartyget.xml": null,
+//     "Maamme_var.xml": null,
+//     "Maamme_var_16.xml": null,
+//     "Variantkodade": {
+//         "Maamme_kirja_var.xml": null,
+//         "Maamme_kirja_var_1899.xml": null
+//     }
+// }
+export interface FileTree {
+  [key: string]: FileTree | null;
+}
+
+export interface FileTreeResponse extends ApiResponse {
+  data: FileTree;
+}

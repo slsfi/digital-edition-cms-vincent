@@ -1,11 +1,12 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTree, MatTreeModule } from '@angular/material/tree';
-import { map, Subject, takeUntil } from 'rxjs';
+import { filter, map, Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { CommonModule } from '@angular/common';
+import { FileTree } from '../../models/project';
 
 interface TreeNode {
   name: string;
@@ -21,20 +22,20 @@ interface TreeNode {
   templateUrl: './file-tree.component.html',
   styleUrl: './file-tree.component.scss'
 })
-export class FileTreeComponent {
+export class FileTreeComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
   @Input() value: string | null = '';
-  @Input() selectFolder: boolean = false;
-  @Input() showLoading: boolean = true;
+  @Input() selectFolder = false;
+  @Input() showLoading = true;
   @Output() valueChange = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
   @Output() filesInFolder = new EventEmitter<string[]>();
 
   closeInUse = false;
   dataSource: TreeNode[] = [];
-  loading: boolean = true;
+  loading = true;
   selectedNodes: string[] = [];
 
   constructor(private projectService: ProjectService) {
@@ -48,6 +49,7 @@ export class FileTreeComponent {
     this.projectService.getFileTree()
       .pipe(
         takeUntil(this.destroy$),
+        filter((data) => !!data),
         map((fileTree) => this.convertToTreeNode(fileTree))
       )
       .subscribe((data: TreeNode[]) => {
@@ -70,11 +72,11 @@ export class FileTreeComponent {
   childrenAccessor = (node: TreeNode) => node.children ?? [];
   hasChild = (_: number, node: TreeNode) => node.children.length > 0;
 
-  convertToTreeNode(data: any, level: number = 0): TreeNode[] {
+  convertToTreeNode(data: FileTree, level = 0): TreeNode[] {
     const result: TreeNode[] = [];
 
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         let isSelectable = false;
         if (key.split('.')[1] === 'xml' && !this.selectFolder) {
           isSelectable = true;

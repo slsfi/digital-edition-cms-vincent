@@ -1,5 +1,5 @@
 import { QueryParamsService } from './../../services/query-params.service';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Column, QueryParamType } from '../../models/common';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './table-sorting.component.html',
   styleUrl: './table-sorting.component.scss'
 })
-export class TableSortingComponent {
+export class TableSortingComponent implements OnInit {
 
   constructor(private queryParamsService: QueryParamsService) { }
 

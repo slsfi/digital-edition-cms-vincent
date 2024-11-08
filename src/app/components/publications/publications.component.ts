@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable, of, switchMap } from 'rxjs';
 import { Manuscript, Publication, PublicationComment, Version } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
@@ -14,7 +14,7 @@ import { TableFiltersComponent } from '../table-filters/table-filters.component'
 import { TableSortingComponent } from '../table-sorting/table-sorting.component';
 import { QueryParamsService } from '../../services/query-params.service';
 import { MatBadgeModule } from '@angular/material/badge';
-import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
+import { EditDialogComponent, EditDialogData } from '../edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
@@ -25,7 +25,7 @@ import {
   commentsColumnData, facsimileColumnData, manuscriptColumnsData, publicationColumnsData, versionColumnsData
 } from './columns';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { Deleted } from '../../models/common';
+import { Column, Deleted, QueryParamType } from '../../models/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
 
@@ -40,11 +40,11 @@ import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.co
   templateUrl: './publications.component.html',
   styleUrl: './publications.component.scss'
 })
-export class PublicationsComponent {
+export class PublicationsComponent implements OnInit {
   loading$: Observable<boolean> = new Observable<boolean>();
-  selectedProject$: Observable<string | null> = new Observable<string | null>(undefined);
-  sortParams$: Observable<any[]> = new Observable<any[]>();
-  filterParams$: Observable<any[]> = new Observable<any[]>();
+  selectedProject$;
+  sortParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
+  filterParams$: Observable<QueryParamType[]> = new Observable<QueryParamType[]>();
   // PUBLICATIONS
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
@@ -69,7 +69,7 @@ export class PublicationsComponent {
   facsimiles$: Observable<PublicationFacsimile[]> = new Observable<PublicationFacsimile[]>();
   facsimileColumnData = facsimileColumnData;
 
-  isSmallScreen: boolean = false;
+  isSmallScreen = false;
 
   constructor(
     private publicationService: PublicationService,
@@ -81,6 +81,7 @@ export class PublicationsComponent {
     private breakpointObserver: BreakpointObserver
   ) {
     this.loading$ = this.loadingService.loading$;
+    this.selectedProject$ = this.publicationService.selectedProject$;
     this.isSmallScreen = this.breakpointObserver.isMatched('(max-width: 960px)');
    }
 
@@ -89,13 +90,13 @@ export class PublicationsComponent {
     this.filterParams$ = this.queryParamsService.filterParams$;
     this.publicationCollectionId$ = this.route.paramMap.pipe(map(params => params.get('collectionId')));
     this.publicationId$ = this.route.paramMap.pipe(map(params => params.get('publicationId')));
-    this.selectedProject$ = this.publicationService.selectedProject$;
+
 
     this.publications$ = this.publicationsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$])
         .pipe(
-          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
-          switchMap(([project, collectionId]) => this.publicationService.getPublications(collectionId as string))
+          distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+          switchMap(([, collectionId]) => this.publicationService.getPublications(collectionId as string))
         )
       ),
     )
@@ -107,7 +108,7 @@ export class PublicationsComponent {
     this.comments$ = this.commentLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
+          distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
           switchMap(([collectionId, publicationId]) => this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string))
         )
       )
@@ -116,8 +117,8 @@ export class PublicationsComponent {
     this.versions$ = this.versionsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
-          switchMap(([collectionId, publicationId]) => this.publicationService.getVersionsForPublication(publicationId as string))
+          distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+          switchMap(([, publicationId]) => this.publicationService.getVersionsForPublication(publicationId as string))
         )
       )
     );
@@ -125,8 +126,8 @@ export class PublicationsComponent {
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
-          switchMap(([collectionId, publicationId]) => this.publicationService.getManuscriptsForPublication(publicationId as string))
+          distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+          switchMap(([, publicationId]) => this.publicationService.getManuscriptsForPublication(publicationId as string))
         )
       )
     );
@@ -134,8 +135,8 @@ export class PublicationsComponent {
     this.facsimiles$ = this.facsimilesLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$])
         .pipe(
-          distinctUntilChanged(([prevProject, prevCollectionId], [nextProject, nextCollectionId]) => prevCollectionId === nextCollectionId),
-          switchMap(([collectionId, publicationId]) => this.publicationService.getFacsimilesForPublication(publicationId as string))
+          distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+          switchMap(([, publicationId]) => this.publicationService.getFacsimilesForPublication(publicationId as string))
         )
       )
     );
@@ -143,13 +144,12 @@ export class PublicationsComponent {
   }
 
   editPublication(publication: Publication | null = null, collectionId: string) {
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: publication ?? {},
-        columns: allPublicationColumnsData,
-        title: 'Publication'
-      }
-    });
+    const data: EditDialogData<Publication | object> = {
+      model: publication,
+      columns: allPublicationColumnsData,
+      title: 'Publication'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -196,13 +196,12 @@ export class PublicationsComponent {
   }
 
   editVersion(version: Version | null, publicationId: number) {
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: version ?? {},
-        columns: allVersionColumnsData,
-        title: 'Version'
-      }
-    });
+    const data: EditDialogData<Version | object> = {
+      model: version,
+      columns: allVersionColumnsData,
+      title: 'Version'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -226,13 +225,12 @@ export class PublicationsComponent {
   }
 
   editManuscript(manuscript: Manuscript | null, publicationId: number) {
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: manuscript ?? {},
-        columns: allManuscriptColumnsData,
-        title: 'Manuscript'
-      }
-    });
+    const data: EditDialogData<Manuscript | object> = {
+      model: manuscript,
+      columns: allManuscriptColumnsData,
+      title: 'Manuscript'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -256,13 +254,12 @@ export class PublicationsComponent {
   }
 
   editComment(comment: PublicationComment | null, publicationId: number) {
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: comment ?? {},
-        columns: allCommentsColumnData,
-        title: 'Comment'
-      }
-    });
+    const data: EditDialogData<PublicationComment> = {
+      model: comment,
+      columns: allCommentsColumnData,
+      title: 'Comment'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -287,14 +284,15 @@ export class PublicationsComponent {
   editFacsimile(facsimile: PublicationFacsimile | null, publicationId: number) {
     const columns = allFacsimileColumnData
       .filter(column => column.type !== 'action')
-      .sort((a: any, b: any) => b.editable - a.editable)
-    const dialogRef = this.dialog.open(EditDialogComponent, {
-      data: {
-        model: facsimile ?? {},
-        columns,
-        title: 'Facsimile',
-      }
-    });
+      .sort((a: Column, b: Column) => {
+        return b.editable ? 1 : a.editable ? -1 : 0;
+      })
+    const data: EditDialogData<PublicationFacsimile> = {
+      model: facsimile,
+      columns,
+      title: 'Facsimile',
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

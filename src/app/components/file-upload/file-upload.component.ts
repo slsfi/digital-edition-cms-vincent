@@ -2,7 +2,7 @@ import { Component, EventEmitter, input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BehaviorSubject, from, mergeMap, Observable, Subscription } from 'rxjs';
-import { HttpEventType, HttpHeaderResponse, HttpResponse } from '@angular/common/http';
+import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,9 +21,8 @@ class FileQueueObject {
   file: File;
   order: number;
   status: FileQueueStatus;
-  progress: number = 0;
+  progress = 0;
   request: Subscription | undefined;
-  response: HttpResponse<any> | undefined;
 
   constructor(file: File, order: number) {
     this.file = file;
@@ -31,7 +30,7 @@ class FileQueueObject {
     this.status = FileQueueStatus.Pending;
   }
 
-  isUploadable = () => this.status === FileQueueStatus.Pending || this.status === FileQueueStatus.Error;
+  isUploadable = () => this.status === FileQueueStatus.Pending || this.status === FileQueueStatus.Error;
 }
 
 @Component({
@@ -86,7 +85,7 @@ export class FileUploadComponent {
     const concurrentRequests = 3;
 
     const throttledFiles$ = from(files).pipe(
-      mergeMap((fileObj, index) =>
+      mergeMap((fileObj) =>
         this.uploadFile(fileObj), concurrentRequests
       )
     );
@@ -94,8 +93,7 @@ export class FileUploadComponent {
     this.uploadInProgress = true;
 
     throttledFiles$.subscribe({
-      next: () => {},
-      error: err => this.snackbar.open('Error uploading file', 'Close', { panelClass: 'snackbar-error', duration: undefined }),
+      error: () => this.snackbar.open('Error uploading file', 'Close', { panelClass: 'snackbar-error', duration: undefined }),
       complete: () => {
         this.uploadInProgress = false;
         this.allUploaded = true;
@@ -114,7 +112,7 @@ export class FileUploadComponent {
 
       queueObject.request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData)
         .subscribe({
-          next: event => {
+          next: (event: any) => { /* eslint-disable-line */
             if (event.type == HttpEventType.UploadProgress) {
               queueObject.progress = Math.round(100 * (event.loaded / event.total));
               queueObject.status = FileQueueStatus.Progress;
@@ -128,7 +126,7 @@ export class FileUploadComponent {
               }
             }
           },
-          error: error => {
+          error: () => {
             queueObject.status = FileQueueStatus.Error;
             queueObject.progress = 0;
             // Continue with next file

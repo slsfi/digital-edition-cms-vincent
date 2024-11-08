@@ -1,4 +1,4 @@
-@let projectSelected = (selectedProject$ | async) != null;
+@let selectedProject = selectedProject$ | async;
 <div class="container">
   <h1>Index of persons management</h1>
 
@@ -6,7 +6,7 @@
     <loading-spinner [overlay]="true"></loading-spinner>
   }
 
-  @if (!projectSelected) {
+  @if (selectedProject === null) {
     <p>Please select a project</p>
   } @else {
     <custom-table

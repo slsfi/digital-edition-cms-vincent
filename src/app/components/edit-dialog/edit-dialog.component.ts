@@ -1,6 +1,7 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { XmlMetadata } from './../../models/publication';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -18,11 +19,11 @@ import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PublicationService } from '../../services/publication.service';
 
-interface InputData {
-  model: any;
+export interface EditDialogData<T> {
+  model: T | null;
   columns: Column[];
   title: string;
-  tableName: string;
+  tableName?: string;
 }
 
 @Component({
@@ -36,11 +37,11 @@ interface InputData {
   templateUrl: './edit-dialog.component.html',
   styleUrl: './edit-dialog.component.scss'
 })
-export class EditDialogComponent {
+export class EditDialogComponent<T> implements OnInit {
 
   constructor(private publicationService: PublicationService) { }
 
-  readonly data = inject<InputData>(MAT_DIALOG_DATA);
+  readonly data = inject<EditDialogData<T>>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
 
@@ -49,6 +50,7 @@ export class EditDialogComponent {
   publishedOptions = PublishedOptions;
 
   fieldForTranslate: string | null = null;
+  translationIdd: number | undefined;
   parentTranslationField: string | undefined;
   fileSelectorVisible = false;
 
@@ -60,14 +62,27 @@ export class EditDialogComponent {
     return this.data.title != 'Comments'
   }
 
+  get model() {
+    return this.data.model as T | null;
+  }
+
+  get modelId() {
+    return (this.model as any)?.id;
+  }
+
+  get originalText() {
+    return this.model ? (this.model as any).original_text : '';
+  }
+
   ngOnInit() {
     const copiedColumns = this.data.columns
-      .map((column) => ({ ...column }))
-      .filter(column => column.type !== 'action' && column.type !== 'index')
-      .sort((a: any, b: any) => b.editable - a.editable)
-      .sort((a: any, b: any) => a.editOrder - b.editOrder);
-    copiedColumns.forEach((column) => {
-      if (column.type === 'date' && this.isBCDate(this.data.model[column.field])) {
+      .map((column: Column) => ({ ...column }))
+      .filter((column: Column) => column.type !== 'action' && column.type !== 'index')
+      .sort((a: Column, b: Column) => b.editable ? 1 : a.editable ? -1 : 0)
+      .sort((a: Column, b: Column) => a.editable && !b.editable ? -1 : 0);
+    copiedColumns.forEach((column: Column) => {
+      const value = this.model != null ? this.model[column.field as keyof T] as string | number | null : null;
+      if (column.type === 'date' && this.isBCDate(value)) {
         column.type = 'string';
       }
     });
@@ -76,7 +91,7 @@ export class EditDialogComponent {
     this.form = new FormGroup({});
 
     this.columns.forEach((column) => {
-      let value: string | number | null | Date | boolean = this.data.model[column.field];
+      let value: any = this.model ? this.model[column.field as keyof T] : '';
 
       const validators = [];
       if (column.required) {
@@ -91,11 +106,11 @@ export class EditDialogComponent {
         value = false;
       }
 
-      if (column.field === 'published' && !this.data.model?.id) {
+      if (column.field === 'published' && !this.modelId) {
         value = 1;
       }
 
-      if (column.type === 'type' && !this.data.model?.id) {
+      if (column.type === 'type' && !this.modelId) {
         value = 2;
       }
 
@@ -119,6 +134,10 @@ export class EditDialogComponent {
   showTranslations(column: Column) {
     this.fieldForTranslate = column.field;
     this.parentTranslationField = column.parentTranslationField;
+    if (this.model) {
+      this.translationIdd = this.model[(column.parentTranslationField as keyof T) ?? 'translation_id'] as number;
+    }
+
   }
 
   showFileSelector() {
@@ -138,9 +157,9 @@ export class EditDialogComponent {
     this.publicationService.getMetadataFromXML(this.originalFilenameControl.value)
       .subscribe(metadata => {
         for (const key in metadata) {
-          if (metadata.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(metadata, key)) {
             const control = this.form.controls[key];
-            const value = metadata[key as keyof XmlMetadata];;
+            const value = metadata[key as keyof XmlMetadata];
             if (control && !!value && !this.form.value[key]) {
               control.setValue(value);
             }

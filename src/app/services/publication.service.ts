@@ -28,8 +28,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
-        return this.apiService.get(url).pipe(
-          map((response: PublicationCollectionResponse) => response.data)
+        return this.apiService.get<PublicationCollectionResponse>(url).pipe(
+          map(response => response.data)
         );
       }),
     );
@@ -60,8 +60,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}`;
-        return this.apiService.get(url).pipe(
-          map((response: Publication[]) => response[0])
+        return this.apiService.get<Publication[]>(url).pipe(
+          map(response => response[0])
         );
       }),
     );
@@ -72,8 +72,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/`;
-        return this.apiService.get(url).pipe(
-          map((response: PublicationResponse) => response.data)
+        return this.apiService.get<PublicationResponse>(url).pipe(
+          map(response => response.data)
         );
       }),
     );
@@ -114,8 +114,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
-        return this.apiService.get(url).pipe(
-          map((response: PublicationCommentResponse) => response.data)
+        return this.apiService.get<PublicationCommentResponse>(url).pipe(
+          map(response => response.data)
         )
       }),
     );
@@ -136,8 +136,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/`;
-        return this.apiService.get(url).pipe(
-          map((response: VersionResponse) => response.data)
+        return this.apiService.get<VersionResponse>(url).pipe(
+          map(response => response.data)
         );
       }),
     );
@@ -158,8 +158,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/`;
-        return this.apiService.get(url).pipe(
-          map((response: ManuscriptResponse) => response.data)
+        return this.apiService.get<ManuscriptResponse>(url).pipe(
+          map(response => response.data)
         );
       }),
     );
@@ -180,7 +180,7 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/facsimiles/`;
-        return this.apiService.get(url).pipe(map((response: PublicationFacsimileResponse) => response.data));
+        return this.apiService.get<PublicationFacsimileResponse>(url).pipe(map(response => response.data));
       }),
     );
   }
@@ -210,8 +210,8 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/get_metadata_from_xml/by_path/${xmlPath}`;
-        return this.apiService.get(url).pipe(
-          map((response: XmlMetadataResponse) => response.data)
+        return this.apiService.get<XmlMetadataResponse>(url).pipe(
+          map(response => response.data)
         );
       }),
     );

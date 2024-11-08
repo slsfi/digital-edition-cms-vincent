@@ -13,7 +13,7 @@ export interface Person {
   deleted: Deleted;
   description: string;
   first_name: string | null;
-  full_name: string | null;
+  full_name: string | null;
   id: number;
   last_name: string | null;
   legacy_id: string;

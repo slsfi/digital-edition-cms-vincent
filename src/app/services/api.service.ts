@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class ApiService {
    }
 
   environment$ = new BehaviorSubject<string|null>(null);
-  prefix: string = 'digitaledition';
+  prefix = 'digitaledition';
 
   setEnvironment(env: string | null) {
     this.environment$.next(env);
@@ -31,7 +31,7 @@ export class ApiService {
     return `${this.environment}${this.prefix}`;
   }
 
-  handleError(error: HttpErrorResponse, disableErrorMessage: boolean = false) {
+  handleError(error: HttpErrorResponse, disableErrorMessage = false) {
     if (!disableErrorMessage) {
       const message = error.error.message || error.error.msg || error.message || 'An error occurred';
       this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error', duration: undefined });
@@ -39,18 +39,18 @@ export class ApiService {
     return throwError(() => error);
   }
 
-  post(url: string, body?: any, options: any = {}, disableErrorMessage: boolean = false) {
-    return this.http.post(url, body, options)
+  post<T>(url: string, body?: object | null, options: object = {}, disableErrorMessage = false) {
+    return this.http.post<T>(url, body, options)
       .pipe(
-        map((response: any) => response),
-        catchError((error) => this.handleError(error, disableErrorMessage))
+        map((response) => response),
+        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
       )
   }
 
-  get(url: string, options: any = {}, disableErrorMessage: boolean = false) {
-    return this.http.get(url, options)
+  get<T>(url: string, options: object = {}, disableErrorMessage = false) {
+    return this.http.get<T>(url, options)
       .pipe(
-        map((response: any) => response),
+        map((response) => response),
         catchError((error) => this.handleError(error, disableErrorMessage))
       )
   }

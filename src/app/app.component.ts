@@ -22,6 +22,4 @@ export class AppComponent {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
   }
 
-  ngOnInit() {
-  }
 }

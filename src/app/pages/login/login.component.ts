@@ -1,6 +1,6 @@
 import { LoadingService } from './../../services/loading.service';
 import { ApiService } from './../../services/api.service';
-import { Component, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +27,7 @@ const requiredIfEnvironmentIsCustom = function(control: AbstractControl) {
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   constructor(private apiService: ApiService, private authService: AuthService, private loadingService: LoadingService) {
     this.loading$ = this.loadingService.loading$;
   }
