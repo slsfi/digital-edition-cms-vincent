@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { QueryParamsService } from './../../services/query-params.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
@@ -85,6 +84,10 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
+  getProperty<Type, Key extends keyof Type>(obj: Type, key: Key) {
+    return obj[key];
+  }
+
   ngAfterViewInit() {
     if (this.paginationEnabled) {
       this.tableDataSource.paginator = this.paginator;
@@ -105,7 +108,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
               const filterType = column.filterType ?? 'equals';
               if (queryParams[field]) {
                 data = data.filter((item: T) => {
-                  const value = (item as any)[field];
+                  const value = this.getProperty<T, keyof T>(item, field as keyof T);
                   if (typeof value === 'string') {
                     if (filterType === 'contains') {
                       return value.toLowerCase().includes(queryParams[field]);
@@ -126,13 +129,13 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
             // Sorting
             if (queryParams['sort'] && queryParams['direction']) {
               data = data.sort((a: T, b: T) => {
-                let aValue = (a as any)[queryParams['sort']];
-                let bValue = (b as any)[queryParams['sort']];
-                if (typeof aValue === 'string') {
-                  aValue = aValue.toLowerCase();
+                let aValue = this.getProperty<T, keyof T>(a, queryParams['sort']);
+                let bValue = this.getProperty<T, keyof T>(b, queryParams['sort']);
+                if (typeof aValue as string === 'string') {
+                  aValue = (aValue as string).toLowerCase() as T[keyof T];
                 }
                 if (typeof bValue === 'string') {
-                  bValue = bValue.toLowerCase();
+                  bValue = (bValue as string).toLowerCase() as T[keyof T];
                 }
                 if (queryParams['direction'] === 'asc') {
                   return aValue > bValue ? 1 : -1;

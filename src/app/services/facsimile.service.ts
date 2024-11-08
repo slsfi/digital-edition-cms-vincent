@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse, VerifyFacsimileFileResponse } from '../models/facsimile';
-import { filter, map, Observable, switchMap } from 'rxjs';
+import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse, FacsimileCollectionsResponse, VerifyFacsimileFileResponse } from '../models/facsimile';
+import { filter, map, switchMap } from 'rxjs';
 import { HttpContext } from '@angular/common/http';
 import { SkipLoading } from '../interceptors/loading.interceptor';
 
@@ -17,19 +17,19 @@ export class FacsimileService {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
-  getFacsimileCollections(): Observable<FacsimileCollection[]> {
+  getFacsimileCollections() {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/list/`;
-        return this.apiService.get<FacsimileCollectionResponse>(url).pipe(
+        return this.apiService.get<FacsimileCollectionsResponse>(url).pipe(
           map(response => response.data)
         );
       }
     ));
   }
 
-  getFacsimileCollection(collectionId: number): Observable<FacsimileCollection> {
+  getFacsimileCollection(collectionId: number) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -46,7 +46,7 @@ export class FacsimileService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/new/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<FacsimileCollectionResponse>(url, data);
       }
     ));
   }
@@ -56,16 +56,7 @@ export class FacsimileService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${collectionId}/edit/`;
-        return this.apiService.post(url, data);
-      }
-    ));
-  }
-
-  getFacsimileFile(url: string) {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(() => {
-        return this.apiService.get(url)
+        return this.apiService.post<FacsimileCollectionResponse>(url, data);
       }
     ));
   }
@@ -80,7 +71,7 @@ export class FacsimileService {
     ));
   }
 
-  getFacsimileImagePath(collectionId: number, pageNumber: number, zoomLevel: 1|2|3|4 = 1): string {
+  getFacsimileImagePath(collectionId: number, pageNumber: number, zoomLevel: 1|2|3|4 = 1) {
     const project = this.selectedProject$.getValue();
     const url = `${this.apiService.prefixedUrl}/${project}/get-single-facsimile-file/${collectionId}/${pageNumber}/${zoomLevel}`
     return url;

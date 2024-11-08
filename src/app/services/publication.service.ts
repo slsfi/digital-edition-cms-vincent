@@ -1,16 +1,17 @@
+import { ManuscriptResponse, PublicationCommentsResponse } from './../models/publication';
 import { ProjectService } from './project.service';
 import { Injectable } from '@angular/core';
-import { filter, map, Observable, switchMap } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import {
-  LinkTextToPublicationRequest, Manuscript, ManuscriptEditRequest, ManuscriptResponse, Publication, PublicationAddRequest,
-  PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse,
-  PublicationComment, PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
-  Version, VersionEditRequest, VersionResponse, XmlMetadataResponse
+  LinkTextToPublicationRequest, LinkTextToPublicationResponse, ManuscriptEditRequest, ManuscriptsResponse, Publication, PublicationAddRequest,
+  PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse, PublicationCollectionsResponse,
+  PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse, PublicationsResponse, VersionEditRequest,
+  VersionResponse, VersionsResponse, XmlMetadataResponse
 } from '../models/publication';
 import {
-  EditPublicationFacsimileRequest, LinkPublicationToFacsimileRequest, PublicationFacsimile, PublicationFacsimileResponse
- } from '../models/facsimile';
+  EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse, LinkPublicationToFacsimileRequest, PublicationFacsimileResponse
+} from '../models/facsimile';
 
 @Injectable({
   providedIn: 'root'
@@ -23,12 +24,12 @@ export class PublicationService {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
-  getPublicationCollections(): Observable<PublicationCollection[]> {
+  getPublicationCollections() {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
-        return this.apiService.get<PublicationCollectionResponse>(url).pipe(
+        return this.apiService.get<PublicationCollectionsResponse>(url).pipe(
           map(response => response.data)
         );
       }),
@@ -40,7 +41,7 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/edit/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<PublicationCollectionResponse>(url, data);
       }),
     );
   }
@@ -50,12 +51,12 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/new/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<PublicationCollectionResponse>(url, data);
       }),
     );
   }
 
-  getPublication(publicationId: number): Observable<Publication> {
+  getPublication(publicationId: number) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -67,12 +68,12 @@ export class PublicationService {
     );
   }
 
-  getPublications(collectionId: string): Observable<Publication[]> {
+  getPublications(collectionId: string) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/`;
-        return this.apiService.get<PublicationResponse>(url).pipe(
+        return this.apiService.get<PublicationsResponse>(url).pipe(
           map(response => response.data)
         );
       }),
@@ -84,17 +85,17 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/edit/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<PublicationResponse>(url, data);
       }),
     );
   }
 
-  addPublication(collectionId: number,data: PublicationAddRequest) {
+  addPublication(collectionId: number, data: PublicationAddRequest) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/new/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<PublicationResponse>(url, data);
       }),
     );
   }
@@ -104,17 +105,17 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/link_text/`;
-        return this.apiService.post(url, payload);
+        return this.apiService.post<LinkTextToPublicationResponse>(url, payload);
       }),
     );
   }
 
-  getCommentsForPublication(collectionId: string, publicationId: string): Observable<PublicationComment[]> {
+  getCommentsForPublication(collectionId: string, publicationId: string) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comments/`;
-        return this.apiService.get<PublicationCommentResponse>(url).pipe(
+        return this.apiService.get<PublicationCommentsResponse>(url).pipe(
           map(response => response.data)
         )
       }),
@@ -126,17 +127,17 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/comment/edit/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<PublicationCommentResponse>(url, data);
       }),
     );
   }
 
-  getVersionsForPublication(publicationId: string): Observable<Version[]> {
+  getVersionsForPublication(publicationId: string) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/versions/`;
-        return this.apiService.get<VersionResponse>(url).pipe(
+        return this.apiService.get<VersionsResponse>(url).pipe(
           map(response => response.data)
         );
       }),
@@ -148,17 +149,17 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/versions/${versionId}/edit/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<VersionResponse>(url, data);
       }),
     );
   }
 
-  getManuscriptsForPublication(publicationId: string): Observable<Manuscript[]> {
+  getManuscriptsForPublication(publicationId: string) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/`;
-        return this.apiService.get<ManuscriptResponse>(url).pipe(
+        return this.apiService.get<ManuscriptsResponse>(url).pipe(
           map(response => response.data)
         );
       }),
@@ -170,12 +171,12 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/manuscripts/${manuscriptId}/edit/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<ManuscriptResponse>(url, data);
       }),
     );
   }
 
-  getFacsimilesForPublication(publicationId: string): Observable<PublicationFacsimile[]> {
+  getFacsimilesForPublication(publicationId: string) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
@@ -190,7 +191,7 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/facsimile/edit/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<LinkFacsimileToPublicationResponse>(url, data);
       }),
     );
   }
@@ -200,7 +201,7 @@ export class PublicationService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${facsimileCollectionId}/link/`;
-        return this.apiService.post(url, data);
+        return this.apiService.post<LinkFacsimileToPublicationResponse>(url, data);
       }),
     );
   }

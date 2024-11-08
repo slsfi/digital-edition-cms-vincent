@@ -12,7 +12,8 @@ export const allPublicationColumnsData: Column[] = [
     field: 'cascade_published',
     header: 'Also apply selected published status to any comments, manuscripts or variants linked to the publication.',
     type: 'boolean',
-    editable: true
+    editable: true,
+    editOrder: 3
   },
   { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
@@ -28,7 +29,7 @@ export const versionColumnsData: Column[] = [
   { field: 'original_filename', header: 'Version File Path', type: 'textarea', editable: true, editOrder: 1 },
   { field: 'type', header: 'Type', type: 'type', editable: true, editOrder: 4 },
   { field: 'sort_order', header: 'Sort Order', type: 'number', editable: true, editOrder: 5 },
-  { field: 'section_id', header: 'Section ID', type: 'number', editable: false, editOrder: 6 },
+  { field: 'section_id', header: 'Section ID', type: 'number', editable: true, editOrder: 6 },
   { field: 'actions', header: 'Actions', type: 'action', editable: false },
 ]
 export const allVersionColumnsData: Column[] = [

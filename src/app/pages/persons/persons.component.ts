@@ -55,7 +55,7 @@ export class PersonsComponent implements OnInit {
     ...this.columnsData,
     { field: 'date_created', header: 'Date created', filterable: false, type: 'string', editable: false },
     { field: 'date_modified', header: 'Date modified', filterable: false, type: 'string', editable: false },
-    { field: 'deleted', header: 'Deleted', filterable: false, type: 'boolean', editable: true },
+    { field: 'deleted', header: 'Deleted', filterable: false, type: 'boolean', editable: false },
     { field: 'alias', header: 'Alias', filterable: false, type: 'string', editable: true },
     { field: 'first_name', header: 'First name', filterable: false, type: 'string', editable: true, editOrder: 0 },
     { field: 'last_name', header: 'Last name', filterable: false, type: 'string', editable: true, editOrder: 0 },

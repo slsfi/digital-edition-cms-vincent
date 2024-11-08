@@ -237,18 +237,21 @@ export class PublicationsComponent implements OnInit {
         const payload = result.form.getRawValue();
         payload['text_type'] = 'manuscript';
 
-        let req;
         if (manuscript?.id) {
-          req = this.publicationService.editManuscript(manuscript.id, payload);
+          this.publicationService.editManuscript(manuscript.id, payload).subscribe({
+            next: () => {
+              this.manuscriptsLoader$.next(0);
+              this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
+            }
+          });
         } else {
-          req = this.publicationService.linkTextToPublication(publicationId, payload);
+          this.publicationService.linkTextToPublication(publicationId, payload).subscribe({
+            next: () => {
+              this.manuscriptsLoader$.next(0);
+              this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
+            }
+          });
         }
-        req.subscribe({
-          next: () => {
-            this.manuscriptsLoader$.next(0);
-            this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
-          }
-        });
       }
     });
   }

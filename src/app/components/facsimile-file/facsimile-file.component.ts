@@ -40,7 +40,7 @@ export class FacsimileFileComponent implements AfterViewInit {
       responseType: 'blob'
     }
     this.apiService
-      .get(this.imagePath, options, true)
+      .get<Blob>(this.imagePath, options, true)
       .pipe(map(response => URL.createObjectURL(response)))
       .subscribe({
         next: url => this.imageUrlSubject.next(url),

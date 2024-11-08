@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, filter, map, Observable, switchMap, take } from 'rxjs';
-import { AddProjectData, EditProjectData, FileTree, FileTreeResponse, Project, ProjectResponse, RepoDetails, RepoDetailsResponse } from '../models/project';
+import { AddProjectData, EditProjectData, FileTree, FileTreeResponse, Project, ProjectResponse, ProjectsResponse, RepoDetails, RepoDetailsResponse, SyncFilesResponse } from '../models/project';
 import { HttpContext } from '@angular/common/http';
 import { SkipLoading } from '../interceptors/loading.interceptor';
 
@@ -19,12 +19,12 @@ export class ProjectService {
     }
   }
 
-  getProjects(): Observable<Project[]> {
+  getProjects() {
     if (!this.apiService.environment) {
       return new Observable<Project[]>();
     }
     const url = `${this.apiService.prefixedUrl}/projects/list/`;
-    return this.apiService.get<ProjectResponse>(url).pipe(
+    return this.apiService.get<ProjectsResponse>(url).pipe(
       map(response => {
         return response.data;
       })
@@ -33,12 +33,12 @@ export class ProjectService {
 
   addProject(payload: AddProjectData) {
     const url = `${this.apiService.prefixedUrl}/projects/new/`;
-    return this.apiService.post(url, payload);
+    return this.apiService.post<ProjectResponse>(url, payload);
   }
 
   editProject(id: number, payload: EditProjectData) {
     const url = `${this.apiService.prefixedUrl}/projects/${id}/edit/`;
-    return this.apiService.post(url, payload);
+    return this.apiService.post<ProjectResponse>(url, payload);
   }
 
   getFileTree(): Observable<FileTree | null> {
@@ -82,7 +82,7 @@ export class ProjectService {
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/sync_files/`;
-        return this.apiService.post(url);
+        return this.apiService.post<SyncFilesResponse>(url);
       }),
     );
   }

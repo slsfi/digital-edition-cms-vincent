@@ -1,7 +1,11 @@
 import { ApiResponse } from "./common";
 
-export interface ProjectResponse extends ApiResponse {
+export interface ProjectsResponse extends ApiResponse {
   data: Project[];
+}
+
+export interface ProjectResponse extends ApiResponse {
+  data: Project;
 }
 
 export interface Project {
@@ -31,20 +35,16 @@ export interface RepoDetailsResponse extends ApiResponse {
   data: RepoDetails;
 }
 
-// Dynamic file tree structure,
-// example: {
-//     "Det_forsta_angfartyget.xml": null,
-//     "Maamme_var.xml": null,
-//     "Maamme_var_16.xml": null,
-//     "Variantkodade": {
-//         "Maamme_kirja_var.xml": null,
-//         "Maamme_kirja_var_1899.xml": null
-//     }
-// }
 export interface FileTree {
   [key: string]: FileTree | null;
 }
 
 export interface FileTreeResponse extends ApiResponse {
   data: FileTree;
+}
+
+export interface SyncFilesResponse extends ApiResponse {
+  data: {
+    changed_files: string[];
+  };
 }

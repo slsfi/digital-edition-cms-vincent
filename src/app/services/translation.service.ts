@@ -1,8 +1,8 @@
 import { ProjectService } from './project.service';
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { filter, map, Observable, switchMap } from 'rxjs';
-import { Translation, TranslationRequest, TranslationRequestPost, TranslationResponse, TranslationsResponse } from '../models/translation';
+import { filter, map, switchMap } from 'rxjs';
+import { TranslationRequest, TranslationRequestPost, TranslationResponse, TranslationsResponse } from '../models/translation';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +36,7 @@ export class TranslationService {
     );
   }
 
-  getTranslations(translation_id: number, data: TranslationRequestPost): Observable<Translation[]> {
+  getTranslations(translation_id: number, data: TranslationRequestPost) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {

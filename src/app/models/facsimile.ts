@@ -1,7 +1,11 @@
 import { ApiResponse, Deleted } from "./common";
 
-export interface FacsimileCollectionResponse extends ApiResponse {
+export interface FacsimileCollectionsResponse extends ApiResponse {
   data: FacsimileCollection[];
+}
+
+export interface FacsimileCollectionResponse extends ApiResponse {
+  data: FacsimileCollection;
 }
 
 export interface PublicationFacsimileResponse extends ApiResponse {
@@ -79,4 +83,23 @@ export interface VerifyFacsimileFileResponse extends ApiResponse {
   data?: {
     missing_file_numbers: number[];
   };
+}
+
+export interface FacsimileForPublication {
+  date_created: string;
+  date_modified: string | null;
+  deleted: Deleted;
+  id: number;
+  page_nr: number;
+  priority: number;
+  publication_facsimile_collection_id: number;
+  publication_id: number;
+  publication_manuscript_id: number | null;
+  publication_version_id: number | null;
+  section_id: number;
+  type: number;
+}
+
+export interface LinkFacsimileToPublicationResponse extends ApiResponse {
+  data: FacsimileForPublication;
 }

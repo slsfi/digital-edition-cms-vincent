@@ -1,8 +1,12 @@
 import { ApiResponse, Deleted, Published } from "./common";
 import { Langugage } from "./translation";
 
-export interface PublicationCollectionResponse extends ApiResponse {
+export interface PublicationCollectionsResponse extends ApiResponse {
   data: PublicationCollection[];
+}
+
+export interface PublicationCollectionResponse extends ApiResponse {
+  data: PublicationCollection;
 }
 
 export interface PublicationCollection {
@@ -34,8 +38,12 @@ export interface PublicationCollectionEditRequest {
 
 }
 
-export interface PublicationResponse extends ApiResponse {
+export interface PublicationsResponse extends ApiResponse {
   data: Publication[];
+}
+
+export interface PublicationResponse extends ApiResponse {
+  data: Publication;
 }
 
 export interface Publication {
@@ -83,8 +91,12 @@ export interface ReadingText {
   language: string;
 }
 
-export interface PublicationCommentResponse extends ApiResponse {
+export interface PublicationCommentsResponse extends ApiResponse {
   data: PublicationComment[];
+}
+
+export interface PublicationCommentResponse extends ApiResponse {
+  data: PublicationComment;
 }
 export interface PublicationComment {
   date_created: string;
@@ -101,8 +113,12 @@ export interface PublicationCommentRequest {
   deleted?: Deleted;
 }
 
-export interface VersionResponse extends ApiResponse {
+export interface VersionsResponse extends ApiResponse {
   data: Version[];
+}
+
+export interface VersionResponse extends ApiResponse {
+  data: Version;
 }
 
 export interface Version {
@@ -130,8 +146,12 @@ export interface VersionEditRequest {
   sort_order?: number;
 }
 
-export interface ManuscriptResponse extends ApiResponse {
+export interface ManuscriptsResponse extends ApiResponse {
   data: Manuscript[];
+}
+
+export interface ManuscriptResponse extends ApiResponse {
+  data: Manuscript;
 }
 
 export interface Manuscript {
@@ -165,11 +185,6 @@ export interface ManuscriptRequest {
   sort_order?: number;
 }
 
-export interface ManuscriptResponse {
-  id: string;
-  manuscripts: Manuscript[];
-}
-
 export interface XmlMetadata {
   genre: string;
   language: string;
@@ -193,4 +208,25 @@ export interface LinkTextToPublicationRequest {
   section_id?: number;
   sort_order?: number;
   language?: string;
+}
+
+export interface LinkTextToPublicationResponse extends ApiResponse {
+  data: LinkTextToPublication;
+}
+
+export interface LinkTextToPublication {
+  date_created: string;
+  date_modified: string | null;
+  date_published_externally: string | null;
+  deleted: Deleted;
+  id: number;
+  legacy_id: number | null;
+  name: string;
+  original_filename: string;
+  publication_id: number;
+  published: Published;
+  published_by: string | null;
+  section_id: number;
+  sort_order: number;
+  type: number;
 }
