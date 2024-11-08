@@ -171,11 +171,11 @@ export class PublicationBundleComponent implements OnInit {
       this.publicationService.addPublication(collectionId, data)
         .subscribe({
           next: () => {
-            this.saveFailures.push(data.original_filename as string);
             observer.next();
             observer.complete();
           },
           error: () => {
+            this.saveFailures.push(data.original_filename as string);
             observer.next();
             observer.complete();
           },
