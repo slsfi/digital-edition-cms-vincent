@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { PublicationService } from '../../services/publication.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, Observable, of, switchMap, combineLatest, from, mergeMap } from 'rxjs';
 import { PublicationAddRequest, PublicationCollection, XmlMetadata } from '../../models/publication';
 import { MatIconModule } from '@angular/material/icon';
@@ -66,7 +66,8 @@ export class PublicationBundleComponent implements OnInit {
       private publicationService: PublicationService,
       private route: ActivatedRoute,
       private snackbar: MatSnackBar,
-      private loadingService: LoadingService
+      private loadingService: LoadingService,
+      private router: Router
   ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.publicationService.selectedProject$;
@@ -160,6 +161,9 @@ export class PublicationBundleComponent implements OnInit {
       complete: () => {
         this.snackbar.open('All publications added', 'Close', { panelClass: 'snackbar-success' });
         this.clearForm();
+        if (this.saveFailures.length === 0) {
+          this.router.navigate(['../'], { relativeTo: this.route });
+        }
       },
     });
   }
