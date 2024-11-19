@@ -7,13 +7,11 @@
 @if (selectedProject === null) {
   <p>Please select a project</p>
 } @else {
-  <div class="publications">
-    <div class="header">
-      <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
-        <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
-        <h2>{{ selectedPublicationCollection.name }} </h2>
-      </ng-container>
-    </div>
+  <div class="selected-collection">
+    <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
+      <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
+      <h2>{{ selectedPublicationCollection.name }}</h2>
+    </ng-container>
   </div>
 
   <ng-template #publicationCollections>
@@ -33,7 +31,6 @@
           <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
         </ng-content>
       </custom-table>
-
   </ng-template>
 
   <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">

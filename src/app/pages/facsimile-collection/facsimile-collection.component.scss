@@ -1,3 +1,9 @@
+.selected-facsimile-collection {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+
 .file-input {
   display: none;
 }
@@ -20,10 +26,6 @@
     background-color: #ccc;
   }
 
-}
-
-.pages {
-  margin: 20px 0;
 }
 
 facsimile-file {

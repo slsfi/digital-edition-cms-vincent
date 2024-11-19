@@ -4,10 +4,10 @@
 }
 
 .content {
-  padding: 4em;
+  padding: 2em 4em 4em 4em;
 
-  @media screen and (max-width: 1280px) {
-    padding: 2em;
+  @media screen and (max-width: 1600px) {
+    padding: 2em 2em 4em 2em;
 
   }
 }

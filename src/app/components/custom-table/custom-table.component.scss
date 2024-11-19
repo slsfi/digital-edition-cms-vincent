@@ -1,7 +1,14 @@
+.table-title,
 .row-actions {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.table-title {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 1.33em 0;
 }
 
 .table-container {
@@ -9,11 +16,19 @@
 }
 
 .selected {
-  background-color: #d5d4d4;
+  background-color: #e1e1e1;
+
+  &.mat-column-name {
+    font-style: italic;
+  }
+}
+
+.mat-column-external_url {
+  word-break: break-all;
 }
 
 .index {
-  color: #c4c4c4;
+  color: #9d9d9d;
 }
 
 .center {
