@@ -1,3 +1,4 @@
+import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
@@ -18,8 +19,16 @@ export class AppComponent {
 
   isAuthenticated$: Observable<boolean> = new Observable<boolean>();
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private matIconReg: MatIconRegistry
+  ) {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
+  }
+
+  ngOnInit() {
+    // Set Angular Material to use the new Material Symbols icon font.
+    this.matIconReg.setDefaultFontSetClass('material-symbols-outlined');
   }
 
 }
