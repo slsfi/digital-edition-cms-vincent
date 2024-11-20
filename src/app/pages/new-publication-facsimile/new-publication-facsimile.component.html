@@ -1,33 +1,29 @@
 @let filterParams = filterParams$ | async;
 @let publication = publication$ | async;
 
-<h1>Facsimile management</h1>
+<h1>Add facsimile to publication</h1>
+<div class="publication-back-link">
+  <a mat-icon-button [routerLink]="publicationsPath"><mat-icon>west</mat-icon></a>
+  <h2>{{ publication?.name || '' }}</h2>
+</div>
 
-<a mat-icon-button [routerLink]="publicationsPath"><mat-icon>west</mat-icon></a>
-
-<h3>Please select facsimile collection to link with publication @if (publication) { {{ publication.name }} }</h3>
-
-@if (loading$ | async) {
-  <loading-spinner [overlay]="true"></loading-spinner>
-}
-
+<p>Fill in the facsimile details and select a facsimile collection below.</p>
 <form [formGroup]="form" (ngSubmit)="submit($event)">
   <div class="fields">
     <mat-form-field>
-      <mat-label>Page number</mat-label>
+      <mat-label>Initial page number</mat-label>
       <input matInput type="number" formControlName="page_nr" />
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Section ID</mat-label>
-      <input matInput type="number" formControlName="section_id" />
     </mat-form-field>
     <mat-form-field>
       <mat-label>Priority</mat-label>
       <input matInput type="number" formControlName="priority" />
     </mat-form-field>
+    <mat-form-field>
+      <mat-label>Section ID</mat-label>
+      <input matInput type="number" formControlName="section_id" />
+    </mat-form-field>
   </div>
   <button mat-flat-button type="submit" [disabled]="!form.valid">Save</button>
-
 </form>
 
 <custom-table
@@ -46,3 +42,7 @@
     </button>
   </ng-content>
 </custom-table>
+
+@if (loading$ | async) {
+  <loading-spinner [overlay]="true"></loading-spinner>
+}

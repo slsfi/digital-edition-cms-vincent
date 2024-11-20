@@ -3,17 +3,6 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-/*
-.container {
-  width: calc(100vw - 8em);
-
-  @media screen and (max-width: 1280px) {
-    width: calc(100vw - 4em);
-
-  }
-}
-*/
-
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
@@ -21,6 +10,10 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 1.75em;
   margin: 0 0 0.75em;
+
+  + custom-table {
+    margin-top: 2.1875em;
+  }
 }
 
 h2 {

@@ -8,9 +8,6 @@
   @if (!selectedProject) {
     <p>Please select a project</p>
   } @else {
-    @if (loading$ | async) {
-      <loading-spinner [overlay]="true"></loading-spinner>
-    }
     <custom-table
       [data$]="facsimileCollections$"
       [columns]="columnsData"
@@ -24,6 +21,10 @@
         <button mat-flat-button (click)="editCollection()"><mat-icon>add</mat-icon>Add</button>
        </ng-content>
     </custom-table>
+
+    @if (loading$ | async) {
+      <loading-spinner [overlay]="true"></loading-spinner>
+    }
   }
 
 </div>

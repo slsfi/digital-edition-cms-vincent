@@ -2,7 +2,11 @@
   <div class="table-title">
     <ng-content select="[custom-table-title]"></ng-content>
     @if (tableDataSource.data) {
-      {{ filteredCount }} / {{ originalCount }}
+      @if (filteredCount < originalCount) {
+        ({{ filteredCount }} / {{ originalCount }})
+      } @else {
+        ({{ originalCount }})
+      }
     }
   </div>
   <div class="actions">

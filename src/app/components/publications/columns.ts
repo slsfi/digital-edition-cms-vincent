@@ -69,8 +69,8 @@ export const facsimileColumnData: Column[] = [
   { field: 'title', header: 'Title', type: 'string', editable: false },
   { field: 'external_url', header: 'External URL', type: 'string', editable: true },
   { field: 'page_nr', header: 'Page Number', type: 'number', editable: true },
-  { field: 'section_id', header: 'Section ID', type: 'number', editable: true },
   { field: 'priority', header: 'Priority', type: 'number', editable: true },
+  { field: 'section_id', header: 'Section ID', type: 'number', editable: true },
   { field: 'actions', header: 'Actions', type: 'action', editable: false },
 ]
 export const allFacsimileColumnData: Column[] = [

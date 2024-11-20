@@ -72,9 +72,9 @@ export class NewPublicationFacsimileComponent implements OnInit {
     this.publication$ = this.publicationService.getPublication(publicationId);
     this.form = new FormGroup({
       publication_id: new FormControl<number>(publicationId, [Validators.required]),
-      page_nr: new FormControl<number | null>(null),
+      page_nr: new FormControl<number | null>(1, [Validators.required]),
       section_id: new FormControl<number | null>(null),
-      priority: new FormControl<number | null>(null),
+      priority: new FormControl<number | null>(1, [Validators.required]),
       facsimile_collection_id: new FormControl<number | null>(null, [Validators.required])
     });
   }

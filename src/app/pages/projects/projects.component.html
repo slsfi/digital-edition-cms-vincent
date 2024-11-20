@@ -1,8 +1,6 @@
 <div class="container">
   <h1>Project management</h1>
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
+
   <custom-table
     [data$]="projects$"
     [columns]="columnsData"
@@ -17,4 +15,7 @@
     </ng-content>
   </custom-table>
 
+  @if (loading$ | async) {
+    <loading-spinner [overlay]="true"></loading-spinner>
+  }
 </div>

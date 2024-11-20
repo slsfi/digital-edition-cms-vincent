@@ -14,26 +14,27 @@
     </ng-container>
   </div>
 
-  <ng-template #publicationCollections>
-    @if (loading$ | async) {
-      <loading-spinner [overlay]="true"></loading-spinner>
-    }
-      <custom-table
-        [data$]="publicationCollections$"
-        [columns]="publicationCollectionColumnsData"
-        [idRouteParams]="['/publication-collections/']"
-        (editRow)="editPublicationCollection($event)"
-        (deleteRow)="deletePublicationCollection($event)">
-        <ng-content custom-table-title>Publication collections</ng-content>
-        <ng-content custom-table-actions>
-          <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
-          <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-          <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
-        </ng-content>
-      </custom-table>
-  </ng-template>
-
   <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">
     <publications></publications>
   </ng-container>
+
+  <ng-template #publicationCollections>
+    <custom-table
+      [data$]="publicationCollections$"
+      [columns]="publicationCollectionColumnsData"
+      [idRouteParams]="['/publication-collections/']"
+      (editRow)="editPublicationCollection($event)"
+      (deleteRow)="deletePublicationCollection($event)">
+      <ng-content custom-table-title>Publication collections</ng-content>
+      <ng-content custom-table-actions>
+        <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
+        <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
+        <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
+      </ng-content>
+    </custom-table>
+
+    @if (loading$ | async) {
+      <loading-spinner [overlay]="true"></loading-spinner>
+    }
+  </ng-template>
 }

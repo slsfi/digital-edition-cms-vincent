@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .table-title,
 .row-actions {
   display: flex;
@@ -8,10 +12,10 @@
 .table-title {
   font-size: 1em;
   font-weight: 700;
-  margin: 1.33em 0;
 }
 
 .table-container {
+  margin-top: 0.5em;
   overflow-x: auto;
 }
 
@@ -19,12 +23,30 @@
   background-color: #e1e1e1;
 
   &.mat-column-name {
-    font-style: italic;
+    font-weight: 500;
   }
 }
 
-.mat-column-external_url {
+.mat-column-index,
+.mat-column-select {
+  border-collapse: collapse;
+  padding-right: 0;
+  width: 1%;
+}
+
+td.mat-column-external_url {
+  min-width: 120px;
   word-break: break-all;
+}
+
+td.mat-column-name {
+  border-collapse: collapse;
+  min-width: 180px;
+}
+
+td.mat-column-full_name {
+  border-collapse: collapse;
+  min-width: 250px;
 }
 
 .index {

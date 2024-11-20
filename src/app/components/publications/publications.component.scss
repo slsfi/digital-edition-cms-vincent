@@ -1,6 +1,7 @@
 .content {
   display: flex;
   gap: 50px;
+  margin-top: 1em;
 
   @media screen and (max-width: 960px) {
     gap: 20px;
