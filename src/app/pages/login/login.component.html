@@ -1,47 +1,50 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Enter your credentials</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit($event)">
+      <div class="row">
+        <mat-form-field>
+          <mat-label>Environment</mat-label>
+          <mat-select formControlName="environment">
+            @for (environment of environments; track environment.value) {
+              <mat-option [value]="environment.value">
+                {{ environment.name }} ({{ environment.value }})
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div *ngIf="environment?.value === ' '" class="row">
+        <mat-form-field>
+          <mat-label>Custom environment</mat-label>
+          <input matInput formControlName="customEnvironment" placeholder="https://..." />
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" autocomplete="email" />
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password" autocomplete="current-password"
+            [type]="hidePassword() ? 'password' : 'text'" />
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" type="button">
+            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="actions">
+        <button mat-flat-button color="primary" [disabled]="!loginForm.valid" type="submit">Log in</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
 
-
-<div class="container">
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
-  <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit($event)">
-    <div class="row">
-      <mat-form-field>
-        <mat-label>Environment</mat-label>
-        <mat-select formControlName="environment">
-          @for (environment of environments; track environment.value) {
-            <mat-option [value]="environment.value">
-              {{ environment.name }} ({{ environment.value }})
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <div *ngIf="environment?.value === ' '" class="row">
-      <mat-form-field>
-        <mat-label>Custom Environment</mat-label>
-        <input matInput formControlName="customEnvironment" />
-      </mat-form-field>
-    </div>
-    <div class="row">
-      <mat-form-field>
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" autocomplete="email" />
-      </mat-form-field>
-    </div>
-    <div class="row">
-      <mat-form-field>
-        <mat-label>Password</mat-label>
-        <input matInput formControlName="password" autocomplete="current-password"
-          [type]="hidePassword() ? 'password' : 'text'" />
-        <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" type="button">
-          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
-        </button>
-      </mat-form-field>
-    </div>
-    <div class="actions">
-      <button mat-flat-button color="primary" [disabled]="!loginForm.valid" type="submit">Log in</button>
-    </div>
-  </form>
-
-</div>
+@if (loading$ | async) {
+  <loading-spinner [overlay]="true"></loading-spinner>
+}

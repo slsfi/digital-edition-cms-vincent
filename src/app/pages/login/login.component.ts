@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,7 +24,7 @@ const requiredIfEnvironmentIsCustom = function(control: AbstractControl) {
 @Component({
   selector: 'login',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, ReactiveFormsModule, CommonModule, MatIconModule, LoadingSpinnerComponent],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatSelectModule, ReactiveFormsModule, CommonModule, MatIconModule, LoadingSpinnerComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

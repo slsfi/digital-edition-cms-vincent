@@ -1,8 +1,19 @@
-.login-form {
+:host {
+  display: block;
+}
+
+mat-card {
   width: 400px;
   margin: auto;
-  padding: 2em 4em;
-  background-color: aliceblue;
+}
+
+mat-card-header {
+  justify-content: center;
+}
+
+.login-form {
+  padding-top: 1.125em;
+  width: 100%;
 }
 
 .row .mat-mdc-form-field {
