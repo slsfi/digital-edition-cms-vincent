@@ -70,7 +70,6 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngOnInit() {
-
     this.editSecondaryUsed = this.editRowSecondary.observed;
     this.deleteUsed = this.deleteRow.observed;
     this.openUsed = this.openRow.observed;

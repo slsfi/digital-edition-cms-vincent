@@ -1,10 +1,14 @@
 <div class="header-row">
-  <h4 class="row-actions">
+  <div class="table-title">
     <ng-content select="[custom-table-title]"></ng-content>
     @if (tableDataSource.data) {
-      {{ filteredCount }} / {{ originalCount }}
+      @if (filteredCount < originalCount) {
+        ({{ filteredCount }} / {{ originalCount }})
+      } @else {
+        ({{ originalCount }})
+      }
     }
-  </h4>
+  </div>
   <div class="actions">
     <ng-content select="[custom-table-actions]"></ng-content>
   </div>

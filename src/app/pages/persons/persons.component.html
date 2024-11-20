@@ -2,10 +2,6 @@
 <div class="container">
   <h1>Index of persons management</h1>
 
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
-
   @if (selectedProject === null) {
     <p>Please select a project</p>
   } @else {
@@ -22,5 +18,9 @@
         <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
       </ng-content>
     </custom-table>
+
+    @if (loading$ | async) {
+      <loading-spinner [overlay]="true"></loading-spinner>
+    }
   }
 </div>

@@ -1,19 +1,56 @@
+:host {
+  display: block;
+}
+
+.table-title,
 .row-actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.table-title {
+  font-size: 1em;
+  font-weight: 700;
+}
+
 .table-container {
+  margin-top: 0.5em;
   overflow-x: auto;
 }
 
 .selected {
-  background-color: #d5d4d4;
+  background-color: #e1e1e1;
+
+  &.mat-column-name {
+    font-weight: 500;
+  }
+}
+
+.mat-column-index,
+.mat-column-select {
+  border-collapse: collapse;
+  padding-right: 0;
+  width: 1%;
+}
+
+td.mat-column-external_url {
+  min-width: 120px;
+  word-break: break-all;
+}
+
+td.mat-column-name {
+  border-collapse: collapse;
+  min-width: 180px;
+}
+
+td.mat-column-full_name {
+  border-collapse: collapse;
+  min-width: 250px;
 }
 
 .index {
-  color: #c4c4c4;
+  color: #9d9d9d;
 }
 
 .center {

@@ -10,16 +10,16 @@
 
 mat-icon {
   &.pending {
-    color: gray;
+    color: #7d7d7d;
   }
   &.success {
-    color: green;
+    color: #337a35;
   }
   &.error {
-    color: red;
+    color: #c42929;
   }
   &.progress {
-    color: yellow;
+    color: #1a2edf;
   }
 }
 

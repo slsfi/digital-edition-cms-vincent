@@ -19,7 +19,7 @@
   @if (collection) {
 
     @if (files.length === 0) {
-      <h3>Select folder / files</h3>
+      <h3>1. Select folder to add XML files from</h3>
       @if (saveFailures.length) {
         <div class="error-box">
           <h3>Failed to save the following files:</h3>
@@ -34,19 +34,19 @@
       <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="selectedFiles($event)"></file-tree>
     } @else {
       <form [formGroup]="bundleForm" id="bundle-form" (ngSubmit)="onSubmit(collectionId)">
-        <h3>Fill data and save</h3>
+        <h3>2. Fill in the publication metadata and save</h3>
         <div>
           <div class="published-row">
             <div class="actions">
               <mat-form-field>
-                <mat-label>Set published to all rows</mat-label>
+                <mat-label>Set published value for all rows</mat-label>
                 <mat-select formControlName="published" (selectionChange)="publishedChanged()">
                   @for (option of publishedOptions; track option.value) {
                     <mat-option [value]="option.value">{{ option.label }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
-              <button type="button" mat-flat-button (click)="readMetadata()">Read XML metadata</button>
+              <button type="button" mat-flat-button (click)="readMetadata()">Get metadata from XML</button>
             </div>
             <div>
               <button mat-button type="button" (click)="clearForm()">Clear</button>

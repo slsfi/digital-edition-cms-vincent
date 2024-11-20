@@ -3,13 +3,27 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.container {
-  width: calc(100vw - 8em);
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
 
-  @media screen and (max-width: 1280px) {
-    width: calc(100vw - 4em);
+h1 {
+  font-size: 1.75em;
+  margin: 0 0 0.75em;
 
+  + custom-table {
+    margin-top: 2.1875em;
   }
+}
+
+h2 {
+  font-size: 1.5em;
+  margin: 0.75em 0;
+}
+
+h3 {
+  font-size: 1.1875em;
+  margin: 1em 0;
 }
 
 .header-row {
@@ -26,19 +40,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .snackbar-success {
   &.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
-    background-color: #43a047;
+    background-color: #2A652C;
   }
 }
 
 .snackbar-error {
   &.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
-    background-color: #d32f2f;
+    background-color: #A82424;
   }
 }
 
 .snackbar-warning {
   &.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
-    background-color: #ff9800;
+    background-color: #A86500;
   }
 }
 
@@ -49,7 +63,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {
-    padding: var(--mat-dialog-content-padding, 20px 24px) !important;
+  padding: var(--mat-dialog-content-padding, 20px 24px) !important;
 }
 
 .nav-link {

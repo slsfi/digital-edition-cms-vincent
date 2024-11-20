@@ -44,8 +44,8 @@ export interface NavigationItem {
 
 export const navigationItems: NavigationItem[] = [
   { label: 'Home', route: '/', icon: 'home' },
-  { label: 'Projects management', route: '/projects', icon: 'hub' },
-  { label: 'Text collection management', route: '/publication-collections', icon: 'library_books' },
-  { label: 'Facsimile management', route: '/facsimiles', icon: 'photo_library' },
-  { label: 'Index of persons management', route: '/persons', icon: 'groups' },
+  { label: 'Projects', route: '/projects', icon: 'hub' },
+  { label: 'Text collections', route: '/publication-collections', icon: 'library_books' },
+  { label: 'Facsimile collections', route: '/facsimiles', icon: 'photo_library' },
+  { label: 'Index of persons', route: '/persons', icon: 'groups' },
 ]
