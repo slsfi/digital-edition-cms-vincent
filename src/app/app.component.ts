@@ -1,12 +1,13 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from './services/auth.service';
-import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
-import { TopbarComponent } from './components/topbar/topbar.component';
+
 import { NavigationComponent } from './components/navigation/navigation.component';
+import { TopbarComponent } from './components/topbar/topbar.component';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,7 @@ import { NavigationComponent } from './components/navigation/navigation.componen
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   isAuthenticated$: Observable<boolean> = new Observable<boolean>();
 

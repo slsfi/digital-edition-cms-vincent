@@ -42,11 +42,11 @@
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef>Status</th>
       <td mat-cell *matCellDef="let item">
-        @if (item.status == 'pending') {
+        @if (item.status === 'pending') {
           <mat-icon [ngClass]="item.status">circle</mat-icon>  
-        } @else if (item.status == 'progress') {
+        } @else if (item.status === 'progress') {
           <mat-icon [ngClass]="item.status">arrow_upload_progress</mat-icon>
-        } @else if (item.status == 'success') {
+        } @else if (item.status === 'success') {
           <mat-icon [ngClass]="item.status">check_circle</mat-icon>
         } @else {
           <mat-icon [ngClass]="item.status">error</mat-icon>
