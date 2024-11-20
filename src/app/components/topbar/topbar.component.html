@@ -1,24 +1,32 @@
 @let isAuthenticated = isAuthenticated$ | async;
 @let selectedProject = selectedProject$ | async;
 
-<mat-toolbar [class.center]="isAuthenticated === false">
-  <div class="title">
-    <ng-container *ngIf="isAuthenticated === true">
-      <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"  (click)="toggleMenu()">
+<mat-toolbar>
+  <div class="left-aligned">
+    @if (isAuthenticated === true) {
+      <button mat-icon-button
+            class="menu-button"
+            aria-label="Toggle menu"
+            (click)="toggleMenu()"
+      >
         <mat-icon>menu</mat-icon>
       </button>
-    </ng-container>
-    <div>Vincent – Digital Edition CMS</div>
+    }
+    <div class="site-title">Vincent – Digital Edition CMS</div>
   </div>
-  <div class="topbar">
-
+  <div class="right-aligned">
     <div *ngIf="isAuthenticated">
       Project:
       <mat-chip class="project-chip" routerLink="/" [highlighted]="selectedProject">{{selectedProject ? selectedProject : 'not selected'}}</mat-chip>
     </div>
 
     <ng-container *ngIf="environment$ | async as environment">
-      <div *ngIf="environment">Environment: <mat-chip highlighted>{{environment}}</mat-chip> </div>
+      <div *ngIf="environment">
+        Environment:
+        <mat-chip highlighted>{{environment}}</mat-chip>
+      </div>
     </ng-container>
+
+    <a href="https://www.sls.fi/"><img src="assets/images/SLS_logo_symbol_black_112x112.png" height="56px" width="56px" alt="SLS logo"></a>
   </div>
 </mat-toolbar>
