@@ -1,0 +1,28 @@
+# Dependabot version updates.
+# Documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    # Allow up to 10 open pull requests for npm dependencies
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(dev-deps)"
+    ignore:
+      # Ignore version updates (major, minor, and patch) for @angular dependencies
+      # (these are updated manually)
+      # Security updates are still allowed
+      - dependency-name: "@angular*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      # Ignore only major version updates for other dependencies
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
