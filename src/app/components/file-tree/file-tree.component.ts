@@ -78,7 +78,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
         let isSelectable = false;
-        if (key.split('.')[1] === 'xml' && !this.selectFolder) {
+        if (key.split('.').at(-1) === 'xml' && !this.selectFolder) {
           isSelectable = true;
         }
         const node: TreeNode = {
@@ -92,9 +92,9 @@ export class FileTreeComponent implements OnInit, OnDestroy {
         if (data[key] && typeof data[key] === 'object') {
           node.children = this.convertToTreeNode(data[key], level + 1);
           if (this.selectFolder) {
-            node.isSelectable = node.children.some(child => child.name.split('.')[1] === 'xml');
+            node.isSelectable = node.children.some(child => child.name.split('.').at(-1) === 'xml');
           } else {
-            node.isSelectable = node.name.split('.')[1] === 'xml' ? true : false;
+            node.isSelectable = node.name.split('.').at(-1) === 'xml' ? true : false;
           }
         }
 
@@ -110,7 +110,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
     if (this.selectFolder) {
       const fileNames = [];
       const lastItem = nodes[nodes.length - 1];
-      for (const item of lastItem.children.filter(child => child.name.split('.')[1] === 'xml')) {
+      for (const item of lastItem.children.filter(child => child.name.split('.').at(-1) === 'xml')) {
         fileNames.push([...nodes.map(node => node.name), item.name].join('/'));
       }
       this.filesInFolder.emit(fileNames);
