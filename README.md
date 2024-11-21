@@ -2,7 +2,7 @@
 
 »Vincent» is the frontend of the content management system for the SLS Digital Edition Platform. It allows editors to manage information about publications and facsimiles in the digital edition database, and to upload facsimile images to the backend. It relies on the [SLS Digital Edition API][digital_edition_api].
 
-The app is built on [Angular][angular] and uses [Angular Material][material] web components.
+The app is built on [Angular][angular] and uses [Angular Material][material] web components. It was originally generated with [Angular CLI][angular_cli] version 18.2.6.
 
 <p>
   <a href="https://github.com/angular/angular"><img alt="Angular Core version badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fslsfi%2Fdigital-edition-cms-vincent%2Fmain%2Fpackage-lock.json&query=%24%5B'packages'%5D%5B'node_modules%2F%40angular%2Fcore'%5D%5B'version'%5D&prefix=v&logo=angular&logoColor=%23fff&label=Angular%20Core&color=%23dd0031"></a>
@@ -127,22 +127,28 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ### Directory structure
 
 #### Components
+
 Contains components used in pages
 
 #### guards
+
 Route guards
 
 #### Interceptors
+
 Http interceptors
 
 #### Models
+
 Typescript interfaces, enums and commonly used data
 
 #### Pages
+
 Components which are used as base route components in app.routes.ts
 
 #### Pipes
-custom pipes
+
+Custom pipes
 
 #### Services
 
