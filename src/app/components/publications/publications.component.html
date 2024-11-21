@@ -15,10 +15,28 @@
         (deleteRow)="deletePublication($event)">
         <ng-content custom-table-title>Publications</ng-content>
         <ng-content custom-table-actions>
-          <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
-          <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-          <button mat-flat-button (click)="editPublication(null, publicationCollectionId)"><mat-icon>add</mat-icon>Add</button>
-          <a class="add-bundle" aria-label="Add multiple" mat-icon-button [routerLink]="['/publication-collections', publicationCollectionId, 'bundle-add']"><mat-icon>library_add</mat-icon></a>
+          <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()">
+            <mat-icon>sort</mat-icon>
+            Sort
+          </button>
+          <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()">
+            <mat-icon>filter_list</mat-icon>
+            Filter
+          </button>
+          <button mat-flat-button [matMenuTriggerFor]="addPublicationMenu">
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+          <mat-menu #addPublicationMenu="matMenu">
+            <button mat-menu-item (click)="editPublication(null, publicationCollectionId)">
+              <mat-icon>add</mat-icon>
+              Add single
+            </button>
+            <a mat-menu-item class="add-bundle" aria-label="Add multiple" [routerLink]="['/publication-collections', publicationCollectionId, 'bundle-add']">
+              <mat-icon>library_add</mat-icon>
+              Add multiple
+            </a>
+          </mat-menu>
         </ng-content>
       </custom-table>
   </div>

@@ -6,6 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -34,7 +35,7 @@ import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.co
   standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
-    FileTreeDialogComponent, MatCardModule, MatBadgeModule, CustomTableComponent
+    FileTreeDialogComponent, MatCardModule, MatBadgeModule, MatMenuModule, CustomTableComponent
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
