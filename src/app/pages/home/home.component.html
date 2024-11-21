@@ -1,59 +1,78 @@
 @let availableProjects = availableProjects$ | async;
 @let selectedProject = selectedProject$ | async;
 @let details = repoDetails$ | async;
-<div class="container">
 
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
+<div class="main-wrapper">
+  <h1>Vincent</h1>
+  <p role="doc-subtitle">– Content management system for SLS digital editions –</p>
 
-  <div class="content">
-    <h1>Home</h1>
+  <h2>Project settings</h2>
+  <div class="project-wrapper">
+    <mat-card appearance="outlined" class="select-project">
+      <mat-card-header>
+        <mat-card-title>Select a project</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (availableProjects) {
+          <mat-form-field>
+            <mat-label>Project</mat-label>
+            <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
+              @for (project of availableProjects; track project.name) {
+                <mat-option [value]="project.name">
+                  {{ project.name }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        } @else {
+          <p>You don’t have access to any projects.</p>
+        }
+      </mat-card-content>
+    </mat-card>
 
-    <mat-divider></mat-divider>
-    <h2>Which project to edit?</h2>
-
-    @if (availableProjects) {
-      <mat-form-field>
-        <mat-label>Selected Project</mat-label>
-        <mat-select [value]="selectedProject" (selectionChange)="changeProject($event)">
-          @for (project of availableProjects; track project.name) {
-            <mat-option [value]="project.name">
-              {{ project.name }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    }
-    @if (details !== null) {
-      <mat-card appearance="outlined">
-        <mat-card-header>
-          <mat-card-title>Repository details</mat-card-title>
-        </mat-card-header>
+    <mat-card appearance="outlined" class="repository-details">
+      <mat-card-header>
+        <mat-card-title>Project GitHub repository</mat-card-title>
+      </mat-card-header>
+      @if (details !== null) {
         <mat-card-content>
-          <div>Repository: {{details.name}}</div>
-          <div>Branch: {{details.branch}}</div>
+          <ul>
+            <li><strong>Repository:</strong> {{details.name}}</li>
+            <li><strong>Branch:</strong> {{details.branch}}</li>
+          </ul>
+          <button mat-flat-button (click)="pullRepo()">Update local repository on server</button>
         </mat-card-content>
-        <mat-card-actions>
-          <button mat-flat-button (click)="pullRepo()">Sync repository</button>
-        </mat-card-actions>
+      } @else {
+        <mat-card-content>
+          @if (!selectedProject) {
+            <p>Select a project to view its repository details.</p>
+          } @else {
+            <p>Project repository not configured on server.</p>
+          }
+        </mat-card-content>
+      }
+    </mat-card>
+  </div>
+
+  <h2>Manage content</h2>
+
+  <div class="nav-items">
+    @for (item of navItems; track item.route) {
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <a mat-fab extended [routerLink]="item.route">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            {{ item.label }}
+          </a>
+        </mat-card-content>
       </mat-card>
     }
-
-    <mat-divider></mat-divider>
-    <h2>Where to?</h2>
-
-    <div class="nav-items">
-      <mat-nav-list>
-        @for (item of navItems; track item.route) {
-          <a mat-list-item [routerLink]="item.route">
-            <div class="nav-link">
-              <mat-icon>{{item.icon}}</mat-icon>
-              {{ item.label}}
-            </div>
-          </a>
-        }
-      </mat-nav-list>
-    </div>
   </div>
 </div>
+<div class="footer-wrapper">
+  <p>App version: <a href="https://github.com/slsfi/digital-edition-cms-vincent/blob/main/CHANGELOG.md">0.0.0</a></p>
+</div>
+
+@if (loading$ | async) {
+  <loading-spinner [overlay]="true"></loading-spinner>
+}

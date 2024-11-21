@@ -58,7 +58,7 @@ export class HomeComponent {
   pullRepo() {
     this.projectService.pullChangesFromGitRemote().subscribe({
       next: () => {
-        this.snackbar.open('Synced successfully', 'Close', { panelClass: 'snackbar-success' });
+        this.snackbar.open('Repository successfully updated', 'Close', { panelClass: 'snackbar-success' });
       }
     });
   }
