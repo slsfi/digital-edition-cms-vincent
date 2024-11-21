@@ -127,7 +127,7 @@
               [paginationEnabled]="false"
               (editRow)="editVersion($event, selectedPublication.id)"
               (deleteRow)="deleteVersion($event)">
-              <ng-content custom-table-title>Versions</ng-content>
+              <ng-content custom-table-title>Variants</ng-content>
               <ng-content custom-table-actions>
                 <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
               </ng-content>

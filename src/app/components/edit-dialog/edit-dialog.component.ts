@@ -158,7 +158,6 @@ export class EditDialogComponent<T> implements OnInit {
     if (this.model) {
       this.translationIdd = this.model[(column.parentTranslationField as keyof T) ?? 'translation_id'] as number;
     }
-
   }
 
   showFileSelector() {
@@ -187,7 +186,6 @@ export class EditDialogComponent<T> implements OnInit {
           }
         }
       });
-
   }
 
 }

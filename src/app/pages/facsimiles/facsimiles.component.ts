@@ -88,7 +88,7 @@ export class FacsimilesComponent implements OnInit {
     const data: EditDialogData<FacsimileCollection> = {
       model: collection,
       columns: this.allColumnData,
-      title: 'Fascimile collection'
+      title: 'fascimile collection'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
@@ -134,7 +134,7 @@ export class FacsimilesComponent implements OnInit {
   deleteFacsimileCollection(collection: FacsimileCollection) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        message: 'Are you sure you want to delete this collection?',
+        message: 'Are you sure you want to delete this facsimile collection?',
         cancelText: 'Cancel',
         confirmText: 'Delete'
       }

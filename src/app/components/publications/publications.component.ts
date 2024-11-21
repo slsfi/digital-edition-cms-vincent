@@ -148,7 +148,7 @@ export class PublicationsComponent implements OnInit {
     const data: EditDialogData<Publication | object> = {
       model: publication,
       columns: allPublicationColumnsData,
-      title: 'Publication'
+      title: 'publication'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
@@ -200,7 +200,7 @@ export class PublicationsComponent implements OnInit {
     const data: EditDialogData<Version | object> = {
       model: version,
       columns: allVersionColumnsData,
-      title: 'Version'
+      title: 'variant'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
@@ -218,7 +218,7 @@ export class PublicationsComponent implements OnInit {
         req.subscribe({
           next: () => {
             this.versionsLoader$.next(0);
-            this.snackbar.open('Version saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.open('Variant saved', 'Close', { panelClass: ['snackbar-success'] });
           },
         });
       }
@@ -229,7 +229,7 @@ export class PublicationsComponent implements OnInit {
     const data: EditDialogData<Manuscript | object> = {
       model: manuscript,
       columns: allManuscriptColumnsData,
-      title: 'Manuscript'
+      title: 'manuscript'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
@@ -261,7 +261,7 @@ export class PublicationsComponent implements OnInit {
     const data: EditDialogData<PublicationComment> = {
       model: comment,
       columns: allCommentsColumnData,
-      title: 'Comment'
+      title: 'comment'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
@@ -294,7 +294,7 @@ export class PublicationsComponent implements OnInit {
     const data: EditDialogData<PublicationFacsimile> = {
       model: facsimile,
       columns,
-      title: 'Facsimile',
+      title: 'facsimile',
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
@@ -365,7 +365,7 @@ export class PublicationsComponent implements OnInit {
   deleteVersion(version: Version) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        message: 'Are you sure you want to delete this version?',
+        message: 'Are you sure you want to delete this variant?',
         confirmText: 'Delete',
         cancelText: 'Cancel'
       }
@@ -377,7 +377,7 @@ export class PublicationsComponent implements OnInit {
         this.publicationService.editVersion(version.id, payload).subscribe({
           next: () => {
             this.versionsLoader$.next(0);
-            this.snackbar.open('Version deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.open('Variant deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
       }

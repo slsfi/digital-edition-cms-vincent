@@ -24,7 +24,7 @@
             </mat-form-field>
           } @else {
             @if (column.field === 'cascade_published') {
-              <div *ngIf="!!modelId" [ngStyle]="{'margin-bottom': '20px'}">
+              <div *ngIf="!!modelId" class="form-toggle-wrapper">
                 <mat-slide-toggle formControlName="cascade_published">{{ column.header }}</mat-slide-toggle>
               </div>
             } @else {
@@ -39,7 +39,7 @@
 
                 } @else if (column.type === 'type') {
                   <mat-select [formControlName]="column.field">
-                    <mat-option [value]="1">Base Text</mat-option>
+                    <mat-option [value]="1">Base text</mat-option>
                     <mat-option [value]="2">Variant</mat-option>
                   </mat-select>
                 } @else if (column.type === 'person_type') {
@@ -76,17 +76,17 @@
             }
           }
           @if (column.translations && !!modelId) {
-            <div class="translations">
+            <div class="form-buttons-wrapper">
               <button mat-flat-button type="button" (click)="showTranslations(column)"><mat-icon>language</mat-icon>{{column.header}} translations</button>
             </div>
           }
           @if (column.field === 'original_filename') {
-            <div class="translations">
+            <div class="form-buttons-wrapper">
               <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
               @if (!!originalFilenameControl.value && showMetadataButton)  {
                 <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()">
                   <mat-icon>sync</mat-icon>
-                  Read XML metadata
+                  Get metadata from XML
                 </button>
               }
             </div>
