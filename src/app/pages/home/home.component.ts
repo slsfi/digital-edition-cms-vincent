@@ -16,6 +16,8 @@ import { LoadingService } from '../../services/loading.service';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatCardModule } from '@angular/material/card';
 
+import { APP_VERSION } from '../../../environments/app-version';
+
 @Component({
   selector: 'home',
   standalone: true,
@@ -28,6 +30,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class HomeComponent {
 
+  appVersion = APP_VERSION;
   availableProjects$: Observable<Project[]>;
   selectedProject$;
   repoDetails$: Observable<RepoDetails | null>;
