@@ -9,21 +9,45 @@
 
   @media screen and (max-width: 960px) {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   span {
+    min-width: 1.875em;
     width: 1.875em;
     align-self: center;
     margin-bottom: 1.25em;
   }
 }
 .mat-mdc-form-field {
-  width: 15%;
-  min-width: 150px;
+  min-width: 9.375rem;
+
+  &.name-field {
+    flex-grow: 2;
+    min-width: 18.75rem;
+
+    @media screen and (max-width: 960px) {
+      width: 100%;
+    }
+  }
+
+  &.language-field {
+    min-width: 7.1875rem;
+    max-width: 7.1875rem;
+  }
+
+  &.genre-field {
+    max-width: 9.375rem;
+  }
+
+  &.date-field {
+    min-width: 8.5rem;
+    max-width: 8.5rem;
+  }
 
   &.path {
-    width: 38%;
-    min-width: 300px;
+    flex-grow: 3;
+    min-width: 18.75rem;
 
     @media screen and (max-width: 960px) {
       width: 100%;
