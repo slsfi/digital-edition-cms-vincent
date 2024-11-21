@@ -2,6 +2,7 @@ import { ApiService } from './../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import { Observable } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +14,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'topbar',
   standalone: true,
-  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
+  imports: [CommonModule, MatToolbarModule, MatTooltipModule, MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })

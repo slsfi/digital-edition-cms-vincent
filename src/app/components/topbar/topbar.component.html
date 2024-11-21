@@ -12,7 +12,9 @@
         <mat-icon>menu</mat-icon>
       </button>
     }
-    <div class="site-title">Vincent – Digital Edition CMS</div>
+    <div class="site-title">
+      <a routerLink="/">Vincent – Digital Edition CMS</a>
+    </div>
   </div>
   <div class="right-aligned">
     <div *ngIf="isAuthenticated">
@@ -23,7 +25,7 @@
     <ng-container *ngIf="environment$ | async as environment">
       <div *ngIf="environment">
         Environment:
-        <mat-chip highlighted>{{environment}}</mat-chip>
+        <mat-chip highlighted matTooltip="Log out to change environment">{{environment}}</mat-chip>
       </div>
     </ng-container>
 
