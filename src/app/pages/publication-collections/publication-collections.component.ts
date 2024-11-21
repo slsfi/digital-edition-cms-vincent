@@ -48,10 +48,10 @@ export class PublicationCollectionsComponent implements OnInit {
       type: 'boolean',
       editable: true
     },
-    { field: 'date_created', header: 'Date Created', type: 'date', editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', editable: false },
+    { field: 'date_created', header: 'Date creted', type: 'date', editable: false },
+    { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: false },
-    { field: 'name_translation_id', header: 'Name Translation ID', type: 'string', editable: false },
+    { field: 'name_translation_id', header: 'Name translation ID', type: 'string', editable: false },
     { field: 'project_id', header: 'Project ID', type: 'number', editable: false },
   ];
   publicationCollectionDisplayedColumns: string[] = this.publicationCollectionColumnsData.map(column => column.field);
@@ -106,7 +106,7 @@ export class PublicationCollectionsComponent implements OnInit {
     const data: EditDialogData<PublicationCollection> = {
       model: publicationCollection,
       columns,
-      title: 'Publication Collection',
+      title: 'publication collection',
       tableName: 'publication_collection',
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
@@ -122,7 +122,7 @@ export class PublicationCollectionsComponent implements OnInit {
         req.subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackbar.open('Publication Collection saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.open('Publication collection saved', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
       }

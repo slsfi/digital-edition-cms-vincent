@@ -39,8 +39,8 @@ export class ProjectsComponent implements OnInit {
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
     { field: 'name', header: 'Name', type: 'string', filterable: true, editable: true, filterType: 'contains' },
     { field: 'published', header: 'Published', type: 'published', filterable: true, editable: true, filterType: 'equals' },
-    { field: 'date_created', header: 'Date Created', type: 'date', filterable: false, editable: false },
-    { field: 'date_modified', header: 'Date Modified', type: 'date', filterable: false, editable: false },
+    { field: 'date_created', header: 'Date creted', type: 'date', filterable: false, editable: false },
+    { field: 'date_modified', header: 'Date modified', type: 'date', filterable: false, editable: false },
     { field: 'actions', header: 'Action', type: 'action', filterable: false }
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
@@ -75,7 +75,7 @@ export class ProjectsComponent implements OnInit {
     const data: EditDialogData<Project> = {
       model: project,
       columns: columns,
-      title: 'Project'
+      title: 'project'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
