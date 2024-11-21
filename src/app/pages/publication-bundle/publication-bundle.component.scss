@@ -9,21 +9,22 @@
 
   @media screen and (max-width: 960px) {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   span {
+    min-width: 1.875em;
     width: 1.875em;
     align-self: center;
     margin-bottom: 1.25em;
   }
 }
 .mat-mdc-form-field {
-  width: 15%;
   min-width: 9.375rem;
 
   &.name-field {
-    min-width: 300px;
-    width: 28%;
+    flex-grow: 2;
+    min-width: 18.75rem;
 
     @media screen and (max-width: 960px) {
       width: 100%;
@@ -32,7 +33,7 @@
 
   &.language-field {
     min-width: 7.1875rem;
-    width: 7.1875rem;
+    max-width: 7.1875rem;
   }
 
   &.genre-field {
@@ -41,12 +42,12 @@
 
   &.date-field {
     min-width: 8.5rem;
-    width: 8.5rem;
+    max-width: 8.5rem;
   }
 
   &.path {
-    min-width: 300px;
-    width: 38%;
+    flex-grow: 3;
+    min-width: 18.75rem;
 
     @media screen and (max-width: 960px) {
       width: 100%;
