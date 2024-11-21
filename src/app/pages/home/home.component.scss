@@ -1,27 +1,93 @@
-.content {
-  width: 500px;
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.main-wrapper {
   margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
 }
 
-mat-divider {
-  margin: 30px 0;
+.footer-wrapper {
+  margin-top: 5em;
 }
 
-mat-icon {
-  width: 40px;
-  height: 40px;
-  font-size: 40px;
+h1 {
+  margin: 2em 0 1em 0;
+  text-align: center;
+  text-transform: uppercase;
 }
 
-.nav-link {
-  font-size: 20px;
+h2 {
+  margin-top: 2em;
 }
 
-.mdc-list-item.mdc-list-item--with-one-line {
-  margin: 10px 0;
+p[role="doc-subtitle"] {
+  font-size: 1.25rem;
+  margin-bottom: 3em;
+  text-align: center;
 }
 
-.mat-mdc-card-content {
-  padding-top: 20px;
-  padding-bottom: 10px;
+.project-wrapper,
+.nav-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.25rem;
+}
+
+.project-wrapper {
+  mat-card {
+    max-width: 390px;
+    width: 100%;
+
+    mat-card-title {
+      font-size: 1.125rem;
+    }
+
+    &.select-project .mat-mdc-form-field {
+      width: 100%;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        padding: 0;
+
+        + li {
+          padding-top: 0.5em;
+        }
+      }
+    }
+
+    button {
+      margin-top: 1em;
+    }
+  }
+}
+
+.nav-items {
+  mat-card {
+    max-width: 253px;
+    width: 100%;
+
+    a.mdc-fab {
+      background-color: transparent;
+      box-shadow: none;
+      font-size: 1rem;
+      justify-content: flex-start;
+      width: 100%;
+
+    }
+  }
+}
+
+mat-card-content {
+  padding: 1rem;
 }
