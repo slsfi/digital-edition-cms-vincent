@@ -69,21 +69,21 @@
                     cdkAutosizeMaxRows="7">
                   </textarea>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="name-field">
                   <mat-label>Name</mat-label>
                   <input matInput formControlName="name" type="text"/>
                 </mat-form-field>
-                <mat-form-field class="language">
+                <mat-form-field class="language-field">
                   <mat-label>Language</mat-label>
                   <input matInput formControlName="language" type="text"/>
                 </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Genre</mat-label>
-                  <input matInput formControlName="genre" type="text"/>
-                </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="date-field">
                   <mat-label>Date of origin</mat-label>
                   <input matInput formControlName="original_publication_date" type="text"/>
+                </mat-form-field>
+                <mat-form-field class="genre-field">
+                  <mat-label>Genre</mat-label>
+                  <input matInput formControlName="genre" type="text"/>
                 </mat-form-field>
               </div>
             </ng-container>
