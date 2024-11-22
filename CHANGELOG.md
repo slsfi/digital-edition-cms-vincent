@@ -8,13 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.0.1] – 2024-11-22
+
 ### Changed
 
-- Simplify generation of file with app version.
+- Simplify generation of file with app version. ([8d56f10](https://github.com/slsfi/digital-edition-cms-vincent/commit/8d56f10be55e7620c4c8f98972cc3955302347c9))
 
 ### Fixed
 
-- Handle Angular routing in nginx to prevent 404 on refresh.
+- Handle Angular routing in nginx to prevent 404 on refresh. ([d631417](https://github.com/slsfi/digital-edition-cms-vincent/commit/d63141783ebe78e16770dd252610aca5b144b49a))
 
 
 
@@ -24,5 +28,6 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/releases/tag/1.0.0
