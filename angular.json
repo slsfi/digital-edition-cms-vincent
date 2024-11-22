@@ -51,13 +51,7 @@
                   "maximumError": "4kB"
                 }
               ],
-              "outputHashing": "all",
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/app-version.ts",
-                  "with": "src/environments/app-version.generated.ts"
-                }
-              ]
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,

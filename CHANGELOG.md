@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Simplify generation of file with app version.
+
 
 
 ## [1.0.0] – 2024-11-22
