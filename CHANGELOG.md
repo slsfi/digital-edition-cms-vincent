@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Simplify generation of file with app version.
 
+### Fixed
+
+- Handle Angular routing in nginx to prevent 404 on refresh.
+
 
 
 ## [1.0.0] – 2024-11-22
