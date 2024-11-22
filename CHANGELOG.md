@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 
 
-## Unreleased
+## [Unreleased]
 
 
+
+## [1.0.0] – 2024-11-22
+
+Initial release.
+
+
+
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/releases/tag/1.0.0
