@@ -16,7 +16,7 @@ import { LoadingService } from '../../services/loading.service';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatCardModule } from '@angular/material/card';
 
-import { APP_VERSION } from '../../../environments/app-version';
+import { APP_VERSION } from '../../../config/app-version';
 
 @Component({
   selector: 'home',
