@@ -1,6 +1,7 @@
 {
   "name": "vincent-cms",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "CMS for the SLS Digital Edition Platform",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

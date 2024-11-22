@@ -1,6 +1,7 @@
 # Vincent – CMS for the SLS Digital Edition Platform
 
-»Vincent» is the frontend of the content management system for the SLS Digital Edition Platform. It allows editors to manage information about publications and facsimiles in the digital edition database, and to upload facsimile images to the backend. It relies on the [SLS Digital Edition API][digital_edition_api].
+»Vincent» is the frontend of the content management system for the SLS Digital Edition Platform, named after the
+bold and efficacious protagonist in one of [Zacharias Topelius short stories](https://topelius.sls.fi/sv/collection/211/text/20211). It allows editors to manage information about publications and facsimiles in the digital edition database, and to upload facsimile images to the backend. It relies on the [SLS Digital Edition API][digital_edition_api].
 
 The app is built on [Angular][angular] and uses [Angular Material][material] web components. It was originally generated with [Angular CLI][angular_cli] version 18.2.6.
 
@@ -8,7 +9,7 @@ The app is built on [Angular][angular] and uses [Angular Material][material] web
   <a href="https://github.com/angular/angular"><img alt="Angular Core version badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fslsfi%2Fdigital-edition-cms-vincent%2Fmain%2Fpackage-lock.json&query=%24%5B'packages'%5D%5B'node_modules%2F%40angular%2Fcore'%5D%5B'version'%5D&prefix=v&logo=angular&logoColor=%23fff&label=Angular%20Core&color=%23dd0031"></a>
 </p>
 
-The first version of »Vincent» was developed by [Identio][identio] (commissioned by SLS in October 2024).
+»Vincent» was developed by [Identio][identio] (commissioned by SLS in October 2024).
 
 <hr>
 
