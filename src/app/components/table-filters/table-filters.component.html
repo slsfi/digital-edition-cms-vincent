@@ -20,7 +20,7 @@
               <mat-option [value]="1">Yes</mat-option>
             </mat-select>
           </ng-container>
-          <ng-container *ngIf="field.type === 'string' || field.type === 'number' || field.type === 'id'">
+          <ng-container *ngIf="field.type === 'string' || field.type === 'number' || field.type === 'id' || field.type === 'textarea'">
             <input matInput [formControlName]="field.field" />
           </ng-container>
           <ng-container *ngIf="field.type === 'person_type' ">
