@@ -44,7 +44,7 @@ export class PersonsComponent implements OnInit {
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false, filterType: 'equals' },
     { field: 'legacy_id', header: 'Legacy ID', filterable: true, type: 'string', editable: true, editOrder: 5, filterType: 'equals' },
     { field: 'full_name', header: 'Full name', filterable: true, type: 'string', editable: true, editOrder: 1, filterType: 'contains' },
-    { field: 'description', header: 'Description', filterable: false, type: 'textarea', editable: true, editOrder: 2, translations: true },
+    { field: 'description', header: 'Description', filterable: true, filterType: 'contains', type: 'textarea', editable: true, editOrder: 2, translations: true },
     { field: 'date_born', header: 'Date born', filterable: false, type: 'string', editable: true, editOrder: 3 },
     { field: 'date_deceased', header: 'Date deceased', filterable: false, type: 'string', editable: true, editOrder: 3 },
     { field: 'type', header: 'Type', visible: false, filterable: true, type: 'person_type', editable: true, editOrder: 4 },

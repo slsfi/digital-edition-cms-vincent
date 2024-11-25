@@ -2,7 +2,7 @@ import { Column } from "../../models/common";
 
 export const publicationColumnsData: Column[] = [
   { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
-  { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true, editOrder: 2 },
+  { field: 'name', header: 'Name', type: 'string', filterType: 'contains', editable: true, filterable: true, editOrder: 2 },
   { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true, editOrder: 3 },
   { field: 'actions', header: 'Actions', type: 'action', editable: false },
 ];
@@ -67,7 +67,7 @@ export const allCommentsColumnData: Column[] = [
 ]
 export const facsimileColumnData: Column[] = [
   { field: 'title', header: 'Title', type: 'string', editable: false },
-  { field: 'external_url', header: 'External URL', type: 'string', editable: true },
+  { field: 'external_url', header: 'External URL', type: 'string', editable: false },
   { field: 'page_nr', header: 'Page number', type: 'number', editable: true },
   { field: 'priority', header: 'Priority', type: 'number', editable: true },
   { field: 'section_id', header: 'Section ID', type: 'number', editable: true },
