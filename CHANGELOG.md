@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Enable filtering on description field in index of persons.
+- Deps (dev): update `angular-eslint` to 18.4.2.
 
 ### Fixed
 
