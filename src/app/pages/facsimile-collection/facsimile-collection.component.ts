@@ -1,21 +1,20 @@
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
-import { MatIconModule } from '@angular/material/icon';
-import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { MatButtonModule } from '@angular/material/button';
-import { FacsimileService } from '../../services/facsimile.service';
-import { CommonModule } from '@angular/common';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+
+import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
+import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
+import { FacsimileService } from '../../services/facsimile.service';
 
 @Component({
   selector: 'facsimile-collection',
   standalone: true,
   imports: [
-    MatIconModule, FileUploadComponent, MatButtonModule, RouterLink, CommonModule,
-    LoadingSpinnerComponent
+    MatIconModule, FileUploadComponent, MatButtonModule, RouterLink, CommonModule
   ],
   templateUrl: './facsimile-collection.component.html',
   styleUrl: './facsimile-collection.component.scss'
@@ -32,10 +31,10 @@ export class FacsimileCollectionComponent implements OnInit {
 
   ngOnInit() {
     this.facsimile$ = this.fascimileService.getFacsimileCollection(this.collectionId);
-    this.vefifyFacsimileFiles();
+    this.verifyFacsimileFiles();
   }
 
-  vefifyFacsimileFiles() {
+  verifyFacsimileFiles() {
     this.fascimileService.verifyFacsimileFile(this.collectionId, 'all').subscribe({
       next: response => {
         this.missingFileNumbers = response.data?.missing_file_numbers || [];

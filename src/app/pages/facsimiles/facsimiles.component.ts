@@ -114,7 +114,7 @@ export class FacsimilesComponent implements OnInit {
   }
 
   open(collection: FacsimileCollection) {
-    this.router.navigate(['facsimiles', collection.id]);
+    this.router.navigate(['facsimiles', collection.id], { queryParamsHandling: 'preserve'});
   }
 
   filter() {
