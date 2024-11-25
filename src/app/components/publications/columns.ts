@@ -2,7 +2,7 @@ import { Column } from "../../models/common";
 
 export const publicationColumnsData: Column[] = [
   { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
-  { field: 'name', header: 'Name', type: 'string', editable: true, filterable: true, editOrder: 2 },
+  { field: 'name', header: 'Name', type: 'string', filterType: 'contains', editable: true, filterable: true, editOrder: 2 },
   { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true, editOrder: 3 },
   { field: 'actions', header: 'Actions', type: 'action', editable: false },
 ];

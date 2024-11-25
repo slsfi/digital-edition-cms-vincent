@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Filter name field in publications and publication collections, and external URL field in facsimile collections, on substring matches (opposed to exact matches).
+
 
 
 ## [1.0.1] – 2024-11-22
