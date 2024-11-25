@@ -2,7 +2,9 @@
 
 <h1>Facsimile collection management</h1>
 <div class="selected-facsimile-collection">
-  <a mat-icon-button routerLink="/facsimiles"><mat-icon>west</mat-icon></a>
+  <a mat-icon-button [routerLink]="['/facsimiles']" [queryParamsHandling]="'preserve'">
+    <mat-icon>west</mat-icon>
+  </a>  
   <h2>{{ facsimile?.title || '' }}</h2>
 </div>
 
@@ -39,7 +41,7 @@
         [collectionId]="facsimile.id"
         [numberOfPages]="facsimile.number_of_pages"
         [missingFileNumbers]="missingFileNumbers"
-        (filesUploaded)="vefifyFacsimileFiles()">
+        (filesUploaded)="verifyFacsimileFiles()">
       </file-upload>
     } @else {
       <p>No pages</p>
