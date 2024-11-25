@@ -1,27 +1,27 @@
-import { QueryParamsService } from './../../services/query-params.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
-import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { Column } from '../../models/common';
-import { IdRoutePipe } from '../../pipes/id-route.pipe';
-import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil } from 'rxjs';
-import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { LoadingService } from '../../services/loading.service';
-import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { SelectionModel } from '@angular/cdk/collections';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil } from 'rxjs';
+
+import { Column } from '../../models/common';
+import { CustomDatePipe } from '../../pipes/custom-date.pipe';
+import { IdRoutePipe } from '../../pipes/id-route.pipe';
+import { LoadingService } from '../../services/loading.service';
+import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
   selector: 'custom-table',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, RouterLink, MatIconModule, MatButtonModule, CustomDatePipe, IdRoutePipe,
-    ScrollingModule, MatPaginatorModule, LoadingSpinnerComponent, MatCheckboxModule
+    ScrollingModule, MatPaginatorModule, MatCheckboxModule
   ],
   providers: [DatePipe],
   templateUrl: './custom-table.component.html',
@@ -31,6 +31,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   @Input() columns: Column[] = [];
   @Input() data$: Observable<T[]> = new BehaviorSubject<T[]>([]);
   @Input() idRouteParams: string[] = [];
+  @Input() preserveQueryParams = false;
   @Input() showIndex = true;
   @Input() selectedId: string | null = null;
   @Input() loadingData = false;

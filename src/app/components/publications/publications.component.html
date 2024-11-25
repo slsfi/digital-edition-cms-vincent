@@ -11,6 +11,7 @@
         [columns]="publicationColumnsData"
         [selectedId]="publicationId$ | async"
         [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
+        [preserveQueryParams]="true"
         (editRow)="editPublication($event, publicationCollectionId)"
         (deleteRow)="deletePublication($event)">
         <ng-content custom-table-title>Publications</ng-content>
