@@ -37,6 +37,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   @Input() loadingData = false;
   @Input() selectable = false;
   @Input() paginationEnabled = true;
+  @Input() disableSortAndFilter = false;
 
   @Output() editRow: EventEmitter<T> = new EventEmitter<T>();
   @Output() editRowSecondary: EventEmitter<T> = new EventEmitter<T>();
@@ -102,32 +103,34 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
           map(([data, queryParams]) => {
             this.originalCount = data.length;
             // Filtering
-            const filterableColumns = this.originalColumns.filter(column => column.filterable);
-            filterableColumns.forEach(column => {
-              const field = column.field;
-              const filterType = column.filterType ?? 'equals';
-              if (queryParams[field]) {
-                data = data.filter((item: T) => {
-                  const value = this.getProperty<T, keyof T>(item, field as keyof T);
-                  if (typeof value === 'string') {
-                    if (filterType === 'contains') {
-                      return value.toLowerCase().includes(queryParams[field]);
+            if (!this.disableSortAndFilter) {
+              const filterableColumns = this.originalColumns.filter(column => column.filterable);
+              filterableColumns.forEach(column => {
+                const field = column.field;
+                const filterType = column.filterType ?? 'equals';
+                if (queryParams[field]) {
+                  data = data.filter((item: T) => {
+                    const value = this.getProperty<T, keyof T>(item, field as keyof T);
+                    if (typeof value === 'string') {
+                      if (filterType === 'contains') {
+                        return value.toLowerCase().includes(queryParams[field]);
+                      } else {
+                        return value.toLowerCase() === queryParams[field];
+                      }
                     } else {
-                      return value.toLowerCase() === queryParams[field];
+                      if (typeof value === 'number') {
+                        return value === Number(queryParams[field]);
+                      }
+                      return value === queryParams[field];
                     }
-                  } else {
-                    if (typeof value === 'number') {
-                      return value === Number(queryParams[field]);
-                    }
-                    return value === queryParams[field];
-                  }
-                });
-              }
-            });
+                  });
+                }
+              });
+            }
             this.filteredCount = data.length;
 
             // Sorting
-            if (queryParams['sort'] && queryParams['direction']) {
+            if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
               data = data.sort((a: T, b: T) => {
                 let aValue = this.getProperty<T, keyof T>(a, queryParams['sort']);
                 let bValue = this.getProperty<T, keyof T>(b, queryParams['sort']);
