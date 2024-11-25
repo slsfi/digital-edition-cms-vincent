@@ -40,7 +40,7 @@ export class FacsimilesComponent implements OnInit {
     { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'number_of_pages', header: 'Number of pages', filterable: false, type: 'number', editable: true },
     { field: 'start_page_number', header: 'Start page number', filterable: false, type: 'number', editable: true },
-    { field: 'external_url', header: 'External URL', filterable: true, type: 'string', editable: true },
+    { field: 'external_url', header: 'External URL', filterable: true, type: 'string', filterType: 'contains', editable: true },
     { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
   ]
   allColumnData = [
