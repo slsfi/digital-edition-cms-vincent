@@ -6,6 +6,7 @@
     @if (loading$ | async) {
       <loading-spinner [overlay]="true"></loading-spinner>
     }
+      <!-- List of publications -->
       <custom-table
         [data$]="publications$"
         [columns]="publicationColumnsData"
@@ -44,6 +45,7 @@
   <div class="selected-publication-col">
     <ng-container *ngIf="selectedPublication$ | async as selectedPublication">
       <div class="cards">
+        <!-- Selected publication -->
         <div class="title-card">
           <a *ngIf="isSmallScreen" mat-icon-button [routerLink]="['/publication-collections', publicationCollectionId]"><mat-icon>west</mat-icon></a>
           <mat-card appearance="outlined">
@@ -72,12 +74,14 @@
           </mat-card>
         </div>
 
+        <!-- Comments -->
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
               [data$]="comments$"
               [columns]="commentsColumnData"
               [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
               (editRow)="editComment($event, selectedPublication.id)"
               (deleteRow)="deleteComment($event, selectedPublication.id)">
               <ng-content custom-table-title>Comments</ng-content>
@@ -88,12 +92,14 @@
           </mat-card-content>
         </mat-card>
 
+        <!-- Facsimiles -->
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
               [data$]="facsimiles$"
               [columns]="facsimileColumnData"
               [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
               (editRow)="editFacsimile($event, selectedPublication.id)"
               (deleteRow)="deleteFacsimile($event)">
               <ng-content custom-table-title>Facsimiles</ng-content>
@@ -104,12 +110,14 @@
           </mat-card-content>
         </mat-card>
 
+        <!-- Manuscripts -->
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
               [data$]="manuscripts$"
               [columns]="manuscriptColumnsData"
               [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
               (editRow)="editManuscript($event, selectedPublication.id)"
               (deleteRow)="deleteManuscript($event)">
               <ng-content custom-table-title>Manuscripts</ng-content>
@@ -120,12 +128,14 @@
           </mat-card-content>
         </mat-card>
 
+        <!-- Variants -->
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
               [data$]="versions$"
               [columns]="versionColumnsData"
               [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
               (editRow)="editVersion($event, selectedPublication.id)"
               (deleteRow)="deleteVersion($event)">
               <ng-content custom-table-title>Variants</ng-content>
