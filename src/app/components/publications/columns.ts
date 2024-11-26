@@ -15,7 +15,7 @@ export const allPublicationColumnsData: Column[] = [
     editable: true,
     editOrder: 3
   },
-  { field: 'date_created', header: 'Date creted', type: 'date', editable: false },
+  { field: 'date_created', header: 'Date created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
   { field: 'genre', header: 'Genre', type: 'string', editable: true, editOrder: 6 },
   { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 5 },
@@ -35,7 +35,7 @@ export const versionColumnsData: Column[] = [
 export const allVersionColumnsData: Column[] = [
   ...versionColumnsData,
   { field: 'published', header: 'Published', type: 'published', editable: true, editOrder: 3 },
-  { field: 'date_created', header: 'Date creted', type: 'date', editable: false },
+  { field: 'date_created', header: 'Date created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
   { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
   { field: 'id', header: 'ID', type: 'number', editable: false },
@@ -51,7 +51,7 @@ export const manuscriptColumnsData: Column[] = [
 
 export const allManuscriptColumnsData: Column[] = [
   ...manuscriptColumnsData,
-  { field: 'date_created', header: 'Date creted', type: 'date', editable: false },
+  { field: 'date_created', header: 'Date created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
   { field: 'id', header: 'ID', type: 'number', editable: false },
   { field: 'publication_id', header: 'Publication ID', type: 'number', editable: false },
@@ -76,7 +76,7 @@ export const facsimileColumnData: Column[] = [
 export const allFacsimileColumnData: Column[] = [
   ...facsimileColumnData,
   { field: 'id', header: 'ID', type: 'number', editable: false },
-  { field: 'date_created', header: 'Date creted', type: 'date', editable: false },
+  { field: 'date_created', header: 'Date created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
   { field: 'deleted', header: 'Deleted', type: 'boolean', editable: false },
   { field: 'description', header: 'Description', type: 'string', editable: false },

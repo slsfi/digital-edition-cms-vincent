@@ -48,7 +48,7 @@ export class PublicationCollectionsComponent implements OnInit {
       type: 'boolean',
       editable: true
     },
-    { field: 'date_created', header: 'Date creted', type: 'date', editable: false },
+    { field: 'date_created', header: 'Date created', type: 'date', editable: false },
     { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
     { field: 'legacy_id', header: 'Legacy ID', type: 'string', editable: false },
     { field: 'name_translation_id', header: 'Name translation ID', type: 'string', editable: false },
