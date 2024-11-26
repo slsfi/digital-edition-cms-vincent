@@ -22,8 +22,8 @@ export enum Published {
 
 export const PublishedOptions = [
   { label: 'Not published', value: Published.NotPublished },
-  { label: 'Internally', value: Published.PublishedInternally },
-  { label: 'Externally', value: Published.PublishedExternally },
+  { label: 'Review', value: Published.PublishedInternally },
+  { label: 'Production', value: Published.PublishedExternally },
 ]
 
 export enum Deleted {
