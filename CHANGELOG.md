@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Preserve active sorting and filtering when viewing images in a facsimile collection and returning to facsimile collection list.
 - Custom table component: move data subscription logic to ngOnInit.
 - Custom table component: move static filterable columns initialization outside data subscription logic.
+- Custom table component: apply highlight on table row on hover.
 - Set default sorting of publication collections by name.
 - Set displayed values of the 'published' field to 'Production' and 'Review' instead of 'Externally' and 'Internally'. Add visual highlight to further distinguish the values in tables.
 - Deps (dev): update `angular-eslint` to 18.4.2.

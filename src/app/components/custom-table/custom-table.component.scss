@@ -27,6 +27,11 @@
   }
 }
 
+tr.mat-mdc-row:hover td {
+  background-color: #ebebef;
+  transition: background-color 0.3s;
+}
+
 .mat-column-index,
 .mat-column-select {
   border-collapse: collapse;
