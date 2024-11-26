@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Enable filtering on description field in index of persons.
 - Preserve active sorting and filtering when selecting publication in publications list.
 - Preserve active sorting and filtering when viewing images in a facsimile collection and returning to facsimile collection list.
+- Custom table component: move data subscription logic to ngOnInit.
 - Deps (dev): update `angular-eslint` to 18.4.2.
 
 ### Fixed
