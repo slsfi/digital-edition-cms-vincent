@@ -28,7 +28,7 @@ export class PublicationService {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/`;
+        const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/name/asc/`;
         return this.apiService.get<PublicationCollectionsResponse>(url).pipe(
           map(response => response.data)
         );
