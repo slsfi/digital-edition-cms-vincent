@@ -8,24 +8,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.0.2] – 2024-11-26
+
 ### Changed
 
-- Enable filtering on description field in index of persons.
-- Preserve active sorting and filtering when selecting publication in publications list.
-- Preserve active sorting and filtering when viewing images in a facsimile collection and returning to facsimile collection list.
-- Custom table component: move data subscription logic to ngOnInit.
-- Custom table component: move static filterable columns initialization outside data subscription logic.
-- Custom table component: apply highlight on table row on hover.
-- Set default sorting of publication collections by name.
-- Set displayed values of the 'published' field to 'Production' and 'Review' instead of 'Externally' and 'Internally'. Add visual highlight to further distinguish the values in tables.
-- Deps (dev): update `angular-eslint` to 18.4.2.
+- Enable filtering on description field in index of persons. ([7a5a36b](https://github.com/slsfi/digital-edition-cms-vincent/commit/7a5a36b6212e68ddbd86a6a4af004f04b6a753a3))
+- Preserve active sorting and filtering when selecting publication in publications list. ([27d58f0](https://github.com/slsfi/digital-edition-cms-vincent/commit/27d58f0d5df8d7274a0f886322bf1237803fc45b))
+- Preserve active sorting and filtering when viewing images in a facsimile collection and returning to facsimile collection list. ([842b8a2](https://github.com/slsfi/digital-edition-cms-vincent/commit/842b8a28dd2591b42a4bd2817c2026c40efed494))
+- Custom table component: move data subscription logic to ngOnInit. ([2ef8efb](https://github.com/slsfi/digital-edition-cms-vincent/commit/2ef8efb6c1ea43d3b60bb54a747302d0e35383e7))
+- Custom table component: move static filterable columns initialization outside data subscription logic. ([173a681](https://github.com/slsfi/digital-edition-cms-vincent/commit/173a6810e1e6c1d59d1cdba916ce5098790ece82))
+- Custom table component: apply highlight on table row on hover. ([4be624d](https://github.com/slsfi/digital-edition-cms-vincent/commit/4be624dacf726d73f79f90e39142e38e4b3f3f8c))
+- Set default sorting of publication collections by name. ([78278ea](https://github.com/slsfi/digital-edition-cms-vincent/commit/78278eae8ea0e19bd58e15fdbd2e554de06a0dd6))
+- Set displayed values of the 'published' field to 'Production' and 'Review' instead of 'Externally' and 'Internally'. Add visual highlight to further distinguish the values in tables. ([ff1ef2e](https://github.com/slsfi/digital-edition-cms-vincent/commit/ff1ef2e86120bbc44759fafc5bb7ea960631df25))
+- Deps (dev): update `angular-eslint` to 18.4.2. ([8741d47](https://github.com/slsfi/digital-edition-cms-vincent/commit/8741d479755635dd1be668cf9ddd31a0836a1121))
 
 ### Fixed
 
-- Filter name field in publications and publication collections, and external URL field in facsimile collections, on substring matches (opposed to exact matches).
-- Remove external URL field from editable fields in edit facsimile dialog.
-- Exclude the selected publication’s facsimiles, manuscripts and variants from filtering and sorting applied on the publications list.
-- Custom table component: restore original table data on sort reset.
+- Filter name field in publications and publication collections, and external URL field in facsimile collections, on substring matches (opposed to exact matches). ([42068a9](https://github.com/slsfi/digital-edition-cms-vincent/commit/42068a9e220fb3fd6f5e1c7dd1d961354317dbf3))
+- Remove external URL field from editable fields in edit facsimile dialog. ([148706d](https://github.com/slsfi/digital-edition-cms-vincent/commit/148706d6fe4e24dffabd37a2f72a70c83a9fbd02))
+- Exclude the selected publication’s facsimiles, manuscripts and variants from filtering and sorting applied on the publications list. ([5155454](https://github.com/slsfi/digital-edition-cms-vincent/commit/51554544968fe34086a599e7ab2ac973921999b5))
+- Custom table component: restore original table data on sort reset. ([f9733ad](https://github.com/slsfi/digital-edition-cms-vincent/commit/f9733ad616a7e9099bbda2b109f36598d1039caa))
 
 
 
@@ -47,6 +51,7 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.2...HEAD
+[1.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/releases/tag/1.0.0
