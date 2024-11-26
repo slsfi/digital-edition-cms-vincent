@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Custom table component: move data subscription logic to ngOnInit.
 - Custom table component: move static filterable columns initialization outside data subscription logic.
 - Set default sorting of publication collections by name.
+- Set displayed values of the 'published' field to 'Production' and 'Review' instead of 'Externally' and 'Internally'. Add visual highlight to further distinguish the values in tables.
 - Deps (dev): update `angular-eslint` to 18.4.2.
 
 ### Fixed

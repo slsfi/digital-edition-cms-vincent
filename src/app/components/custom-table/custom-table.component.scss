@@ -49,6 +49,23 @@ td.mat-column-full_name {
   min-width: 250px;
 }
 
+td.mat-column-published {
+  span {
+    background-color: #eeeeee;
+    border-radius: 3px;
+    font-size: 0.8125rem;
+    padding: 0.125em 0.25em;
+
+    &.published-1 {
+      color: #7021BA;
+    }
+
+    &.published-2 {
+      color: #065e06;
+    }
+  }
+}
+
 .index {
   color: #9d9d9d;
 }

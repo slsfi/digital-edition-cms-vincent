@@ -9,8 +9,8 @@
             <mat-select [formControlName]="field.field">
               <mat-option>Any</mat-option>
               <mat-option [value]="0">Not published</mat-option>
-              <mat-option [value]="1">Internally</mat-option>
-              <mat-option [value]="2">Externally</mat-option>
+              <mat-option [value]="1">Review</mat-option>
+              <mat-option [value]="2">Production</mat-option>
             </mat-select>
           </ng-container>
           <ng-container *ngIf="field.type === 'boolean'">

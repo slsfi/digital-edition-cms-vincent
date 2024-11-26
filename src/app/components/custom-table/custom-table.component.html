@@ -71,9 +71,9 @@
   } @else if (column.type === 'boolean') {
     {{ model[column.field] === 0 ? 'No' : 'Yes' }}
   } @else if (column.type === 'published') {
-    <ng-container *ngIf="model[column.field] === 0">Not published</ng-container>
-    <ng-container *ngIf="model[column.field] === 1">Internally</ng-container>
-    <ng-container *ngIf="model[column.field] === 2">Externally</ng-container>
+    <ng-container *ngIf="model[column.field] === 0"><span class="published-0">Not published</span></ng-container>
+    <ng-container *ngIf="model[column.field] === 1"><span class="published-1">Review</span></ng-container>
+    <ng-container *ngIf="model[column.field] === 2"><span class="published-2">Production</span></ng-container>
   } @else if (column.type === 'action') {
     <div class="row-actions">
       <button mat-icon-button (click)="edit(model)"><mat-icon>edit</mat-icon></button>
