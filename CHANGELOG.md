@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Typo in date created field name.
+- Edit dialog: allow getMetadata to update non-empty form fields with API data.
 
 
 
