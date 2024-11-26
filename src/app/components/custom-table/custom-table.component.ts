@@ -46,6 +46,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   @Output() deleteRow: EventEmitter<T> = new EventEmitter<T>();
 
   private destroy$ = new Subject<void>();
+  private wasSortingActive = false; // flag to check whether sorting was previously active
 
   displayedColumns: string[] = [];
   editSecondaryUsed = false;
@@ -61,6 +62,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   pageParams$;
   loading$;
 
+  originalData: T[] = [];
   originalCount = 0;
   filteredCount = 0;
   selection: SelectionModel<T> = new SelectionModel<T>(false, []);
@@ -87,11 +89,17 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
       this.displayedColumns = ['select', ...this.displayedColumns];
     }
 
+    // Subscribe to the data stream and store the original data
+    this.data$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+      this.originalData = [...data]; // Create a copy of the data for resetting
+      this.originalCount = data.length;
+    });
+
+    // Subscribe to data stream and queryParams for filtering and sorting of data
     combineLatest([this.data$, this.queryParams$]).pipe(
       takeUntil(this.destroy$),
       map(([data, queryParams]) => {
-        this.originalCount = data.length;
-        // Filtering
+        // Filtering logic
         if (!this.disableSortAndFilter) {
           const filterableColumns = this.originalColumns.filter(column => column.filterable);
           filterableColumns.forEach(column => {
@@ -118,7 +126,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
         }
         this.filteredCount = data.length;
 
-        // Sorting
+        // Sorting logic
         if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
           data = data.sort((a: T, b: T) => {
             let aValue = this.getProperty<T, keyof T>(a, queryParams['sort']);
@@ -135,16 +143,22 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
               return aValue < bValue ? 1 : -1;
             }
           });
+          this.wasSortingActive = true; // Mark sorting as active
+        } else if (this.wasSortingActive && !queryParams['sort'] && !queryParams['direction']) {
+          // Reset to original order if no sorting params are present anymore
+          data = [...this.originalData];
+          this.wasSortingActive = false; // Reset the sorting state
         }
+
         return data;
       })
     ).subscribe(data => {
-      // set paginator page index
+      // Set paginator page index
       const pageNumber = this.queryParamsService.getPageNumber() ?? 1;
       if (pageNumber && this.tableDataSource.paginator) {
         this.tableDataSource.paginator.pageIndex = Number(pageNumber) - 1;
       }
-      // set data to table
+      // Set data to table
       this.tableDataSource.data = data;
     });
   }

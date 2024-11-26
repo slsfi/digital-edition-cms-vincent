@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Filter name field in publications and publication collections, and external URL field in facsimile collections, on substring matches (opposed to exact matches).
 - Remove external URL field from editable fields in edit facsimile dialog.
 - Exclude the selected publication’s facsimiles, manuscripts and variants from filtering and sorting applied on the publications list.
+- Custom table component: restore original table data on sort reset.
 
 
 
