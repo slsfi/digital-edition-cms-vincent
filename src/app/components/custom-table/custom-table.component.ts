@@ -54,6 +54,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   deleteUsed = false;
   tableColumns: Column[] = [];
   originalColumns: Column[] = [];
+  filterableColumns: Column[] = [];
 
   tableDataSource = new MatTableDataSource<T>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -88,6 +89,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     if (this.selectable) {
       this.displayedColumns = ['select', ...this.displayedColumns];
     }
+    this.filterableColumns = this.originalColumns.filter(column => column.filterable);
 
     // Subscribe to the data stream and store the original data
     this.data$.pipe(takeUntil(this.destroy$)).subscribe(data => {
@@ -101,8 +103,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
       map(([data, queryParams]) => {
         // Filtering logic
         if (!this.disableSortAndFilter) {
-          const filterableColumns = this.originalColumns.filter(column => column.filterable);
-          filterableColumns.forEach(column => {
+          this.filterableColumns.forEach((column: Column) => {
             const field = column.field;
             const filterType = column.filterType ?? 'equals';
             if (queryParams[field]) {
