@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Typo in date created field name.
+
 
 
 ## [1.0.2] – 2024-11-26
