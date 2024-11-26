@@ -180,7 +180,7 @@ export class EditDialogComponent<T> implements OnInit {
           if (Object.prototype.hasOwnProperty.call(metadata, key)) {
             const control = this.form.controls[key];
             const value = metadata[key as keyof XmlMetadata];
-            if (control && !!value && !this.form.value[key]) {
+            if (control && !!value) {
               control.setValue(value);
             }
           }
