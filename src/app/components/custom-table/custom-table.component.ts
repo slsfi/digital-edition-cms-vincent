@@ -83,87 +83,82 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     if (this.selectable) {
       this.displayedColumns = ['select', ...this.displayedColumns];
     }
-  }
 
-  getProperty<Type, Key extends keyof Type>(obj: Type, key: Key) {
-    return obj[key];
+    combineLatest([this.data$, this.queryParams$]).pipe(
+      takeUntil(this.destroy$),
+      map(([data, queryParams]) => {
+        this.originalCount = data.length;
+        // Filtering
+        if (!this.disableSortAndFilter) {
+          const filterableColumns = this.originalColumns.filter(column => column.filterable);
+          filterableColumns.forEach(column => {
+            const field = column.field;
+            const filterType = column.filterType ?? 'equals';
+            if (queryParams[field]) {
+              data = data.filter((item: T) => {
+                const value = this.getProperty<T, keyof T>(item, field as keyof T);
+                if (typeof value === 'string') {
+                  if (filterType === 'contains') {
+                    return value.toLowerCase().includes(queryParams[field]);
+                  } else {
+                    return value.toLowerCase() === queryParams[field];
+                  }
+                } else {
+                  if (typeof value === 'number') {
+                    return value === Number(queryParams[field]);
+                  }
+                  return value === queryParams[field];
+                }
+              });
+            }
+          });
+        }
+        this.filteredCount = data.length;
+
+        // Sorting
+        if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
+          data = data.sort((a: T, b: T) => {
+            let aValue = this.getProperty<T, keyof T>(a, queryParams['sort']);
+            let bValue = this.getProperty<T, keyof T>(b, queryParams['sort']);
+            if (typeof aValue as string === 'string') {
+              aValue = (aValue as string).toLowerCase() as T[keyof T];
+            }
+            if (typeof bValue === 'string') {
+              bValue = (bValue as string).toLowerCase() as T[keyof T];
+            }
+            if (queryParams['direction'] === 'asc') {
+              return aValue > bValue ? 1 : -1;
+            } else {
+              return aValue < bValue ? 1 : -1;
+            }
+          });
+        }
+        return data;
+      })
+    ).subscribe(data => {
+      // set paginator page index
+      const pageNumber = this.queryParamsService.getPageNumber() ?? 1;
+      if (pageNumber && this.tableDataSource.paginator) {
+        this.tableDataSource.paginator.pageIndex = Number(pageNumber) - 1;
+      }
+      // set data to table
+      this.tableDataSource.data = data;
+    });
   }
 
   ngAfterViewInit() {
     if (this.paginationEnabled) {
       this.tableDataSource.paginator = this.paginator;
     }
-
-    // timeout for handling ExpressionChangedAfterItHasBeenCheckedError
-    // and actually it makes table to render faster!
-    setTimeout(() => {
-      combineLatest([this.data$, this.queryParams$])
-        .pipe(
-          takeUntil(this.destroy$),
-          map(([data, queryParams]) => {
-            this.originalCount = data.length;
-            // Filtering
-            if (!this.disableSortAndFilter) {
-              const filterableColumns = this.originalColumns.filter(column => column.filterable);
-              filterableColumns.forEach(column => {
-                const field = column.field;
-                const filterType = column.filterType ?? 'equals';
-                if (queryParams[field]) {
-                  data = data.filter((item: T) => {
-                    const value = this.getProperty<T, keyof T>(item, field as keyof T);
-                    if (typeof value === 'string') {
-                      if (filterType === 'contains') {
-                        return value.toLowerCase().includes(queryParams[field]);
-                      } else {
-                        return value.toLowerCase() === queryParams[field];
-                      }
-                    } else {
-                      if (typeof value === 'number') {
-                        return value === Number(queryParams[field]);
-                      }
-                      return value === queryParams[field];
-                    }
-                  });
-                }
-              });
-            }
-            this.filteredCount = data.length;
-
-            // Sorting
-            if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
-              data = data.sort((a: T, b: T) => {
-                let aValue = this.getProperty<T, keyof T>(a, queryParams['sort']);
-                let bValue = this.getProperty<T, keyof T>(b, queryParams['sort']);
-                if (typeof aValue as string === 'string') {
-                  aValue = (aValue as string).toLowerCase() as T[keyof T];
-                }
-                if (typeof bValue === 'string') {
-                  bValue = (bValue as string).toLowerCase() as T[keyof T];
-                }
-                if (queryParams['direction'] === 'asc') {
-                  return aValue > bValue ? 1 : -1;
-                } else {
-                  return aValue < bValue ? 1 : -1;
-                }
-              });
-            }
-            return data;
-          })
-        ).subscribe(data => {
-          // set paginator page index
-          const pageNumber = this.queryParamsService.getPageNumber() ?? 1;
-          if (pageNumber && this.tableDataSource.paginator) {
-            this.tableDataSource.paginator.pageIndex = Number(pageNumber) - 1;
-          }
-          // set data to table
-          this.tableDataSource.data = data;
-        });
-    });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  getProperty<Type, Key extends keyof Type>(obj: Type, key: Key) {
+    return obj[key];
   }
 
   edit(model: T) {
