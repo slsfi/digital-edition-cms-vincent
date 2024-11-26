@@ -65,7 +65,10 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   filteredCount = 0;
   selection: SelectionModel<T> = new SelectionModel<T>(false, []);
 
-  constructor(private queryParamsService: QueryParamsService, private loadingService: LoadingService) {
+  constructor(
+    private queryParamsService: QueryParamsService,
+    private loadingService: LoadingService
+  ) {
     this.loading$ = this.loadingService.loading$;
     this.queryParams$ = this.queryParamsService.queryParams$;
     this.pageParams$ = this.queryParamsService.pageParams$;
