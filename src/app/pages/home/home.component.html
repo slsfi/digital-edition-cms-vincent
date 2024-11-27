@@ -47,7 +47,7 @@
             <li><strong>Repository:</strong> {{details.name}}</li>
             <li><strong>Branch:</strong> {{details.branch}}</li>
           </ul>
-          <button mat-flat-button (click)="pullRepo()">Update local repository on server</button>
+          <button mat-flat-button (click)="pullRepo()" [disabled]="syncingRepo">Update local repository on server</button>
         </mat-card-content>
       } @else {
         <mat-card-content>

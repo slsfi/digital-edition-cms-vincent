@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, finalize, map, Observable, of, switchMap, take } from 'rxjs';
 
 import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -38,6 +38,7 @@ export class HomeComponent {
   navItems = navigationItems.filter((item) => item.route !== '/');
   repoDetails$: Observable<RepoDetails | null>;
   selectedProject$;
+  syncingRepo = false;
 
   readonly panelOpenState = signal(false);
 
@@ -67,7 +68,14 @@ export class HomeComponent {
   }
 
   pullRepo() {
-    this.projectService.pullChangesFromGitRemote().subscribe({
+    this.syncingRepo = true;
+    this.projectService.pullChangesFromGitRemote().pipe(
+      take(1),
+      finalize(() => {
+        this.syncingRepo = false;
+      })
+    )
+    .subscribe({
       next: () => {
         this.snackbar.open('Repository successfully updated', 'Close', { panelClass: 'snackbar-success' });
       }
