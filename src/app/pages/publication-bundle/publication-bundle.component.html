@@ -46,7 +46,7 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <button type="button" mat-flat-button (click)="readMetadata()">Get metadata from XML</button>
+              <button type="button" mat-flat-button (click)="readMetadata()" [disabled]="gettingMetadata">Get metadata from XML</button>
             </div>
             <div>
               <button mat-button type="button" (click)="clearForm()">Clear</button>
