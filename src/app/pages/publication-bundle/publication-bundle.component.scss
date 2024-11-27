@@ -88,12 +88,12 @@ file-tree {
 
 .published-row {
   display: flex;
-  justify-content: space-between;
+  gap: 1em;
   margin-top: 2.5em;
 
   .actions {
     display: flex;
-    gap: 10px;
+    gap: 1em;
 
     .mat-mdc-form-field {
       width: 300px;
@@ -102,6 +102,10 @@ file-tree {
 
   button {
     margin-top: 10px;
+  }
+
+  .submit-buttons {
+    margin-left: auto;
   }
 }
 
