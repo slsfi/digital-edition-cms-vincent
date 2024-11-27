@@ -1,10 +1,17 @@
 @let availableProjects = availableProjects$ | async;
+@let environment = environment$ | async;
 @let selectedProject = selectedProject$ | async;
 @let details = repoDetails$ | async;
 
 <div class="main-wrapper">
   <h1>Vincent</h1>
   <p role="doc-subtitle">– Content management system for SLS digital editions –</p>
+
+  @if (environment === 'https://granska-api.sls.fi/') {
+    <div class="granska-api-notification">
+      <p>Notice: granska-api.sls.fi uses the production database!</p>
+    </div>
+  }
 
   <h2>Project settings</h2>
   <div class="project-wrapper">
