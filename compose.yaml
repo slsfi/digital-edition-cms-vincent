@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/slsfi/digital-edition-cms-vincent:1.0.2
+    image: ghcr.io/slsfi/digital-edition-cms-vincent:1.0.3
     ports:
       - "8083:80"
     restart: unless-stopped

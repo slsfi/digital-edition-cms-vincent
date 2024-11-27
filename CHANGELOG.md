@@ -8,19 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.0.3] – 2024-11-27
+
 ### Changed
 
-- Add multiple publications: disable button for getting metadata from XML while fetch in progress.
-- Add multiple publications: show number of added XML files.
-- Edit dialog: disable button for getting metadata from XML while fetch in progress.
-- Home page: show notice about production database being used when environment set to `https://granska-api.sls.fi/`.
-- Home page: disable button for updating git repository while update in progress.
-- Deps: update multiple `@angular` packages to 18.2.13.
+- Add multiple publications: disable button for getting metadata from XML while fetch in progress. ([96508f9](https://github.com/slsfi/digital-edition-cms-vincent/commit/96508f933206cec1092ece33f98ac4ad356f9639))
+- Add multiple publications: show number of added XML files. ([4dc554a](https://github.com/slsfi/digital-edition-cms-vincent/commit/4dc554ab19b4a984312d6fdebec7357c43a08120))
+- Edit dialog: disable button for getting metadata from XML while fetch in progress. ([85110d6](https://github.com/slsfi/digital-edition-cms-vincent/commit/85110d64b1bc800b33b04b6f9af4cfe084567e0f))
+- Home page: show notice about production database being used when environment set to `https://granska-api.sls.fi/`. ([8bc5281](https://github.com/slsfi/digital-edition-cms-vincent/commit/8bc528148fef5a31b38d626b0cb99c8ff8fb8600))
+- Home page: disable button for updating git repository while update in progress. ([6dfbdb0](https://github.com/slsfi/digital-edition-cms-vincent/commit/6dfbdb0b95d9ea87ca230902e2d4a33a38efd4a1), [a734be0](https://github.com/slsfi/digital-edition-cms-vincent/commit/a734be021f65fb29077842be304391fde163a699))
+- Deps: update multiple `@angular` packages to 18.2.13. ([47a3d55](https://github.com/slsfi/digital-edition-cms-vincent/commit/47a3d55fb5fda07c60f1e67bfd10b559a6f186e0))
 
 ### Fixed
 
-- Typo in date created field name.
-- Edit dialog: allow getMetadata to update non-empty form fields with API data.
+- Typo in date created field name. ([a210af5](https://github.com/slsfi/digital-edition-cms-vincent/commit/a210af5da9f4a6dae525ba5862fbc944f6cddd6a))
+- Edit dialog: allow getMetadata to update non-empty form fields with API data. ([8d0e468](https://github.com/slsfi/digital-edition-cms-vincent/commit/8d0e4685fcb7eb0969a1f158cffe8aeba7c6d9ee))
 
 
 
@@ -65,7 +69,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.3...HEAD
+[1.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/releases/tag/1.0.0
