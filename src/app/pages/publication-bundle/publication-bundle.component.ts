@@ -1,21 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { PublicationService } from '../../services/publication.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, Observable, of, switchMap, combineLatest, from, mergeMap, finalize } from 'rxjs';
-import { PublicationAddRequest, PublicationCollection, XmlMetadata } from '../../models/publication';
-import { MatIconModule } from '@angular/material/icon';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
+import { MatDivider } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Published, PublishedOptions } from '../../models/common';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDivider } from '@angular/material/divider';
-import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap } from 'rxjs';
+
+import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { Published, PublishedOptions } from '../../models/common';
+import { PublicationAddRequest, PublicationCollection, XmlMetadata } from '../../models/publication';
+import { LoadingService } from '../../services/loading.service';
+import { PublicationService } from '../../services/publication.service';
 
 interface BundleFormType {
   original_filename: FormControl<string>;

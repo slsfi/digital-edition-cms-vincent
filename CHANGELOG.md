@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Add multiple publications: disable button for getting metadata from XML while fetch in progress.
+- Add multiple publications: show number of added XML files.
 - Edit dialog: disable button for getting metadata from XML while fetch in progress.
 - Home page: show notice about production database being used when environment set to `https://granska-api.sls.fi/`.
 - Home page: disable button for updating git repository while update in progress.

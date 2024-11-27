@@ -18,12 +18,11 @@
 
   @if (collection) {
 
-    @if (files.length === 0) {
+    @if (files.length < 1) {
       <h3>1. Select folder to add XML files from</h3>
       @if (saveFailures.length) {
         <div class="error-box">
           <h3>Failed to save the following files:</h3>
-
           <ul>
             @for (filename of saveFailures; track filename) {
               <li>{{ filename }}</li>
@@ -37,9 +36,10 @@
         <h3>2. Fill in the publication metadata and save</h3>
         <div>
           <div class="published-row">
+            <p>XML files: {{ files.length }}</p>
             <div class="actions">
               <mat-form-field>
-                <mat-label>Published (applies to all rows)</mat-label>
+                <mat-label>Published (applies to all)</mat-label>
                 <mat-select formControlName="published" (selectionChange)="publishedChanged()">
                   @for (option of publishedOptions; track option.value) {
                     <mat-option [value]="option.value">{{ option.label }}</mat-option>
@@ -48,7 +48,7 @@
               </mat-form-field>
               <button type="button" mat-flat-button (click)="readMetadata()" [disabled]="gettingMetadata">Get metadata from XML</button>
             </div>
-            <div>
+            <div class="submit-buttons">
               <button mat-button type="button" (click)="clearForm()">Clear</button>
               <button mat-flat-button type="submit" form="bundle-form" [disabled]="!bundleForm.valid">Save</button>
             </div>
