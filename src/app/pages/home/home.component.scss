@@ -31,6 +31,20 @@ p[role="doc-subtitle"] {
   text-align: center;
 }
 
+.granska-api-notification {
+  width: 100%;
+
+  p {
+    background-color: #fff9ec;
+    border: 2px solid #cc8c16;
+    border-radius: 3px;
+    padding: 0.5em 0.625em;
+    margin: 1em auto;
+    text-align: center;
+    width: fit-content;
+  }
+}
+
 .project-wrapper,
 .nav-items {
   display: flex;

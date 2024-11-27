@@ -1,22 +1,23 @@
-import { Component, signal } from '@angular/core';
-import { ProjectService } from '../../services/project.service';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
-import { Project, RepoDetails } from '../../models/project';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { Component, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { RouterLink } from '@angular/router';
-import { navigationItems } from '../../models/common';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { LoadingService } from '../../services/loading.service';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { MatCardModule } from '@angular/material/card';
+import { catchError, map, Observable, of, switchMap } from 'rxjs';
 
 import { APP_VERSION } from '../../../config/app-version';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { navigationItems } from '../../models/common';
+import { Project, RepoDetails } from '../../models/project';
+import { ApiService } from './../../services/api.service';
+import { LoadingService } from '../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'home',
@@ -32,14 +33,21 @@ export class HomeComponent {
 
   appVersion = APP_VERSION;
   availableProjects$: Observable<Project[]>;
-  selectedProject$;
-  repoDetails$: Observable<RepoDetails | null>;
+  environment$: Observable<string | null> = new Observable<string | null>();
   loading$;
   navItems = navigationItems.filter((item) => item.route !== '/');
+  repoDetails$: Observable<RepoDetails | null>;
+  selectedProject$;
 
   readonly panelOpenState = signal(false);
 
-  constructor(private projectService: ProjectService, private snackbar: MatSnackBar, private loadingService: LoadingService) {
+  constructor(
+    private apiService: ApiService,
+    private loadingService: LoadingService,
+    private projectService: ProjectService,
+    private snackbar: MatSnackBar
+  ) {
+    this.environment$ = this.apiService.environment$;
     this.loading$ = this.loadingService.loading$;
     this.availableProjects$ = this.projectService.getProjects().pipe(
       map((projects) => projects.sort((a, b) => a.name.localeCompare(b.name)))
