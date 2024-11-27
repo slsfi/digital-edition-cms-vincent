@@ -84,7 +84,7 @@
             <div class="form-buttons-wrapper">
               <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
               @if (!!originalFilenameControl.value && showMetadataButton)  {
-                <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()">
+                <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()" [disabled]="gettingMetadata">
                   <mat-icon>sync</mat-icon>
                   Get metadata from XML
                 </button>
