@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update multiple `@angular` packages to 18.2.13.
+
 ### Fixed
 
 - Typo in date created field name.
