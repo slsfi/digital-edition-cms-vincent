@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { PublicationService } from '../../services/publication.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, Observable, of, switchMap, combineLatest, from, mergeMap } from 'rxjs';
+import { map, Observable, of, switchMap, combineLatest, from, mergeMap, finalize } from 'rxjs';
 import { PublicationAddRequest, PublicationCollection, XmlMetadata } from '../../models/publication';
 import { MatIconModule } from '@angular/material/icon';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -39,6 +39,7 @@ interface BundleFormType {
   styleUrl: './publication-bundle.component.scss'
 })
 export class PublicationBundleComponent implements OnInit {
+  gettingMetadata = false;
   loading$;
   selectedProject$;
   publicationCollectionId$: Observable<string | null>;
@@ -114,8 +115,12 @@ export class PublicationBundleComponent implements OnInit {
 
   readMetadata() {
     const concurrentRequests = 5;
+    this.gettingMetadata = true;
     const throttledData$ = from(this.files.controls).pipe(
-      mergeMap((row) => this.getRowMetadata(row), concurrentRequests)
+      mergeMap((row) => this.getRowMetadata(row), concurrentRequests),
+      finalize(() => {
+        this.gettingMetadata = false;
+      })
     );
 
     throttledData$.subscribe({
