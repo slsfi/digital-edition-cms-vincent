@@ -1,21 +1,22 @@
-import { XmlMetadata } from './../../models/publication';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { Column, PublishedOptions } from '../../models/common';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
-import { CustomDatePipe } from '../../pipes/custom-date.pipe';
-import { TranslationsComponent } from '../translations/translations.component';
-import { personTypeOptions } from '../../models/person';
 import { MatIconModule } from '@angular/material/icon';
-import { FileTreeComponent } from "../file-tree/file-tree.component";
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { finalize, take } from 'rxjs';
+
+import { FileTreeComponent } from "../file-tree/file-tree.component";
+import { TranslationsComponent } from '../translations/translations.component';
+import { Column, PublishedOptions } from '../../models/common';
+import { personTypeOptions } from '../../models/person';
+import { XmlMetadata } from './../../models/publication';
 import { PublicationService } from '../../services/publication.service';
 
 export interface EditDialogData<T> {
@@ -30,7 +31,7 @@ export interface EditDialogData<T> {
   standalone: true,
   imports: [
     MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatDatepickerModule, CustomDatePipe, TranslationsComponent, MatIconModule, FileTreeComponent, MatSlideToggleModule
+    MatDatepickerModule, TranslationsComponent, MatIconModule, FileTreeComponent, MatSlideToggleModule
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-dialog.component.html',
@@ -52,6 +53,7 @@ export class EditDialogComponent<T> implements OnInit {
   translationIdd: number | undefined;
   parentTranslationField: string | undefined;
   fileSelectorVisible = false;
+  gettingMetadata = false;
 
   get originalFilenameControl() {
     return this.form.controls['original_filename'];
@@ -174,18 +176,23 @@ export class EditDialogComponent<T> implements OnInit {
   }
 
   getMetadata() {
-    this.publicationService.getMetadataFromXML(this.originalFilenameControl.value)
-      .subscribe(metadata => {
-        for (const key in metadata) {
-          if (Object.prototype.hasOwnProperty.call(metadata, key)) {
-            const control = this.form.controls[key];
-            const value = metadata[key as keyof XmlMetadata];
-            if (control && !!value) {
-              control.setValue(value);
-            }
+    this.gettingMetadata = true;
+    this.publicationService.getMetadataFromXML(this.originalFilenameControl.value).pipe(
+      take(1),
+      finalize(() => {
+        this.gettingMetadata = false;
+      })
+    ).subscribe(metadata => {
+      for (const key in metadata) {
+        if (Object.prototype.hasOwnProperty.call(metadata, key)) {
+          const control = this.form.controls[key];
+          const value = metadata[key as keyof XmlMetadata];
+          if (control && !!value) {
+            control.setValue(value);
           }
         }
-      });
+      }
+    });
   }
 
 }
