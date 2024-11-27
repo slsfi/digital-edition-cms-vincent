@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Home page: show notice about production database being used when environment set to `https://granska-api.sls.fi/`.
+- Home page: disable button for updating git repository while update in progress.
 - Deps: update multiple `@angular` packages to 18.2.13.
 
 ### Fixed
