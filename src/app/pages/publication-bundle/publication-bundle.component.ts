@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap } from 'rxjs';
 
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
@@ -34,7 +35,8 @@ interface BundleFormType {
   standalone: true,
   imports: [
     CommonModule, MatIconModule, RouterLink, ReactiveFormsModule, MatButtonModule, FileTreeComponent,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatDivider, LoadingSpinnerComponent
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatDivider, MatTooltipModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './publication-bundle.component.html',
   styleUrl: './publication-bundle.component.scss'
@@ -155,6 +157,10 @@ export class PublicationBundleComponent implements OnInit {
           }
         });
     });
+  }
+
+  removeRow(index: number) {
+    this.files.removeAt(index);
   }
 
   onSubmit(collectionId: string) {
