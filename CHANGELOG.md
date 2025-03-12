@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Add multiple publications: add buttons for removing publication rows. 
 
+### Changed
+
+- Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.14.
+
 
 
 ## [1.0.3] – 2024-11-27
