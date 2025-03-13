@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.14.
+- Deps (dev): update `jasmine-core` to 5.6.0.
 
 
 
