@@ -8,20 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.1.0] – 2025-03-13
+
 ### Added
 
-- Add multiple publications: add buttons for removing publication rows. 
+- Add multiple publications: add buttons for removing publication rows. ([0a36772](https://github.com/slsfi/digital-edition-cms-vincent/commit/0a367728bc49836304790d1de48b39668d8721a5))
 
 ### Changed
 
-- Update `nginx` to 1.27.4 and `Node.js` to 22.
-- Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.14.
-- Deps: update `rxjs` to 7.8.2.
-- Deps (dev): update `@types/jasmine` to 5.1.7.
-- Deps (dev): update `angular-eslint` to 18.4.3.
-- Deps (dev): update `eslint` to 9.22.0.
-- Deps (dev): update `jasmine-core` to 5.6.0.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.27.4 and `Node.js` to 22. ([c58e6e0](https://github.com/slsfi/digital-edition-cms-vincent/commit/c58e6e0cc5a815ac11ec7e48f13c8987633992bf))
+- Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.14. ([8de9450](https://github.com/slsfi/digital-edition-cms-vincent/commit/8de9450a5cc97be487970b2ddc20bda336e3c620))
+- Deps: update `rxjs` to 7.8.2. ([b14f269](https://github.com/slsfi/digital-edition-cms-vincent/commit/b14f26966c89be457399003f69343881e499e957))
+- Deps (dev): update `@types/jasmine` to 5.1.7. ([8a29098](https://github.com/slsfi/digital-edition-cms-vincent/commit/8a29098e3df4c787b0ff37a5f91a56dc3aafbb24))
+- Deps (dev): update `angular-eslint` to 18.4.3. ([a44ca77](https://github.com/slsfi/digital-edition-cms-vincent/commit/a44ca77472ec2df7e64736e1c48d51463065d69b))
+- Deps (dev): update `eslint` to 9.22.0. ([2f04511](https://github.com/slsfi/digital-edition-cms-vincent/commit/2f04511a957e335072c9ef837ef77d0ff2b45baf))
+- Deps (dev): update `jasmine-core` to 5.6.0. ([df7bcf1](https://github.com/slsfi/digital-edition-cms-vincent/commit/df7bcf136168fe3794c294d996233d04f654019f))
+- Deps: update transitive dependencies. ([9d59f29](https://github.com/slsfi/digital-edition-cms-vincent/commit/9d59f293332f3dbf089d7e311fdf41646347eaf0))
 
 
 
@@ -84,7 +88,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.3...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.3...1.1.0
 [1.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.0...1.0.1
