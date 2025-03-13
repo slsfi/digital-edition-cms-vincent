@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.1.1] – 2025-03-13
+
 ### Changed
 
-- Switch 'Review' value on 'published' field to 'Internally'.
+- Switch 'Review' value on 'published' field to 'Internally'. ([2b0590e](https://github.com/slsfi/digital-edition-cms-vincent/commit/2b0590e6140770835a42280157f1ecdbedecd3df))
 
 
 
@@ -92,7 +96,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.1...HEAD
+[1.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.3...1.1.0
 [1.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.1...1.0.2
