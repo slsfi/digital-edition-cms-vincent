@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `angular-eslint` to 18.4.3.
 - Deps (dev): update `eslint` to 9.22.0.
 - Deps (dev): update `jasmine-core` to 5.6.0.
+- Deps: update transitive dependencies.
 
 
 
