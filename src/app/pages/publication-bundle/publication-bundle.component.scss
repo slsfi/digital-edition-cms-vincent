@@ -12,11 +12,17 @@
     align-items: flex-start;
   }
 
+  button.mdc-icon-button {
+    align-self: center;
+    margin-bottom: 0.85em;
+  }
+
   span {
-    min-width: 1.875em;
-    width: 1.875em;
     align-self: center;
     margin-bottom: 1.25em;
+    min-width: 1.875em;
+    text-align: center;
+    width: 1.875em;
   }
 }
 .mat-mdc-form-field {
@@ -106,6 +112,10 @@ file-tree {
 
   .submit-buttons {
     margin-left: auto;
+
+    .clear-button {
+      margin-right: 0.75em;
+    }
   }
 }
 
