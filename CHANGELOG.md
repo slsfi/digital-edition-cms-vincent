@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `angular-eslint` to 18.4.3. ([a44ca77](https://github.com/slsfi/digital-edition-cms-vincent/commit/a44ca77472ec2df7e64736e1c48d51463065d69b))
 - Deps (dev): update `eslint` to 9.22.0. ([2f04511](https://github.com/slsfi/digital-edition-cms-vincent/commit/2f04511a957e335072c9ef837ef77d0ff2b45baf))
 - Deps (dev): update `jasmine-core` to 5.6.0. ([df7bcf1](https://github.com/slsfi/digital-edition-cms-vincent/commit/df7bcf136168fe3794c294d996233d04f654019f))
+- Deps: update transitive dependencies. ([9d59f29](https://github.com/slsfi/digital-edition-cms-vincent/commit/9d59f293332f3dbf089d7e311fdf41646347eaf0))
 
 
 
