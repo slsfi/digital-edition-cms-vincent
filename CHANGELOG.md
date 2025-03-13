@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.14.
 - Deps: update `rxjs` to 7.8.2.
 - Deps (dev): update `@types/jasmine` to 5.1.7.
+- Deps (dev): update `eslint` to 9.22.0.
 - Deps (dev): update `jasmine-core` to 5.6.0.
 
 
