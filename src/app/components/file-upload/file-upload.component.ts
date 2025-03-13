@@ -105,7 +105,7 @@ export class FileUploadComponent {
   }
 
   uploadFile(queueObject: FileQueueObject) {
-    return new Observable(observer => {
+    return new Observable<void>(observer => {
       const file = queueObject.file
       const formData = new FormData();
       formData.append('facsimile', file, file.name);
