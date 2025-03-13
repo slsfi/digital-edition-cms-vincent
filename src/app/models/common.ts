@@ -22,7 +22,7 @@ export enum Published {
 
 export const PublishedOptions = [
   { label: 'Not published', value: Published.NotPublished },
-  { label: 'Review', value: Published.PublishedInternally },
+  { label: 'Internally', value: Published.PublishedInternally },
   { label: 'Production', value: Published.PublishedExternally },
 ]
 
