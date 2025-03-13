@@ -49,7 +49,7 @@
               <button type="button" mat-flat-button (click)="readMetadata()" [disabled]="gettingMetadata">Get metadata from XML</button>
             </div>
             <div class="submit-buttons">
-              <button mat-button type="button" (click)="clearForm()">Clear</button>
+              <button mat-button type="button" class="clear-button" (click)="clearForm()">Clear</button>
               <button mat-flat-button type="submit" form="bundle-form" [disabled]="!bundleForm.valid">Save</button>
             </div>
           </div>
@@ -58,6 +58,9 @@
             <ng-container *ngFor="let bundleRow of files.controls; let i = index">
               <div class="bundle-row" [formGroup]="bundleRow">
                 <span>{{ i + 1 }}</span>
+                <button mat-icon-button type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)">
+                  <mat-icon>cancel</mat-icon>
+                </button>
                 <mat-form-field class="path">
                   <mat-label>File path</mat-label>
                   <textarea
