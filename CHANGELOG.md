@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Update `nginx` to 1.27.4 and `Node.js` to 22.
 - Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.14.
 - Deps: update `rxjs` to 7.8.2.
 - Deps (dev): update `@types/jasmine` to 5.1.7.
