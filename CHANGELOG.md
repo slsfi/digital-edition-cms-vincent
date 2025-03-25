@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.1.2] – 2025-03-25
+
 ### Changed
 
-- Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.15.
+- Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.15. ([d52a940](https://github.com/slsfi/digital-edition-cms-vincent/commit/d52a9402e2319a48b4307a87f5a9bc22106c3ee2))
 
 ### Fixed
 
-- Custom table: file path fields with empty values cause table breaks.
-- Empty form field values in publication linked text dialogs.
+- Custom table: file path fields with empty values cause table breaks. ([2e92489](https://github.com/slsfi/digital-edition-cms-vincent/commit/2e924896f1f64d77d740a9a331286e34e9056228))
+- Handling of empty form field values in publication linked text dialogs. ([baf3aa1](https://github.com/slsfi/digital-edition-cms-vincent/commit/baf3aa1f10cfbf579bfbe093e3ee65dd43b290d7))
 
 
 
@@ -105,7 +109,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.2...HEAD
+[1.1.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.3...1.1.0
 [1.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.2...1.0.3
