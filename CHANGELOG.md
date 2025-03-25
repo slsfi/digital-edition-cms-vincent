@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `@angular/cli` and `@angular-devkit/build-angular` to 18.2.15.
+
 ### Fixed
 
 - Custom table: file path fields with empty values cause table breaks.
