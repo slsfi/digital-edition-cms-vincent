@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Custom table: file path fields with empty values cause table breaks.
+
 
 
 ## [1.1.1] – 2025-03-13

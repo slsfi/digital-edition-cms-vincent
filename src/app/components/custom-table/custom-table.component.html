@@ -87,9 +87,9 @@
         <button mat-icon-button (click)="delete(model)"><mat-icon>delete</mat-icon></button>
       }
     </div>
-  } @else if (column.field === 'original_filename') {
+  } @else if (column.field === 'original_filename' && model[column.field]) {
     {{ model[column.field].split('/').join(' / ') }}
   } @else {
-    {{ model[column.field] }}
+    {{ model[column.field] || "" }}
   }
 </ng-template>
