@@ -75,11 +75,11 @@ export interface PublicationEditRequest {
   publication_collection_id?: number;
   publication_comment_id?: number | null;
   name?: string;
-  original_filename?: string;
-  original_publication_date?: string;
+  original_filename?: string | null;
+  original_publication_date?: string | null;
   published?: Published;
-  language?: Langugage;
-  genre?: string;
+  language?: Langugage | null;
+  genre?: string | null;
   deleted?: Deleted;
   cascade_deleted?: boolean;
   cascase_published?: boolean;
@@ -108,7 +108,7 @@ export interface PublicationComment {
 }
 
 export interface PublicationCommentRequest {
-  original_filename?: string;
+  original_filename?: string | null;
   published?: Published;
   deleted?: Deleted;
 }
@@ -139,11 +139,11 @@ export interface VersionEditRequest {
   publication_id?: number;
   deleted?: Deleted;
   published?: Published;
-  original_filename?: string;
-  name?: string
-  type?: number;
-  section_id?: number;
-  sort_order?: number;
+  original_filename?: string | null;
+  name?: string | null;
+  type?: number | null;
+  section_id?: number | null;
+  sort_order?: number | null;
 }
 
 export interface ManuscriptsResponse extends ApiResponse {
@@ -172,11 +172,11 @@ export interface ManuscriptEditRequest {
   publication_id?: number;
   deleted?: Deleted;
   published?: Published;
-  original_filename?: string;
-  name?: string;
-  section_id?: number;
-  sort_order?: number;
-  language?: Langugage;
+  original_filename?: string | null;
+  name?: string | null;
+  section_id?: number | null;
+  sort_order?: number | null;
+  language?: Langugage | null;
 }
 export interface ManuscriptRequest {
   name?: string;
@@ -202,12 +202,12 @@ export interface LinkTextToPublicationRequest {
   original_filename: string;
   name?: string;
   published?: Published;
-  published_by?: string;
-  legacy_id?: number;
-  type?: number;
-  section_id?: number;
-  sort_order?: number;
-  language?: string;
+  published_by?: string | null;
+  legacy_id?: number | null;
+  type?: number | null;
+  section_id?: number | null;
+  sort_order?: number | null;
+  language?: string | null;
 }
 
 export interface LinkTextToPublicationResponse extends ApiResponse {

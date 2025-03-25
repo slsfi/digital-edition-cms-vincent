@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Custom table: file path fields with empty values cause table breaks.
+- Empty form field values in publication linked text dialogs.
 
 
 
