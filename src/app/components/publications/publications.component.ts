@@ -29,13 +29,14 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { Column, Deleted } from '../../models/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
+import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
 
 @Component({
   selector: 'publications',
   standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
-    FileTreeDialogComponent, MatCardModule, MatBadgeModule, MatMenuModule, CustomTableComponent
+    MatCardModule, MatBadgeModule, MatMenuModule, CustomTableComponent
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
@@ -206,21 +207,31 @@ export class PublicationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const payload = result.form.getRawValue();
+        let payload = result.form.getRawValue();
         payload['text_type'] = 'version';
 
-        let req;
+        const onSuccess = () => {
+          this.versionsLoader$.next(0);
+          this.snackbar.open('Variant saved', 'Close', {
+            panelClass: ['snackbar-success']
+          });
+        };
+
         if (version?.id) {
-          req = this.publicationService.editVersion(version.id, payload);
+          // Edit existing variant
+          // Convert empty strings in field values to null in the payload object
+          payload = cleanEmptyStrings(payload);
+          this.publicationService.editVersion(version.id, payload).subscribe({
+            next: onSuccess
+          });
         } else {
-          req = this.publicationService.linkTextToPublication(publicationId, payload);
+          // Add new variant
+          // Remove empty fields from the payload object
+          payload = cleanObject(payload);
+          this.publicationService.linkTextToPublication(publicationId, payload).subscribe({
+            next: onSuccess
+          });
         }
-        req.subscribe({
-          next: () => {
-            this.versionsLoader$.next(0);
-            this.snackbar.open('Variant saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-        });
       }
     });
   }
@@ -235,22 +246,29 @@ export class PublicationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const payload = result.form.getRawValue();
+        let payload = result.form.getRawValue();
         payload['text_type'] = 'manuscript';
 
+        const onSuccess = () => {
+          this.manuscriptsLoader$.next(0);
+          this.snackbar.open('Manuscript saved', 'Close', {
+            panelClass: ['snackbar-success']
+          });
+        };
+
         if (manuscript?.id) {
+          // Edit existing manuscript
+          // Convert empty strings in field values to null in the payload object
+          payload = cleanEmptyStrings(payload);
           this.publicationService.editManuscript(manuscript.id, payload).subscribe({
-            next: () => {
-              this.manuscriptsLoader$.next(0);
-              this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
-            }
+            next: onSuccess
           });
         } else {
+          // Add new manuscript
+          // Remove empty fields from the payload object
+          payload = cleanObject(payload);
           this.publicationService.linkTextToPublication(publicationId, payload).subscribe({
-            next: () => {
-              this.manuscriptsLoader$.next(0);
-              this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
-            }
+            next: onSuccess
           });
         }
       }
@@ -265,22 +283,32 @@ export class PublicationsComponent implements OnInit {
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
+    const onSuccess = () => {
+      this.commentLoader$.next(0);
+      this.snackbar.open('Comment saved', 'Close', {
+        panelClass: ['snackbar-success']
+      });
+    };
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const payload = result.form.getRawValue();
+        let payload = result.form.getRawValue();
         payload['text_type'] = 'comment';
-        let req;
+
         if (comment?.id) {
-          req = this.publicationService.editComment(publicationId, payload);
+          // Edit existing comment
+          // Convert empty strings in field values to null in the payload object
+          payload = cleanEmptyStrings(payload);
+          this.publicationService.editComment(publicationId, payload).subscribe({
+            next: onSuccess
+          });
         } else {
-          req = this.publicationService.linkTextToPublication(publicationId, payload);
+          // Add new comment
+          // Remove empty fields from the payload object
+          this.publicationService.linkTextToPublication(publicationId, payload).subscribe({
+            next: onSuccess
+          });
         }
-        req.subscribe({
-          next: () => {
-            this.commentLoader$.next(0);
-            this.snackbar.open('Comment saved', 'Close', { panelClass: ['snackbar-success'] });
-          },
-        });
       }
     });
   }
@@ -298,22 +326,26 @@ export class PublicationsComponent implements OnInit {
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
+    const onSuccess = () => {
+      this.facsimilesLoader$.next(0);
+      this.snackbar.open('Facsimile saved', 'Close', {
+        panelClass: ['snackbar-success']
+      });
+    };
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const payload = result.form.getRawValue();
 
-        let req;
         if (facsimile?.id) {
-          req = this.publicationService.editFacsimileForPublication(payload);
+          this.publicationService.editFacsimileForPublication(payload).subscribe({
+            next: onSuccess
+          });
         } else {
-          req = this.publicationService.linkFacsimileToPublication(publicationId, result.form);
+          this.publicationService.linkFacsimileToPublication(publicationId, result.form).subscribe({
+            next: onSuccess
+          });
         }
-        req.subscribe({
-          next: () => {
-            this.facsimilesLoader$.next(0);
-            this.snackbar.open('Facsimile saved', 'Close', { panelClass: ['snackbar-success'] });
-          }
-        });
       }
     });
   }
