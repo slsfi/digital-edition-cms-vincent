@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { FacsimileService } from '../../services/facsimile.service';
 
 enum FileQueueStatus {
@@ -35,7 +34,7 @@ class FileQueueObject {
 
 @Component({
   selector: 'file-upload',
-  imports: [CommonModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule, LoadingSpinnerComponent],
+  imports: [CommonModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.scss'
 })

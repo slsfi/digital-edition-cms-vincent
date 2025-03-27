@@ -18,7 +18,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
 import { LoadingService } from '../../services/loading.service';
 import { Router } from '@angular/router';
-import { FacsimileCollectionComponent } from '../facsimile-collection/facsimile-collection.component';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
@@ -26,7 +25,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   selector: 'app-facsimiles',
   imports: [
     CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule,
-    MatBadgeModule, CustomTableComponent, FacsimileCollectionComponent
+    MatBadgeModule, CustomTableComponent
   ],
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'

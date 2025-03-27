@@ -12,9 +12,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Facsimile image upload: replace all images in collection.
 
+### Changed
+
+- Deps: update `@angular` packages to 19.2.x.
+
 ### Fixed
 
 - Custom table: zero values not shown in cell.
+
 
 
 ## [1.1.2] – 2025-03-25
