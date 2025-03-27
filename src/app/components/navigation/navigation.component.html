@@ -1,5 +1,4 @@
 <div class="menu">
-  <mat-divider></mat-divider>
   <mat-nav-list>
     @for (item of navItems; track item.route) {
       <a mat-list-item [routerLink]="item.route" [activated]="item.route === currentUrl" (click)="toggleMenu()">
