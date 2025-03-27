@@ -33,7 +33,6 @@ import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
 
 @Component({
   selector: 'publications',
-  standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
     MatCardModule, MatBadgeModule, MatMenuModule, CustomTableComponent

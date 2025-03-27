@@ -13,7 +13,6 @@ import { RangeArrayPipe } from '../../pipes/range-array.pipe';
 
 @Component({
   selector: 'facsimile-collection',
-  standalone: true,
   imports: [
     MatIconModule, FileUploadComponent, MatButtonModule, RouterLink, CommonModule,
     RangeArrayPipe

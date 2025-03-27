@@ -9,7 +9,6 @@ import { FileTreeComponent } from '../file-tree/file-tree.component';
 
 @Component({
   selector: 'file-tree-dialog',
-  standalone: true,
   imports: [
     MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent, CommonModule, MatDialogModule,
     FileTreeComponent

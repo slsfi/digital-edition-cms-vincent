@@ -28,7 +28,6 @@ export interface EditDialogData<T> {
 
 @Component({
   selector: 'edit-dialog',
-  standalone: true,
   imports: [
     MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatDatepickerModule, TranslationsComponent, MatIconModule, FileTreeComponent, MatSlideToggleModule

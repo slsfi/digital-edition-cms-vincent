@@ -21,7 +21,6 @@ import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-projects',
-  standalone: true,
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent,
     CustomTableComponent, CustomTableComponent, MatBadgeModule

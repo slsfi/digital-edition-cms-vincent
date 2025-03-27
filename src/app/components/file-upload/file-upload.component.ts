@@ -35,7 +35,6 @@ class FileQueueObject {
 
 @Component({
   selector: 'file-upload',
-  standalone: true,
   imports: [CommonModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule, LoadingSpinnerComponent],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.scss'

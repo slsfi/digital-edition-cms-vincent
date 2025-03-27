@@ -13,7 +13,6 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'topbar',
-  standalone: true,
   imports: [CommonModule, MatToolbarModule, MatTooltipModule, MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'

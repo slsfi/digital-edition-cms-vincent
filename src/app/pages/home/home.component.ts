@@ -21,7 +21,6 @@ import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'home',
-  standalone: true,
   imports: [
     CommonModule, MatSelectModule, MatFormFieldModule, MatButtonModule, MatIconModule, MatListModule, RouterLink,
     MatDividerModule, LoadingSpinnerComponent, MatCardModule

@@ -23,7 +23,6 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'app-persons',
-  standalone: true,
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule, MatChipsModule,
     MatBadgeModule, LoadingSpinnerComponent, CustomTableComponent

@@ -24,7 +24,6 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'publication-collections',
-  standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
     PublicationsComponent, MatBadgeModule, CustomTableComponent, CustomTableComponent

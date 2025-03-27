@@ -11,8 +11,10 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-table-sorting',
-  standalone: true,
-  imports: [CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule, ReactiveFormsModule, MatDialogModule, MatButtonModule],
+  imports: [
+    CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule,
+    ReactiveFormsModule, MatDialogModule, MatButtonModule
+  ],
   templateUrl: './table-sorting.component.html',
   styleUrl: './table-sorting.component.scss'
 })

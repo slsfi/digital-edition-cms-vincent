@@ -24,7 +24,6 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'app-facsimiles',
-  standalone: true,
   imports: [
     CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule,
     MatBadgeModule, CustomTableComponent, FacsimileCollectionComponent

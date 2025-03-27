@@ -17,7 +17,6 @@ interface TreeNode {
 
 @Component({
   selector: 'file-tree',
-  standalone: true,
   imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent, CommonModule],
   templateUrl: './file-tree.component.html',
   styleUrl: './file-tree.component.scss'
