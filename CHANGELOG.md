@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Facsimile image upload: replace all images in collection.
 
 
 ## [1.1.2] – 2025-03-25
