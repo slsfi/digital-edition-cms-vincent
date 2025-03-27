@@ -90,6 +90,6 @@
   } @else if (column.field === 'original_filename' && model[column.field]) {
     {{ model[column.field].split('/').join(' / ') }}
   } @else {
-    {{ model[column.field] || "" }}
+    {{ model[column.field] ?? '' }}
   }
 </ng-template>
