@@ -12,8 +12,10 @@ import { languageOptions, nameForLanguage, Translation, TranslationRequestPost }
 
 @Component({
   selector: 'field-translations',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, CommonModule, MatButtonModule, MatIconModule],
+  imports: [
+    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    CommonModule, MatButtonModule, MatIconModule
+  ],
   templateUrl: './translations.component.html',
   styleUrl: './translations.component.scss'
 })

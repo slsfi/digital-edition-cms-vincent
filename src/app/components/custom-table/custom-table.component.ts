@@ -18,7 +18,6 @@ import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
   selector: 'custom-table',
-  standalone: true,
   imports: [
     CommonModule, MatTableModule, RouterLink, MatIconModule, MatButtonModule, CustomDatePipe, IdRoutePipe,
     ScrollingModule, MatPaginatorModule, MatCheckboxModule

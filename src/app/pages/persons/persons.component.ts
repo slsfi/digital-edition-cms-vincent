@@ -6,7 +6,6 @@ import { MatTableModule } from '@angular/material/table';
 import { Column, Deleted } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { MatDialog } from '@angular/material/dialog';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { QueryParamsService } from '../../services/query-params.service';
@@ -23,9 +22,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'app-persons',
-  standalone: true,
   imports: [
-    CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, ScrollingModule, MatChipsModule,
+    CommonModule, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule, MatChipsModule,
     MatBadgeModule, LoadingSpinnerComponent, CustomTableComponent
   ],
   providers: [DatePipe],

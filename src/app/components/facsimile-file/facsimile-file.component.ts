@@ -8,7 +8,6 @@ import { SkipLoading } from '../../interceptors/loading.interceptor';
 
 @Component({
   selector: 'facsimile-file',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './facsimile-file.component.html',
   styleUrl: './facsimile-file.component.scss'

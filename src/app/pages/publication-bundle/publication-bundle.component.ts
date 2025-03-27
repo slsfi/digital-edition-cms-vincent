@@ -32,7 +32,6 @@ interface BundleFormType {
 
 @Component({
   selector: 'publication-bundle',
-  standalone: true,
   imports: [
     CommonModule, MatIconModule, RouterLink, ReactiveFormsModule, MatButtonModule, FileTreeComponent,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatDivider, MatTooltipModule,

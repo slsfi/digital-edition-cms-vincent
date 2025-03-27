@@ -4,7 +4,6 @@ import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap } from 'rxjs';
 import { PublicationCollection } from '../../models/publication';
 import { MatTableModule } from '@angular/material/table';
-import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column, Deleted } from '../../models/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,9 +23,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'publication-collections',
-  standalone: true,
   imports: [
-    CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
+    CommonModule, MatTableModule, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
     PublicationsComponent, MatBadgeModule, CustomTableComponent, CustomTableComponent
   ],
   providers: [DatePipe],

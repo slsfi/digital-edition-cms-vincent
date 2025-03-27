@@ -10,7 +10,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { Column, Deleted } from '../../models/common';
-import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,9 +20,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-projects',
-  standalone: true,
   imports: [
-    CommonModule, MatTableModule, MatIconModule, MatButtonModule, CustomDatePipe, LoadingSpinnerComponent,
+    CommonModule, MatTableModule, MatIconModule, MatButtonModule, LoadingSpinnerComponent,
     CustomTableComponent, CustomTableComponent, MatBadgeModule
   ],
   providers: [DatePipe],

@@ -23,8 +23,10 @@ const requiredIfEnvironmentIsCustom = function(control: AbstractControl) {
 
 @Component({
   selector: 'login',
-  standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatSelectModule, ReactiveFormsModule, CommonModule, MatIconModule, LoadingSpinnerComponent],
+  imports: [
+    MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatSelectModule,
+    ReactiveFormsModule, CommonModule, MatIconModule, LoadingSpinnerComponent
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

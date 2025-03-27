@@ -15,7 +15,6 @@ export interface ConfirmDialogData {
 
 @Component({
   selector: 'app-comfirm-dialog',
-  standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatSlideToggleModule, FormsModule],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss'

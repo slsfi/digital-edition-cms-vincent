@@ -12,8 +12,10 @@ import { personTypeOptions } from '../../models/person';
 
 @Component({
   selector: 'app-table-filters',
-  standalone: true,
-  imports: [CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule, ReactiveFormsModule, MatDialogModule, MatButtonModule],
+  imports: [
+    CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule,
+    ReactiveFormsModule, MatDialogModule, MatButtonModule
+  ],
   templateUrl: './table-filters.component.html',
   styleUrl: './table-filters.component.scss'
 })

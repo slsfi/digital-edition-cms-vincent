@@ -11,7 +11,6 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'navigation',
-  standalone: true,
   imports: [CommonModule, MatDividerModule, MatListModule, MatIconModule, RouterLink],
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.scss'

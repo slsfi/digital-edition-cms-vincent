@@ -24,7 +24,6 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 
 @Component({
   selector: 'app-new-publication-facsimile',
-  standalone: true,
   imports: [
     CommonModule, MatTableModule, CustomTableComponent, MatIconModule, MatBadgeModule, MatButtonModule,
     MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent
