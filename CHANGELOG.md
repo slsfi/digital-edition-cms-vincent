@@ -8,25 +8,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.2.0] – 2025-03-27
+
 ### Added
 
-- Facsimile image upload: replace all images in collection.
+- Facsimile image upload: replace all images in collection. ([c6067c0](https://github.com/slsfi/digital-edition-cms-vincent/commit/c6067c00daf0ddf48174feeabc64fda1d3412ec3))
 
 ### Changed
 
-- Add bottom border to top menu bar.
-- Remove top divider from navigation.
-- Deps: update `@angular` packages to 19.2.x.
-- Deps (dev): update `angular-eslint` to 19.3.0.
-- Deps (dev): update `eslint` to 9.23.0.
-- Deps (dev): update `typescript` to 5.8.2.
-- Deps (dev): update `typescript-eslint` to 8.27.0.
+- Add bottom border to top menu bar. ([2320cb0](https://github.com/slsfi/digital-edition-cms-vincent/commit/2320cb0c159651310e729ab5b5da2715491d5826))
+- Remove top divider from navigation. ([ecf8426](https://github.com/slsfi/digital-edition-cms-vincent/commit/ecf8426bd3fdec5d0b583326c67897c45d2295ee))
+- Deps: update `@angular` packages to 19.2.x. ([582662c](https://github.com/slsfi/digital-edition-cms-vincent/commit/582662c4f51bbbb6834940b4d8701f582c091aef))
+- Deps (dev): update `angular-eslint` to 19.3.0. ([f4868b2](https://github.com/slsfi/digital-edition-cms-vincent/commit/f4868b2a7616891bf520cb6cda9e6dbe19ed49d5))
+- Deps (dev): update `eslint` to 9.23.0. ([043de7a](https://github.com/slsfi/digital-edition-cms-vincent/commit/043de7aec693d4c9b14e27c55f8264f4a5ce1e66))
+- Deps (dev): update `typescript` to 5.8.2. ([93e2018](https://github.com/slsfi/digital-edition-cms-vincent/commit/93e201823e8d7941d6ff66c23260794e33a65e61))
+- Deps (dev): update `typescript-eslint` to 8.27.0. ([efa5a84](https://github.com/slsfi/digital-edition-cms-vincent/commit/efa5a8486d3d7d5a89b6eea2d06449849ffb57c1))
 
 ### Fixed
 
-- Custom table: zero values not shown in cells.
-- Dockerfile: bump Angular CLI major version.
-- Linting: no output bindings named as standard DOM events.
+- Custom table: zero values not shown in cells. ([0cb5fe8](https://github.com/slsfi/digital-edition-cms-vincent/commit/0cb5fe85e1af08f94e358433ac44cfaca7b20dbc))
+- Dockerfile: bump Angular CLI major version. ([cac8f77](https://github.com/slsfi/digital-edition-cms-vincent/commit/cac8f77f5f6cdb30a5a816992d88abd5316d764e))
+- Linting: no output bindings named as standard DOM events. ([c4bf119](https://github.com/slsfi/digital-edition-cms-vincent/commit/c4bf119863c6009ab86596124df725cef4b6741a))
 
 
 
@@ -129,7 +133,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.2...1.2.0
 [1.1.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.0.3...1.1.0
