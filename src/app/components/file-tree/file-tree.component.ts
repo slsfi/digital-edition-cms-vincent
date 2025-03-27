@@ -29,7 +29,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
   @Input() selectFolder = false;
   @Input() showLoading = true;
   @Output() valueChange = new EventEmitter<string>();
-  @Output() close = new EventEmitter<void>();
+  @Output() panelClosed = new EventEmitter<void>();
   @Output() filesInFolder = new EventEmitter<string[]>();
 
   closeInUse = false;
@@ -42,7 +42,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.closeInUse = this.close.observed;
+    this.closeInUse = this.panelClosed.observed;
     this.selectedNodes = this.value?.split('/') || [];
 
     this.projectService.getFileTree()
@@ -156,7 +156,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
   }
 
   previous() {
-    this.close.emit();
+    this.panelClosed.emit();
   }
 
 }
