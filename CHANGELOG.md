@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Facsimile image upload: replace all images in collection.
 
+### Fixed
+
+- Custom table: zero values not shown in cell.
+
 
 ## [1.1.2] – 2025-03-25
 
