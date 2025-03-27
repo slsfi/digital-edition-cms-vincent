@@ -17,10 +17,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular` packages to 19.2.x.
 - Deps (dev): update `eslint` to 9.23.0.
 - Deps (dev): update `typescript` to 5.8.2.
+- Deps (dev): update `typescript-eslint` to 8.27.0.
 
 ### Fixed
 
-- Custom table: zero values not shown in cell.
+- Custom table: zero values not shown in cells.
 
 
 
