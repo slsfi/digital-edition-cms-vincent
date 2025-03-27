@@ -20,7 +20,7 @@ import { languageOptions, nameForLanguage, Translation, TranslationRequestPost }
   styleUrl: './translations.component.scss'
 })
 export class TranslationsComponent implements AfterViewInit {
-  @Output() close: EventEmitter<void> = new EventEmitter<void>();
+  @Output() panelClosed = new EventEmitter<void>();
 
   field = input.required<string>();
   translationIdd = input<number | undefined>();
@@ -127,7 +127,7 @@ export class TranslationsComponent implements AfterViewInit {
     if (this.mode() !== '') {
       this.mode.set('');
     } else {
-      this.close.emit();
+      this.panelClosed.emit();
     }
   }
 

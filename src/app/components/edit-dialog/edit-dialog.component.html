@@ -5,9 +5,8 @@
     <div class="bordered">
       <file-tree
         [value]="originalFilenameControl.value"
-        (close)="fileSelectorVisible = false"
         (valueChange)="fileSelected($event)"
-        (close)="hideFileSelector()">
+        (panelClosed)="hideFileSelector()">
       </file-tree>
     </div>
   } @else if (!fieldForTranslate) {
@@ -102,7 +101,7 @@
       [originalText]="originalText"
       [parentId]="modelId"
       [parentTranslationField]="parentTranslationField"
-      (close)="fieldForTranslate = null">
+      (panelClosed)="fieldForTranslate = null">
     </field-translations>
   }
 </mat-dialog-content>

@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Custom table: zero values not shown in cells.
 - Dockerfile: bump Angular CLI major version.
+- Linting: no output bindings named as standard DOM events.
 
 
 
