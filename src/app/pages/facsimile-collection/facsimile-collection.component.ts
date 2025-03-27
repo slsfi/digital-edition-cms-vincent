@@ -9,12 +9,14 @@ import { Observable } from 'rxjs';
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
 import { FacsimileService } from '../../services/facsimile.service';
+import { RangeArrayPipe } from '../../pipes/range-array.pipe';
 
 @Component({
   selector: 'facsimile-collection',
   standalone: true,
   imports: [
-    MatIconModule, FileUploadComponent, MatButtonModule, RouterLink, CommonModule
+    MatIconModule, FileUploadComponent, MatButtonModule, RouterLink, CommonModule,
+    RangeArrayPipe
   ],
   templateUrl: './facsimile-collection.component.html',
   styleUrl: './facsimile-collection.component.scss'
