@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- ID of selected publication collection after collection name.
+
 ### Fixed
 
 - Clear the cached file tree when the project changes and the project git repository on the server is synced.
