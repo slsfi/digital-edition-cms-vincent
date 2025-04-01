@@ -77,6 +77,9 @@ export class HomeComponent {
     .subscribe({
       next: () => {
         this.snackbar.open('Repository successfully updated', 'Close', { panelClass: 'snackbar-success' });
+
+        // Clear the cached file tree by setting it to null
+        this.projectService.fileTree$.next(null);
       }
     });
   }

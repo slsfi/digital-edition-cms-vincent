@@ -63,6 +63,9 @@ export class ProjectService {
   setSelectedProject(project: string | null) {
     this.selectedProject$.next(project);
     localStorage.setItem('selected_project', project || '');
+
+    // Clear the cached file tree whenever the user picks a new project
+    this.fileTree$.next(null);
   }
 
   getGitRepoDetails(): Observable<RepoDetails> {
