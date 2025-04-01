@@ -1,25 +1,26 @@
-import { LoadingService } from './../../services/loading.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap } from 'rxjs';
-import { PublicationCollection } from '../../models/publication';
-import { MatTableModule } from '@angular/material/table';
-import { Column, Deleted } from '../../models/common';
-import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap, take } from 'rxjs';
+
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { PublicationsComponent } from "../../components/publications/publications.component";
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { QueryParamsService } from '../../services/query-params.service';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
-import { MatBadgeModule } from '@angular/material/badge';
-import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { Column, Deleted } from '../../models/common';
+import { PublicationCollection, PublicationCollectionResponse } from '../../models/publication';
+import { LoadingService } from './../../services/loading.service';
 import { PublicationService } from '../../services/publication.service';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { QueryParamsService } from '../../services/query-params.service';
 
 @Component({
   selector: 'publication-collections',
@@ -111,13 +112,13 @@ export class PublicationCollectionsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        let req;
+        let request$: Observable<PublicationCollectionResponse>;
         if (publicationCollection?.id) {
-          req = this.publicationService.editPublicationCollection(publicationCollection.id, result.form.value);
+          request$ = this.publicationService.editPublicationCollection(publicationCollection.id, result.form.value);
         } else {
-          req = this.publicationService.addPublicationCollection(result.form.value);
+          request$ = this.publicationService.addPublicationCollection(result.form.value);
         }
-        req.subscribe({
+        request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackbar.open('Publication collection saved', 'Close', { panelClass: ['snackbar-success'] });
@@ -141,7 +142,7 @@ export class PublicationCollectionsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
-        this.publicationService.editPublicationCollection(collection.id, payload).subscribe({
+        this.publicationService.editPublicationCollection(collection.id, payload).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackbar.open('Publication collection deleted', 'Close', { panelClass: ['snackbar-success'] });

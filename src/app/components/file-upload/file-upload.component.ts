@@ -97,7 +97,6 @@ export class FileUploadComponent {
         this.allUploaded = true;
         this.filesUploaded.emit();
         this.snackbar.open('All files uploaded', 'Close', { panelClass: 'snackbar-success' });
-
       },
     });
   }

@@ -1,10 +1,11 @@
 import { AfterViewInit, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpContext } from '@angular/common/http';
+import { BehaviorSubject, map } from 'rxjs';
+
+import { SkipLoading } from '../../interceptors/loading.interceptor';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ApiService } from '../../services/api.service';
-import { BehaviorSubject, map } from 'rxjs';
-import { HttpContext } from '@angular/common/http';
-import { SkipLoading } from '../../interceptors/loading.interceptor';
 
 @Component({
   selector: 'facsimile-file',
@@ -45,6 +46,5 @@ export class FacsimileFileComponent implements AfterViewInit {
         next: url => this.imageUrlSubject.next(url),
       });
   }
-
 
 }

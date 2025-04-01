@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { filter, map, Subject, takeUntil } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
+
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
-import { CommonModule } from '@angular/common';
 import { FileTree } from '../../models/project';
+import { ProjectService } from '../../services/project.service';
 
 interface TreeNode {
   name: string;

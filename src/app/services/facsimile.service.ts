@@ -1,19 +1,25 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, filter, map, switchMap } from 'rxjs';
+
+import { SkipLoading } from '../interceptors/loading.interceptor';
+import {
+  FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest,
+  FacsimileCollectionResponse, FacsimileCollectionsResponse, VerifyFacsimileFileResponse
+} from '../models/facsimile';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest, FacsimileCollectionResponse, FacsimileCollectionsResponse, VerifyFacsimileFileResponse } from '../models/facsimile';
-import { filter, map, switchMap } from 'rxjs';
-import { HttpContext } from '@angular/common/http';
-import { SkipLoading } from '../interceptors/loading.interceptor';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FacsimileService {
+  selectedProject$: BehaviorSubject<string | null>;
 
-  selectedProject$;
-
-  constructor(private apiService: ApiService, private projectService: ProjectService) {
+  constructor(
+    private apiService: ApiService,
+    private projectService: ProjectService
+  ) {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
