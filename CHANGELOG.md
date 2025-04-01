@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Clear the cached file tree when the project changes and the project git repository on the server is synced.
+- Prevent repeated POST requests tied to selected project, causing duplicate database writes for the same user action.
 
 
 

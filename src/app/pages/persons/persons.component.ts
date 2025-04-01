@@ -1,24 +1,25 @@
-import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from 'rxjs';
-import { CommonModule, DatePipe } from '@angular/common';
-import { Person } from '../../models/person';
-import { MatTableModule } from '@angular/material/table';
-import { Column, Deleted } from '../../models/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { QueryParamsService } from '../../services/query-params.service';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatChipsModule } from '@angular/material/chips';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { LoadingService } from '../../services/loading.service';
-import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
-import { SubjectService } from '../../services/subject.service';
+import { MatTableModule } from '@angular/material/table';
+import { BehaviorSubject, combineLatest, map, Observable, of, switchMap, take } from 'rxjs';
+
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
+import { Column, Deleted } from '../../models/common';
+import { Person } from '../../models/person';
+import { LoadingService } from '../../services/loading.service';
+import { QueryParamsService } from '../../services/query-params.service';
+import { SubjectService } from '../../services/subject.service';
 
 @Component({
   selector: 'app-persons',
@@ -99,13 +100,13 @@ export class PersonsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        let req;
+        let request$: Observable<Person>;
         if (person?.id) {
-          req = this.subjectService.editSubject(person.id, result.form.value);
+          request$ = this.subjectService.editSubject(person.id, result.form.value);
         } else {
-          req = this.subjectService.addSubject(result.form.value);
+          request$ = this.subjectService.addSubject(result.form.value);
         }
-        req.subscribe({
+        request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackaBar.open('Person saved', 'Close', { panelClass: ['snackbar-success'] });
@@ -127,7 +128,7 @@ export class PersonsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value === true) {
         const payload = { ...person, deleted: Deleted.Deleted };
-        this.subjectService.editSubject(person.id, payload).subscribe({
+        this.subjectService.editSubject(person.id, payload).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackaBar.open('Person deleted', 'Close', { panelClass: ['snackbar-success'] });
@@ -135,7 +136,6 @@ export class PersonsComponent implements OnInit {
         });
       }
     });
-
   }
 
   filterPersons() {
@@ -144,6 +144,5 @@ export class PersonsComponent implements OnInit {
       data: columns
     });
   }
-
 
 }

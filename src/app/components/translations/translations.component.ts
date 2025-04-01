@@ -1,14 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, input, Output, signal } from '@angular/core';
-import { BehaviorSubject, filter, Observable, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { BehaviorSubject, filter, Observable, switchMap, take, tap } from 'rxjs';
+
+import { languageOptions, nameForLanguage, Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation';
 import { TranslationService } from '../../services/translation.service';
-import { languageOptions, nameForLanguage, Translation, TranslationRequestPost } from '../../models/translation';
 
 @Component({
   selector: 'field-translations',
@@ -82,14 +83,15 @@ export class TranslationsComponent implements AfterViewInit {
 
   onSubmitTranslation(event: Event) {
     event.preventDefault();
-    const data = this.form.getRawValue()
-    let req;
+    const data = this.form.getRawValue();
+
+    let request$: Observable<TranslationResponse>;
     if (this.mode() === 'edit') {
-      req = this.translationService.editTranslation(this.translationId as number, data)
+      request$ = this.translationService.editTranslation(this.translationId as number, data);
     } else {
-      req = this.translationService.addTranslation(data)
+      request$ = this.translationService.addTranslation(data);
     }
-    req.subscribe({
+    request$.pipe(take(1)).subscribe({
       next: res => {
         if (this.translationId == null) {
           this.translationId = res.data.translation_id;

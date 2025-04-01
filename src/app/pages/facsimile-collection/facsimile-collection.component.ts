@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
@@ -36,7 +36,7 @@ export class FacsimileCollectionComponent implements OnInit {
   }
 
   verifyFacsimileFiles() {
-    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all').subscribe({
+    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all').pipe(take(1)).subscribe({
       next: response => {
         this.missingFileNumbers = response.data?.missing_file_numbers || [];
       },

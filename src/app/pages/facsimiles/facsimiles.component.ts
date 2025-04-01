@@ -1,25 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { FacsimileCollection } from '../../models/facsimile';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { MatTableModule } from '@angular/material/table';
-import { Column, Deleted } from '../../models/common';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, OnInit } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { QueryParamsService } from '../../services/query-params.service';
-import { MatBadgeModule } from '@angular/material/badge';
-import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
-import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
-import { LoadingService } from '../../services/loading.service';
+import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { FacsimileService } from '../../services/facsimile.service';
+import { BehaviorSubject, combineLatest, map, Observable, of, switchMap, take } from 'rxjs';
+
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
+import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
+import { FacsimileService } from '../../services/facsimile.service';
+import { LoadingService } from '../../services/loading.service';
+import { QueryParamsService } from '../../services/query-params.service';
+import { Column, Deleted } from '../../models/common';
+import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/facsimile';
 
 @Component({
   selector: 'app-facsimiles',
@@ -92,16 +93,15 @@ export class FacsimilesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-
         const payload = result.form.getRawValue();
 
-        let req;
+        let request$: Observable<FacsimileCollectionResponse>;
         if (collection?.id) {
-          req = this.facsimileService.editFacsimileCollection(collection.id, payload)
+          request$ = this.facsimileService.editFacsimileCollection(collection.id, payload);
         } else {
-          req = this.facsimileService.addFacsimileCollection(payload);
+          request$ = this.facsimileService.addFacsimileCollection(payload);
         }
-        req.subscribe({
+        request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackbar.open('Facsimile collection saved', 'Close', { panelClass: ['snackbar-success'] });
@@ -141,7 +141,7 @@ export class FacsimilesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { ...collection, deleted: Deleted.Deleted };
-        this.facsimileService.editFacsimileCollection(collection.id, payload).subscribe({
+        this.facsimileService.editFacsimileCollection(collection.id, payload).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackbar.open('Facsimile collection deleted', 'Close', { panelClass: ['snackbar-success'] });

@@ -1,22 +1,23 @@
-import { QueryParamsService } from './../../services/query-params.service';
-import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
-import { ProjectService } from '../../services/project.service';
 import { CommonModule, DatePipe } from '@angular/common';
-import { EditProjectData, Project } from '../../models/project';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { BehaviorSubject, Observable, of, switchMap, take } from 'rxjs';
+
+import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { Column, Deleted } from '../../models/common';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
+import { EditProjectData, Project, ProjectResponse } from '../../models/project';
 import { LoadingService } from '../../services/loading.service';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { MatBadgeModule } from '@angular/material/badge';
+import { ProjectService } from '../../services/project.service';
+import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
   selector: 'app-projects',
@@ -80,16 +81,16 @@ export class ProjectsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const data = result.form.value as EditProjectData;
-        let req;
+        let request$: Observable<ProjectResponse>;
         if (project?.id) {
-          req = this.projectService.editProject(project.id, data);
+          request$ = this.projectService.editProject(project.id, data);
         } else {
-          req = this.projectService.addProject(data);
+          request$ = this.projectService.addProject(data);
         }
-        req.subscribe({
+        request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackBar.open('Project saved successfully', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackBar.open('Project saved', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
       }
@@ -115,10 +116,10 @@ export class ProjectsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { ...project, deleted: Deleted.Deleted };
-        this.projectService.editProject(project.id, payload).subscribe({
+        this.projectService.editProject(project.id, payload).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackBar.open('Project deleted successfully', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackBar.open('Project deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
       }

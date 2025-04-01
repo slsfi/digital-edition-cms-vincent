@@ -1,26 +1,27 @@
-import { FacsimileService } from './../../services/facsimile.service';
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { FacsimileCollection } from '../../models/facsimile';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
-import { Column } from '../../models/common';
-import { MatIconModule } from '@angular/material/icon';
-import { QueryParamsService } from '../../services/query-params.service';
-import { MatBadgeModule } from '@angular/material/badge';
-import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { Publication } from '../../models/publication';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { PublicationService } from '../../services/publication.service';
-import { LoadingService } from '../../services/loading.service';
+import { MatTableModule } from '@angular/material/table';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable, take } from 'rxjs';
+
+import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
+import { Column } from '../../models/common';
+import { FacsimileCollection } from '../../models/facsimile';
+import { Publication } from '../../models/publication';
+import { FacsimileService } from './../../services/facsimile.service';
+import { LoadingService } from '../../services/loading.service';
+import { PublicationService } from '../../services/publication.service';
+import { QueryParamsService } from '../../services/query-params.service';
 
 @Component({
   selector: 'app-new-publication-facsimile',
@@ -55,9 +56,10 @@ export class NewPublicationFacsimileComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private snackbar: MatSnackBar,
-    private loadingService: LoadingService) {
-      this.loading$ = this.loadingService.loading$;
-      this.filterParams$ = this.queryParamsService.filterParams$
+    private loadingService: LoadingService
+  ) {
+    this.loading$ = this.loadingService.loading$;
+    this.filterParams$ = this.queryParamsService.filterParams$
   }
 
   get publicationsPath() {
@@ -102,14 +104,12 @@ export class NewPublicationFacsimileComponent implements OnInit {
     if (!payload.priority) {
       delete payload.priority;
     }
-    this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload).subscribe({
+    this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload).pipe(take(1)).subscribe({
       next: () => {
         this.snackbar.open('Facsimile linked to publication', 'Close', { panelClass: 'snackbar-success' });
         this.router.navigate(this.publicationsPath);
       }
     });
   }
-
-
 
 }

@@ -1,24 +1,27 @@
-import { ManuscriptResponse, PublicationCommentsResponse } from './../models/publication';
-import { ProjectService } from './project.service';
 import { Injectable } from '@angular/core';
-import { filter, map, switchMap } from 'rxjs';
-import { ApiService } from './api.service';
+import { BehaviorSubject, filter, map, switchMap } from 'rxjs';
+
 import {
-  LinkTextToPublicationRequest, LinkTextToPublicationResponse, ManuscriptEditRequest, ManuscriptsResponse, Publication, PublicationAddRequest,
-  PublicationCollectionAddRequest, PublicationCollectionEditRequest, PublicationCollectionResponse, PublicationCollectionsResponse,
-  PublicationCommentRequest, PublicationCommentResponse, PublicationEditRequest, PublicationResponse, PublicationsResponse, VersionEditRequest,
-  VersionResponse, VersionsResponse, XmlMetadataResponse
-} from '../models/publication';
-import {
-  EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse, LinkPublicationToFacsimileRequest, PublicationFacsimileResponse
+  EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
+  LinkPublicationToFacsimileRequest, PublicationFacsimileResponse
 } from '../models/facsimile';
+import {
+  LinkTextToPublicationRequest, LinkTextToPublicationResponse, ManuscriptEditRequest,
+  ManuscriptResponse, ManuscriptsResponse, Publication, PublicationAddRequest,
+  PublicationCollectionAddRequest, PublicationCollectionEditRequest,
+  PublicationCollectionResponse, PublicationCollectionsResponse, PublicationCommentRequest,
+  PublicationCommentResponse, PublicationCommentsResponse, PublicationEditRequest,
+  PublicationResponse, PublicationsResponse, VersionEditRequest, VersionResponse,
+  VersionsResponse, XmlMetadataResponse
+} from '../models/publication';
+import { ApiService } from './api.service';
+import { ProjectService } from './project.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PublicationService {
-
-  selectedProject$;
+  selectedProject$: BehaviorSubject<string | null>;
 
   constructor(private apiService: ApiService, private projectService: ProjectService) {
     this.selectedProject$ = this.projectService.selectedProject$;

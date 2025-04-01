@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap } from 'rxjs';
+import { combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap, take } from 'rxjs';
 
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -66,11 +66,11 @@ export class PublicationBundleComponent implements OnInit {
   }
 
   constructor(
-      private publicationService: PublicationService,
-      private route: ActivatedRoute,
-      private snackbar: MatSnackBar,
-      private loadingService: LoadingService,
-      private router: Router
+    private publicationService: PublicationService,
+    private route: ActivatedRoute,
+    private snackbar: MatSnackBar,
+    private loadingService: LoadingService,
+    private router: Router
   ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.publicationService.selectedProject$;
@@ -136,6 +136,7 @@ export class PublicationBundleComponent implements OnInit {
     return new Observable<void>(observer => {
       const originalFilename = row.get('original_filename')!.value;
       this.publicationService.getMetadataFromXML(originalFilename)
+        .pipe(take(1))
         .subscribe({
           next: (metadata: XmlMetadata) => {
             for (const key in metadata) {
@@ -164,11 +165,11 @@ export class PublicationBundleComponent implements OnInit {
 
   onSubmit(collectionId: string) {
     const concurrentRequests = 5;
-    const throrrledRequests$ = from(this.files.controls).pipe(
+    const throttledRequests$ = from(this.files.controls).pipe(
       mergeMap((row) => this.addPublication(row, parseInt(collectionId)), concurrentRequests)
     );
 
-    throrrledRequests$.subscribe({
+    throttledRequests$.subscribe({
       complete: () => {
         this.snackbar.open('All publications added', 'Close', { panelClass: 'snackbar-success' });
         this.clearForm();
@@ -184,6 +185,7 @@ export class PublicationBundleComponent implements OnInit {
       const data = row.getRawValue() as PublicationAddRequest;
       data.published = this.bundleForm.value.published as Published;
       this.publicationService.addPublication(collectionId, data)
+        .pipe(take(1))
         .subscribe({
           next: () => {
             observer.next();
@@ -197,6 +199,5 @@ export class PublicationBundleComponent implements OnInit {
         });
     });
   }
-
 
 }

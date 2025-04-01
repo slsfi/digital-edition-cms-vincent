@@ -181,7 +181,7 @@ export class EditDialogComponent<T> implements OnInit {
       finalize(() => {
         this.gettingMetadata = false;
       })
-    ).subscribe(metadata => {
+    ).subscribe((metadata: XmlMetadata) => {
       for (const key in metadata) {
         if (Object.prototype.hasOwnProperty.call(metadata, key)) {
           const control = this.form.controls[key];

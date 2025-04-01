@@ -1,15 +1,18 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { BehaviorSubject, filter, map, Observable, switchMap, take } from 'rxjs';
-import { AddProjectData, EditProjectData, FileTree, FileTreeResponse, Project, ProjectResponse, ProjectsResponse, RepoDetails, RepoDetailsResponse, SyncFilesResponse } from '../models/project';
 import { HttpContext } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, filter, map, Observable, switchMap, take } from 'rxjs';
+
 import { SkipLoading } from '../interceptors/loading.interceptor';
+import {
+  AddProjectData, EditProjectData, FileTree, FileTreeResponse, Project, ProjectResponse,
+  ProjectsResponse, RepoDetails, RepoDetailsResponse, SyncFilesResponse
+} from '../models/project';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProjectService {
-
   selectedProject$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   fileTree$: BehaviorSubject<FileTree | null> = new BehaviorSubject<FileTree | null>(null);
 

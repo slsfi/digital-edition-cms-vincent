@@ -1,9 +1,10 @@
-import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
-import { ApiService } from './api.service';
 import { inject, Injectable } from '@angular/core';
-import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
+
+import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
+import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 
 @Injectable({
@@ -11,7 +12,11 @@ import { ProjectService } from './project.service';
 })
 export class AuthService {
 
-  constructor(private apiService: ApiService, private router: Router, private projectService: ProjectService) {
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private projectService: ProjectService
+  ) {
     if (this.getAccessToken()) {
       this.isAuthenticated$.next(true);
     } else {
