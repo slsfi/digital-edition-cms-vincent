@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.2.1] – 2025-04-01
+
 ### Added
 
-- ID of selected publication collection after collection name.
+- ID of selected publication collection after collection name. ([3f3af11](https://github.com/slsfi/digital-edition-cms-vincent/commit/3f3af11e4e29c26325b891ca83e702fccec532d0))
 
 ### Fixed
 
-- Clear the cached file tree when the project changes and the project git repository on the server is synced.
-- Prevent repeated POST requests tied to selected project, causing duplicate database writes for the same user action.
+- Clear the cached file tree when the project changes and the project git repository on the server is synced. ([995dfc5](https://github.com/slsfi/digital-edition-cms-vincent/commit/995dfc52b1e46664aa4f45ac1cb979838594845b))
+- Prevent repeated POST requests tied to selected project, causing duplicate database writes for the same user action. ([370008c](https://github.com/slsfi/digital-edition-cms-vincent/commit/370008ce1167f5a2414a1ba38ccf61e65645a85e))
 
 
 
@@ -142,7 +146,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.1...HEAD
+[1.2.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.2...1.2.0
 [1.1.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.0...1.1.1
