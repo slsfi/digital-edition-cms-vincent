@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/core` to 19.2.8, `@angular/cli` to 19.2.9, `@angular/cdk` and `@angular/material` to 19.2.11.
+- Deps (dev): update `typescript` to 5.8.3.
 
 ### Fixed
 
