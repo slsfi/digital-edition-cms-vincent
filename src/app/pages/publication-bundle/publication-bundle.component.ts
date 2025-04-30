@@ -163,8 +163,8 @@ export class PublicationBundleComponent implements OnInit {
     this.files.removeAt(index);
   }
 
-  onSubmit(collectionId: string) {
-    const concurrentRequests = 5;
+  savePublications(collectionId: string) {
+    const concurrentRequests = 1;
     const throttledRequests$ = from(this.files.controls).pipe(
       mergeMap((row) => this.addPublication(row, parseInt(collectionId)), concurrentRequests)
     );
