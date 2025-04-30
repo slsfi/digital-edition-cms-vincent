@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Deps: update `@angular/core` to 19.2.8, `@angular/cli` to 19.2.9, `@angular/cdk` and `@angular/material` to 19.2.11. ([]())
+- Deps: update `@angular/core` to 19.2.8, `@angular/cli` to 19.2.9, `@angular/cdk` and `@angular/material` to 19.2.11. ([dd95e60](https://github.com/slsfi/digital-edition-cms-vincent/commit/dd95e6006154dbf8a6231c608c97d66d494d98cc))
 - Deps (dev): update `eslint` to 9.25.1. ([2eed294](https://github.com/slsfi/digital-edition-cms-vincent/commit/2eed294de8ed0d2bf5dc30d98932d64609de8d05))
 - Deps (dev): update `typescript-eslint` to 8.31.0. ([06ff999](https://github.com/slsfi/digital-edition-cms-vincent/commit/06ff999ea084c8fc2fecce83a097a84d5dcfd0b6))
 - Deps (dev): update `jasmine-core` to 5.7.0. ([7a40faa](https://github.com/slsfi/digital-edition-cms-vincent/commit/7a40faa224f0866639f9a5f400fb58c8be9f9f61))
