@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Insert publications in the database in order when adding multiple publications to a collection.
+
 
 
 ## [1.2.1] – 2025-04-01

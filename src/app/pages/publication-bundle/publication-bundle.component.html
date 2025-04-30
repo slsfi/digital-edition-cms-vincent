@@ -32,7 +32,7 @@
       }
       <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="selectedFiles($event)"></file-tree>
     } @else {
-      <form [formGroup]="bundleForm" id="bundle-form" (ngSubmit)="onSubmit(collectionId)">
+      <form [formGroup]="bundleForm" id="bundle-form" (ngSubmit)="savePublications(collectionId)">
         <h3>2. Fill in the publication metadata and save</h3>
         <div>
           <div class="published-row">
