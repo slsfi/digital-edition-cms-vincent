@@ -31,7 +31,6 @@ import { TableSortingComponent } from '../table-sorting/table-sorting.component'
 import { LoadingService } from '../../services/loading.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
-import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { Column, Deleted } from '../../models/common';
 import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile';
 import {
@@ -44,7 +43,7 @@ import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
 @Component({
   selector: 'publications',
   imports: [
-    CommonModule, MatTableModule, CustomDatePipe, MatIconModule, MatButtonModule, RouterLink,
+    CommonModule, MatTableModule, MatIconModule, MatButtonModule, RouterLink,
     LoadingSpinnerComponent, MatCardModule, MatBadgeModule, MatMenuModule, CustomTableComponent
   ],
   providers: [DatePipe],

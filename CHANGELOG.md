@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Insert publications in the database in order when adding multiple publications to a collection.
+- Remove formatting of original publication date in selected publication info.
 
 
 
