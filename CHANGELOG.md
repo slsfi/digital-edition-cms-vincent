@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.2.2] – 2025-04-30
+
 ### Changed
 
-- Deps: update `@angular/core` to 19.2.8, `@angular/cli` to 19.2.9, `@angular/cdk` and `@angular/material` to 19.2.11.
-- Deps (dev): update `eslint` to 9.25.1.
-- Deps (dev): update `typescript-eslint` to 8.31.0.
-- Deps (dev): update `jasmine-core` to 5.7.0.
-- Deps (dev): update `typescript` to 5.8.3.
+- Deps: update `@angular/core` to 19.2.8, `@angular/cli` to 19.2.9, `@angular/cdk` and `@angular/material` to 19.2.11. ([]())
+- Deps (dev): update `eslint` to 9.25.1. ([2eed294](https://github.com/slsfi/digital-edition-cms-vincent/commit/2eed294de8ed0d2bf5dc30d98932d64609de8d05))
+- Deps (dev): update `typescript-eslint` to 8.31.0. ([06ff999](https://github.com/slsfi/digital-edition-cms-vincent/commit/06ff999ea084c8fc2fecce83a097a84d5dcfd0b6))
+- Deps (dev): update `jasmine-core` to 5.7.0. ([7a40faa](https://github.com/slsfi/digital-edition-cms-vincent/commit/7a40faa224f0866639f9a5f400fb58c8be9f9f61))
+- Deps (dev): update `typescript` to 5.8.3. ([597e590](https://github.com/slsfi/digital-edition-cms-vincent/commit/597e590fcdeebf6e0758389f06f14df0b0efa2af))
 
 ### Fixed
 
-- Insert publications in the database in order when adding multiple publications to a collection.
-- Remove formatting of original publication date in selected publication info.
+- Insert publications in the database in order when adding multiple publications to a collection. ([fe603dc](https://github.com/slsfi/digital-edition-cms-vincent/commit/fe603dcecaec48dc56e48c233f4752615a93274c))
+- Remove formatting of original publication date in selected publication info. ([eb7f183](https://github.com/slsfi/digital-edition-cms-vincent/commit/eb7f1838fbaa8a8ec690f156b77adfd1e46d8f46))
 
 
 
@@ -159,7 +163,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.2...HEAD
+[1.2.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.2...1.2.0
 [1.1.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.1...1.1.2
