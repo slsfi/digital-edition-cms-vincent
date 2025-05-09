@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - `testa-jansson-api.sls.fi` to environments.
 
+### Changed
+
+- Deps (dev): update `jasmine-core` to 5.7.1.
+
 
 
 ## [1.2.2] – 2025-04-30
