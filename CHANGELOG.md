@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Deps: update `@angular/core` to 19.2.10, `@angular/cli` to 19.2.11, `@angular/cdk` and `@angular/material` to 19.2.15.
 - Deps (dev): update `jasmine-core` to 5.7.1.
 
 
