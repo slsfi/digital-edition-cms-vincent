@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.2.3] – 2025-05-09
+
 ### Added
 
-- `testa-jansson-api.sls.fi` to environments.
+- `testa-jansson-api.sls.fi` to environments. ([edfac53](https://github.com/slsfi/digital-edition-cms-vincent/commit/edfac53d7195cbd59c0e2baeb07337dbe9993322))
 
 ### Changed
 
-- Deps: update `@angular/core` to 19.2.10, `@angular/cli` to 19.2.11, `@angular/cdk` and `@angular/material` to 19.2.15.
-- Deps (dev): update `@types/jasmine` to 5.1.8.
-- Deps (dev): update `angular-eslint` to 19.4.0.
-- Deps (dev): update `eslint` to 9.26.0.
-- Deps (dev): update `jasmine-core` to 5.7.1.
-- Deps (dev): update `typescript-eslint` to 8.32.0.
+- Deps: update `@angular/core` to 19.2.10, `@angular/cli` to 19.2.11, `@angular/cdk` and `@angular/material` to 19.2.15. ([b28081d](https://github.com/slsfi/digital-edition-cms-vincent/commit/b28081d7b94d569ee5949d4a25fff97d48198046))
+- Deps (dev): update `@types/jasmine` to 5.1.8. ([b89f39b](https://github.com/slsfi/digital-edition-cms-vincent/commit/b89f39be614fc876ee967123016cd70ac3875ba1))
+- Deps (dev): update `angular-eslint` to 19.4.0. ([ccbba2f](https://github.com/slsfi/digital-edition-cms-vincent/commit/ccbba2fb93d8ddb5eee0fb57cd29c8424fb259f4))
+- Deps (dev): update `eslint` to 9.26.0. ([f7473d0](https://github.com/slsfi/digital-edition-cms-vincent/commit/f7473d0d04732098b90a98a533caa762986753b7))
+- Deps (dev): update `jasmine-core` to 5.7.1. ([7a47843](https://github.com/slsfi/digital-edition-cms-vincent/commit/7a47843264b153ec128f92c709d5f59a05d225fe))
+- Deps (dev): update `typescript-eslint` to 8.32.0. ([19a1cb6](https://github.com/slsfi/digital-edition-cms-vincent/commit/19a1cb62874472d76e8dcbb87c5e5b29b24c7c0d))
 
 
 
@@ -176,7 +180,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.3...HEAD
+[1.2.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.1.2...1.2.0
