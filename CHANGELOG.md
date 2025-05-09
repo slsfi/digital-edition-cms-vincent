@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- `testa-jansson-api.sls.fi` to environments.
+
 
 
 ## [1.2.2] – 2025-04-30
