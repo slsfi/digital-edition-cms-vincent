@@ -60,6 +60,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     {value: 'https://granska-api.sls.fi/', name: 'Staging'},
     {value: 'https://testa-api.sls.fi/', name: 'Development'},
     {value: 'https://testa-jansson-api.sls.fi/', name: 'Jansson testa'},
+    {value: 'https://testa-westermarck-api.sls.fi/', name: 'Westermarck testa'},
     {value: ' ', name: 'Custom'}
   ];
 
