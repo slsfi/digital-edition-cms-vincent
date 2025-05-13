@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - `testa-westermarck-api.sls.fi` to environments.
 
+### Changed
+
+- Update `nginx` to 1.28.0.
+
 
 
 ## [1.2.3] – 2025-05-09
