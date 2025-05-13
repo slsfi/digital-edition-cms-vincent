@@ -8,13 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.2.4] – 2025-05-13
+
 ### Added
 
-- `testa-westermarck-api.sls.fi` to environments.
+- `testa-westermarck-api.sls.fi` to environments. ([babf6be](https://github.com/slsfi/digital-edition-cms-vincent/commit/babf6be212f18a009ec6da29ba797452e22d245e))
 
 ### Changed
 
-- Update `nginx` to 1.28.0.
+- Update `nginx` to 1.28.0. ([83cfe67](https://github.com/slsfi/digital-edition-cms-vincent/commit/83cfe67d7a66addde431412aa1be225b2ad1a292))
 
 
 
@@ -188,7 +192,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.3...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.4...HEAD
+[1.2.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.3...1.2.4
 [1.2.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.0...1.2.1
