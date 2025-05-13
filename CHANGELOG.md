@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- `testa-westermarck-api.sls.fi` to environments.
+
 
 
 ## [1.2.3] – 2025-05-09
