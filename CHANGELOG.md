@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Add status color to facsimile file upload progress bar.
 - Deps: update `@angular/core` to 19.2.11, `@angular/cli` to 19.2.12, `@angular/cdk` and `@angular/material` to 19.2.16.
 
 

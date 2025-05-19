@@ -23,6 +23,15 @@ mat-icon {
   }
 }
 
+mat-progress-bar {
+  &.success {
+    --mdc-linear-progress-active-indicator-color: #337a35;
+  }
+  &.error {
+    --mdc-linear-progress-active-indicator-color: #c42929;
+  }
+}
+
 .actions {
   margin: 10px 0;
   display: flex;
