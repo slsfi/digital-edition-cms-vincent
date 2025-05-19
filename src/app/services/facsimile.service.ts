@@ -1,6 +1,6 @@
 import { HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, switchMap } from 'rxjs';
+import { BehaviorSubject, filter, map, switchMap, take } from 'rxjs';
 
 import { SkipLoading } from '../interceptors/loading.interceptor';
 import {
@@ -70,6 +70,7 @@ export class FacsimileService {
   verifyFacsimileFile(collectionId: number, fileNr: number | string, zoomLevel: 1|2|3|4 = 1) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
+      take(1),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/verify-facsimile-file/${collectionId}/${fileNr}/${zoomLevel}`;
         return this.apiService.get<VerifyFacsimileFileResponse>(url, {}, true);
@@ -86,6 +87,7 @@ export class FacsimileService {
   uploadFacsimileFile(collectionId: number, pageNumber: number, formData: FormData) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
+      take(1),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/${collectionId}/${pageNumber}`;
         return this.apiService.post(url, formData, { reportProgress: true, observe: 'events', context: new HttpContext().set(SkipLoading, true) });

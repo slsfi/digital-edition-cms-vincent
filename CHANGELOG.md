@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Prevent repeated facsimile file uploads when selected project changes.
+
 
 
 ## [1.2.4] – 2025-05-13
