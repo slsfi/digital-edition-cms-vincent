@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.2.5] – 2025-05-19
+
 ### Fixed
 
-- Prevent repeated facsimile file uploads when selected project changes.
+- Prevent repeated facsimile file uploads when selected project changes. ([6ad4eb1](https://github.com/slsfi/digital-edition-cms-vincent/commit/6ad4eb15d45279af33eda44967db12703f6d3c02))
 
 ### Changed
 
-- Add status color to facsimile file upload progress bar.
-- Deps: update `@angular/core` to 19.2.11, `@angular/cli` to 19.2.12, `@angular/cdk` and `@angular/material` to 19.2.16.
+- Add status color to facsimile file upload progress bar. ([dff3a75](https://github.com/slsfi/digital-edition-cms-vincent/commit/dff3a75260ee5ccd56afb0c5f0f651b3ca5557e7))
+- Deps: update `@angular/core` to 19.2.11, `@angular/cli` to 19.2.12, `@angular/cdk` and `@angular/material` to 19.2.16. ([c43411d](https://github.com/slsfi/digital-edition-cms-vincent/commit/c43411dafc267a23274e6c6f64e789fca7a652e5))
 
 
 
@@ -201,7 +205,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.4...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.5...HEAD
+[1.2.5]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.4...1.2.5
 [1.2.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.3...1.2.4
 [1.2.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.1...1.2.2
