@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Prevent repeated facsimile file uploads when selected project changes.
 
+### Changed
+
+- Deps: update `@angular/core` to 19.2.11, `@angular/cli` to 19.2.12, `@angular/cdk` and `@angular/material` to 19.2.16.
+
 
 
 ## [1.2.4] – 2025-05-13
