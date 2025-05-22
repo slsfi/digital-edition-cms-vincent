@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Set default sort order of new manuscripts and variants to 1.
+- Set default start page number of facsimile collection to 0.
 
 
 
