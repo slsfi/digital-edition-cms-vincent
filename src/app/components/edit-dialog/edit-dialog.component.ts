@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { finalize, take } from 'rxjs';
 
 import { FileTreeComponent } from "../file-tree/file-tree.component";
@@ -29,8 +30,9 @@ export interface EditDialogData<T> {
 @Component({
   selector: 'edit-dialog',
   imports: [
-    MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatDatepickerModule, TranslationsComponent, MatIconModule, FileTreeComponent, MatSlideToggleModule
+    MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule,
+    MatInputModule, MatSelectModule, MatDatepickerModule, TranslationsComponent,
+    MatIconModule, FileTreeComponent, MatSlideToggleModule, MatTooltipModule
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-dialog.component.html',
@@ -119,6 +121,11 @@ export class EditDialogComponent<T> implements OnInit {
       // convert date string to Date object
       if (column.type === 'date' && value != null && typeof value != 'boolean') {
         value = ((value === '' ? null : new Date(value as string)) as T[keyof T]);
+      }
+
+      // set link_manuscript to false by default
+      if (column.field === 'link_manuscript') {
+        value = false as T[keyof T];
       }
 
       // set cascade_published to false by default

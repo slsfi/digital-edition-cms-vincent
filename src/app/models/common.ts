@@ -10,6 +10,7 @@ export interface Column {
   translations?: boolean;
   parentTranslationField?: string;
   visible?: boolean;
+  tooltip?: string;
 }
 
 export type QueryParamType = Record<string, string>;
