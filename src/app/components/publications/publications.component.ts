@@ -12,7 +12,8 @@ import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   BehaviorSubject, combineLatest, distinctUntilChanged, map,
-  Observable, of, switchMap, take
+  Observable, of, switchMap, take,
+  tap
 } from 'rxjs';
 
 import {
@@ -34,8 +35,8 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { Column, Deleted } from '../../models/common';
 import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile';
 import {
-  LinkTextToPublicationResponse, Manuscript, ManuscriptResponse, Publication,
-  PublicationComment, PublicationCommentResponse, PublicationResponse, Version,
+  LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript, ManuscriptResponse,
+  Publication, PublicationComment, PublicationCommentResponse, PublicationResponse, Version,
   VersionResponse
 } from '../../models/publication';
 import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
@@ -154,21 +155,54 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         let request$: Observable<PublicationResponse>;
+        const formValue = result.form.value;
+
         if (publication?.id) {
-          request$ = this.publicationService.editPublication(publication.id, result.form.value);
+          request$ = this.publicationService.editPublication(publication.id, formValue);
         } else {
-          request$ = this.publicationService.addPublication(parseInt(collectionId), result.form.value);
+          request$ = this.publicationService.addPublication(parseInt(collectionId), formValue).pipe(
+            switchMap((response: PublicationResponse) => {
+              const pub = response.data;
+
+              if (!formValue.link_manuscript || !pub.original_filename) {
+                return of(response);
+              }
+
+              const manuscriptPayload: LinkTextToPublicationRequest = {
+                text_type: 'manuscript',
+                original_filename: pub.original_filename,
+                name: pub.name,
+                published: pub.published,
+                language: pub.language,
+                sort_order: 1
+              };
+
+              return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload).pipe(
+                take(1),
+                map(() => response)  // preserve the original response
+              );
+            })
+          );
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.publicationsLoader$.next(0);
-            if (result.form.value.cascade_published === true) {
+            if (formValue.cascade_published === true) {
               this.manuscriptsLoader$.next(0);
               this.versionsLoader$.next(0);
               this.commentLoader$.next(0);
+            } else if (formValue.link_manuscript === true) {
+              this.manuscriptsLoader$.next(0);
             }
             this.snackbar.open('Publication saved', 'Close', { panelClass: ['snackbar-success'] });
           },
+          error: (err) => {
+            console.error('Save failed:', err);
+            this.publicationsLoader$.next(0);
+            this.manuscriptsLoader$.next(0);
+            this.versionsLoader$.next(0);
+            this.commentLoader$.next(0);
+          }
         });
       }
     });

@@ -2,25 +2,33 @@ import { Column } from "../../models/common";
 
 export const publicationColumnsData: Column[] = [
   { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
-  { field: 'name', header: 'Name', type: 'string', filterType: 'contains', editable: true, filterable: true, editOrder: 2 },
-  { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true, editOrder: 3 },
+  { field: 'name', header: 'Name', type: 'string', filterType: 'contains', editable: true, filterable: true, editOrder: 3 },
+  { field: 'published', header: 'Published', type: 'published', editable: true, filterable: true, editOrder: 4 },
   { field: 'actions', header: 'Actions', type: 'action', editable: false },
 ];
 export const allPublicationColumnsData: Column[] = [
   ...publicationColumnsData,
   {
+    field: 'link_manuscript',
+    header: 'Also add manuscript.',
+    type: 'boolean',
+    editable: true,
+    editOrder: 2,
+    tooltip: 'Toggle this to also link a manuscript to the publication using the same XML-file. Apply only when the same XML-file should be used for both the reading-text and manuscript view.'
+  },
+  {
     field: 'cascade_published',
     header: 'Also apply selected published status to any comments, manuscripts or variants linked to the publication.',
     type: 'boolean',
     editable: true,
-    editOrder: 3
+    editOrder: 5
   },
   { field: 'date_created', header: 'Date created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
-  { field: 'genre', header: 'Genre', type: 'string', editable: true, editOrder: 6 },
-  { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 5 },
+  { field: 'genre', header: 'Genre', type: 'string', editable: true, editOrder: 8 },
+  { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 7 },
   { field: 'original_filename', header: 'Reading text file path', type: 'textarea', editable: true, editOrder: 1 },
-  { field: 'original_publication_date', header: 'Date of origin', type: 'string', editable: true, editOrder: 4 },
+  { field: 'original_publication_date', header: 'Date of origin', type: 'string', editable: true, editOrder: 6 },
   { field: 'publication_collection_id', header: 'Publication collection ID', type: 'number', editable: false },
   { field: 'publication_comment_id', header: 'Publication comment ID', type: 'number', editable: false },
 ];
