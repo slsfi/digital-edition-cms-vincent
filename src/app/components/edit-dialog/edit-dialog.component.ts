@@ -138,9 +138,14 @@ export class EditDialogComponent<T> implements OnInit {
         value = 1 as T[keyof T];
       }
 
-      // set sort_order to 1 by default for new records
+      // set sort_order to 1 by default for new manuscripts and variants
       if (column.field === 'sort_order' && !this.modelId) {
         value = 1 as T[keyof T];
+      }
+
+      // set start_page_number to 0 by default for new facsimile collections
+      if (column.field === 'start_page_number' && !this.modelId) {
+        value = 0 as T[keyof T];
       }
 
       // set type to 2 by default for new records
