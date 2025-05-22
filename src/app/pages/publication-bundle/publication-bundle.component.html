@@ -47,6 +47,12 @@
                 </mat-select>
               </mat-form-field>
               <button type="button" mat-flat-button (click)="readMetadata()" [disabled]="gettingMetadata">Get metadata from XML</button>
+              <mat-slide-toggle
+                    [(ngModel)]="addMsBoolean"
+                    [ngModelOptions]="{ standalone: true }"
+                    color="primary"
+                    matTooltip="Toggle this to also link a manuscript to each publication using the same XML-file. Apply only when the same XML-file should be used for both the reading-text and manuscript view."
+              >Also add manuscripts</mat-slide-toggle>
             </div>
             <div class="submit-buttons">
               <button mat-button type="button" class="clear-button" (click)="clearForm()">Clear</button>

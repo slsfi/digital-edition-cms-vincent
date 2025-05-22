@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Option to also add manuscripts from the same XML-files that are added as publications when adding multiple publications to a collection.
+
 
 
 ## [1.2.5] – 2025-05-19
