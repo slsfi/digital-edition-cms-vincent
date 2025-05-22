@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -8,14 +8,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap, take } from 'rxjs';
+import { catchError, combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap, take } from 'rxjs';
 
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { Published, PublishedOptions } from '../../models/common';
-import { PublicationAddRequest, PublicationCollection, XmlMetadata } from '../../models/publication';
+import { LinkTextToPublicationRequest, PublicationAddRequest, PublicationCollection,
+         PublicationResponse, XmlMetadata } from '../../models/publication';
 import { LoadingService } from '../../services/loading.service';
 import { PublicationService } from '../../services/publication.service';
 
@@ -33,9 +35,9 @@ interface BundleFormType {
 @Component({
   selector: 'publication-bundle',
   imports: [
-    CommonModule, MatIconModule, RouterLink, ReactiveFormsModule, MatButtonModule, FileTreeComponent,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatDivider, MatTooltipModule,
-    LoadingSpinnerComponent
+    CommonModule, FormsModule, MatIconModule, RouterLink, ReactiveFormsModule, MatButtonModule, FileTreeComponent,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatDivider,
+    MatTooltipModule, LoadingSpinnerComponent
   ],
   templateUrl: './publication-bundle.component.html',
   styleUrl: './publication-bundle.component.scss'
@@ -50,6 +52,7 @@ export class PublicationBundleComponent implements OnInit {
   publishedOptions = PublishedOptions;
   defaultPublished = Published.PublishedInternally;
   saveFailures: string[] = [];
+  addMsBoolean: boolean = false;
 
   bundleForm = new FormGroup({
     published: new FormControl(Published.PublishedInternally, Validators.required),
@@ -164,6 +167,8 @@ export class PublicationBundleComponent implements OnInit {
   }
 
   savePublications(collectionId: string) {
+    // concurrentRequests = 1 ensures that the publications are added sequentially in
+    // the order they appear in the UI
     const concurrentRequests = 1;
     const throttledRequests$ = from(this.files.controls).pipe(
       mergeMap((row) => this.addPublication(row, parseInt(collectionId)), concurrentRequests)
@@ -180,24 +185,54 @@ export class PublicationBundleComponent implements OnInit {
     });
   }
 
-  addPublication(row: FormGroup<BundleFormType>, collectionId: number) {
-    return new Observable<void>(observer => {
-      const data = row.getRawValue() as PublicationAddRequest;
-      data.published = this.bundleForm.value.published as Published;
-      this.publicationService.addPublication(collectionId, data)
-        .pipe(take(1))
-        .subscribe({
-          next: () => {
-            observer.next();
-            observer.complete();
-          },
-          error: () => {
-            this.saveFailures.push(data.original_filename as string);
-            observer.next();
-            observer.complete();
-          },
-        });
-    });
+  /**
+   * Adds a publication to the specified collection by calling the backend API.
+   * 
+   * If the `addMsBoolean` flag is enabled and the added publication includes a valid
+   * `original_filename`, a manuscript text will also be linked to the newly created
+   * publication via a secondary API call.
+   * 
+   * All operations are handled reactively using RxJS, and errors are caught to allow
+   * the overall publication process to continue even if individual inserts fail.
+   * 
+   * @param row - A FormGroup containing the publication metadata to be submitted.
+   * @param collectionId - The ID of the publication collection to add the publication to.
+   * @returns An Observable that completes when the publication (and optionally the manuscript link)
+   *          has been processed. Emits no data, but handles success or failure internally.
+   */
+  addPublication(row: FormGroup<BundleFormType>, collectionId: number): Observable<void> {
+    const data = row.getRawValue() as PublicationAddRequest;
+    data.published = this.bundleForm.value.published as Published;
+
+    return this.publicationService.addPublication(collectionId, data).pipe(
+      take(1),
+      switchMap((response: PublicationResponse) => {
+        const pub = response.data;
+
+        // Skip linking if addMsBoolean is false or original_filename is missing
+        if (!this.addMsBoolean || !pub.original_filename) {
+          return of(null);
+        }
+
+        const manuscriptPayload: LinkTextToPublicationRequest = {
+          text_type: 'manuscript',
+          original_filename: pub.original_filename!,
+          name: pub.name,
+          published: pub.published,
+          language: pub.language,
+          sort_order: 1
+        };
+
+        // Also link a manuscript to the publication using the same data
+        return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload).pipe(take(1));
+      }),
+      map(() => void 0),
+      catchError((err) => {
+        console.error('Publication or manuscript linking failed:', err);
+        this.saveFailures.push(data.original_filename as string);
+        return of(void 0); // Allow continuation of the stream
+      })
+    );
   }
 
 }
