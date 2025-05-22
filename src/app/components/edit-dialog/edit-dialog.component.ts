@@ -138,6 +138,11 @@ export class EditDialogComponent<T> implements OnInit {
         value = 1 as T[keyof T];
       }
 
+      // set sort_order to 1 by default for new records
+      if (column.field === 'sort_order' && !this.modelId) {
+        value = 1 as T[keyof T];
+      }
+
       // set type to 2 by default for new records
       if (column.type === 'type' && !this.modelId) {
         value = '2' as T[keyof T];
