@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/core` to 19.2.12, `@angular/cli` to 19.2.13, `@angular/cdk` and `@angular/material` to 19.2.17.
 
+### Fixed
+
+- Set default sort order of new manuscripts and variants to 1.
+
 
 
 ## [1.2.5] – 2025-05-19
