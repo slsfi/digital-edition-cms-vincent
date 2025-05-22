@@ -52,7 +52,7 @@ export class PublicationBundleComponent implements OnInit {
   publishedOptions = PublishedOptions;
   defaultPublished = Published.PublishedInternally;
   saveFailures: string[] = [];
-  addMsBoolean: boolean = false;
+  addMsBoolean = false;
 
   bundleForm = new FormGroup({
     published: new FormControl(Published.PublishedInternally, Validators.required),

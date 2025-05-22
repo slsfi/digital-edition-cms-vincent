@@ -12,8 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   BehaviorSubject, combineLatest, distinctUntilChanged, map,
-  Observable, of, switchMap, take,
-  tap
+  Observable, of, switchMap, take
 } from 'rxjs';
 
 import {
