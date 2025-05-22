@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Option to also add manuscripts from the same XML-files that are added as publications when adding multiple publications to a collection.
 - Option to also add manuscript from the same XML-file which is added as a publication when adding a single publication to a collection.
 
+### Changed
+
+- Deps: update `@angular/core` to 19.2.12, `@angular/cli` to 19.2.13, `@angular/cdk` and `@angular/material` to 19.2.17.
+
 
 
 ## [1.2.5] – 2025-05-19
