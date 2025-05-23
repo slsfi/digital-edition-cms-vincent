@@ -4,7 +4,7 @@
 
 <h1>Text collection management</h1>
 
-@if (loading) {
+@if (loading || gettingMetadata) {
   <loading-spinner [overlay]="true"></loading-spinner>
 }
 
@@ -46,7 +46,10 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <button type="button" mat-flat-button (click)="readMetadata()" [disabled]="gettingMetadata">Get metadata from XML</button>
+              <button type="button" mat-flat-button
+                    (click)="getMetadataFromXMLAll()"
+                    [disabled]="gettingMetadata"
+              >Get metadata from XML</button>
               <mat-slide-toggle
                     [(ngModel)]="addMsBoolean"
                     [ngModelOptions]="{ standalone: true }"
