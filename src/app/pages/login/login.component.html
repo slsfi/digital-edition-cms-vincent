@@ -10,7 +10,7 @@
           <mat-select formControlName="environment">
             @for (environment of environments; track environment.value) {
               <mat-option [value]="environment.value">
-                {{ environment.name }} ({{ environment.value }})
+                {{ environment.name }} <br><span class="api-url">{{ environment.value }}</span>
               </mat-option>
             }
           </mat-select>
