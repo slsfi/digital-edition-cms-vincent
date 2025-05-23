@@ -93,22 +93,22 @@ export class PublicationService {
     );
   }
 
-  addPublication(collectionId: number, data: PublicationAddRequest) {
+  addPublication(collectionId: number, data: PublicationAddRequest, disableErrorMessage = false) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/new/`;
-        return this.apiService.post<PublicationResponse>(url, data);
+        return this.apiService.post<PublicationResponse>(url, data, {}, disableErrorMessage);
       }),
     );
   }
 
-  linkTextToPublication(publicationId: number, payload: LinkTextToPublicationRequest) {
+  linkTextToPublication(publicationId: number, payload: LinkTextToPublicationRequest, disableErrorMessage = false) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/link_text/`;
-        return this.apiService.post<LinkTextToPublicationResponse>(url, payload);
+        return this.apiService.post<LinkTextToPublicationResponse>(url, payload, {}, disableErrorMessage);
       }),
     );
   }
