@@ -71,24 +71,24 @@ export class PublicationService {
     );
   }
 
-  getPublications(collectionId: string) {
+  getPublications(collectionId: string, disableErrorMessage = false) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/`;
-        return this.apiService.get<PublicationsResponse>(url).pipe(
+        return this.apiService.get<PublicationsResponse>(url, {}, disableErrorMessage).pipe(
           map(response => response.data)
         );
       }),
     );
   }
 
-  editPublication(publicationId: number, data: PublicationEditRequest) {
+  editPublication(publicationId: number, data: PublicationEditRequest, disableErrorMessage = false) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/edit/`;
-        return this.apiService.post<PublicationResponse>(url, data);
+        return this.apiService.post<PublicationResponse>(url, data, {}, disableErrorMessage);
       }),
     );
   }
@@ -209,12 +209,12 @@ export class PublicationService {
     );
   }
 
-  getMetadataFromXML(xmlPath: string) {
+  getMetadataFromXML(xmlPath: string, disableErrorMessage = false) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => {
         const url = `${this.apiService.prefixedUrl}/${project}/get_metadata_from_xml/by_path/${xmlPath}`;
-        return this.apiService.get<XmlMetadataResponse>(url).pipe(
+        return this.apiService.get<XmlMetadataResponse>(url, {}, disableErrorMessage).pipe(
           map(response => response.data)
         );
       }),

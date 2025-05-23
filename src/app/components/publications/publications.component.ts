@@ -9,10 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  BehaviorSubject, combineLatest, distinctUntilChanged, map,
-  Observable, of, switchMap, take
+  BehaviorSubject, catchError, combineLatest, concatMap,
+  distinctUntilChanged, from, map, Observable, of, switchMap,
+  take, tap, toArray
 } from 'rxjs';
 
 import {
@@ -35,8 +37,9 @@ import { Column, Deleted } from '../../models/common';
 import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile';
 import {
   LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript, ManuscriptResponse,
-  Publication, PublicationComment, PublicationCommentResponse, PublicationResponse, Version,
-  VersionResponse
+  Publication, PublicationComment, PublicationCommentResponse, PublicationEditRequest,
+  PublicationResponse, Version, VersionResponse,
+  XmlMetadata
 } from '../../models/publication';
 import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
 
@@ -44,7 +47,8 @@ import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
   selector: 'publications',
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, RouterLink,
-    LoadingSpinnerComponent, MatCardModule, MatBadgeModule, MatMenuModule, CustomTableComponent
+    LoadingSpinnerComponent, MatCardModule, MatBadgeModule, MatMenuModule,
+    MatTooltipModule, CustomTableComponent
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
@@ -80,6 +84,8 @@ export class PublicationsComponent implements OnInit {
   facsimileColumnData = facsimileColumnData;
 
   isSmallScreen = false;
+  metadataUpdateFailures: number[] = [];
+  metadataUpdating = false;
 
   constructor(
     private publicationService: PublicationService,
@@ -495,4 +501,95 @@ export class PublicationsComponent implements OnInit {
       data: this.publicationColumnsData
     });
   }
+
+  updateMetadataAll(collectionId: string) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        message: 'This action fetches metadata of all publications in the collection from the reading-text XML files, and overwrites the data in the database with the fresh data from XML. Please observe that missing data in the XML files will result in empty field values in the database. Updated fields include the publication name, date of origin, language and genre. This action can’t be undone! Are you sure you wish to proceed?',
+        confirmText: 'Update',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.value) {
+        this.metadataUpdating = true;
+        this.metadataUpdateFailures = [];
+
+        this.publicationService.getPublications(collectionId, true).pipe(
+          take(1),
+          switchMap((publications: Publication[]) =>
+            from(publications).pipe(
+              tap(() => {
+                if (publications.length > 40) {
+                  this.snackbar.open('Updating metadata of all publications from XML ...', 'Close', {
+                    panelClass: 'snackbar-info',
+                    duration: undefined
+                  });
+                }
+              }),
+              concatMap((pub: Publication) => {
+                if (!pub.original_filename) {
+                  return of(null);
+                }
+
+                return this.publicationService.getMetadataFromXML(pub.original_filename, true).pipe(
+                  take(1),
+                  switchMap((metadata: XmlMetadata) => {
+                    const updateRequest: PublicationEditRequest = {
+                      ...metadata
+                    };
+
+                    return this.publicationService.editPublication(pub.id, updateRequest, true).pipe(
+                      take(1)
+                    );
+                  }),
+                  catchError(err => {
+                    console.error(`Metadata update failed for publication ID ${pub.id}:`, err);
+                    this.metadataUpdateFailures.push(pub.id);
+                    return of(null); // Continue with next publication
+                  })
+                );
+              }),
+              toArray() // Collect all results to emit once all updates are done
+            )
+          )
+        ).subscribe({
+          next: (results) => {
+            this.metadataUpdating = false;
+
+            if (results.length === 0) {
+              this.snackbar.open('No publications found in this collection.', 'Close', {
+                panelClass: 'snackbar-info'
+              });
+            } else if (this.metadataUpdateFailures.length === 0) {
+              this.snackbar.open(`Updated metadata of all ${results.length} publications.`, 'Close', {
+                panelClass: 'snackbar-success'
+              });
+              this.publicationsLoader$.next(0); // Refresh the list
+            } else if (this.metadataUpdateFailures.length < results.length) {
+              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publications. IDs: ${this.metadataUpdateFailures.join(", ")}`, 'Close', {
+                panelClass: 'snackbar-warning',
+                duration: undefined
+              });
+              this.publicationsLoader$.next(0); // Refresh the list
+            } else {
+              this.snackbar.open('Failed to update metadata of any publication.', 'Close', {
+                panelClass: 'snackbar-error',
+                duration: undefined
+              });
+            }
+          },
+          error: (err) => {
+            console.error('Failed to fetch publications:', err);
+            this.metadataUpdating = false;
+            this.snackbar.open('Error fetching publication list.', 'Close', {
+              panelClass: 'snackbar-error'
+            });
+          }
+        });
+      }
+    });
+  }
+
 }
