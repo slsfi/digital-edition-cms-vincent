@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
+         Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -9,10 +10,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, combineLatest, finalize, from, map, mergeMap, Observable, of, switchMap, take } from 'rxjs';
-
+import { catchError, combineLatest, finalize, from, map, mergeMap,
+         Observable, of, switchMap, take, tap, toArray} from 'rxjs';
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { Published, PublishedOptions } from '../../models/common';
@@ -52,6 +53,7 @@ export class PublicationBundleComponent implements OnInit {
   publishedOptions = PublishedOptions;
   defaultPublished = Published.PublishedInternally;
   saveFailures: string[] = [];
+  metadataFailures: string[] = [];
   addMsBoolean = false;
 
   bundleForm = new FormGroup({
@@ -118,30 +120,26 @@ export class PublicationBundleComponent implements OnInit {
     });
   }
 
-  readMetadata() {
-    const concurrentRequests = 5;
+  getMetadataFromXMLAll() {
+    this.metadataFailures = [];
     this.gettingMetadata = true;
-    const throttledData$ = from(this.files.controls).pipe(
-      mergeMap((row) => this.getRowMetadata(row), concurrentRequests),
-      finalize(() => {
-        this.gettingMetadata = false;
-      })
-    );
+    let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
 
-    throttledData$.subscribe({
-      complete: () => {
-        this.snackbar.open('All metadata received', 'Close', { panelClass: 'snackbar-success' });
-      },
-    });
-  }
+    if (this.files.controls.length > 40) {
+      progressSnackbarRef = this.snackbar.open(
+        'Fetching metadata from XML files ...', 'Close',
+        { panelClass: 'snackbar-info', duration: undefined }
+      );
+    }
 
-  getRowMetadata(row: FormGroup<BundleFormType>) {
-    return new Observable<void>(observer => {
-      const originalFilename = row.get('original_filename')!.value;
-      this.publicationService.getMetadataFromXML(originalFilename, true)
-        .pipe(take(1))
-        .subscribe({
-          next: (metadata: XmlMetadata) => {
+    const concurrentRequests = 1;
+    from(this.files.controls.map((row, index) => ({ row, index }))).pipe(
+      mergeMap(({ row, index }) => {
+        const originalFilename = row.get('original_filename')!.value;
+
+        return this.publicationService.getMetadataFromXML(originalFilename, true).pipe(
+          take(1),
+          tap((metadata: XmlMetadata) => {
             for (const key in metadata) {
               if (Object.prototype.hasOwnProperty.call(metadata, key)) {
                 const control = row.get(key);
@@ -151,14 +149,39 @@ export class PublicationBundleComponent implements OnInit {
                 }
               }
             }
-            observer.next();
-            observer.complete();
-          },
-          error: () => {
-            observer.next();
-            observer.complete();
-          }
-        });
+          }),
+          catchError(err => {
+            console.error(`Failed to fetch metadata from ${originalFilename}:`, err);
+            // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
+            this.metadataFailures.push(`# ${index + 1}. ${originalFilename}`);
+            return of(null); // Continue the stream
+          })
+        );
+      }, concurrentRequests),
+      toArray(),
+      finalize(() => {
+        this.gettingMetadata = false;
+        progressSnackbarRef?.dismiss();
+      })
+    ).subscribe({
+      next: () => {
+        if (this.metadataFailures.length === 0) {
+          this.snackbar.open('Successfully fetched metadata from all files.', 'Close', {
+            panelClass: 'snackbar-success'
+          });
+        } else if (this.metadataFailures.length < this.files.controls.length) {
+          this.snackbar.open(
+            // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
+            `Failed to fetch metadata from ${this.metadataFailures.length} / ${this.files.controls.length} file(s):\n${this.metadataFailures.join('\n')}`,
+            'Close',
+            { panelClass: 'snackbar-warning', duration: undefined }
+          );
+        } else {
+          this.snackbar.open('Failed to fetch metadata from all files.', 'Close',
+            { panelClass: 'snackbar-error', duration: undefined }
+          );
+        }
+      }
     });
   }
 

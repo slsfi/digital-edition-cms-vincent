@@ -62,6 +62,11 @@ h3 {
   }
 }
 
+simple-snack-bar .mat-mdc-snack-bar-label {
+  white-space: pre-line;
+  word-break: break-word;
+}
+
 .mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {
   padding: var(--mat-dialog-content-padding, 20px 24px) !important;
 }

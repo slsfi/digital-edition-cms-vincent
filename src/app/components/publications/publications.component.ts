@@ -7,22 +7,18 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  BehaviorSubject, catchError, combineLatest, concatMap,
-  distinctUntilChanged, from, map, Observable, of, switchMap,
-  take, tap, toArray
-} from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, concatMap,
+         distinctUntilChanged, finalize, from, map, Observable, of,
+         switchMap, take, tap, toArray } from 'rxjs';
 
-import {
-  allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData,
-  allPublicationColumnsData, allVersionColumnsData, commentsColumnData,
-  facsimileColumnData, manuscriptColumnsData, publicationColumnsData,
-  versionColumnsData
-} from './columns';
+import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData,
+         allPublicationColumnsData, allVersionColumnsData, commentsColumnData,
+         facsimileColumnData, manuscriptColumnsData, publicationColumnsData,
+         versionColumnsData } from './columns';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { EditDialogComponent, EditDialogData } from '../edit-dialog/edit-dialog.component';
@@ -35,12 +31,10 @@ import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { Column, Deleted } from '../../models/common';
 import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile';
-import {
-  LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript, ManuscriptResponse,
-  Publication, PublicationComment, PublicationCommentResponse, PublicationEditRequest,
-  PublicationResponse, Version, VersionResponse,
-  XmlMetadata
-} from '../../models/publication';
+import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript,
+         ManuscriptResponse, Publication, PublicationComment, PublicationCommentResponse,
+         PublicationEditRequest, PublicationResponse, Version, VersionResponse,
+         XmlMetadata } from '../../models/publication';
 import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
 
 @Component({
@@ -511,6 +505,8 @@ export class PublicationsComponent implements OnInit {
       }
     });
 
+    let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
+
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         this.metadataUpdating = true;
@@ -518,16 +514,16 @@ export class PublicationsComponent implements OnInit {
 
         this.publicationService.getPublications(collectionId, true).pipe(
           take(1),
+          tap((publications: Publication[]) => {
+            if (publications.length > 40) {
+              progressSnackbarRef = this.snackbar.open(
+                'Updating metadata of all publications from XML ...', 'Close',
+                { panelClass: 'snackbar-info', duration: undefined }
+              );
+            }
+          }),
           switchMap((publications: Publication[]) =>
             from(publications).pipe(
-              tap(() => {
-                if (publications.length > 40) {
-                  this.snackbar.open('Updating metadata of all publications from XML ...', 'Close', {
-                    panelClass: 'snackbar-info',
-                    duration: undefined
-                  });
-                }
-              }),
               concatMap((pub: Publication) => {
                 if (!pub.original_filename) {
                   return of(null);
@@ -551,24 +547,27 @@ export class PublicationsComponent implements OnInit {
                   })
                 );
               }),
-              toArray() // Collect all results to emit once all updates are done
+              toArray(), // Collect all results to emit once all updates are done
+              finalize(() => {
+                this.metadataUpdating = false;
+                progressSnackbarRef?.dismiss();
+              })
             )
           )
         ).subscribe({
           next: (results) => {
-            this.metadataUpdating = false;
-
             if (results.length === 0) {
               this.snackbar.open('No publications found in this collection.', 'Close', {
                 panelClass: 'snackbar-info'
               });
             } else if (this.metadataUpdateFailures.length === 0) {
-              this.snackbar.open(`Updated metadata of all ${results.length} publications.`, 'Close', {
+              this.snackbar.open(`Successfully updated metadata of all publications.`, 'Close', {
                 panelClass: 'snackbar-success'
               });
               this.publicationsLoader$.next(0); // Refresh the list
             } else if (this.metadataUpdateFailures.length < results.length) {
-              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publications. IDs: ${this.metadataUpdateFailures.join(", ")}`, 'Close', {
+              // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
+              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'Close', {
                 panelClass: 'snackbar-warning',
                 duration: undefined
               });
@@ -582,7 +581,6 @@ export class PublicationsComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to fetch publications:', err);
-            this.metadataUpdating = false;
             this.snackbar.open('Error fetching publication list.', 'Close', {
               panelClass: 'snackbar-error'
             });
