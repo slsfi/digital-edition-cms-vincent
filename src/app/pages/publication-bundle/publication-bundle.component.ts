@@ -138,7 +138,7 @@ export class PublicationBundleComponent implements OnInit {
   getRowMetadata(row: FormGroup<BundleFormType>) {
     return new Observable<void>(observer => {
       const originalFilename = row.get('original_filename')!.value;
-      this.publicationService.getMetadataFromXML(originalFilename)
+      this.publicationService.getMetadataFromXML(originalFilename, true)
         .pipe(take(1))
         .subscribe({
           next: (metadata: XmlMetadata) => {
@@ -167,6 +167,7 @@ export class PublicationBundleComponent implements OnInit {
   }
 
   savePublications(collectionId: string) {
+    this.saveFailures = [];
     // concurrentRequests = 1 ensures that the publications are added sequentially in
     // the order they appear in the UI
     const concurrentRequests = 1;
@@ -176,11 +177,18 @@ export class PublicationBundleComponent implements OnInit {
 
     throttledRequests$.subscribe({
       complete: () => {
-        this.snackbar.open('All publications added', 'Close', { panelClass: 'snackbar-success' });
-        this.clearForm();
         if (this.saveFailures.length === 0) {
+          this.snackbar.open('Successfully added all publications.', 'Close', {
+            panelClass: 'snackbar-success'
+          });
           this.router.navigate(['../'], { relativeTo: this.route });
+        } else {
+          this.snackbar.open(`Failed to add ${this.saveFailures.length} / ${this.files.controls.length} publications: ${this.saveFailures.join(', ')}`, 'Close', {
+            panelClass: 'snackbar-error',
+            duration: undefined
+          });
         }
+        this.clearForm();
       },
     });
   }
@@ -204,14 +212,14 @@ export class PublicationBundleComponent implements OnInit {
     const data = row.getRawValue() as PublicationAddRequest;
     data.published = this.bundleForm.value.published as Published;
 
-    return this.publicationService.addPublication(collectionId, data).pipe(
+    return this.publicationService.addPublication(collectionId, data, true).pipe(
       take(1),
       switchMap((response: PublicationResponse) => {
         const pub = response.data;
 
         // Skip linking if addMsBoolean is false or original_filename is missing
         if (!this.addMsBoolean || !pub.original_filename) {
-          return of(null);
+          return of(void 0);
         }
 
         const manuscriptPayload: LinkTextToPublicationRequest = {
@@ -224,11 +232,11 @@ export class PublicationBundleComponent implements OnInit {
         };
 
         // Also link a manuscript to the publication using the same data
-        return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload).pipe(take(1));
+        return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, true).pipe(take(1));
       }),
       map(() => void 0),
       catchError((err) => {
-        console.error('Publication or manuscript linking failed:', err);
+        console.error(`Publication or manuscript linking failed for file ${data.original_filename}:`, err);
         this.saveFailures.push(data.original_filename as string);
         return of(void 0); // Allow continuation of the stream
       })

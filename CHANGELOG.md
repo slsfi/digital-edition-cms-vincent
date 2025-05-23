@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Set default sort order of new manuscripts and variants to 1.
 - Set default start page number of facsimile collection to 0.
+- Error messaging when saving multiple added publications fails.
 
 
 
