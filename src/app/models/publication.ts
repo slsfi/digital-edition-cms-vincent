@@ -1,5 +1,4 @@
 import { ApiResponse, Deleted, Published } from "./common";
-import { Langugage } from "./translation";
 
 export interface PublicationCollectionsResponse extends ApiResponse {
   data: PublicationCollection[];
@@ -53,7 +52,7 @@ export interface Publication {
   genre: string | null;
   id: number;
   language: string | null;
-  name: string;
+  name: string | null;
   original_filename: string | null;
   original_publication_date: string | null;
   publication_collection_id: number;
@@ -61,24 +60,24 @@ export interface Publication {
   published: Published;
 }
 export interface PublicationAddRequest {
-  name?: string;
+  name?: string | null;
   publication_comment_id?: number;
   published?: Published;
   legacy_id?: string;
   original_filename?: string;
   genre?: string;
   original_publication_date?: string;
-  language?: Langugage;
+  language?: string;
 }
 
 export interface PublicationEditRequest {
   publication_collection_id?: number;
   publication_comment_id?: number | null;
-  name?: string;
+  name?: string | null;
   original_filename?: string | null;
   original_publication_date?: string | null;
   published?: Published;
-  language?: Langugage | null;
+  language?: string | null;
   genre?: string | null;
   deleted?: Deleted;
   cascade_deleted?: boolean;
@@ -176,7 +175,7 @@ export interface ManuscriptEditRequest {
   name?: string | null;
   section_id?: number | null;
   sort_order?: number | null;
-  language?: Langugage | null;
+  language?: string | null;
 }
 export interface ManuscriptRequest {
   name?: string;
@@ -186,10 +185,10 @@ export interface ManuscriptRequest {
 }
 
 export interface XmlMetadata {
-  genre: string;
-  language: string;
-  name: string;
-  original_publication_date: string;
+  genre: string | null;
+  language: string | null;
+  name: string | null;
+  original_publication_date: string | null;
 }
 
 export interface XmlMetadataResponse extends ApiResponse {
@@ -200,7 +199,7 @@ export interface XmlMetadataResponse extends ApiResponse {
 export interface LinkTextToPublicationRequest {
   text_type: 'comment' | 'manuscript' | 'version';
   original_filename: string;
-  name?: string;
+  name?: string | null;
   published?: Published;
   published_by?: string | null;
   legacy_id?: number | null;

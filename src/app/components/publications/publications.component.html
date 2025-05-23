@@ -3,7 +3,7 @@
 
 <div class="content" *ngIf="publicationCollectionId$ | async as publicationCollectionId">
   <div class="publications-col" *ngIf="(isSmallScreen && (publicationId$ | async) === null) || !isSmallScreen">
-    @if (loading$ | async) {
+    @if ((loading$ | async) || metadataUpdating) {
       <loading-spinner [overlay]="true"></loading-spinner>
     }
       <!-- List of publications -->
@@ -38,6 +38,23 @@
               <mat-icon>library_add</mat-icon>
               Add multiple
             </a>
+          </mat-menu>
+          <button mat-icon-button
+                [matMenuTriggerFor]="moreActionsMenu"
+                aria-label="More actions"
+                matTooltip="More actions"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #moreActionsMenu="matMenu">
+            <button mat-menu-item
+                  (click)="updateMetadataAll(publicationCollectionId)"
+                  matTooltip="Update metadata of all publications in the collection from XML"
+                  [disabled]="metadataUpdating"
+            >
+              <mat-icon>sync</mat-icon>
+              Update metadata from XML
+            </button>
           </mat-menu>
         </ng-content>
       </custom-table>

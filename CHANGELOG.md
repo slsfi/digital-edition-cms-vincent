@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Option to also add manuscripts from the same XML-files that are added as publications when adding multiple publications to a collection.
 - Option to also add manuscript from the same XML-file which is added as a publication when adding a single publication to a collection.
+- Action button to the list of publications for updating metadata of all publications in the collection from the reading-text XML files.
 
 ### Changed
 
