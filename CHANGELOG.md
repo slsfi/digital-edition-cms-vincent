@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/core` to 19.2.12, `@angular/cli` to 19.2.13, `@angular/cdk` and `@angular/material` to 19.2.17.
 - Deps (dev): update `eslint` to 9.27.0.
+- Deps (dev): update `typescript-eslint` to 8.32.1.
 
 ### Fixed
 
