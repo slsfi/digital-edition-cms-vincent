@@ -2,22 +2,29 @@
 @let selectedProject = selectedProject$ | async;
 
 <mat-toolbar>
-  <div class="left-aligned">
-    @if (isAuthenticated === true) {
-      <button mat-icon-button
-            class="menu-button"
-            aria-label="Toggle menu"
-            (click)="toggleMenu()"
-      >
-        <mat-icon>menu</mat-icon>
-      </button>
-    }
-    <div class="site-title">
-      <a routerLink="/">Vincent – Digital Edition CMS</a>
+  @if (isAuthenticated) {
+    <div class="left-aligned">
+        <button mat-icon-button
+              class="menu-button"
+              aria-label="Toggle menu"
+              (click)="toggleMenu()"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+
+        <div class="site-title">
+          <a routerLink="/">Vincent – Digital Edition CMS</a>
+        </div>
     </div>
-  </div>
+  }
+  @if (!isAuthenticated) {
+    <a class="sls-logo" href="https://www.sls.fi/">
+      <img src="assets/images/SLS_logo_symbol_black_112x112.png" height="56px" width="56px" alt="SLS logo">
+    </a>
+  }
+  @if (isAuthenticated) {
   <div class="right-aligned">
-    <div *ngIf="isAuthenticated">
+    <div>
       Project:
       <mat-chip class="project-chip" routerLink="/" [highlighted]="selectedProject">{{selectedProject ? selectedProject : 'not selected'}}</mat-chip>
     </div>
@@ -29,6 +36,14 @@
       </div>
     </ng-container>
 
-    <a href="https://www.sls.fi/"><img src="assets/images/SLS_logo_symbol_black_112x112.png" height="56px" width="56px" alt="SLS logo"></a>
+    <button mat-icon-button
+          class="logout-button"
+          aria-label="Log out"
+          (click)="logout()"
+          matTooltip="Log out"
+    >
+      <mat-icon>logout</mat-icon>
+    </button> 
   </div>
+  }
 </mat-toolbar>
