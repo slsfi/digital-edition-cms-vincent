@@ -8,28 +8,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.3.0] – 2025-05-26
+
 ### Added
 
-- Option to also add manuscripts from the same XML-files that are added as publications when adding multiple publications to a collection.
-- Option to also add manuscript from the same XML-file which is added as a publication when adding a single publication to a collection.
-- Action button to the list of publications for updating metadata of all publications in the collection from the reading-text XML files.
-- Log out button to the top menu bar.
+- Option to also add manuscripts from the same XML-files that are added as publications when adding multiple publications to a collection. ([cc3b22a](https://github.com/slsfi/digital-edition-cms-vincent/commit/cc3b22a5bcc6edf50666f561698bbd4e88d227f8))
+- Option to also add manuscript from the same XML-file which is added as a publication when adding a single publication to a collection. ([177d7af](https://github.com/slsfi/digital-edition-cms-vincent/commit/177d7afd5343d4dbaa3cb5c6a78749ef13e03acd))
+- Action button to the list of publications for updating metadata of all publications in the collection from the reading-text XML files. ([8716a68](https://github.com/slsfi/digital-edition-cms-vincent/commit/8716a6858c5d2c213b04631575a4e9339fcc075e))
+- Log out button to the top menu bar. ([06de016](https://github.com/slsfi/digital-edition-cms-vincent/commit/06de01681035165f9b62d7cd2091d3cec9a8f843))
 
 ### Changed
 
-- Formatting of environment names and URLs in login form.
-- Deps: update `@angular/core` to 19.2.13, `@angular/cli` to 19.2.13, `@angular/cdk` and `@angular/material` to 19.2.17.
-- Deps (dev): update `angular-eslint` to 19.5.0.
-- Deps (dev): update `eslint` to 9.27.0.
-- Deps (dev): update `typescript-eslint` to 8.32.1.
-- Deps (dev): update `zone.js` to 0.15.1.
+- Formatting of environment names and URLs in login form. ([6f4b302](https://github.com/slsfi/digital-edition-cms-vincent/commit/6f4b302d8f1875546524a04a08a7a79bef8c7b2d))
+- Deps: update `@angular/core` to 19.2.13, `@angular/cli` to 19.2.13, `@angular/cdk` and `@angular/material` to 19.2.17. ([8e44031](https://github.com/slsfi/digital-edition-cms-vincent/commit/8e44031cb357bcd2d871dd77680e77d1ebd31841), [7754c01](https://github.com/slsfi/digital-edition-cms-vincent/commit/7754c015b7a8fe4b90b8d14bb3d112f13cc24bb2))
+- Deps (dev): update `angular-eslint` to 19.5.0. ([2cf4bf4](https://github.com/slsfi/digital-edition-cms-vincent/commit/2cf4bf47ea72e99fa9ca0b1dc3a5973c1590cf6e))
+- Deps (dev): update `eslint` to 9.27.0. ([52495a9](https://github.com/slsfi/digital-edition-cms-vincent/commit/52495a90fc40de707ea8e8a718b167ee3fb9fae3))
+- Deps (dev): update `typescript-eslint` to 8.32.1. ([2ceb04c](https://github.com/slsfi/digital-edition-cms-vincent/commit/2ceb04cd62ab57ea7fdc1aece77a0dcd95b5450d))
+- Deps (dev): update `zone.js` to 0.15.1. ([2f25fa0](https://github.com/slsfi/digital-edition-cms-vincent/commit/2f25fa05aab9b7f329fb7110ecf97d452a74cc36))
 
 ### Fixed
 
-- Set default sort order of new manuscripts and variants to 1.
-- Set default start page number of facsimile collection to 0.
-- Error messaging when saving multiple added publications fails.
-- Error messaging when getting metadata from XML fails while adding multiple publications.
+- Set default sort order of new manuscripts and variants to 1. ([8b350d7](https://github.com/slsfi/digital-edition-cms-vincent/commit/8b350d7000edfb670f081fe8901f2a3cf2b87bfb))
+- Set default start page number of facsimile collection to 0. ([cfc4f9c](https://github.com/slsfi/digital-edition-cms-vincent/commit/cfc4f9cc0163f25a27e49cbd153be6b65973a005))
+- Error messaging when saving multiple added publications fails. ([4f48b0e](https://github.com/slsfi/digital-edition-cms-vincent/commit/4f48b0e36edb595813eab170495607798c94a771))
+- Error messaging when getting metadata from XML fails while adding multiple publications. ([51174d3](https://github.com/slsfi/digital-edition-cms-vincent/commit/51174d3edd258ed8feb2bf65f80b26ab2206aac1))
 
 
 
@@ -228,7 +232,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.5...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.0...HEAD
+[1.3.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.5...1.3.0
 [1.2.5]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.4...1.2.5
 [1.2.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.3...1.2.4
 [1.2.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.2...1.2.3
