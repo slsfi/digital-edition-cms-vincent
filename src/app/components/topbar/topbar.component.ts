@@ -1,19 +1,21 @@
-import { ApiService } from './../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { AuthService } from '../../services/auth.service';
-import { Observable } from 'rxjs';
-import { MatIconModule } from '@angular/material/icon';
-import { ProjectService } from '../../services/project.service';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Observable } from 'rxjs';
+
+import { AuthService } from '../../services/auth.service';
+import { ApiService } from './../../services/api.service';
+import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'topbar',
-  imports: [CommonModule, MatToolbarModule, MatTooltipModule, MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
+  imports: [CommonModule, MatToolbarModule, MatTooltipModule,
+    MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })
@@ -24,7 +26,12 @@ export class TopbarComponent {
   selectedProject$;
   environment$: Observable<string | null> = new Observable<string | null>();
 
-  constructor(private authService: AuthService, private projectService: ProjectService, private apiService: ApiService) {
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+    private projectService: ProjectService,
+    private router: Router,
+  ) {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
     this.selectedProject$ = this.projectService.selectedProject$;
     this.environment$ = this.apiService.environment$;
@@ -32,6 +39,13 @@ export class TopbarComponent {
 
   toggleMenu() {
     this.menuToggle.emit();
+  }
+
+  logout() {
+    this.projectService.setSelectedProject(null);
+    this.authService.logout();    
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 
 }

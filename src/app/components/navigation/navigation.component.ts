@@ -24,7 +24,11 @@ export class NavigationComponent implements OnDestroy {
   currentUrl = '';
   private destroy$ = new Subject<void>();
 
-  constructor(private projectService: ProjectService, private authService: AuthService, private router: Router) {
+  constructor(
+    private projectService: ProjectService,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.router.events
     .pipe(takeUntil(this.destroy$))
       .subscribe(() => {

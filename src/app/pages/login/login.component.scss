@@ -30,3 +30,14 @@ mat-card-header {
 .api-url {
   font-size: 0.875em;
 }
+
+.login-footer {
+  margin: 50px auto;
+  width: 360px;
+
+  p {
+    font-size: 0.875em;
+    line-height: 1.5;
+    text-align: center;
+  }
+}

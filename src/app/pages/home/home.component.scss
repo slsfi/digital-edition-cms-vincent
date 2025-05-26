@@ -13,6 +13,16 @@
 
 .footer-wrapper {
   margin-top: 5em;
+
+  a.sls-logo {
+    display: block;
+    margin: 1em 0 2em 0;
+
+    img {
+      display: block;
+      margin: 0 auto;
+    }
+  }
 }
 
 h1 {
