@@ -8,13 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.3.1] – 2025-06-06
+
 ### Added
 
-- `testa-lukukirjat-api.sls.fi` and `testa-parland-api.sls.fi` to environments.
+- `testa-lukukirjat-api.sls.fi` and `testa-parland-api.sls.fi` to environments. ([042e436](https://github.com/slsfi/digital-edition-cms-vincent/commit/042e436fc607b01adf0a8b2cde7913d44a7620b7))
 
 ### Fixed
 
-- Facsimile collection types.
+- Facsimile collection types. ([411f159](https://github.com/slsfi/digital-edition-cms-vincent/commit/411f15932919f3c961fc611bb39305344e6822e6))
 
 
 
@@ -240,7 +244,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.1...HEAD
+[1.3.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.5...1.3.0
 [1.2.5]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.4...1.2.5
 [1.2.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.3...1.2.4
