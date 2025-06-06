@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- `testa-lukukirjat-api.sls.fi` and `testa-parland-api.sls.fi` to environments.
+
 ### Fixed
 
 - Facsimile collection types.
