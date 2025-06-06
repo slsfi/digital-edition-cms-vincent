@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Facsimile collection types.
+
 
 
 ## [1.3.0] – 2025-05-26
