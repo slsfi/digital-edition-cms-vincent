@@ -35,7 +35,7 @@ export interface FacsimileCollection {
   date_modified: string | null;
   deleted: Deleted;
   description: string | null;
-  external_url: string;
+  external_url: string | null;
   folder_path: string | null;
   id: number;
   number_of_pages: number | null;
@@ -46,11 +46,11 @@ export interface FacsimileCollection {
 
 export interface FacsimileCollectionCreateRequest {
   title: string;
-  description: string;
-  folderPath: string;
-  externalUrl: string;
-  numberOfPages: number;
-  startPageNumber: number;
+  description: string | null;
+  folder_path: string | null;
+  external_url: string | null;
+  number_of_pages: number | null;
+  start_page_number: number | null;
 }
 
 export interface FacsimileCollectionEditRequest {
@@ -58,7 +58,7 @@ export interface FacsimileCollectionEditRequest {
   number_of_pages: number | null;
   start_page_number: number | null;
   description: string | null;
-  external_url: string;
+  external_url: string | null;
   deleted: Deleted;
 }
 
