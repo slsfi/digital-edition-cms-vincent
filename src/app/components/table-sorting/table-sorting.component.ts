@@ -2,7 +2,7 @@ import { QueryParamsService } from './../../services/query-params.service';
 import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Column, QueryParamType } from '../../models/common';
-import { CommonModule } from '@angular/common';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,9 +12,13 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-table-sorting',
   imports: [
-    CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule,
-    ReactiveFormsModule, MatDialogModule, MatButtonModule
-  ],
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule
+],
   templateUrl: './table-sorting.component.html',
   styleUrl: './table-sorting.component.scss'
 })

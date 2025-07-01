@@ -4,17 +4,17 @@
 <mat-toolbar>
   @if (isAuthenticated) {
     <div class="left-aligned">
-        <button mat-icon-button
-              class="menu-button"
-              aria-label="Toggle menu"
-              (click)="toggleMenu()"
+      <button mat-icon-button
+        class="menu-button"
+        aria-label="Toggle menu"
+        (click)="toggleMenu()"
         >
-          <mat-icon>menu</mat-icon>
-        </button>
+        <mat-icon>menu</mat-icon>
+      </button>
 
-        <div class="site-title">
-          <a routerLink="/">Vincent – Digital Edition CMS</a>
-        </div>
+      <div class="site-title">
+        <a routerLink="/">Vincent – Digital Edition CMS</a>
+      </div>
     </div>
   }
   @if (!isAuthenticated) {
@@ -23,27 +23,29 @@
     </a>
   }
   @if (isAuthenticated) {
-  <div class="right-aligned">
-    <div>
-      Project:
-      <mat-chip class="project-chip" routerLink="/" [highlighted]="selectedProject">{{selectedProject ? selectedProject : 'not selected'}}</mat-chip>
-    </div>
-
-    <ng-container *ngIf="environment$ | async as environment">
-      <div *ngIf="environment">
-        Environment:
-        <mat-chip highlighted matTooltip="Log out to change environment">{{environment}}</mat-chip>
+    <div class="right-aligned">
+      <div>
+        Project:
+        <mat-chip class="project-chip" routerLink="/" [highlighted]="selectedProject">{{selectedProject ? selectedProject : 'not selected'}}</mat-chip>
       </div>
-    </ng-container>
 
-    <button mat-icon-button
-          class="logout-button"
-          aria-label="Log out"
-          (click)="logout()"
-          matTooltip="Log out"
-    >
-      <mat-icon>logout</mat-icon>
-    </button> 
-  </div>
+      @if (environment$ | async; as environment) {
+        @if (environment) {
+          <div>
+            Environment:
+            <mat-chip highlighted matTooltip="Log out to change environment">{{environment}}</mat-chip>
+          </div>
+        }
+      }
+
+      <button mat-icon-button
+        class="logout-button"
+        aria-label="Log out"
+        (click)="logout()"
+        matTooltip="Log out"
+        >
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
   }
 </mat-toolbar>

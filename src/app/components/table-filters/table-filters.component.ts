@@ -2,7 +2,7 @@ import { QueryParamsService } from './../../services/query-params.service';
 import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Column } from '../../models/common';
-import { CommonModule } from '@angular/common';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -13,9 +13,13 @@ import { personTypeOptions } from '../../models/person';
 @Component({
   selector: 'app-table-filters',
   imports: [
-    CommonModule, MatInputModule, MatFormFieldModule, MatSelectModule,
-    ReactiveFormsModule, MatDialogModule, MatButtonModule
-  ],
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule
+],
   templateUrl: './table-filters.component.html',
   styleUrl: './table-filters.component.scss'
 })

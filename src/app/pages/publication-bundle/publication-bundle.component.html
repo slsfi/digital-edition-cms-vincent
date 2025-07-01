@@ -28,7 +28,7 @@
               <li>{{ filename }}</li>
             }
           </ul>
-      </div>
+        </div>
       }
       <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="selectedFiles($event)"></file-tree>
     } @else {
@@ -47,14 +47,14 @@
                 </mat-select>
               </mat-form-field>
               <button type="button" mat-flat-button
-                    (click)="getMetadataFromXMLAll()"
-                    [disabled]="gettingMetadata"
+                (click)="getMetadataFromXMLAll()"
+                [disabled]="gettingMetadata"
               >Get metadata from XML</button>
               <mat-slide-toggle
-                    [(ngModel)]="addMsBoolean"
-                    [ngModelOptions]="{ standalone: true }"
-                    color="primary"
-                    matTooltip="Toggle this to also link a manuscript to each publication using the same XML-file. Apply only when the same XML-file should be used for both the reading-text and manuscript view."
+                [(ngModel)]="addMsBoolean"
+                [ngModelOptions]="{ standalone: true }"
+                color="primary"
+                matTooltip="Toggle this to also link a manuscript to each publication using the same XML-file. Apply only when the same XML-file should be used for both the reading-text and manuscript view."
               >Also add manuscripts</mat-slide-toggle>
             </div>
             <div class="submit-buttons">
@@ -64,7 +64,7 @@
           </div>
           <mat-divider></mat-divider>
           <ng-container formArrayName="files">
-            <ng-container *ngFor="let bundleRow of files.controls; let i = index">
+            @for (bundleRow of files.controls; track bundleRow; let i = $index) {
               <div class="bundle-row" [formGroup]="bundleRow">
                 <span>{{ i + 1 }}</span>
                 <button mat-icon-button type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)">
@@ -98,7 +98,7 @@
                   <input matInput formControlName="genre" type="text"/>
                 </mat-form-field>
               </div>
-            </ng-container>
+            }
           </ng-container>
         </div>
       </form>

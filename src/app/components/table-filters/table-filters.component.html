@@ -5,32 +5,32 @@
       <div>
         <mat-form-field>
           <mat-label>{{ field.header }}</mat-label>
-          <ng-container *ngIf="field.type === 'published'">
+          @if (field.type === 'published') {
             <mat-select [formControlName]="field.field">
               <mat-option>Any</mat-option>
               <mat-option [value]="0">Not published</mat-option>
               <mat-option [value]="1">Internally</mat-option>
               <mat-option [value]="2">Production</mat-option>
             </mat-select>
-          </ng-container>
-          <ng-container *ngIf="field.type === 'boolean'">
+          }
+          @if (field.type === 'boolean') {
             <mat-select [formControlName]="field.field">
               <mat-option>Any</mat-option>
               <mat-option [value]="0">No</mat-option>
               <mat-option [value]="1">Yes</mat-option>
             </mat-select>
-          </ng-container>
-          <ng-container *ngIf="field.type === 'string' || field.type === 'number' || field.type === 'id' || field.type === 'textarea'">
+          }
+          @if (field.type === 'string' || field.type === 'number' || field.type === 'id' || field.type === 'textarea') {
             <input matInput [formControlName]="field.field" />
-          </ng-container>
-          <ng-container *ngIf="field.type === 'person_type' ">
+          }
+          @if (field.type === 'person_type' ) {
             <mat-select [formControlName]="field.field">
               <mat-option>Any</mat-option>
               @for (type of personTypes; track type.value) {
                 <mat-option [value]="type.value">{{ type.label }}</mat-option>
               }
             </mat-select>
-          </ng-container>
+          }
         </mat-form-field>
       </div>
     }

@@ -4,27 +4,26 @@
 <div class="selected-facsimile-collection">
   <a mat-icon-button [routerLink]="['/facsimiles']" [queryParamsHandling]="'preserve'">
     <mat-icon>west</mat-icon>
-  </a>  
+  </a>
   <h2>{{ facsimile?.title || '' }} (ID {{ facsimile?.id }}{{ facsimile?.description ? '; ' + facsimile?.description : '' }})</h2>
 </div>
 
-<ng-container *ngIf="facsimile">
+@if (facsimile) {
   <h3>Images in the facsimile collection ({{ facsimile.number_of_pages }})</h3>
   <div class="images">
     @for (page of [].constructor(facsimile.number_of_pages); track i; let i = $index) {
       <div class="image">
         <div>{{ i + 1 }}</div>
-          @if (missingFileNumbers.includes(i + 1)) {
-            <mat-icon class="img error">block</mat-icon>
-          } @else {
-            <mat-icon class="img success">check_circle</mat-icon>
-          }
+        @if (missingFileNumbers.includes(i + 1)) {
+          <mat-icon class="img error">block</mat-icon>
+        } @else {
+          <mat-icon class="img success">check_circle</mat-icon>
+        }
       </div>
-    } @empty {
+      } @empty {
       <p>No images.</p>
     }
   </div>
-
   @if (missingFileNumbers.length) {
     <h3>Upload missing images</h3>
     <p>
@@ -34,7 +33,6 @@
       } @else {
         (images {{ missingFileNumbers[0] }}–{{ missingFileNumbers[missingFileNumbers.length -1] }}).
       }
-
     </p>
     @if (facsimile.number_of_pages) {
       <file-upload
@@ -49,7 +47,6 @@
   } @else {
     <p>All images are uploaded.</p>
   }
-
   @if (facsimile.number_of_pages && (missingFileNumbers.length < facsimile.number_of_pages)) {
     <h3>Replace all images in the collection ({{facsimile.number_of_pages}})</h3>
     <file-upload
@@ -59,4 +56,4 @@
       (filesUploaded)="verifyFacsimileFiles()">
     </file-upload>
   }
-</ng-container>
+}

@@ -12,9 +12,9 @@
       (deleteRow)="deleteRow($event)">
       <ng-content custom-table-title>Persons</ng-content>
       <ng-content custom-table-actions>
-        <ng-container *ngIf="filterParams$ | async as filterParams">
+        @if (filterParams$ | async; as filterParams) {
           <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
-        </ng-container>
+        }
         <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
       </ng-content>
     </custom-table>

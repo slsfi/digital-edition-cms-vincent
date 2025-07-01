@@ -16,12 +16,14 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div *ngIf="environment?.value === ' '" class="row">
-        <mat-form-field>
-          <mat-label>Custom environment</mat-label>
-          <input matInput formControlName="customEnvironment" placeholder="https://..." />
-        </mat-form-field>
-      </div>
+      @if (environment?.value === ' ') {
+        <div class="row">
+          <mat-form-field>
+            <mat-label>Custom environment</mat-label>
+            <input matInput formControlName="customEnvironment" placeholder="https://..." />
+          </mat-form-field>
+        </div>
+      }
       <div class="row">
         <mat-form-field>
           <mat-label>Email</mat-label>

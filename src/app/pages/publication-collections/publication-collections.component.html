@@ -8,17 +8,15 @@
   <p>Please select a project</p>
 } @else {
   <div class="selected-collection">
-    <ng-container *ngIf="selectedPublicationCollection$ | async as selectedPublicationCollection">
+    @if (selectedPublicationCollection$ | async; as selectedPublicationCollection) {
       <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
       <h2>{{ selectedPublicationCollection.name }} (ID {{ selectedPublicationCollection.id }})</h2>
-    </ng-container>
+    }
   </div>
 
-  <ng-container *ngIf="publicationCollectionId$ | async as publicationCollectionId else publicationCollections">
+  @if (publicationCollectionId$ | async; as publicationCollectionId) {
     <publications></publications>
-  </ng-container>
-
-  <ng-template #publicationCollections>
+  } @else {
     <custom-table
       [data$]="publicationCollections$"
       [columns]="publicationCollectionColumnsData"
@@ -32,9 +30,9 @@
         <button mat-flat-button (click)="editPublicationCollection()"><mat-icon>add</mat-icon>Add</button>
       </ng-content>
     </custom-table>
-
     @if (loading$ | async) {
       <loading-spinner [overlay]="true"></loading-spinner>
     }
-  </ng-template>
+  }
+
 }

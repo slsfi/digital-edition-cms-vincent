@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,10 +30,19 @@ export interface EditDialogData<T> {
 @Component({
   selector: 'edit-dialog',
   imports: [
-    MatDialogModule, MatButtonModule, CommonModule, ReactiveFormsModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatDatepickerModule, TranslationsComponent,
-    MatIconModule, FileTreeComponent, MatSlideToggleModule, MatTooltipModule
-  ],
+    MatDialogModule,
+    MatButtonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    TranslationsComponent,
+    MatIconModule,
+    FileTreeComponent,
+    MatSlideToggleModule,
+    MatTooltipModule
+],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-dialog.component.html',
   styleUrl: './edit-dialog.component.scss'

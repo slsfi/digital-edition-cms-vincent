@@ -50,14 +50,15 @@
     </tr>
   </table>
 </div>
-<mat-paginator
-  *ngIf="paginationEnabled"
-  #paginator
-  [hidePageSize]="true"
-  [pageSizeOptions]="[20]"
-  showFirstLastButtons
-  (page)="pageChanged($event)">
-</mat-paginator>
+@if (paginationEnabled) {
+  <mat-paginator
+    #paginator
+    [hidePageSize]="true"
+    [pageSizeOptions]="[20]"
+    showFirstLastButtons
+    (page)="pageChanged($event)">
+  </mat-paginator>
+}
 
 <ng-template #columnCells let-model="model" let-column="column" let-index="index">
   @if (column.type === 'index') {
@@ -71,9 +72,15 @@
   } @else if (column.type === 'boolean') {
     {{ model[column.field] === 0 ? 'No' : 'Yes' }}
   } @else if (column.type === 'published') {
-    <ng-container *ngIf="model[column.field] === 0"><span class="published-0">Not published</span></ng-container>
-    <ng-container *ngIf="model[column.field] === 1"><span class="published-1">Internally</span></ng-container>
-    <ng-container *ngIf="model[column.field] === 2"><span class="published-2">Production</span></ng-container>
+    @if (model[column.field] === 0) {
+      <span class="published-0">Not published</span>
+    }
+    @if (model[column.field] === 1) {
+      <span class="published-1">Internally</span>
+    }
+    @if (model[column.field] === 2) {
+      <span class="published-2">Production</span>
+    }
   } @else if (column.type === 'action') {
     <div class="row-actions">
       <button mat-icon-button (click)="edit(model)"><mat-icon>edit</mat-icon></button>

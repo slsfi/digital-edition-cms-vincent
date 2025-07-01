@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,7 @@ import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'navigation',
-  imports: [CommonModule, MatDividerModule, MatListModule, MatIconModule, RouterLink],
+  imports: [MatDividerModule, MatListModule, MatIconModule, RouterLink],
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.scss'
 })

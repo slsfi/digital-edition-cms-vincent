@@ -10,97 +10,98 @@
       </file-tree>
     </div>
   } @else if (!fieldForTranslate) {
-    <form *ngIf="data.columns.length" [formGroup]="form" id="edit-form">
-      @for (column of columns; track column.field) {
-        <div>
-          @if (column.type === 'date') {
-            <!-- for some reason styles don't work if this is done similarly -->
-            <mat-form-field>
-              <mat-label>{{ column.header }}</mat-label>
-              <input matInput [formControlName]="column.field" [matDatepicker]="picker"/>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-          } @else {
-            @if (column.field === 'cascade_published') {
-              @if (!!modelId) {
-                <div class="form-toggle-wrapper">
-                  <mat-slide-toggle formControlName="cascade_published">{{ column.header }}</mat-slide-toggle>
-                </div>
-              }
-             } @else if (column.field === 'link_manuscript') {
-              @if (!modelId) {
-                <div class="form-toggle-wrapper">
-                  <mat-slide-toggle formControlName="link_manuscript" [matTooltip]="column.tooltip">{{ column.header }}</mat-slide-toggle>
-                </div>
-              }
-            } @else {
+    @if (data.columns.length) {
+      <form [formGroup]="form" id="edit-form">
+        @for (column of columns; track column.field) {
+          <div>
+            @if (column.type === 'date') {
+              <!-- for some reason styles don't work if this is done similarly -->
               <mat-form-field>
                 <mat-label>{{ column.header }}</mat-label>
-                @if (column.type === 'boolean') {
-                  <mat-select [formControlName]="column.field">
-                    <mat-option>Any</mat-option>
-                    <mat-option [value]="0">No</mat-option>
-                    <mat-option [value]="1">Yes</mat-option>
-                  </mat-select>
-
-                } @else if (column.type === 'type') {
-                  <mat-select [formControlName]="column.field">
-                    <mat-option [value]="1">Base text</mat-option>
-                    <mat-option [value]="2">Variant</mat-option>
-                  </mat-select>
-                } @else if (column.type === 'person_type') {
-                  <mat-select [formControlName]="column.field">
-                    <mat-option>Any</mat-option>
-                    @for (type of personTypes; track type.value) {
-                      <mat-option [value]="type.value">{{ type.label }}</mat-option>
-                    }
-                  </mat-select>
-                } @else if (column.type === 'published') {
-                  <mat-select [formControlName]="column.field">
-                    @for (option of publishedOptions; track option.value) {
-                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                    }
-                  </mat-select>
-                } @else if (column.type === 'textarea') {
-                  <textarea
-                    matInput
-                    [formControlName]="column.field"
-                    cdkTextareaAutosize
-                    #autosize="cdkTextareaAutosize"
-                    cdkAutosizeMinRows="1"
-                    cdkAutosizeMaxRows="7">
-                  </textarea>
-                } @else if (column.type === 'number') {
-                  <input matInput [formControlName]="column.field" type="number"/>
-                } @else {
-                  <input matInput
-                    [formControlName]="column.field"
-                    type="text"
-                    [placeholder]="column.field === 'date_born' || column.field === 'date_deceased' ? 'YYYY or YYYY-MM-DD' : ''" />
-                }
+                <input matInput [formControlName]="column.field" [matDatepicker]="picker"/>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
-            }
-          }
-          @if (column.translations && !!modelId) {
-            <div class="form-buttons-wrapper">
-              <button mat-flat-button type="button" (click)="showTranslations(column)"><mat-icon>language</mat-icon>{{column.header}} translations</button>
-            </div>
-          }
-          @if (column.field === 'original_filename') {
-            <div class="form-buttons-wrapper">
-              <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
-              @if (!!originalFilenameControl.value && showMetadataButton)  {
-                <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()" [disabled]="gettingMetadata">
-                  <mat-icon>sync</mat-icon>
-                  Get metadata from XML
-                </button>
+            } @else {
+              @if (column.field === 'cascade_published') {
+                @if (!!modelId) {
+                  <div class="form-toggle-wrapper">
+                    <mat-slide-toggle formControlName="cascade_published">{{ column.header }}</mat-slide-toggle>
+                  </div>
+                }
+              } @else if (column.field === 'link_manuscript') {
+                @if (!modelId) {
+                  <div class="form-toggle-wrapper">
+                    <mat-slide-toggle formControlName="link_manuscript" [matTooltip]="column.tooltip">{{ column.header }}</mat-slide-toggle>
+                  </div>
+                }
+              } @else {
+                <mat-form-field>
+                  <mat-label>{{ column.header }}</mat-label>
+                  @if (column.type === 'boolean') {
+                    <mat-select [formControlName]="column.field">
+                      <mat-option>Any</mat-option>
+                      <mat-option [value]="0">No</mat-option>
+                      <mat-option [value]="1">Yes</mat-option>
+                    </mat-select>
+                  } @else if (column.type === 'type') {
+                    <mat-select [formControlName]="column.field">
+                      <mat-option [value]="1">Base text</mat-option>
+                      <mat-option [value]="2">Variant</mat-option>
+                    </mat-select>
+                  } @else if (column.type === 'person_type') {
+                    <mat-select [formControlName]="column.field">
+                      <mat-option>Any</mat-option>
+                      @for (type of personTypes; track type.value) {
+                        <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                      }
+                    </mat-select>
+                  } @else if (column.type === 'published') {
+                    <mat-select [formControlName]="column.field">
+                      @for (option of publishedOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-select>
+                  } @else if (column.type === 'textarea') {
+                    <textarea
+                      matInput
+                      [formControlName]="column.field"
+                      cdkTextareaAutosize
+                      #autosize="cdkTextareaAutosize"
+                      cdkAutosizeMinRows="1"
+                      cdkAutosizeMaxRows="7">
+                    </textarea>
+                  } @else if (column.type === 'number') {
+                    <input matInput [formControlName]="column.field" type="number"/>
+                  } @else {
+                    <input matInput
+                      [formControlName]="column.field"
+                      type="text"
+                      [placeholder]="column.field === 'date_born' || column.field === 'date_deceased' ? 'YYYY or YYYY-MM-DD' : ''" />
+                  }
+                </mat-form-field>
               }
-            </div>
-          }
-        </div>
-      }
-    </form>
+            }
+            @if (column.translations && !!modelId) {
+              <div class="form-buttons-wrapper">
+                <button mat-flat-button type="button" (click)="showTranslations(column)"><mat-icon>language</mat-icon>{{column.header}} translations</button>
+              </div>
+            }
+            @if (column.field === 'original_filename') {
+              <div class="form-buttons-wrapper">
+                <button mat-flat-button type="button" (click)="showFileSelector()"><mat-icon>folder</mat-icon>Choose file</button>
+                @if (!!originalFilenameControl.value && showMetadataButton)  {
+                  <button mat-flat-button type="button" [style]="{'margin-left' : '10px'}" (click)="getMetadata()" [disabled]="gettingMetadata">
+                    <mat-icon>sync</mat-icon>
+                    Get metadata from XML
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </form>
+    }
   } @else {
     <field-translations
       [tableName]="data.tableName"
@@ -115,13 +116,14 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>Cancel</button>
-  <button
-    *ngIf="form"
-    mat-flat-button
-    [mat-dialog-close]="{ type: !!modelId ? 'Edit' : 'Add', form }"
-    type="button"
-    [disabled]="!form.valid || fieldForTranslate !== null || fileSelectorVisible"
-    form="edit-form">
+  @if (form) {
+    <button
+      mat-flat-button
+      [mat-dialog-close]="{ type: !!modelId ? 'Edit' : 'Add', form }"
+      type="button"
+      [disabled]="!form.valid || fieldForTranslate !== null || fileSelectorVisible"
+      form="edit-form">
       {{ !!modelId ? 'Save' : 'Add' }}
-  </button>
+    </button>
+  }
 </mat-dialog-actions>
