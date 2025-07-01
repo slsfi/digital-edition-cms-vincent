@@ -1,7 +1,7 @@
 mat-toolbar.mat-toolbar {
-  border-bottom-color: var(--mdc-outlined-card-outline-color, var(--mat-sys-outline-variant));
+  border-bottom-color: var(--mat-card-outlined-outline-color, var(--mat-sys-outline-variant));
   border-bottom-style: solid;
-  border-bottom-width: var(--mdc-outlined-card-outline-width, 1px);
+  border-bottom-width: var(--mat-card-outlined-outline-width, 1px);
 }
 
 .left-aligned {

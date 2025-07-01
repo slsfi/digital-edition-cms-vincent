@@ -25,10 +25,10 @@ mat-icon {
 
 mat-progress-bar {
   &.success {
-    --mdc-linear-progress-active-indicator-color: #337a35;
+    --mat-progress-bar-active-indicator-color: #337a35;
   }
   &.error {
-    --mdc-linear-progress-active-indicator-color: #c42929;
+    --mat-progress-bar-active-indicator-color: #c42929;
   }
 }
 
