@@ -20,6 +20,7 @@ import { Published, PublishedOptions } from '../../models/common';
 import { LinkTextToPublicationRequest, PublicationAddRequest, PublicationCollection,
          PublicationResponse, XmlMetadata } from '../../models/publication';
 import { LoadingService } from '../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 
 interface BundleFormType {
@@ -72,6 +73,7 @@ export class PublicationBundleComponent implements OnInit {
 
   constructor(
     private publicationService: PublicationService,
+    private projectService: ProjectService,
     private route: ActivatedRoute,
     private snackbar: MatSnackBar,
     private loadingService: LoadingService,
@@ -84,7 +86,10 @@ export class PublicationBundleComponent implements OnInit {
 
   ngOnInit() {
     this.publicationCollections$ = this.selectedProject$.pipe(
-      switchMap(() => this.publicationService.getPublicationCollections())
+      switchMap(project => {
+        if (!project) { return of([]); }
+        return this.publicationService.getPublicationCollections(project);
+      })
     );
     this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
       map(([collections, id]) => collections.find(collection => collection.id === parseInt(id as string)))
@@ -137,7 +142,8 @@ export class PublicationBundleComponent implements OnInit {
       mergeMap(({ row, index }) => {
         const originalFilename = row.get('original_filename')!.value;
 
-        return this.publicationService.getMetadataFromXML(originalFilename, true).pipe(
+        const currentProject = this.projectService.getCurrentProject();
+        return this.publicationService.getMetadataFromXML(originalFilename, currentProject).pipe(
           take(1),
           tap((metadata: XmlMetadata) => {
             for (const key in metadata) {
@@ -235,7 +241,8 @@ export class PublicationBundleComponent implements OnInit {
     const data = row.getRawValue() as PublicationAddRequest;
     data.published = this.bundleForm.value.published as Published;
 
-    return this.publicationService.addPublication(collectionId, data, true).pipe(
+    const currentProject = this.projectService.getCurrentProject();
+    return this.publicationService.addPublication(collectionId, data, currentProject).pipe(
       take(1),
       switchMap((response: PublicationResponse) => {
         const pub = response.data;
@@ -255,7 +262,7 @@ export class PublicationBundleComponent implements OnInit {
         };
 
         // Also link a manuscript to the publication using the same data
-        return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, true).pipe(take(1));
+        return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, currentProject).pipe(take(1));
       }),
       map(() => void 0),
       catchError((err) => {

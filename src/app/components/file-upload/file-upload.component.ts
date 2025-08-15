@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { FacsimileService } from '../../services/facsimile.service';
+import { ProjectService } from '../../services/project.service';
 
 enum FileQueueStatus {
   Pending = 'pending',
@@ -46,7 +47,11 @@ export class FileUploadComponent {
   numberOfPages = input.required<number>();
   missingFileNumbers = input.required<number[]>();
 
-  constructor(private facsimileService: FacsimileService, private snackbar: MatSnackBar) { }
+  constructor(
+    private facsimileService: FacsimileService, 
+    private projectService: ProjectService,
+    private snackbar: MatSnackBar
+  ) { }
 
   _queue: FileQueueObject[] = [];
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
@@ -107,7 +112,8 @@ export class FileUploadComponent {
       const formData = new FormData();
       formData.append('facsimile', file, file.name);
 
-      queueObject.request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData)
+      const currentProject = this.projectService.getCurrentProject();
+      queueObject.request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData, currentProject)
         .subscribe({
           next: (event: any) => { /* eslint-disable-line */
             if (event.type == HttpEventType.UploadProgress) {

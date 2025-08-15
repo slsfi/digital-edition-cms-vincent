@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject, filter, Observable, switchMap, take, tap } from 'rxjs';
 
 import { languageOptions, nameForLanguage, Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation';
+import { ProjectService } from '../../services/project.service';
 import { TranslationService } from '../../services/translation.service';
 
 @Component({
@@ -43,7 +44,10 @@ export class TranslationsComponent implements AfterViewInit {
 
   form!: FormGroup;
 
-  constructor(private translationService: TranslationService) { }
+  constructor(
+    private translationService: TranslationService,
+    private projectService: ProjectService
+  ) { }
 
   ngAfterViewInit() {
     this.translationId = this.translationIdd();
@@ -53,7 +57,10 @@ export class TranslationsComponent implements AfterViewInit {
     }
     this.fieldTranslations$ = this.translationLoader$.asObservable().pipe(
       filter(() => this.translationId != null),
-      switchMap(() => this.translationService.getTranslations(this.translationId as number, requestData)),
+      switchMap(() => {
+        const currentProject = this.projectService.getCurrentProject();
+        return this.translationService.getTranslations(this.translationId as number, requestData, currentProject);
+      }),
       tap((translations) => {
         const activeLanguages = translations.map(t => t.language);
         this.filteredLanguages = languageOptions.filter(l => !activeLanguages.includes(l.value));
@@ -86,10 +93,11 @@ export class TranslationsComponent implements AfterViewInit {
     const data = this.form.getRawValue();
 
     let request$: Observable<TranslationResponse>;
+    const currentProject = this.projectService.getCurrentProject();
     if (this.mode() === 'edit') {
-      request$ = this.translationService.editTranslation(this.translationId as number, data);
+      request$ = this.translationService.editTranslation(this.translationId as number, data, currentProject);
     } else {
-      request$ = this.translationService.addTranslation(data);
+      request$ = this.translationService.addTranslation(data, currentProject);
     }
     request$.pipe(take(1)).subscribe({
       next: res => {

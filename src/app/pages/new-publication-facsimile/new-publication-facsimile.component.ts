@@ -20,6 +20,7 @@ import { FacsimileCollection } from '../../models/facsimile';
 import { Publication } from '../../models/publication';
 import { FacsimileService } from './../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
 
@@ -51,6 +52,7 @@ export class NewPublicationFacsimileComponent implements OnInit {
   constructor(
     private publicationService: PublicationService,
     private facsimileService: FacsimileService,
+    private projectService: ProjectService,
     private queryParamsService: QueryParamsService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
@@ -68,9 +70,10 @@ export class NewPublicationFacsimileComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.facsimileCollections$ = this.facsimileService.getFacsimileCollections();
+    const currentProject = this.projectService.getCurrentProject();
+    this.facsimileCollections$ = this.facsimileService.getFacsimileCollections(currentProject);
     const publicationId = parseInt(this.route.snapshot.paramMap.get('publicationId') as string);
-    this.publication$ = this.publicationService.getPublication(publicationId);
+    this.publication$ = this.publicationService.getPublication(publicationId, currentProject);
     this.form = new FormGroup({
       publication_id: new FormControl<number>(publicationId, [Validators.required]),
       page_nr: new FormControl<number | null>(1, [Validators.required]),
@@ -104,7 +107,8 @@ export class NewPublicationFacsimileComponent implements OnInit {
     if (!payload.priority) {
       delete payload.priority;
     }
-    this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload).pipe(take(1)).subscribe({
+    const currentProject = this.projectService.getCurrentProject();
+    this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload, currentProject).pipe(take(1)).subscribe({
       next: () => {
         this.snackbar.open('Facsimile linked to publication', 'Close', { panelClass: 'snackbar-success' });
         this.router.navigate(this.publicationsPath);

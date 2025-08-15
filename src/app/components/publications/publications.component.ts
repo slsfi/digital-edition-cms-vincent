@@ -27,6 +27,7 @@ import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.comp
 import { TableFiltersComponent } from '../table-filters/table-filters.component';
 import { TableSortingComponent } from '../table-sorting/table-sorting.component';
 import { LoadingService } from '../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { Column, Deleted } from '../../models/common';
@@ -83,6 +84,7 @@ export class PublicationsComponent implements OnInit {
 
   constructor(
     private publicationService: PublicationService,
+    private projectService: ProjectService,
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
@@ -106,7 +108,10 @@ export class PublicationsComponent implements OnInit {
     this.publications$ = this.publicationsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$]).pipe(
         distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
-        switchMap(([, collectionId]) => this.publicationService.getPublications(collectionId as string))
+        switchMap(([project, collectionId]) => {
+          if (!project) { return of([]); }
+          return this.publicationService.getPublications(collectionId as string, project);
+        })
       ))
     );
 
@@ -115,30 +120,42 @@ export class PublicationsComponent implements OnInit {
     );
 
     this.comments$ = this.commentLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
-        switchMap(([collectionId, publicationId]) => this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string))
+        switchMap(([project, collectionId, publicationId]) => {
+          if (!project) { return of([]); }
+          return this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string, project);
+        })
       ))
     );
 
     this.versions$ = this.versionsLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
-        switchMap(([, publicationId]) => this.publicationService.getVersionsForPublication(publicationId as string))
+        switchMap(([project, , publicationId]) => {
+          if (!project) { return of([]); }
+          return this.publicationService.getVersionsForPublication(publicationId as string, project);
+        })
       ))
     );
 
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
-        switchMap(([, publicationId]) => this.publicationService.getManuscriptsForPublication(publicationId as string))
+        switchMap(([project, , publicationId]) => {
+          if (!project) { return of([]); }
+          return this.publicationService.getManuscriptsForPublication(publicationId as string, project);
+        })
       ))
     );
 
     this.facsimiles$ = this.facsimilesLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
-        switchMap(([, publicationId]) => this.publicationService.getFacsimilesForPublication(publicationId as string))
+        switchMap(([project, , publicationId]) => {
+          if (!project) { return of([]); }
+          return this.publicationService.getFacsimilesForPublication(publicationId as string, project);
+        })
       ))
     );
   }
@@ -156,10 +173,11 @@ export class PublicationsComponent implements OnInit {
         let request$: Observable<PublicationResponse>;
         const formValue = result.form.value;
 
+        const currentProject = this.projectService.getCurrentProject();
         if (publication?.id) {
-          request$ = this.publicationService.editPublication(publication.id, formValue);
+          request$ = this.publicationService.editPublication(publication.id, formValue, currentProject);
         } else {
-          request$ = this.publicationService.addPublication(parseInt(collectionId), formValue).pipe(
+          request$ = this.publicationService.addPublication(parseInt(collectionId), formValue, currentProject).pipe(
             switchMap((response: PublicationResponse) => {
               const pub = response.data;
 
@@ -176,7 +194,7 @@ export class PublicationsComponent implements OnInit {
                 sort_order: 1
               };
 
-              return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload).pipe(
+              return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, currentProject).pipe(
                 take(1),
                 map(() => response)  // preserve the original response
               );
@@ -219,7 +237,8 @@ export class PublicationsComponent implements OnInit {
       const filePath = result.join('/');
       const data = { original_filename: filePath };
 
-      this.publicationService.editPublication(publication.id, data).pipe(take(1)).subscribe({
+      const currentProject = this.projectService.getCurrentProject();
+      this.publicationService.editPublication(publication.id, data, currentProject).pipe(take(1)).subscribe({
         next: () => {
           this.publicationsLoader$.next(0);
           this.snackbar.open('File path saved', 'Close', { panelClass: ['snackbar-success'] });
@@ -242,16 +261,17 @@ export class PublicationsComponent implements OnInit {
         payload['text_type'] = 'version';
 
         let request$: Observable<VersionResponse | LinkTextToPublicationResponse>;
+        const currentProject = this.projectService.getCurrentProject();
         if (version?.id) {
           // Edit existing variant
           // Convert empty strings in field values to null in the payload object
           payload = cleanEmptyStrings(payload);
-          request$ = this.publicationService.editVersion(version.id, payload);
+          request$ = this.publicationService.editVersion(version.id, payload, currentProject);
         } else {
           // Add new variant
           // Remove empty fields from the payload object
           payload = cleanObject(payload);
-          request$ = this.publicationService.linkTextToPublication(publicationId, payload);
+          request$ = this.publicationService.linkTextToPublication(publicationId, payload, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -277,16 +297,17 @@ export class PublicationsComponent implements OnInit {
         payload['text_type'] = 'manuscript';
 
         let request$: Observable<ManuscriptResponse | LinkTextToPublicationResponse>;
+        const currentProject = this.projectService.getCurrentProject();
         if (manuscript?.id) {
           // Edit existing manuscript
           // Convert empty strings in field values to null in the payload object
           payload = cleanEmptyStrings(payload);
-          request$ = this.publicationService.editManuscript(manuscript.id, payload);
+          request$ = this.publicationService.editManuscript(manuscript.id, payload, currentProject);
         } else {
           // Add new manuscript
           // Remove empty fields from the payload object
           payload = cleanObject(payload);
-          request$ = this.publicationService.linkTextToPublication(publicationId, payload);
+          request$ = this.publicationService.linkTextToPublication(publicationId, payload, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -312,15 +333,16 @@ export class PublicationsComponent implements OnInit {
         payload['text_type'] = 'comment';
 
         let request$: Observable<PublicationCommentResponse | LinkTextToPublicationResponse>;
+        const currentProject = this.projectService.getCurrentProject();
         if (comment?.id) {
           // Edit existing comment
           // Convert empty strings in field values to null in the payload object
           payload = cleanEmptyStrings(payload);
-          request$ = this.publicationService.editComment(publicationId, payload);
+          request$ = this.publicationService.editComment(publicationId, payload, currentProject);
         } else {
           // Add new comment
           // Remove empty fields from the payload object
-          request$ = this.publicationService.linkTextToPublication(publicationId, payload);
+          request$ = this.publicationService.linkTextToPublication(publicationId, payload, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -350,10 +372,11 @@ export class PublicationsComponent implements OnInit {
         const payload = result.form.getRawValue();
 
         let request$: Observable<LinkFacsimileToPublicationResponse>;
+        const currentProject = this.projectService.getCurrentProject();
         if (facsimile?.id) {
-          request$ = this.publicationService.editFacsimileForPublication(payload);
+          request$ = this.publicationService.editFacsimileForPublication(payload, currentProject);
         } else {
-          request$ = this.publicationService.linkFacsimileToPublication(publicationId, result.form);
+          request$ = this.publicationService.linkFacsimileToPublication(publicationId, result.form, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -377,7 +400,8 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { id: facsimile.id, deleted: Deleted.Deleted };
-        this.publicationService.editFacsimileForPublication(payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.editFacsimileForPublication(payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.facsimilesLoader$.next(0);
             this.snackbar.open('Facsimile deleted', 'Close', { panelClass: ['snackbar-success'] });
@@ -399,7 +423,8 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { deleted: Deleted.Deleted };
-        this.publicationService.editManuscript(manuscript.id, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.editManuscript(manuscript.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.manuscriptsLoader$.next(0);
             this.snackbar.open('Manuscript deleted', 'Close', { panelClass: ['snackbar-success'] });
@@ -421,7 +446,8 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { deleted: Deleted.Deleted };
-        this.publicationService.editVersion(version.id, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.editVersion(version.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.versionsLoader$.next(0);
             this.snackbar.open('Variant deleted', 'Close', { panelClass: ['snackbar-success'] });
@@ -443,14 +469,15 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { deleted: Deleted.Deleted };
-        this.publicationService.editComment(publicationId, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.editComment(publicationId, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.commentLoader$.next(0);
             this.snackbar.open('Comment deleted', 'Close', { panelClass: ['snackbar-success'] });
           }
         });
 
-        this.publicationService.editPublication(publicationId, { publication_comment_id: null }).pipe(take(1)).subscribe({
+        this.publicationService.editPublication(publicationId, { publication_comment_id: null }, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.publicationsLoader$.next(0);
           }
@@ -473,7 +500,8 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
-        this.publicationService.editPublication(publication.id, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.editPublication(publication.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.publicationsLoader$.next(0);
             this.snackbar.open('Publication deleted', 'Close', { panelClass: ['snackbar-success'] });
@@ -512,7 +540,8 @@ export class PublicationsComponent implements OnInit {
         this.metadataUpdating = true;
         this.metadataUpdateFailures = [];
 
-        this.publicationService.getPublications(collectionId, true).pipe(
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.getPublications(collectionId, currentProject).pipe(
           take(1),
           tap((publications: Publication[]) => {
             if (publications.length > 40) {
@@ -529,14 +558,14 @@ export class PublicationsComponent implements OnInit {
                   return of(null);
                 }
 
-                return this.publicationService.getMetadataFromXML(pub.original_filename, true).pipe(
+                return this.publicationService.getMetadataFromXML(pub.original_filename, currentProject).pipe(
                   take(1),
                   switchMap((metadata: XmlMetadata) => {
                     const updateRequest: PublicationEditRequest = {
                       ...metadata
                     };
 
-                    return this.publicationService.editPublication(pub.id, updateRequest, true).pipe(
+                    return this.publicationService.editPublication(pub.id, updateRequest, currentProject).pipe(
                       take(1)
                     );
                   }),

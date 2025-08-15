@@ -54,11 +54,12 @@ export class HomeComponent {
     );
     this.selectedProject$ = this.projectService.selectedProject$;
     this.repoDetails$ = this.selectedProject$.pipe(
-      switchMap(() =>
-        this.projectService.getGitRepoDetails().pipe(
+      switchMap(project => {
+        if (!project) { return of(null); }
+        return this.projectService.getGitRepoDetails(project).pipe(
           catchError(() => of(null))
-        )
-      )
+        );
+      })
     );
   }
 
@@ -68,7 +69,8 @@ export class HomeComponent {
 
   pullRepo() {
     this.syncingRepo = true;
-    this.projectService.pullChangesFromGitRemote().pipe(
+    const currentProject = this.projectService.getCurrentProject();
+    this.projectService.pullChangesFromGitRemote(currentProject).pipe(
       take(1),
       finalize(() => {
         this.syncingRepo = false;

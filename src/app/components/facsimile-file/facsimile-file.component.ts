@@ -6,6 +6,7 @@ import { BehaviorSubject, map } from 'rxjs';
 import { SkipLoading } from '../../interceptors/loading.interceptor';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ApiService } from '../../services/api.service';
+import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'facsimile-file',
@@ -23,7 +24,11 @@ export class FacsimileFileComponent implements AfterViewInit {
   private imageUrlSubject = new BehaviorSubject<string>('');
   imageUrl$ = this.imageUrlSubject.asObservable();
 
-  constructor(private facsimileService: FacsimileService, private apiService: ApiService) {
+  constructor(
+    private facsimileService: FacsimileService, 
+    private apiService: ApiService,
+    private projectService: ProjectService
+  ) {
 
   }
 
@@ -34,7 +39,8 @@ export class FacsimileFileComponent implements AfterViewInit {
   }
 
   loadImage() {
-    this.imagePath = this.facsimileService.getFacsimileImagePath(this.collectionId, this.pageNumber, this.zoom);
+    const currentProject = this.projectService.getCurrentProject();
+    this.imagePath = this.facsimileService.getFacsimileImagePath(this.collectionId, this.pageNumber, currentProject, this.zoom);
     const options = {
       context: new HttpContext().set(SkipLoading, true),
       responseType: 'blob'

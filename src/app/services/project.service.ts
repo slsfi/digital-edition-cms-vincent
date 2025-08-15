@@ -1,6 +1,6 @@
 import { HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, Observable, switchMap, take } from 'rxjs';
+import { BehaviorSubject, map, Observable, take } from 'rxjs';
 
 import { SkipLoading } from '../interceptors/loading.interceptor';
 import {
@@ -46,21 +46,18 @@ export class ProjectService {
 
   getFileTree(): Observable<FileTree | null> {
     if (!this.fileTree$.value) {
-      this.getProjectFileTree().pipe(take(1)).subscribe(fileTreeResponse => {
+      const currentProject = this.getCurrentProject();
+      this.getProjectFileTree(currentProject).pipe(take(1)).subscribe(fileTreeResponse => {
         this.fileTree$.next(fileTreeResponse.data);
       });
     }
     return this.fileTree$;
   }
 
-  getProjectFileTree() {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/get_tree/`;
-        return this.apiService.get<FileTreeResponse>(url, { context: new HttpContext().set(SkipLoading, true)});
-      }),
-    );
+  getProjectFileTree(projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/get_tree/`;
+    return this.apiService.get<FileTreeResponse>(url, { context: new HttpContext().set(SkipLoading, true)});
   }
 
   setSelectedProject(project: string | null) {
@@ -71,25 +68,28 @@ export class ProjectService {
     this.fileTree$.next(null);
   }
 
-  getGitRepoDetails(): Observable<RepoDetails> {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/git-repo-details`;
-        return this.apiService.get<RepoDetailsResponse>(url).pipe(
-          map(response => response.data)
-        );
-      }),
+  getCurrentProject(): string | null {
+    return this.selectedProject$.value;
+  }
+
+  private validateProject(projectName: string | null | undefined): string | never {
+    if (!projectName) {
+      throw new Error('Project name is required');
+    }
+    return projectName;
+  }
+
+  getGitRepoDetails(projectName: string | null | undefined): Observable<RepoDetails> {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/git-repo-details`;
+    return this.apiService.get<RepoDetailsResponse>(url).pipe(
+      map(response => response.data)
     );
   }
 
-  pullChangesFromGitRemote() {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/sync_files/`;
-        return this.apiService.post<SyncFilesResponse>(url);
-      }),
-    );
+  pullChangesFromGitRemote(projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/sync_files/`;
+    return this.apiService.post<SyncFilesResponse>(url);
   }
 }

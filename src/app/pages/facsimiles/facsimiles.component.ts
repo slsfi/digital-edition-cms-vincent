@@ -18,6 +18,7 @@ import { TableSortingComponent } from '../../components/table-sorting/table-sort
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { FacsimileService } from '../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { Column, Deleted } from '../../models/common';
 import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/facsimile';
@@ -61,6 +62,7 @@ export class FacsimilesComponent implements OnInit {
 
   constructor(
     private facsimileService: FacsimileService,
+    private projectService: ProjectService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private snackbar: MatSnackBar,
@@ -75,9 +77,10 @@ export class FacsimilesComponent implements OnInit {
 
   ngOnInit() {
     this.facsimileCollections$ = this.loader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.facsimileService.getFacsimileCollections()]).pipe(
-        map(([, facsimiles]) => {
-          return facsimiles;
+      switchMap(() => this.selectedProject$.pipe(
+        switchMap(project => {
+          if (!project) { return of([]); }
+          return this.facsimileService.getFacsimileCollections(project);
         })
       )),
     );
@@ -96,10 +99,11 @@ export class FacsimilesComponent implements OnInit {
         const payload = result.form.getRawValue();
 
         let request$: Observable<FacsimileCollectionResponse>;
+        const currentProject = this.projectService.getCurrentProject();
         if (collection?.id) {
-          request$ = this.facsimileService.editFacsimileCollection(collection.id, payload);
+          request$ = this.facsimileService.editFacsimileCollection(collection.id, payload, currentProject);
         } else {
-          request$ = this.facsimileService.addFacsimileCollection(payload);
+          request$ = this.facsimileService.addFacsimileCollection(payload, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -141,7 +145,8 @@ export class FacsimilesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { ...collection, deleted: Deleted.Deleted };
-        this.facsimileService.editFacsimileCollection(collection.id, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.facsimileService.editFacsimileCollection(collection.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackbar.open('Facsimile collection deleted', 'Close', { panelClass: ['snackbar-success'] });
