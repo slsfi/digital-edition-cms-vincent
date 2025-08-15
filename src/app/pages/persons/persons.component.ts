@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, combineLatest, map, Observable, of, switchMap, take } from 'rxjs';
+import { BehaviorSubject, Observable, of, switchMap, take } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
@@ -18,6 +18,7 @@ import { TableFiltersComponent } from '../../components/table-filters/table-filt
 import { Column, Deleted } from '../../models/common';
 import { Person } from '../../models/person';
 import { LoadingService } from '../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { SubjectService } from '../../services/subject.service';
 
@@ -71,6 +72,7 @@ export class PersonsComponent implements OnInit {
 
   constructor(
     private subjectService: SubjectService,
+    private projectService: ProjectService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private loadingService: LoadingService,
@@ -83,8 +85,11 @@ export class PersonsComponent implements OnInit {
 
   ngOnInit() {
     this.persons$ = this.loader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.subjectService.getSubjects(), this.subjectService.selectedProject$]).pipe(
-        map(([subjects, ]) => subjects)
+      switchMap(() => this.selectedProject$.pipe(
+        switchMap(project => {
+          if (!project) { return of([]); }
+          return this.subjectService.getSubjects(project);
+        })
       )),
     );
   }
@@ -101,10 +106,11 @@ export class PersonsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         let request$: Observable<Person>;
+        const currentProject = this.projectService.getCurrentProject();
         if (person?.id) {
-          request$ = this.subjectService.editSubject(person.id, result.form.value);
+          request$ = this.subjectService.editSubject(person.id, result.form.value, currentProject);
         } else {
-          request$ = this.subjectService.addSubject(result.form.value);
+          request$ = this.subjectService.addSubject(result.form.value, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -128,7 +134,8 @@ export class PersonsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value === true) {
         const payload = { ...person, deleted: Deleted.Deleted };
-        this.subjectService.editSubject(person.id, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.subjectService.editSubject(person.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackaBar.open('Person deleted', 'Close', { panelClass: ['snackbar-success'] });

@@ -9,6 +9,7 @@ import { Observable, take } from 'rxjs';
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
 import { FacsimileService } from '../../services/facsimile.service';
+import { ProjectService } from '../../services/project.service';
 import { RangeArrayPipe } from '../../pipes/range-array.pipe';
 
 @Component({
@@ -26,17 +27,23 @@ export class FacsimileCollectionComponent implements OnInit {
   facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
   missingFileNumbers: number[] = [];
 
-  constructor(private fascimileService: FacsimileService, private route: ActivatedRoute) {
+  constructor(
+    private fascimileService: FacsimileService, 
+    private projectService: ProjectService,
+    private route: ActivatedRoute
+  ) {
     this.collectionId = this.route.snapshot.params['id'];
   }
 
   ngOnInit() {
-    this.facsimile$ = this.fascimileService.getFacsimileCollection(this.collectionId);
+    const currentProject = this.projectService.getCurrentProject();
+    this.facsimile$ = this.fascimileService.getFacsimileCollection(this.collectionId, currentProject);
     this.verifyFacsimileFiles();
   }
 
   verifyFacsimileFiles() {
-    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all').pipe(take(1)).subscribe({
+    const currentProject = this.projectService.getCurrentProject();
+    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all', currentProject).pipe(take(1)).subscribe({
       next: response => {
         this.missingFileNumbers = response.data?.missing_file_numbers || [];
       },
