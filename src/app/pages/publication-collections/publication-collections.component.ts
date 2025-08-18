@@ -61,7 +61,7 @@ export class PublicationCollectionsComponent implements OnInit {
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
-  selectedProject$;
+  selectedProject$: Observable<string | null>;
   sortParams$;
   filterParams$;
   loading$;
@@ -76,7 +76,7 @@ export class PublicationCollectionsComponent implements OnInit {
     private loadingService: LoadingService
   ) {
     this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.publicationService.selectedProject$;
+    this.selectedProject$ = this.projectService.selectedProject$;
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
    }
@@ -92,7 +92,7 @@ export class PublicationCollectionsComponent implements OnInit {
           if (!project) { return of([]); }
           return this.publicationService.getPublicationCollections(project);
         })
-      )),
+      ))
     );
 
     this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
