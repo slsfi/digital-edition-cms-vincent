@@ -15,36 +15,39 @@ export class TranslationService {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
+  private validateProject(projectName: string | null | undefined): string | never {
+    if (!projectName) {
+      throw new Error('Project name is required');
+    }
+    return projectName;
+  }
 
-  addTranslation(payload: TranslationRequest) {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/translation/new/`;
-        return this.apiService.post<TranslationResponse>(url, payload);
-      })
+
+  addTranslation(payload: TranslationRequest, projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/translation/new/`;
+    return this.apiService.post<TranslationResponse>(url, payload);
+  }
+
+  editTranslation(translation_id: number, payload: TranslationRequest, projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/translations/${translation_id}/edit/`;
+    return this.apiService.post<TranslationResponse>(url, payload);
+  }
+
+  getTranslations(translation_id: number, data: TranslationRequestPost, projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/translations/${translation_id}/list/`;
+    return this.apiService.post<TranslationsResponse>(url, data).pipe(
+      map(response => response.data)
     );
   }
 
-  editTranslation(translation_id: number, payload: TranslationRequest) {
+  // Legacy method for reactive updates on home page
+  getTranslationsForCurrentProject(translation_id: number, data: TranslationRequestPost) {
     return this.selectedProject$.pipe(
       filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/translations/${translation_id}/edit/`;
-        return this.apiService.post<TranslationResponse>(url, payload);
-      })
-    );
-  }
-
-  getTranslations(translation_id: number, data: TranslationRequestPost) {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/translations/${translation_id}/list/`;
-        return this.apiService.post<TranslationsResponse>(url, data).pipe(
-          map(response => response.data)
-        );
-      })
+      switchMap(project => this.getTranslations(translation_id, data, project))
     );
   }
 }

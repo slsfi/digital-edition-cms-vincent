@@ -19,6 +19,7 @@ import { TableSortingComponent } from '../../components/table-sorting/table-sort
 import { Column, Deleted } from '../../models/common';
 import { PublicationCollection, PublicationCollectionResponse } from '../../models/publication';
 import { LoadingService } from './../../services/loading.service';
+import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
 
@@ -60,13 +61,14 @@ export class PublicationCollectionsComponent implements OnInit {
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
-  selectedProject$;
+  selectedProject$: Observable<string | null>;
   sortParams$;
   filterParams$;
   loading$;
 
   constructor(
     private publicationService: PublicationService,
+    private projectService: ProjectService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private queryParamsService: QueryParamsService,
@@ -74,7 +76,7 @@ export class PublicationCollectionsComponent implements OnInit {
     private loadingService: LoadingService
   ) {
     this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.publicationService.selectedProject$;
+    this.selectedProject$ = this.projectService.selectedProject$;
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
    }
@@ -85,9 +87,12 @@ export class PublicationCollectionsComponent implements OnInit {
     );
 
     this.publicationCollections$ = this.loader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationService.getPublicationCollections()]).pipe(
-        map(([, publications]) => publications)
-      )),
+      switchMap(() => this.selectedProject$.pipe(
+        switchMap(project => {
+          if (!project) { return of([]); }
+          return this.publicationService.getPublicationCollections(project);
+        })
+      ))
     );
 
     this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
@@ -113,10 +118,11 @@ export class PublicationCollectionsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         let request$: Observable<PublicationCollectionResponse>;
+        const currentProject = this.projectService.getCurrentProject();
         if (publicationCollection?.id) {
-          request$ = this.publicationService.editPublicationCollection(publicationCollection.id, result.form.value);
+          request$ = this.publicationService.editPublicationCollection(publicationCollection.id, result.form.value, currentProject);
         } else {
-          request$ = this.publicationService.addPublicationCollection(result.form.value);
+          request$ = this.publicationService.addPublicationCollection(result.form.value, currentProject);
         }
         request$.pipe(take(1)).subscribe({
           next: () => {
@@ -142,7 +148,8 @@ export class PublicationCollectionsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { deleted: Deleted.Deleted, cascade_deleted: result.cascadeBoolean };
-        this.publicationService.editPublicationCollection(collection.id, payload).pipe(take(1)).subscribe({
+        const currentProject = this.projectService.getCurrentProject();
+        this.publicationService.editPublicationCollection(collection.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
             this.snackbar.open('Publication collection deleted', 'Close', { panelClass: ['snackbar-success'] });

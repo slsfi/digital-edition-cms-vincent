@@ -6,7 +6,13 @@ describe('FacsimileService', () => {
   let service: FacsimileService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        FacsimileService,
+        { provide: 'ApiService', useValue: { prefixedUrl: 'https://test-api.com/digitaledition' } },
+        { provide: 'ProjectService', useValue: { selectedProject$: { value: 'test-project' } } }
+      ]
+    });
     service = TestBed.inject(FacsimileService);
   });
 
