@@ -15,35 +15,38 @@ export class SubjectService {
     this.selectedProject$ = this.projectService.selectedProject$;
   }
 
-  getSubjects(): Observable<Person[]> {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects/list/`;
-        return this.apiService.get<PersonResponse>(url).pipe(
-          map(response => response.data),
-        )
-      })
+  private validateProject(projectName: string | null | undefined): string | never {
+    if (!projectName) {
+      throw new Error('Project name is required');
+    }
+    return projectName;
+  }
+
+  getSubjects(projectName: string | null | undefined): Observable<Person[]> {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/subjects/list/`;
+    return this.apiService.get<PersonResponse>(url).pipe(
+      map(response => response.data),
     );
   }
 
-  addSubject(payload: PersonPayload) {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects/new/`;
-        return this.apiService.post<Person>(url, payload);
-      })
-    );
+  addSubject(payload: PersonPayload, projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/subjects/new/`;
+    return this.apiService.post<Person>(url, payload);
   }
 
-  editSubject(id: number, payload: PersonPayload) {
+  editSubject(id: number, payload: PersonPayload, projectName: string | null | undefined) {
+    const project = this.validateProject(projectName);
+    const url = `${this.apiService.prefixedUrl}/${project}/subjects/${id}/edit/`;
+    return this.apiService.post<Person>(url, payload);
+  }
+
+  // Legacy method for reactive updates on home page
+  getSubjectsForCurrentProject(): Observable<Person[]> {
     return this.selectedProject$.pipe(
       filter(project => !!project),
-      switchMap(project => {
-        const url = `${this.apiService.prefixedUrl}/${project}/subjects/${id}/edit/`;
-        return this.apiService.post<Person>(url, payload);
-      })
+      switchMap(project => this.getSubjects(project))
     );
   }
 }

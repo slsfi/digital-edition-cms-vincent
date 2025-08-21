@@ -18,6 +18,7 @@ import { TranslationsComponent } from '../translations/translations.component';
 import { Column, PublishedOptions } from '../../models/common';
 import { personTypeOptions } from '../../models/person';
 import { XmlMetadata } from './../../models/publication';
+import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 
 export interface EditDialogData<T> {
@@ -49,7 +50,10 @@ export interface EditDialogData<T> {
 })
 export class EditDialogComponent<T> implements OnInit {
 
-  constructor(private publicationService: PublicationService) { }
+  constructor(
+    private publicationService: PublicationService,
+    private projectService: ProjectService
+  ) { }
 
   readonly data = inject<EditDialogData<T>>(MAT_DIALOG_DATA);
 
@@ -202,7 +206,8 @@ export class EditDialogComponent<T> implements OnInit {
 
   getMetadata() {
     this.gettingMetadata = true;
-    this.publicationService.getMetadataFromXML(this.originalFilenameControl.value).pipe(
+    const currentProject = this.projectService.getCurrentProject();
+    this.publicationService.getMetadataFromXML(this.originalFilenameControl.value, currentProject).pipe(
       take(1),
       finalize(() => {
         this.gettingMetadata = false;
