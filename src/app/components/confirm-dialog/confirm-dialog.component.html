@@ -1,11 +1,27 @@
 <h2 mat-dialog-title>Confirm action</h2>
 <mat-dialog-content>
   <p>{{ message }}</p>
+  
   @if (showCascadeBoolean) {
     <mat-slide-toggle [(ngModel)]="cascadeBoolean" color="primary">{{ cascadeText }}</mat-slide-toggle>
+  }
+  
+  @if (showMetadataFields) {
+    <div class="metadata-fields">
+      <h3>Select fields to update:</h3>
+      @for (field of metadataFields; track field.key) {
+        <mat-slide-toggle 
+          [(ngModel)]="selectedFields[field.key]" 
+          color="primary">
+          {{ field.label }}
+        </mat-slide-toggle>
+      }
+    </div>
   }
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button [mat-dialog-close]="{value: false}">{{ cancelText }}</button>
-  <button mat-flat-button [mat-dialog-close]="{value: true, cascadeBoolean}" cdkFocusInitial>{{ confirmText }}</button>
+  <button mat-flat-button 
+    [mat-dialog-close]="{value: true, cascadeBoolean, selectedFields}" 
+    cdkFocusInitial>{{ confirmText }}</button>
 </mat-dialog-actions>

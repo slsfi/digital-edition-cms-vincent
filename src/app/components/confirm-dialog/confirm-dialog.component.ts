@@ -5,12 +5,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
+export interface MetadataFieldOption {
+  key: string;
+  label: string;
+  defaultSelected: boolean;
+}
+
 export interface ConfirmDialogData {
   message: string;
   cancelText: string;
   confirmText: string;
-  showCascadeBoolean: boolean;
-  cascadeText: string;
+  showCascadeBoolean?: boolean;
+  cascadeText?: string;
+  // New fields for metadata selection
+  showMetadataFields?: boolean;
+  metadataFields?: MetadataFieldOption[];
 }
 
 @Component({
@@ -25,9 +34,11 @@ export class ConfirmDialogComponent {
   confirmText = 'Confirm';
   showCascadeBoolean = false;
   cascadeText = 'Cascade';
+  showMetadataFields = false;
+  metadataFields: MetadataFieldOption[] = [];
+  selectedFields: { [key: string]: boolean } = {};
 
   cascadeBoolean = false;
-
 
   readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
@@ -35,8 +46,14 @@ export class ConfirmDialogComponent {
     this.message = this.data.message;
     this.cancelText = this.data.cancelText;
     this.confirmText = this.data.confirmText;
-    this.showCascadeBoolean = this.data.showCascadeBoolean;
-    this.cascadeText = this.data.cascadeText;
+    this.showCascadeBoolean = this.data.showCascadeBoolean || false;
+    this.cascadeText = this.data.cascadeText || 'Cascade';
+    this.showMetadataFields = this.data.showMetadataFields || false;
+    this.metadataFields = this.data.metadataFields || [];
+    
+    // Initialize selected fields with defaults
+    this.metadataFields.forEach(field => {
+      this.selectedFields[field.key] = field.defaultSelected;
+    });
   }
-
 }

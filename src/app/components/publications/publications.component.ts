@@ -19,7 +19,7 @@ import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData
          allPublicationColumnsData, allVersionColumnsData, commentsColumnData,
          facsimileColumnData, manuscriptColumnsData, publicationColumnsData,
          versionColumnsData } from './columns';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent, MetadataFieldOption } from '../confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { EditDialogComponent, EditDialogData } from '../edit-dialog/edit-dialog.component';
 import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
@@ -81,6 +81,14 @@ export class PublicationsComponent implements OnInit {
   isSmallScreen = false;
   metadataUpdateFailures: number[] = [];
   metadataUpdating = false;
+
+  // Metadata field configuration for selective updates
+  private readonly METADATA_FIELDS: MetadataFieldOption[] = [
+    { key: 'name', label: 'Publication Name', defaultSelected: true },
+    { key: 'original_publication_date', label: 'Date of Origin', defaultSelected: true },
+    { key: 'language', label: 'Language', defaultSelected: true },
+    { key: 'genre', label: 'Genre', defaultSelected: true }
+  ];
 
   constructor(
     private publicationService: PublicationService,
@@ -527,9 +535,11 @@ export class PublicationsComponent implements OnInit {
   updateMetadataAll(collectionId: string) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        message: 'This action fetches metadata of all publications in the collection from the reading-text XML files, and overwrites the data in the database with the fresh data from XML. Please observe that missing data in the XML files will result in empty field values in the database. Updated fields include the publication name, date of origin, language and genre. This action can’t be undone! Are you sure you wish to proceed?',
+        message: 'This action fetches metadata of all publications in the collection from the reading-text XML files, and overwrites the data in the database with the fresh data from XML. Please observe that missing data in the XML files will result in empty field values in the database. Note that this action cannot be undone, so make sure the values and fields selected are correct! Select which fields should be updated:',
         confirmText: 'Update',
-        cancelText: 'Cancel'
+        cancelText: 'Cancel',
+        showMetadataFields: true,
+        metadataFields: this.METADATA_FIELDS
       }
     });
 
@@ -537,6 +547,20 @@ export class PublicationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
+        const selectedFields = result.selectedFields || {};
+        
+        // Filter metadata to only include selected fields
+        const filterMetadata = (metadata: XmlMetadata): Partial<PublicationEditRequest> => {
+          const filtered: Partial<PublicationEditRequest> = {};
+          
+          if (selectedFields['name']) filtered.name = metadata.name;
+          if (selectedFields['original_publication_date']) filtered.original_publication_date = metadata.original_publication_date;
+          if (selectedFields['language']) filtered.language = metadata.language;
+          if (selectedFields['genre']) filtered.genre = metadata.genre;
+          
+          return filtered;
+        };
+
         this.metadataUpdating = true;
         this.metadataUpdateFailures = [];
 
@@ -561,9 +585,12 @@ export class PublicationsComponent implements OnInit {
                 return this.publicationService.getMetadataFromXML(pub.original_filename, currentProject).pipe(
                   take(1),
                   switchMap((metadata: XmlMetadata) => {
-                    const updateRequest: PublicationEditRequest = {
-                      ...metadata
-                    };
+                    const updateRequest: PublicationEditRequest = filterMetadata(metadata);
+                    
+                    // Only proceed if at least one field is selected
+                    if (Object.keys(updateRequest).length === 0) {
+                      return of(null);
+                    }
 
                     return this.publicationService.editPublication(pub.id, updateRequest, currentProject).pipe(
                       take(1)
@@ -596,7 +623,7 @@ export class PublicationsComponent implements OnInit {
               this.publicationsLoader$.next(0); // Refresh the list
             } else if (this.metadataUpdateFailures.length < results.length) {
               // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
-              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'Close', {
+              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'Close', {
                 panelClass: 'snackbar-warning',
                 duration: undefined
               });
