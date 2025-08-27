@@ -103,3 +103,30 @@ export interface FacsimileForPublication {
 export interface LinkFacsimileToPublicationResponse extends ApiResponse {
   data: FacsimileForPublication;
 }
+
+// New interfaces for bulk facsimile creation
+export interface FacsimileCreationConfig {
+  publicationCollectionId: number;
+  numberOfPages: number;
+  startPageNumber: number;
+  titleSource: 'publication' | 'manuscript';
+  description: string;
+}
+
+export interface FacsimileCreationResult {
+  success: boolean;
+  publicationId: number;
+  publicationName: string;
+  facsimileId?: number;
+  facsimileTitle?: string;
+  error?: string;
+  index: number;
+  total: number;
+}
+
+export interface FacsimileCreationSummary {
+  total: number;
+  successful: number;
+  failed: number;
+  results: FacsimileCreationResult[];
+}

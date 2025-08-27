@@ -18,7 +18,20 @@
        <ng-content custom-table-actions>
         <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
         <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-        <button mat-flat-button (click)="editCollection()"><mat-icon>add</mat-icon>Add</button>
+        <button mat-flat-button [matMenuTriggerFor]="addFacsimileMenu">
+          <mat-icon>add</mat-icon>
+          Add
+        </button>
+        <mat-menu #addFacsimileMenu="matMenu">
+          <button mat-menu-item (click)="editCollection()">
+            <mat-icon>add</mat-icon>
+            Add single
+          </button>
+          <button mat-menu-item (click)="addFromPublications()">
+            <mat-icon>library_add</mat-icon>
+            Add from publications
+          </button>
+        </mat-menu>
        </ng-content>
     </custom-table>
 
