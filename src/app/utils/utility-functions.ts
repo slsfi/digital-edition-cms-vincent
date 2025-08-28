@@ -46,3 +46,28 @@ export function cleanEmptyStrings<T extends object>(obj: T): T {
   }
   return cleaned as T;
 }
+
+
+/**
+ * Compare two arrays of primitive values (e.g., string, number,
+ * boolean, null, undefined) for shallow equality. Returns true if
+ * both arrays have the same length and each element is strictly equal
+ * (`===`) at the same index.
+ *
+ * This is useful as a comparator for RxJS operators like
+ * `distinctUntilChanged`, when working with `combineLatest` tuples of
+ * primitive values. For example, it prevents duplicate emissions when
+ * all tuple elements are unchanged, even though the arrays are new
+ * references.
+ *
+ * @param a - First array of primitive values
+ * @param b - Second array of primitive values
+ * @returns true if arrays are the same length and all corresponding elements match strictly
+ */
+export function shallowArrayEqual<T extends readonly unknown[]>(a: T, b: T): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
