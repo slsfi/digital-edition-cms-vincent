@@ -36,7 +36,7 @@ import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript
          ManuscriptResponse, Publication, PublicationComment, PublicationCommentResponse,
          PublicationEditRequest, PublicationResponse, Version, VersionResponse,
          XmlMetadata } from '../../models/publication';
-import { cleanEmptyStrings, cleanObject } from '../../utils/utility-functions';
+import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/utility-functions';
 
 @Component({
   selector: 'publications',
@@ -129,7 +129,7 @@ export class PublicationsComponent implements OnInit {
 
     this.comments$ = this.commentLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
-        distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+        distinctUntilChanged(shallowArrayEqual),
         switchMap(([project, collectionId, publicationId]) => {
           if (!project) { return of([]); }
           return this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string, project);
@@ -139,7 +139,7 @@ export class PublicationsComponent implements OnInit {
 
     this.versions$ = this.versionsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
-        distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+        distinctUntilChanged(shallowArrayEqual),
         switchMap(([project, , publicationId]) => {
           if (!project) { return of([]); }
           return this.publicationService.getVersionsForPublication(publicationId as string, project);
@@ -149,7 +149,7 @@ export class PublicationsComponent implements OnInit {
 
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
-        distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+        distinctUntilChanged(shallowArrayEqual),
         switchMap(([project, , publicationId]) => {
           if (!project) { return of([]); }
           return this.publicationService.getManuscriptsForPublication(publicationId as string, project);
@@ -159,7 +159,7 @@ export class PublicationsComponent implements OnInit {
 
     this.facsimiles$ = this.facsimilesLoader$.asObservable().pipe(
       switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
-        distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
+        distinctUntilChanged(shallowArrayEqual),
         switchMap(([project, , publicationId]) => {
           if (!project) { return of([]); }
           return this.publicationService.getFacsimilesForPublication(publicationId as string, project);
