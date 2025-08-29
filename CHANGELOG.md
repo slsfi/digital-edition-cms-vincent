@@ -18,6 +18,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `typescript` to 5.9.2.
 - Deps (dev): update `typescript-eslint` to 8.40.0.
 
+### Removed
+
+- Deps (dev): deprecated `@angular/platform-browser-dynamic`.
+
 
 
 ## [1.3.1] – 2025-06-06
