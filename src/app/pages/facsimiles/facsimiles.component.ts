@@ -4,6 +4,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
@@ -27,7 +28,7 @@ import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/f
   selector: 'app-facsimiles',
   imports: [
     CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule,
-    MatBadgeModule, CustomTableComponent
+    MatBadgeModule, CustomTableComponent, MatMenuModule
   ],
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'
@@ -155,6 +156,10 @@ export class FacsimilesComponent implements OnInit {
       }
     });
 
+  }
+
+  addFromPublications() {
+    this.router.navigate(['/facsimiles/add-from-publications']);
   }
 
 }

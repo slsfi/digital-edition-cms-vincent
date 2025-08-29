@@ -9,6 +9,7 @@ import { PublicationCollectionsComponent } from './pages/publication-collections
 import { NewPublicationFacsimileComponent } from './pages/new-publication-facsimile/new-publication-facsimile.component';
 import { FacsimileCollectionComponent } from './pages/facsimile-collection/facsimile-collection.component';
 import { PublicationBundleComponent } from './pages/publication-bundle/publication-bundle.component';
+import { AddFacsimileFromPublicationsComponent } from './pages/add-facsimile-from-publications/add-facsimile-from-publications.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'publication-collections/:collectionId/publication/:publicationId', component: PublicationCollectionsComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId/publication/:publicationId/facsimiles/new', component: NewPublicationFacsimileComponent, canActivate: [authGuard] },
   { path: 'facsimiles', component: FacsimilesComponent, canActivate: [authGuard] },
+  { path: 'facsimiles/add-from-publications', component: AddFacsimileFromPublicationsComponent, canActivate: [authGuard] },
   { path: 'facsimiles/:id', component: FacsimileCollectionComponent, canActivate: [authGuard] },
   { path: 'persons', component: PersonsComponent, canActivate: [authGuard] },
 ];
