@@ -109,10 +109,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
               'Close', 
               { panelClass: ['snackbar-success'] }
             );
-            // Navigate back to facsimiles page after a short delay
-            setTimeout(() => {
-              this.router.navigate(['/facsimiles']);
-            }, 2000);
+            // Removed automatic redirect - user can now read the summary and navigate manually
           } else {
             this.snackbar.open(
               `Created ${summary.successful} facsimile collections, but ${summary.failed} failed.`, 
@@ -135,6 +132,10 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
   }
 
   onCancel() {
+    this.router.navigate(['/facsimiles']);
+  }
+
+  onBackToFacsimiles() {
     this.router.navigate(['/facsimiles']);
   }
 
