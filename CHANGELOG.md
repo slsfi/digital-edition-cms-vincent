@@ -8,21 +8,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.4.0] – 2025-08-29
+
+### Added
+
+- Feature: add facsimile collections from publications. ([913b03e](https://github.com/slsfi/digital-edition-cms-vincent/commit/913b03ebf4c5de32f2ca5c578c6c54b7853a2b9e))
+- Feature: selective publication metadata updating from XML. ([735adca](https://github.com/slsfi/digital-edition-cms-vincent/commit/735adca1fab3bfc798ebbc152b344fd563a3b230))
+
 ### Changed
 
-- Deps: update `@angular/core` to 20.2.2, `@angular/cli`, `@angular/cdk` and `@angular/material` to 20.2.1.
-- Deps (dev): update `@types/jasmine` to 5.1.9.
-- Deps (dev): update `angular-eslint` to 20.2.0.
-- Deps (dev): update `eslint` to 9.34.0.
-- Deps (dev): update `jasmine-core` to 5.9.0.
-- Deps (dev): update `typescript` to 5.9.2.
-- Deps (dev): update `typescript-eslint` to 8.40.0.
-- Deps: update transitive dependencies.
+- Refactor selectedProject-reactive dependencies. ([bd0e088](https://github.com/slsfi/digital-edition-cms-vincent/commit/bd0e088553afa67faf939d367715a2a8db6a4672), [905888c](https://github.com/slsfi/digital-edition-cms-vincent/commit/905888c69a54249632cd8a1a12566b6b835dd91a))
+- Deps: update `@angular/core` to 20.2.2, `@angular/cli`, `@angular/cdk` and `@angular/material` to 20.2.1. ([66d124c](https://github.com/slsfi/digital-edition-cms-vincent/commit/66d124c8f77341f83a82fcfa29710e6ab7a16984), [2b5254c](https://github.com/slsfi/digital-edition-cms-vincent/commit/2b5254c399a979e1347993ec5dae4948ce4b8b93), [228484b](https://github.com/slsfi/digital-edition-cms-vincent/commit/228484b31258767ef35695630b78ae3047ffda95), [1da0f48](https://github.com/slsfi/digital-edition-cms-vincent/commit/1da0f48ff8e24f094ace75de00c3756d600109c2), [7998a61](https://github.com/slsfi/digital-edition-cms-vincent/commit/7998a6124f780ef06132e602ea6e6ff36b06fb51))
+- Deps (dev): update `@types/jasmine` to 5.1.9. ([25e90c6](https://github.com/slsfi/digital-edition-cms-vincent/commit/25e90c63b8afd7d26180c043aae4ddabc73a73b6))
+- Deps (dev): update `angular-eslint` to 20.2.0. ([e8b672b](https://github.com/slsfi/digital-edition-cms-vincent/commit/e8b672b58e318121312535520007a1c36dc2268d))
+- Deps (dev): update `eslint` to 9.34.0. ([199ebbd](https://github.com/slsfi/digital-edition-cms-vincent/commit/199ebbd59d1d2f61fa54c72a21762a8149b7b38a))
+- Deps (dev): update `jasmine-core` to 5.9.0. ([acebbaa](https://github.com/slsfi/digital-edition-cms-vincent/commit/acebbaa039c8dcf8c688b66edf411382a56532a3))
+- Deps (dev): update `typescript` to 5.9.2. ([cf95f3a](https://github.com/slsfi/digital-edition-cms-vincent/commit/cf95f3ab9b115b5a9110f02415e00d6e3da85fab))
+- Deps (dev): update `typescript-eslint` to 8.40.0. ([546c3b9](https://github.com/slsfi/digital-edition-cms-vincent/commit/546c3b944c0a50a76ec8b037898b13d856d04f8f))
+- Deps: update transitive dependencies. ([b045e03](https://github.com/slsfi/digital-edition-cms-vincent/commit/b045e037e3aac3df273ec1dc7d662d9fd584e860))
+
+### Fixed
+
+- Typo in confirm-dialog component spec. ([93b195d](https://github.com/slsfi/digital-edition-cms-vincent/commit/93b195dced0fc673d3eaa2ae3493bea9d81e8d96))
 
 ### Removed
 
-- Unused RxJS operators from facsimiles page.
-- Deps (dev): deprecated `@angular/platform-browser-dynamic`.
+- Unused RxJS operators from facsimiles page. ([b9aa0a9](https://github.com/slsfi/digital-edition-cms-vincent/commit/b9aa0a91b889f256ebc98d3270e31fd12797b107))
+- Deps (dev): deprecated `@angular/platform-browser-dynamic`. ([3344e65](https://github.com/slsfi/digital-edition-cms-vincent/commit/3344e6569627b4c948930c12f02aeb1708156063))
 
 
 
@@ -260,7 +274,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.0...HEAD
+[1.4.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.5...1.3.0
 [1.2.5]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.4...1.2.5
