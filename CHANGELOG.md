@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core` to 20.2.2, `@angular/cli`, `@angular/cdk` and `@angular/material` to 20.2.1.
 - Deps (dev): update `@types/jasmine` to 5.1.9.
 - Deps (dev): update `angular-eslint` to 20.2.0.
+- Deps (dev): update `eslint` to 9.34.0.
 - Deps (dev): update `jasmine-core` to 5.9.0.
 
 
