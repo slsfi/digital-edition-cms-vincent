@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Removed
 
+- Unused RxJS operators from facsimiles page.
 - Deps (dev): deprecated `@angular/platform-browser-dynamic`.
 
 
