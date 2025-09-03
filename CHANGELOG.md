@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.4.1] – 2025-09-03
+
 ### Changed
 
-- Update URLs of Parland and Westermarck environments.
+- Update URLs of Parland and Westermarck environments. ([46f0ad0](https://github.com/slsfi/digital-edition-cms-vincent/commit/46f0ad07ad0cd8cd4c4768f5a476edc89bc851dc))
 
 
 
@@ -278,7 +282,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.1...HEAD
+[1.4.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.2.5...1.3.0
