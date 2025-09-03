@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Update URLs of Parland and Westermarck environments.
+
 
 
 ## [1.4.0] – 2025-08-29
