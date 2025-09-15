@@ -1,0 +1,131 @@
+<div class="container">
+  <div class="header">
+    <h1>Publication-Keyword Linking</h1>
+    <p>Connect keywords to publications in your project. Select a collection to view its publications and manage their keyword associations.</p>
+  </div>
+
+  <div class="content">
+    <!-- Collection Selection -->
+    <div class="collection-selection">
+      <mat-form-field appearance="outline" class="collection-field">
+        <mat-label>Select Publication Collection</mat-label>
+        <mat-select [formControl]="collectionControl">
+          <mat-option *ngFor="let collection of collections$ | async" [value]="collection.id">
+            {{ collection.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Main Content Area -->
+    @if (selectedCollectionId) {
+    <div class="main-content">
+      <!-- Publications List (Left Column) -->
+      <div class="publications-panel">
+        <div class="panel-header">
+          <h3>Publications</h3>
+          @if ((publications$ | async)?.length === 0) {
+          <p>No publications found in this collection.</p>
+          }
+        </div>
+        
+        <publication-keyword-table
+          [publications$]="publications$"
+          [selectedId]="selectedPublicationId"
+          [loading]="isLoading"
+          (rowClick)="selectPublication($event)">
+        </publication-keyword-table>
+      </div>
+
+      <!-- Keywords Panel (Right Column) -->
+      @if (selectedPublicationId) {
+      <div class="keywords-panel">
+        <div class="panel-header">
+          <h3>Linked Keywords</h3>
+          <button mat-flat-button color="primary" (click)="addKeywordToPublication()" [disabled]="isLoading">
+            <mat-icon>add</mat-icon>
+            Link Keyword
+          </button>
+        </div>
+
+        <!-- Keywords Table -->
+        @if (!isLoading) {
+        <div class="keywords-table">
+          <table mat-table [dataSource]="(linkedKeywords$ | async) || []" class="mat-elevation-z1">
+            <!-- Keyword Text Column -->
+            <ng-container matColumnDef="text">
+              <th mat-header-cell *matHeaderCellDef>Keyword</th>
+              <td mat-cell *matCellDef="let keyword">{{ keyword.text }}</td>
+            </ng-container>
+
+            <!-- Category Column -->
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Category</th>
+              <td mat-cell *matCellDef="let keyword">
+                <mat-chip-set>
+                  @if (keyword.category) {
+                  <mat-chip color="primary" variant="outlined">
+                    {{ keyword.category }}
+                  </mat-chip>
+                  } @else {
+                  <span class="no-category">No category</span>
+                  }
+                </mat-chip-set>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let keyword">
+                <div class="action-buttons">
+                  <button mat-icon-button color="warn" (click)="removeKeywordFromPublication(keyword)" title="Remove keyword">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="keywordColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: keywordColumns"></tr>
+          </table>
+
+          @if (!isLoading && hasLoadedOnce && (linkedKeywords$ | async)?.length === 0) {
+          <div class="no-keywords">
+            <mat-icon>label_off</mat-icon>
+            <p>No keywords linked to this publication.</p>
+            <p>Click "Link Keyword" to add keywords.</p>
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Loading State -->
+        @if (isLoading) {
+        <div class="loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading keywords...</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- No Publication Selected -->
+      @if (!selectedPublicationId) {
+      <div class="no-selection">
+        <mat-icon>description</mat-icon>
+        <p>Select a publication from the list to view and manage its linked keywords.</p>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- No Collection Selected -->
+    @if (!selectedCollectionId) {
+    <div class="no-collection">
+      <mat-icon>folder_open</mat-icon>
+      <p>Select a publication collection to begin linking keywords to publications.</p>
+    </div>
+    }
+  </div>
+</div>

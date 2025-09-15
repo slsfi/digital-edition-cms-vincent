@@ -1,0 +1,184 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 32px;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 16px 0;
+    font-size: 28px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+.content {
+  .actions-bar {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      min-width: 140px;
+    }
+  }
+
+  .filters-section {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+
+    .filters-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+
+      .search-field {
+        flex: 1;
+        min-width: 250px;
+      }
+
+      .category-filter-field {
+        min-width: 200px;
+      }
+
+      .clear-filters-btn {
+        height: 56px; // Match form field height
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .keywords-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    table {
+      width: 100%;
+
+      th {
+        background-color: #f5f5f5;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        vertical-align: top;
+      }
+
+      tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+    }
+
+    .no-keywords {
+      text-align: center;
+      padding: 48px 24px;
+      color: rgba(0, 0, 0, 0.6);
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 8px 0;
+        font-size: 16px;
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: rgba(0, 0, 0, 0.6);
+
+    p {
+      margin: 16px 0 0 0;
+      font-size: 16px;
+    }
+  }
+}
+
+.translations {
+  .no-translations {
+    color: rgba(0, 0, 0, 0.4);
+    font-style: italic;
+  }
+}
+
+.no-category {
+  color: rgba(0, 0, 0, 0.4);
+  font-style: italic;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .keywords-table {
+    overflow-x: auto;
+    
+    table {
+      min-width: 600px;
+    }
+  }
+
+  .actions-bar {
+    justify-content: center;
+  }
+
+  .filters-section {
+    .filters-row {
+      flex-direction: column;
+      align-items: stretch;
+
+      .search-field,
+      .category-filter-field {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .clear-filters-btn {
+        height: auto;
+        align-self: center;
+        margin-top: 8px;
+      }
+    }
+  }
+}

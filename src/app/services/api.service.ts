@@ -55,4 +55,12 @@ export class ApiService {
       )
   }
 
+  delete<T>(url: string, options: object = {}, disableErrorMessage = false) {
+    return this.http.delete<T>(url, options)
+      .pipe(
+        map((response) => response),
+        catchError((error) => this.handleError(error, disableErrorMessage))
+      )
+  }
+
 }

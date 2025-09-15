@@ -1,0 +1,204 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 32px;
+  
+  h1 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 2rem;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.collection-selection {
+  .collection-field {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  min-height: 600px;
+}
+
+.publications-panel,
+.keywords-panel {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+}
+
+.publications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.publication-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  
+  &:hover {
+    border-color: #1976d2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+  }
+  
+  &.selected {
+    border-color: #1976d2;
+    background: #e3f2fd;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+  }
+}
+
+.publication-info {
+  h4 {
+    margin: 0 0 4px 0;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .publication-id {
+    margin: 0;
+    color: #666;
+    font-size: 0.85rem;
+  }
+}
+
+.keywords-table {
+  .mat-mdc-table {
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .no-category {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.no-keywords,
+.no-selection,
+.no-collection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: #666;
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #ccc;
+  }
+  
+  p {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: #666;
+  
+  p {
+    margin: 16px 0 0 0;
+    font-size: 1rem;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .publications-panel,
+  .keywords-panel {
+    padding: 16px;
+  }
+  
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
