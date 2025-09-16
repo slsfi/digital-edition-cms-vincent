@@ -85,7 +85,7 @@ export class KeywordService {
       map(response => {
         console.log('Keywords API response:', response);
         if (response.success && response.data) {
-          const keywords = response.data.map(this.mapApiKeywordToKeyword);
+          const keywords = response.data.map(this.mapKeywordApiData);
           console.log('Mapped keywords:', keywords);
           return keywords;
         }
@@ -123,7 +123,7 @@ export class KeywordService {
       map(response => {
         console.log('Create keyword API response:', response);
         if (response.success && response.data) {
-          const keyword = this.mapApiKeywordToKeyword(response.data);
+          const keyword = this.mapKeywordApiData(response.data);
           console.log('Mapped created keyword:', keyword);
           return keyword;
         }
@@ -150,7 +150,7 @@ export class KeywordService {
     return this.apiService.post<KeywordApiSingleResponse>(url, apiRequest).pipe(
       map(response => {
         if (response.success && response.data) {
-          return this.mapApiKeywordToKeyword(response.data);
+          return this.mapKeywordApiData(response.data);
         }
         throw new Error('Failed to update keyword');
       }),
@@ -197,14 +197,10 @@ export class KeywordService {
         console.log('Publication keywords response:', response);
         
         if (response.success && response.data && Array.isArray(response.data)) {
-          // Map the tag data to Keyword objects
-          const keywords: Keyword[] = response.data.map((tag: PublicationKeywordApiData) => ({
-            id: tag.id,
-            text: tag.name || '', // The keyword text is in the 'name' field
-            category: tag.type || null, // The category is in the 'type' field
-            projectId: tag.project_id || 0,
-            translations: [] // TODO: Handle translations if needed
-          }));
+          // Map the tag data to Keyword objects using publication-specific mapping
+          const keywords: Keyword[] = response.data.map((tag: PublicationKeywordApiData) => 
+            this.mapPublicationKeywordApiData(tag)
+          );
           
           console.log('Mapped keywords from tags:', keywords);
           return keywords;
@@ -273,18 +269,17 @@ export class KeywordService {
 
   /**
    * Remove a keyword from a publication
-   * Uses the backend endpoint: DELETE /{projectName}/events
+   * Uses the backend endpoint: POST /{projectName}/events/{event_id}/delete/
    * Deletes the event connection between the keyword (tag) and publication
    */
-  disconnectKeywordFromPublication(keywordId: number, publicationId: number, projectName: string): Observable<boolean> {
-    console.log(`Disconnecting keyword ${keywordId} from publication ${publicationId} in project ${projectName}`);
+  disconnectKeywordFromPublication(eventId: number, projectName: string): Observable<boolean> {
+    console.log(`Disconnecting event ${eventId} in project ${projectName}`);
     
-    // Delete the event connection between the keyword and publication
-    // Try different endpoint patterns for DELETE
-    const url = `${this.apiService.prefixedUrl}/${projectName}/events/delete/?tag_id=${keywordId}&publication_id=${publicationId}`;
+    // Delete the event connection using the event ID
+    const url = `${this.apiService.prefixedUrl}/${projectName}/events/${eventId}/delete/`;
     console.log('Deleting keyword connection event:', url);
     
-    return this.apiService.delete(url).pipe(
+    return this.apiService.post(url, {}).pipe(
       map(response => {
         console.log('Disconnect keyword response:', response);
         return true;
@@ -357,15 +352,34 @@ export class KeywordService {
   }
 
   /**
-   * Map backend API keyword data to our frontend Keyword model
+   * Map general keyword API data to our frontend Keyword model
    */
-  private mapApiKeywordToKeyword(apiData: KeywordApiData): Keyword {
+  private mapKeywordApiData(apiData: KeywordApiData): Keyword {
     return {
       id: apiData.id,
       text: apiData.name || '',
       category: apiData.type,
       projectId: apiData.project_id,
-      translations: [] // TODO: Implement translations when backend supports it
+      translations: [], // TODO: Implement translations when backend supports it
+      // No event data for general keywords
+      eventId: undefined,
+      eventOccurrenceId: undefined
+    };
+  }
+
+  /**
+   * Map publication-linked keyword API data to our frontend Keyword model
+   */
+  private mapPublicationKeywordApiData(apiData: PublicationKeywordApiData): Keyword {
+    return {
+      id: apiData.id,
+      text: apiData.name || '',
+      category: apiData.type,
+      projectId: apiData.project_id,
+      translations: [], // TODO: Implement translations when backend supports it
+      // Include event data for linked keywords
+      eventId: apiData.event_id,
+      eventOccurrenceId: apiData.event_occurrence_id
     };
   }
 

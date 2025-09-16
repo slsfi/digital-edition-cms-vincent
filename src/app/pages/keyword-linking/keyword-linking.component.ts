@@ -220,7 +220,7 @@ export class KeywordLinkingComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
-        this.performRemoveKeyword(keyword.id);
+        this.performRemoveKeyword(keyword);
       }
     });
   }
@@ -321,11 +321,17 @@ export class KeywordLinkingComponent implements OnInit {
     });
   }
 
-  private performRemoveKeyword(keywordId: number) {
+  private performRemoveKeyword(keyword: Keyword) {
     if (!this.selectedPublicationId) return;
 
-    const currentProject = this.projectService.getCurrentProject();
-    if (!currentProject) {
+    if (!keyword.eventId) {
+      this.snackBar.open('Cannot remove keyword: missing event information', 'Close', { 
+        panelClass: ['snackbar-error'] 
+      });
+      return;
+    }
+
+    if (!this.projectName) {
       this.snackBar.open('No project selected', 'Close', { 
         panelClass: ['snackbar-error'] 
       });
@@ -333,7 +339,7 @@ export class KeywordLinkingComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.keywordService.disconnectKeywordFromPublication(keywordId, this.selectedPublicationId, this.projectName).pipe(take(1)).subscribe({
+    this.keywordService.disconnectKeywordFromPublication(keyword.eventId, this.projectName).pipe(take(1)).subscribe({
       next: (success) => {
         if (success) {
           this.snackBar.open('Keyword removed successfully', 'Close', { 
