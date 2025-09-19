@@ -1,0 +1,259 @@
+.toc-node {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 1px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start; // Align to top instead of center
+  padding: 6px 8px;
+  min-height: auto; // Remove fixed height
+  color: #333 !important; // Force black text
+  width: 100%; // Use full width
+
+  &:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+  }
+
+  &.subtitle-node {
+    background-color: #f8f8f8;
+    border-color: #ddd;
+    font-weight: 500;
+    
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  // Depth-based indentation
+  &.depth-1 {
+    margin-left: 16px;
+    width: calc(100% - 16px);
+  }
+
+  &.depth-2 {
+    margin-left: 32px;
+    width: calc(100% - 32px);
+  }
+
+  &.depth-3 {
+    margin-left: 48px;
+    width: calc(100% - 48px);
+  }
+
+  &.depth-4 {
+    margin-left: 64px;
+    width: calc(100% - 64px);
+  }
+
+  &.cdk-drag-preview {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: rotate(2deg);
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0.4;
+    background-color: #f0f0f0;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  // Ensure all text elements are black
+  * {
+    color: #333 !important;
+  }
+}
+
+.node-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start; // Align to top
+  gap: 12px;
+  padding-top: 2px; // Small top padding for better alignment
+}
+
+.node-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  align-items: center;
+  margin-top: 8px; // More space from content above
+  justify-content: flex-start; // Align to left
+}
+
+.toc-node:hover .node-actions {
+  opacity: 1;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: flex-start; // Align to top
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  margin-top: 2px; // Small top margin for better alignment
+  cursor: grab;
+  color: #666;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #333;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.display-mode {
+  width: 100%;
+  display: flex;
+  align-items: flex-start; // Align to top
+  gap: 0; // Remove gap since we're stacking vertically
+  flex-direction: column; // Stack text and info vertically
+}
+
+.node-text {
+  font-size: 14px;
+  color: #333 !important;
+  font-weight: 500;
+  flex: 1;
+  margin: 0; // Remove any default margins
+  line-height: 1.4; // Better line height for readability
+}
+
+.text-node-info {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #666 !important;
+  margin-top: 4px; // Small gap from main text
+  margin-bottom: 4px; // Small gap before actions
+
+  .date,
+  .item-id {
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #333 !important;
+  }
+}
+
+.publication-selection {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  border-left: 3px solid #ccc;
+
+  .selected-publication {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .no-publication {
+    text-align: center;
+    color: #666;
+  }
+}
+
+.edit-mode {
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .text-node-fields {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border-left: 3px solid #4caf50;
+  }
+
+  .publication-selection-edit {
+    margin-top: 16px;
+  }
+
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+.children-container {
+  margin-left: 0; // Remove left margin
+  margin-top: 4px;
+  border-left: none; // Remove border
+  padding-left: 0; // Remove padding
+  width: 100%; // Use full width
+}
+
+
+.add-child-container {
+  padding: 16px;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+.add-child-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .node-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .node-actions {
+    justify-content: center;
+  }
+
+  .children-list {
+    padding: 12px;
+  }
+
+  .child-node {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .drag-handle {
+    align-self: flex-start;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+}
+

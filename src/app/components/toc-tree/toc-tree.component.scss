@@ -1,0 +1,75 @@
+.toc-tree {
+  min-height: 200px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fafafa;
+  color: #333 !important; // Force black text
+
+  // Ensure all text elements are black
+  * {
+    color: #333 !important;
+  }
+}
+
+.root-nodes {
+  min-height: 100px;
+}
+
+
+
+.add-root-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.add-root-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// CDK Drop List styling
+.cdk-drop-list {
+  min-height: 50px;
+  border: 2px dashed transparent;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+
+  &.cdk-drop-list-receiving {
+    border-color: #2196f3;
+    background-color: rgba(33, 150, 243, 0.05);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .toc-tree {
+    padding: 12px;
+  }
+
+  .node-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .drag-handle {
+    align-self: flex-start;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+
+  .add-button-container {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .add-button {
+    opacity: 1; // Always show on mobile
+  }
+}
+

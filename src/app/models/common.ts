@@ -49,4 +49,5 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Text collections', route: '/publication-collections', icon: 'library_books' },
   { label: 'Facsimile collections', route: '/facsimiles', icon: 'photo_library' },
   { label: 'Index of persons', route: '/persons', icon: 'groups' },
+  { label: 'Table of Contents', route: '/table-of-contents', icon: 'list_alt' },
 ]

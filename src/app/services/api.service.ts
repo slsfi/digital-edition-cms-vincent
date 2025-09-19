@@ -55,4 +55,12 @@ export class ApiService {
       )
   }
 
+  put<T>(url: string, body?: object | null, options: object = {}, disableErrorMessage = false) {
+    return this.http.put<T>(url, body, options)
+      .pipe(
+        map((response) => response),
+        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
+      )
+  }
+
 }

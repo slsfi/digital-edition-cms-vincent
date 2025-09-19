@@ -1,0 +1,74 @@
+.add-node-dialog {
+  min-width: 500px;
+  max-width: 600px;
+  color: #333 !important; // Force black text
+
+  // Ensure all text elements are black
+  * {
+    color: #333 !important;
+  }
+}
+
+.node-type-selection {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+
+  mat-radio-group {
+    display: flex;
+    gap: 24px;
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.subtitle-fields {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.text-node-fields {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.publication-selection {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+mat-dialog-actions {
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .add-node-dialog {
+    min-width: unset;
+    max-width: 100%;
+  }
+
+  .node-type-selection mat-radio-group {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+

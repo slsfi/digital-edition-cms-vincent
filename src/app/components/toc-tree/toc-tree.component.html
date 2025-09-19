@@ -1,0 +1,29 @@
+<div class="toc-tree">
+  <!-- Root level nodes -->
+  <div class="root-nodes" cdkDropList [cdkDropListData]="toc.children" (cdkDropListDropped)="onDrop($event)">
+    <app-toc-node 
+      *ngFor="let node of toc.children; let i = index" 
+      [node]="node" 
+      [nodePath]="getNodePath(i)"
+      [collectionId]="collectionId"
+      [isRootNode]="true"
+      [depth]="0"
+      (nodeChanged)="onNodeChanged()"
+      (deleteNode)="onDeleteNode($event)"
+      (addChildNode)="onAddNode($event)"
+      cdkDrag
+      [cdkDragData]="node">
+    </app-toc-node>
+  </div>
+
+  <!-- Add root level node button -->
+  <div class="add-root-button">
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onAddNode()"
+            class="add-root-btn">
+      <mat-icon>add</mat-icon>
+      Add Root Node
+    </button>
+  </div>
+</div>

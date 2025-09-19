@@ -1,0 +1,105 @@
+<div [class]="getNodeClass()" cdkDrag [cdkDragData]="node">
+  <!-- Drag handle -->
+  <div class="drag-handle" cdkDragHandle>
+    <mat-icon>drag_indicator</mat-icon>
+  </div>
+
+  <!-- Node Content -->
+  <div class="node-content">
+    <!-- Display Mode -->
+    <div *ngIf="!isEditing" class="display-mode">
+      <div class="node-text">{{ node.text }}</div>
+      
+      <!-- Text Node Info - Simplified -->
+      <div *ngIf="isTextNode && (node.date || node.itemId)" class="text-node-info">
+        <span *ngIf="node.date" class="date">{{ node.date }}</span>
+        <span *ngIf="node.itemId" class="item-id">ID: {{ node.itemId }}</span>
+      </div>
+
+      <!-- Node Actions - Moved below content -->
+      <div class="node-actions">
+        <button mat-icon-button 
+                *ngIf="isSubtitle" 
+                (click)="onToggleCollapse()"
+                [matTooltip]="isCollapsed ? 'Expand' : 'Collapse'">
+          <mat-icon>{{ isCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+
+        <button mat-icon-button 
+                (click)="onEdit()"
+                matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+
+        <button mat-icon-button 
+                (click)="onAddChild()"
+                matTooltip="Add child">
+          <mat-icon>add</mat-icon>
+        </button>
+
+        <button mat-icon-button 
+                (click)="onDelete()"
+                matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <div *ngIf="isEditing" class="edit-mode">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Text</mat-label>
+        <input matInput [(ngModel)]="editText" placeholder="Enter text">
+      </mat-form-field>
+
+      <!-- Text Node Specific Fields -->
+      <div *ngIf="isTextNode" class="text-node-fields">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date</mat-label>
+          <input matInput [(ngModel)]="editDate" placeholder="YYYY-MM-DD">
+        </mat-form-field>
+
+        <!-- Publication Selection -->
+        <div class="publication-selection-edit">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Link to Publication</mat-label>
+            <mat-select [(value)]="selectedPublication" (selectionChange)="onPublicationSelected($event.value)">
+              <mat-option [value]="null">No publication linked</mat-option>
+              <mat-option *ngFor="let pub of publications" [value]="pub">
+                {{ pub.name }} (ID: {{ pub.id }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Edit Actions -->
+      <div class="edit-actions">
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Children (for subtitle nodes) -->
+  <div *ngIf="isSubtitle && !isCollapsed && node.children && node.children.length > 0" 
+       class="children-container"
+       cdkDropList 
+       [cdkDropListData]="node.children" 
+       (cdkDropListDropped)="onChildDrop($event)">
+    
+    <app-toc-node 
+      *ngFor="let child of node.children; let i = index" 
+      [node]="child" 
+      [nodePath]="getChildNodePath(i)"
+      [collectionId]="collectionId"
+      [depth]="depth + 1"
+      (nodeChanged)="nodeChanged.emit()"
+      (deleteNode)="deleteNode.emit($event)"
+      (addChildNode)="addChildNode.emit($event)"
+      cdkDrag
+      [cdkDragData]="child">
+    </app-toc-node>
+  </div>
+</div>
