@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -64,7 +64,8 @@ export class KeywordsManagementComponent implements OnInit {
     private keywordService: KeywordService,
     private projectService: ProjectService,
     private dialog: MatDialog,
-    private snackbar: MatSnackBar
+    private snackbar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -74,27 +75,24 @@ export class KeywordsManagementComponent implements OnInit {
 
   loadData() {
     const currentProject = this.projectService.getCurrentProject();
-    console.log('Current project from service:', currentProject);
     
     if (currentProject) {
-      // Project service returns project name as string, pass it directly to the service
-      console.log('Loading keywords for project:', currentProject);
-      
       // Load keywords with refresh trigger
       this.keywords$ = this.refreshTrigger$.pipe(
         switchMap(() => {
           this.isLoading = true;
-          console.log('Loading keywords for project:', currentProject);
+          this.cdr.markForCheck();
           return this.keywordService.getKeywords(currentProject).pipe(
             map(keywords => {
               this.isLoading = false;
               this.hasLoadedOnce = true;
-              console.log('Keywords loaded successfully:', keywords.length, 'keywords');
+              this.cdr.markForCheck();
               return keywords;
             }),
             catchError(error => {
               this.isLoading = false;
               this.hasLoadedOnce = true;
+              this.cdr.markForCheck();
               console.error('Error loading keywords:', error);
               return of([]);
             })
@@ -132,14 +130,11 @@ export class KeywordsManagementComponent implements OnInit {
       this.categoryFilterControl.valueChanges.pipe(startWith(''))
     ]).pipe(
       map(([keywords, searchTerm, categoryFilter]) => {
-        console.log('Filtering setup - keywords:', keywords.length, 'searchTerm:', searchTerm, 'categoryFilter:', categoryFilter);
-        
         // Update template optimization properties
         this.hasFilters = !!(searchTerm?.trim() || categoryFilter);
         
         // Early return if no filters applied
         if (!this.hasFilters) {
-          console.log('No filters applied, returning all keywords:', keywords.length);
           return keywords;
         }
 
@@ -222,6 +217,7 @@ export class KeywordsManagementComponent implements OnInit {
     }
     
     this.isLoading = true;
+    this.cdr.markForCheck();
     this.keywordService.createKeyword(data, currentProject).pipe(take(1)).subscribe({
       next: () => {
         this.snackbar.open('Keyword created successfully', 'Close', { 
@@ -237,6 +233,7 @@ export class KeywordsManagementComponent implements OnInit {
       },
       complete: () => {
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -251,6 +248,7 @@ export class KeywordsManagementComponent implements OnInit {
     }
     
     this.isLoading = true;
+    this.cdr.markForCheck();
     this.keywordService.updateKeyword(data, currentProject).pipe(take(1)).subscribe({
       next: () => {
         this.snackbar.open('Keyword updated successfully', 'Close', { 
@@ -266,6 +264,7 @@ export class KeywordsManagementComponent implements OnInit {
       },
       complete: () => {
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -280,6 +279,7 @@ export class KeywordsManagementComponent implements OnInit {
     }
     
     this.isLoading = true;
+    this.cdr.markForCheck();
     this.keywordService.deleteKeyword(keywordId, currentProject).pipe(take(1)).subscribe({
       next: () => {
         this.snackbar.open('Keyword deleted successfully', 'Close', { 
@@ -295,6 +295,7 @@ export class KeywordsManagementComponent implements OnInit {
       },
       complete: () => {
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }

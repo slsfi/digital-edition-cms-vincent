@@ -10,9 +10,11 @@
       <mat-form-field appearance="outline" class="collection-field">
         <mat-label>Select Publication Collection</mat-label>
         <mat-select [formControl]="collectionControl">
-          <mat-option *ngFor="let collection of collections$ | async" [value]="collection.id">
-            {{ collection.name }}
-          </mat-option>
+          @for (collection of collections$ | async; track collection.id) {
+            <mat-option [value]="collection.id">
+              {{ collection.name }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>
@@ -42,10 +44,42 @@
       <div class="keywords-panel">
         <div class="panel-header">
           <h3>Linked Keywords</h3>
-          <button mat-flat-button color="primary" (click)="addKeywordToPublication()" [disabled]="isLoading">
-            <mat-icon>add</mat-icon>
-            Link Keyword
-          </button>
+        </div>
+
+        <!-- Keyword Search Field -->
+        <div class="keyword-search-section">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search or create keywords</mat-label>
+            <input matInput 
+                   [formControl]="keywordSearchControl"
+                   [matAutocomplete]="keywordAuto"
+                   placeholder="Type to search existing keywords or create new ones...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+          
+          <mat-autocomplete #keywordAuto="matAutocomplete" 
+                           [displayWith]="displayKeyword"
+                           (optionSelected)="onKeywordSelected($event)">
+            @for (keyword of filteredKeywords$ | async; track keyword.id) {
+              <mat-option [value]="keyword">
+                <div class="keyword-option">
+                  <mat-icon class="action-icon">link</mat-icon>
+                  <span class="keyword-text">{{ keyword.text }}</span>
+                  @if (keyword.category) {
+                    <span class="keyword-category">({{ keyword.category }})</span>
+                  }
+                </div>
+              </mat-option>
+            }
+            @if (keywordSearchControl.value) {
+              <mat-option [value]="null">
+                <div class="create-new-option">
+                  <mat-icon>add</mat-icon>
+                  Create new keyword: "{{ keywordSearchControl.value }}"
+                </div>
+              </mat-option>
+            }
+          </mat-autocomplete>
         </div>
 
         <!-- Keywords Table -->
@@ -94,7 +128,7 @@
           <div class="no-keywords">
             <mat-icon>label_off</mat-icon>
             <p>No keywords linked to this publication.</p>
-            <p>Click "Link Keyword" to add keywords.</p>
+            <p>Use the search field above to find existing keywords or create new ones.</p>
           </div>
           }
         </div>

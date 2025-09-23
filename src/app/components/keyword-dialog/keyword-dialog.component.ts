@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 
 import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword';
 
@@ -30,64 +30,11 @@ export interface KeywordDialogData {
     MatInputModule,
     MatSelectModule
   ],
-  template: `
-    <h2 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Keyword' : 'Edit Keyword' }}</h2>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <mat-dialog-content>
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Keyword Text</mat-label>
-            <input matInput formControlName="text" required>
-            <mat-error *ngIf="form.get('text')?.hasError('required')">
-              Keyword text is required
-            </mat-error>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Category</mat-label>
-            <mat-select formControlName="category">
-              <mat-option value="">No category</mat-option>
-              <mat-option *ngFor="let category of data.categories$ | async" [value]="category">
-                {{ category }}
-              </mat-option>
-            </mat-select>
-            <mat-hint>Select existing category or leave empty for no category</mat-hint>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>New Category (optional)</mat-label>
-            <input matInput formControlName="newCategory" placeholder="Type to add new category">
-            <mat-hint>Leave empty to use existing category above</mat-hint>
-          </mat-form-field>
-        </div>
-      </mat-dialog-content>
-
-      <mat-dialog-actions align="end">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="!form.valid || isSubmitting">
-          {{ data.mode === 'add' ? 'Add' : 'Update' }}
-        </button>
-      </mat-dialog-actions>
-    </form>
-  `,
-  styles: [`
-    .form-row {
-      margin-bottom: 16px;
-    }
-    .full-width {
-      width: 100%;
-    }
-    mat-dialog-content {
-      min-width: 400px;
-    }
-  `]
+  templateUrl: './keyword-dialog.component.html',
+  styleUrl: './keyword-dialog.component.scss'
 })
 export class KeywordDialogComponent {
-  form: FormGroup;
+  form!: FormGroup;
   isSubmitting = false;
 
   constructor(
@@ -95,9 +42,24 @@ export class KeywordDialogComponent {
     public dialogRef: MatDialogRef<KeywordDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: KeywordDialogData
   ) {
+    // Always create form immediately to prevent template errors
+    let initialCategory = data.keyword?.category || '';
+    this.createForm(initialCategory);
+    
+    // For new keywords, update the category if we can get the first available one
+    if (data.mode === 'add' && !initialCategory) {
+      data.categories$.pipe(take(1)).subscribe(categories => {
+        if (categories && categories.length > 0) {
+          this.form.patchValue({ category: categories[0] });
+        }
+      });
+    }
+  }
+
+  private createForm(initialCategory: string) {
     this.form = this.fb.group({
-      text: [data.keyword?.text || '', Validators.required],
-      category: [data.keyword?.category || ''],
+      text: [this.data.keyword?.text || '', Validators.required],
+      category: [initialCategory],
       newCategory: ['']
     });
 

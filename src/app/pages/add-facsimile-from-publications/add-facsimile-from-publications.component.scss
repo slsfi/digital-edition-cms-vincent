@@ -169,6 +169,17 @@
       color: #2e7d32;
     }
   }
+
+  .results-actions {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    text-align: center;
+
+    button {
+      min-width: 200px;
+    }
+  }
 }
 
 mat-form-field {

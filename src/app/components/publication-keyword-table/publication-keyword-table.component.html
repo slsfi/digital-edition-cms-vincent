@@ -3,14 +3,16 @@
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search publications</mat-label>
       <input matInput [formControl]="searchControl" placeholder="Filter by name or id" />
-      <button mat-icon-button matSuffix *ngIf="(searchControl.value || '').length" (click)="searchControl.setValue('')">
-        <mat-icon>close</mat-icon>
-      </button>
+      @if ((searchControl.value || '').length) {
+        <button mat-icon-button matSuffix (click)="searchControl.setValue('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
     <div class="spacer"></div>
-    <ng-container *ngIf="loading">
+    @if (loading) {
       <mat-spinner diameter="24"></mat-spinner>
-    </ng-container>
+    }
   </div>
 
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">

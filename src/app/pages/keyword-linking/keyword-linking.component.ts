@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,16 +13,15 @@ import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { Observable, of, take, combineLatest, startWith, map, debounceTime, catchError, BehaviorSubject, switchMap, shareReplay } from 'rxjs';
+import { Observable, of, take, startWith, debounceTime, catchError, BehaviorSubject, switchMap, shareReplay } from 'rxjs';
 
-import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword';
+import { Keyword, KeywordCreationRequest } from '../../models/keyword';
 import { Publication, PublicationCollection } from '../../models/publication';
 import { KeywordService } from '../../services/keyword.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-dialog.component';
-import { KeywordSelectionDialogComponent, KeywordSelectionDialogData, KeywordSelectionDialogResult } from '../../components/keyword-selection-dialog/keyword-selection-dialog.component';
 import { PublicationKeywordTableComponent } from '../../components/publication-keyword-table/publication-keyword-table.component';
 
 
@@ -44,7 +43,8 @@ import { PublicationKeywordTableComponent } from '../../components/publication-k
     MatChipsModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
-    PublicationKeywordTableComponent
+    PublicationKeywordTableComponent,
+    KeywordDialogComponent
   ],
   templateUrl: './keyword-linking.component.html',
   styleUrl: './keyword-linking.component.scss'
@@ -56,23 +56,28 @@ export class KeywordLinkingComponent implements OnInit {
   selectedCollectionId: number | null = null;
   
   // Keywords
-  allKeywords$: Observable<Keyword[]> = of([]);
   linkedKeywords$: Observable<Keyword[]> = of([]);
   selectedPublicationId: number | null = null;
   
   // UI state
   isLoading = false;
   hasLoadedOnce = false;
-  projectName: string = '';
+  projectName = '';
   
   // Form controls
   collectionControl = new FormControl<number | null>(null);
+  keywordSearchControl = new FormControl('');
+  
+  // Keyword search
+  filteredKeywords$: Observable<Keyword[]> = of([]);
+  private currentSearchTerm = ''; // Store the current search term
   
   // Display columns
   keywordColumns: string[] = ['text', 'category', 'actions'];
   
   // Refresh triggers
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  private publicationsRefreshTrigger$ = new BehaviorSubject<number | null>(null);
 
   constructor(
     private keywordService: KeywordService,
@@ -89,11 +94,11 @@ export class KeywordLinkingComponent implements OnInit {
     
     this.loadData();
     this.setupCollectionSelection();
+    this.setupKeywordSearch();
   }
 
   loadData() {
     const currentProject = this.projectService.getCurrentProject();
-    console.log('Current project from service:', currentProject);
     
     if (currentProject) {
       // Load collections
@@ -105,21 +110,16 @@ export class KeywordLinkingComponent implements OnInit {
         shareReplay(1)
       );
       
-      // Load all keywords for the project
-      this.allKeywords$ = this.refreshTrigger$.pipe(
-        switchMap(() => {
-          this.isLoading = true;
-          return this.keywordService.getKeywords(currentProject).pipe(
-            map(keywords => {
-              this.isLoading = false;
-              this.hasLoadedOnce = true;
-              console.log('Keywords loaded successfully:', keywords.length, 'keywords');
-              return keywords;
-            }),
+
+      // Set up publications observable with refresh trigger
+      this.publications$ = this.publicationsRefreshTrigger$.pipe(
+        switchMap(collectionId => {
+          if (!collectionId) {
+            return of([]);
+          }
+          return this.publicationService.getPublications(collectionId.toString(), currentProject).pipe(
             catchError(error => {
-              this.isLoading = false;
-              this.hasLoadedOnce = true;
-              console.error('Error loading keywords:', error);
+              console.error('Error loading publications:', error);
               return of([]);
             })
           );
@@ -132,29 +132,37 @@ export class KeywordLinkingComponent implements OnInit {
   setupCollectionSelection() {
     this.collectionControl.valueChanges.subscribe(collectionId => {
       this.selectedCollectionId = collectionId;
-      if (collectionId) {
-        this.loadPublicationsForCollection(collectionId);
-      } else {
-        this.publications$ = of([]);
-        this.selectedPublicationId = null;
-        this.linkedKeywords$ = of([]);
-      }
+      // Clear the current selection when changing collections
+      this.selectedPublicationId = null;
+      this.linkedKeywords$ = of([]);
+      
+      // Trigger publications reload
+      this.publicationsRefreshTrigger$.next(collectionId);
     });
   }
 
-
-  loadPublicationsForCollection(collectionId: number) {
-    const currentProject = this.projectService.getCurrentProject();
-    if (currentProject) {
-      this.publications$ = this.publicationService.getPublications(collectionId.toString(), currentProject).pipe(
-        catchError(error => {
-          console.error('Error loading publications:', error);
+  setupKeywordSearch() {
+    this.filteredKeywords$ = this.keywordSearchControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      switchMap(searchTerm => {
+        // Store the current search term
+        this.currentSearchTerm = searchTerm || '';
+        
+        if (!searchTerm || searchTerm.length < 2) {
           return of([]);
-        }),
-        shareReplay(1)
-      );
-    }
+        }
+        
+        return this.keywordService.searchKeywords(this.projectName, searchTerm).pipe(
+          catchError(error => {
+            console.error('Error searching keywords:', error);
+            return of([]);
+          })
+        );
+      })
+    );
   }
+
 
   selectPublication(publication: Publication) {
     this.selectedPublicationId = publication.id;
@@ -174,38 +182,6 @@ export class KeywordLinkingComponent implements OnInit {
     }
   }
 
-  addKeywordToPublication() {
-    if (!this.selectedPublicationId) {
-      this.snackBar.open('Please select a publication first', 'Close', { duration: 3000 });
-      return;
-    }
-
-    const currentProject = this.projectService.getCurrentProject();
-    if (!currentProject) {
-      this.snackBar.open('No project selected', 'Close', { duration: 3000 });
-      return;
-    }
-
-    const dialogData: KeywordSelectionDialogData = {
-      projectName: currentProject,
-      publicationId: this.selectedPublicationId
-    };
-
-    const dialogRef = this.dialog.open(KeywordSelectionDialogComponent, {
-      data: dialogData,
-      width: '500px'
-    });
-
-    dialogRef.afterClosed().subscribe((result: KeywordSelectionDialogResult) => {
-      if (result) {
-        if (result.action === 'link') {
-          this.linkExistingKeyword(result.keyword);
-        } else if (result.action === 'create') {
-          this.createAndLinkNewKeyword(result.keyword);
-        }
-      }
-    });
-  }
 
   removeKeywordFromPublication(keyword: Keyword) {
     if (!this.selectedPublicationId) return;
@@ -260,7 +236,7 @@ export class KeywordLinkingComponent implements OnInit {
     });
   }
 
-  private createAndLinkNewKeyword(keyword: Keyword) {
+  private createAndLinkNewKeyword(keywordRequest: KeywordCreationRequest) {
     if (!this.selectedPublicationId) return;
 
     const currentProject = this.projectService.getCurrentProject();
@@ -268,10 +244,10 @@ export class KeywordLinkingComponent implements OnInit {
 
     // First create the keyword
     const createRequest: KeywordCreationRequest = {
-      text: keyword.text,
-      category: keyword.category,
+      text: keywordRequest.text,
+      category: keywordRequest.category,
       projectId: 0, // Will be set by the service
-      translations: keyword.translations || []
+      translations: keywordRequest.translations || []
     };
 
     this.keywordService.createKeyword(createRequest, currentProject).subscribe({
@@ -384,6 +360,77 @@ export class KeywordLinkingComponent implements OnInit {
 
   refreshData() {
     this.refreshTrigger$.next();
+  }
+
+  // Keyword search methods
+  displayKeyword(keyword: Keyword): string {
+    return keyword ? keyword.text : '';
+  }
+
+  private clearSearchFields(): void {
+    this.keywordSearchControl.setValue('');
+    this.currentSearchTerm = '';
+  }
+
+  onKeywordSelected(event: { option: { value: Keyword | null } }): void {
+    const value = event.option.value;
+    
+    if (value === null) {
+      // This is the "create new keyword" option
+      // Use the stored search term
+      this.createNewKeywordFromSearch(this.currentSearchTerm);
+    } else if (value && this.selectedPublicationId) {
+      // This is a regular keyword
+      this.linkExistingKeyword(value);
+      this.clearSearchFields();
+    }
+  }
+
+  createNewKeywordFromSearch(searchTerm: string): void {
+    if (!searchTerm) return;
+
+    // Get categories for the dialog
+    const categories$ = this.keywordService.getUniqueCategories(this.projectName);
+
+    // Create a temporary keyword object with the search term as the text
+    const tempKeyword: Keyword = {
+      id: 0, // Temporary ID
+      text: searchTerm,
+      category: null,
+      projectId: 1, // Mock project ID
+      translations: []
+    };
+
+    // Open the keyword creation dialog with the search term pre-filled
+    const keywordDialogRef = this.dialog.open(KeywordDialogComponent, {
+      data: {
+        mode: 'add',
+        keyword: tempKeyword, // Pre-fill with search term
+        categories$: categories$
+      },
+      width: '500px'
+    });
+
+    keywordDialogRef.afterClosed().subscribe(result => {
+      if (result && this.selectedPublicationId) {
+        // Create the keyword and then link it to the publication
+        this.keywordService.createKeyword(result, this.projectName).pipe(take(1)).subscribe({
+          next: (createdKeyword) => {
+            this.linkExistingKeyword(createdKeyword);
+            this.clearSearchFields();
+            this.snackBar.open('Keyword created and linked successfully', 'Close', { 
+              panelClass: ['snackbar-success'] 
+            });
+          },
+          error: (error) => {
+            console.error('Failed to create keyword:', error);
+            this.snackBar.open('Failed to create keyword', 'Close', { 
+              panelClass: ['snackbar-error'] 
+            });
+          }
+        });
+      }
+    });
   }
 
   // TrackBy functions for performance

@@ -70,6 +70,49 @@
   }
 }
 
+.keyword-search-section {
+  margin-bottom: 20px;
+  
+  .search-field {
+    width: 100%;
+  }
+  
+  .keyword-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .action-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #666;
+  }
+  
+  .keyword-text {
+    font-weight: 500;
+  }
+  
+  .keyword-category {
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .create-new-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1976d2;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
 .publications-list {
   display: flex;
   flex-direction: column;

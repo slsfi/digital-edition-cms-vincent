@@ -79,23 +79,16 @@ export class KeywordService {
   getKeywords(projectName: string): Observable<Keyword[]> {
     const url = `${this.apiService.prefixedUrl}/${projectName}/keywords/list/`;
     
-    console.log('Fetching keywords from URL:', url);
-    
     return this.apiService.get<KeywordApiResponse>(url).pipe(
       map(response => {
-        console.log('Keywords API response:', response);
         if (response.success && response.data) {
           const keywords = response.data.map(this.mapKeywordApiData);
-          console.log('Mapped keywords:', keywords);
           return keywords;
         }
-        console.log('No keywords data in response');
         return [];
       }),
       catchError(error => {
-        console.error('Error fetching keywords:', error);
         // Fallback to mock data for development
-        console.warn('Falling back to mock data due to API error');
         return of(this.getMockKeywords(1)); // Use default project ID for mock data
       })
     );
@@ -117,20 +110,15 @@ export class KeywordService {
       legacy_id: null // Not in our model yet
     };
 
-    console.log('Creating keyword with URL:', url, 'and data:', apiRequest);
-    
     return this.apiService.post<KeywordApiSingleResponse>(url, apiRequest).pipe(
       map(response => {
-        console.log('Create keyword API response:', response);
         if (response.success && response.data) {
           const keyword = this.mapKeywordApiData(response.data);
-          console.log('Mapped created keyword:', keyword);
           return keyword;
         }
         throw new Error('Failed to create keyword');
       }),
       catchError(error => {
-        console.error('Error creating keyword:', error);
         throw error;
       })
     );
@@ -155,7 +143,6 @@ export class KeywordService {
         throw new Error('Failed to update keyword');
       }),
       catchError(error => {
-        console.error('Error updating keyword:', error);
         throw error;
       })
     );
@@ -173,7 +160,6 @@ export class KeywordService {
     return this.apiService.post<KeywordApiSingleResponse>(url, apiRequest).pipe(
       map(() => true),
       catchError(error => {
-        console.error('Error deleting keyword:', error);
         throw error;
       })
     );
@@ -185,39 +171,23 @@ export class KeywordService {
    * Keywords are stored in the 'tag' table and connected via events
    */
   getKeywordsForPublication(publicationId: number, projectName: string): Observable<Keyword[]> {
-    console.log(`Getting keywords for publication ${publicationId} in project ${projectName}`);
-    
     // Use the correct endpoint from the backend API
     const url = `${this.apiService.prefixedUrl}/${projectName}/publication/${publicationId}/keywords/`;
     
-    console.log('Fetching publication keywords from URL:', url);
-    
     return this.apiService.get<PublicationKeywordApiResponse>(url).pipe(
       map(response => {
-        console.log('Publication keywords response:', response);
-        
         if (response.success && response.data && Array.isArray(response.data)) {
           // Map the tag data to Keyword objects using publication-specific mapping
           const keywords: Keyword[] = response.data.map((tag: PublicationKeywordApiData) => 
             this.mapPublicationKeywordApiData(tag)
           );
           
-          console.log('Mapped keywords from tags:', keywords);
           return keywords;
         }
         
-        console.log('No keywords found for publication');
         return [];
       }),
       catchError(error => {
-        console.error('Error getting publication keywords:', error);
-        console.error('Error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          url: error.url,
-          message: error.message,
-          error: error.error
-        });
         return of([]);
       })
     );
@@ -230,8 +200,6 @@ export class KeywordService {
    * Creates an event connection between the keyword (tag) and publication
    */
   connectKeywordToPublication(keywordId: number, publicationId: number, projectName: string): Observable<boolean> {
-    console.log(`Connecting keyword ${keywordId} to publication ${publicationId} in project ${projectName}`);
-    
     // Create an event to connect the keyword to the publication
     // According to backend API: exactly one of subject_id, tag_id, location_id, work_manifestation_id, correspondence_id must be provided
     const request = {
@@ -240,28 +208,12 @@ export class KeywordService {
     };
     
     const url = `${this.apiService.prefixedUrl}/${projectName}/events/new/`;
-    console.log('Creating keyword connection event:', request, 'at URL:', url);
     
     return this.apiService.post(url, request).pipe(
       map(response => {
-        console.log('Connect keyword response:', response);
         return true;
       }),
       catchError(error => {
-        console.error('Error connecting keyword to publication:', error);
-        console.error('Connect error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          url: error.url,
-          message: error.message,
-          error: error.error
-        });
-        
-        // Check if it's a CORS error
-        if (error.status === 0 || error.statusText === 'Unknown Error') {
-          console.error('CORS error detected - endpoint may not be properly configured');
-        }
-        
         return of(false);
       })
     );
@@ -273,32 +225,14 @@ export class KeywordService {
    * Deletes the event connection between the keyword (tag) and publication
    */
   disconnectKeywordFromPublication(eventId: number, projectName: string): Observable<boolean> {
-    console.log(`Disconnecting event ${eventId} in project ${projectName}`);
-    
     // Delete the event connection using the event ID
     const url = `${this.apiService.prefixedUrl}/${projectName}/events/${eventId}/delete/`;
-    console.log('Deleting keyword connection event:', url);
     
     return this.apiService.post(url, {}).pipe(
       map(response => {
-        console.log('Disconnect keyword response:', response);
         return true;
       }),
       catchError(error => {
-        console.error('Error disconnecting keyword from publication:', error);
-        console.error('Disconnect error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          url: error.url,
-          message: error.message,
-          error: error.error
-        });
-        
-        // Check if it's a CORS error
-        if (error.status === 0 || error.statusText === 'Unknown Error') {
-          console.error('CORS error detected - endpoint may not be properly configured');
-        }
-        
         return of(false);
       })
     );
@@ -319,7 +253,6 @@ export class KeywordService {
         return [];
       }),
       catchError(error => {
-        console.error('Error fetching keyword types:', error);
         // Fallback to extracting from keywords
         return this.getKeywords(projectName).pipe(
           map(keywords => {

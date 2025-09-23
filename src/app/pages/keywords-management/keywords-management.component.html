@@ -24,9 +24,11 @@
           <mat-label>Filter by category</mat-label>
           <mat-select [formControl]="categoryFilterControl">
             <mat-option value="">All categories</mat-option>
-            <mat-option *ngFor="let category of categories$ | async" [value]="category">
-              {{ category }}
-            </mat-option>
+            @for (category of categories$ | async; track category) {
+              <mat-option [value]="category">
+                {{ category }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
@@ -37,7 +39,7 @@
       </div>
     </div>
 
-    <div class="keywords-table" *ngIf="!isLoading">
+    <div class="keywords-table">
       <table mat-table [dataSource]="(filteredKeywords$ | async) || []" class="mat-elevation-z1">
         <!-- Keyword Text Column -->
         <ng-container matColumnDef="text">
@@ -50,10 +52,13 @@
           <th mat-header-cell *matHeaderCellDef>Category</th>
           <td mat-cell *matCellDef="let keyword">
             <mat-chip-set>
-              <mat-chip *ngIf="keyword.category" color="primary" variant="outlined">
-                {{ keyword.category }}
-              </mat-chip>
-              <span *ngIf="!keyword.category" class="no-category">No category</span>
+              @if (keyword.category) {
+                <mat-chip color="primary" variant="outlined">
+                  {{ keyword.category }}
+                </mat-chip>
+              } @else {
+                <span class="no-category">No category</span>
+              }
             </mat-chip-set>
           </td>
         </ng-container>
@@ -63,12 +68,16 @@
           <th mat-header-cell *matHeaderCellDef>Translations</th>
           <td mat-cell *matCellDef="let keyword">
             <div class="translations">
-              <span *ngFor="let translation of keyword.translations; let last = last; trackBy: trackByTranslation">
-                <strong>{{ translation.language }}:</strong> {{ translation.text }}<span *ngIf="!last">, </span>
-              </span>
-              <span *ngIf="!hasTranslations(keyword.translations)" class="no-translations">
-                No translations
-              </span>
+              @for (translation of keyword.translations; track trackByTranslation($index, translation); let last = $last) {
+                <span>
+                  <strong>{{ translation.language }}:</strong> {{ translation.text }}@if (!last) {, }
+                </span>
+              }
+              @if (!hasTranslations(keyword.translations)) {
+                <span class="no-translations">
+                  No translations
+                </span>
+              }
             </div>
           </td>
         </ng-container>
@@ -92,18 +101,30 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
 
-      <div *ngIf="!isLoading && hasLoadedOnce && (filteredKeywords$ | async)?.length === 0" class="no-keywords">
-        <mat-icon>label_off</mat-icon>
-        <p *ngIf="hasFilters">No keywords match your current filters.</p>
-        <p *ngIf="!hasFilters">No keywords found for this project.</p>
-        <p *ngIf="!hasFilters">Click "Add Keyword" to create your first keyword.</p>
-        <p *ngIf="hasFilters">Try adjusting your search terms or clearing the filters.</p>
-      </div>
-    </div>
+      <!-- Loading state inside table area -->
+      @if (isLoading || !hasLoadedOnce || (filteredKeywords$ | async) === null) {
+        <div class="loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading keywords...</p>
+        </div>
+      }
 
-    <div *ngIf="isLoading" class="loading">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading keywords...</p>
+      <!-- No data state -->
+      @if (!isLoading && hasLoadedOnce && (filteredKeywords$ | async) !== null && (filteredKeywords$ | async)?.length === 0) {
+        <div class="no-keywords">
+          <mat-icon>label_off</mat-icon>
+          @if (hasFilters) {
+            <p>No keywords match your current filters.</p>
+          }
+          @if (!hasFilters) {
+            <p>No keywords found for this project.</p>
+            <p>Click "Add Keyword" to create your first keyword.</p>
+          }
+          @if (hasFilters) {
+            <p>Try adjusting your search terms or clearing the filters.</p>
+          }
+        </div>
+      }
     </div>
   </div>
 </div>

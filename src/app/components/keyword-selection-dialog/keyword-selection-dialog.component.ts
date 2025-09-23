@@ -20,7 +20,8 @@ export interface KeywordSelectionDialogData {
 }
 
 export interface KeywordSelectionDialogResult {
-  keyword: Keyword;
+  keyword?: Keyword;
+  keywordRequest?: KeywordCreationRequest;
   action: 'link' | 'create';
 }
 
@@ -38,97 +39,8 @@ export interface KeywordSelectionDialogResult {
     MatInputModule,
     MatProgressSpinnerModule
   ],
-  template: `
-    <div class="keyword-selection-dialog">
-      <h2 mat-dialog-title>Link Keyword to Publication</h2>
-      
-      <mat-dialog-content>
-        <p>Search for an existing keyword or create a new one:</p>
-        
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search keywords</mat-label>
-          <input matInput 
-                 [formControl]="searchControl"
-                 [matAutocomplete]="auto"
-                 placeholder="Type to search keywords...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        
-        <mat-autocomplete #auto="matAutocomplete" 
-                         [displayWith]="displayKeyword"
-                         (optionSelected)="onKeywordSelected($event)">
-          <mat-option *ngFor="let keyword of filteredKeywords$ | async" [value]="keyword">
-            <div class="keyword-option">
-              <span class="keyword-text">{{ keyword.text }}</span>
-              <span class="keyword-category" *ngIf="keyword.category">({{ keyword.category }})</span>
-            </div>
-          </mat-option>
-          <mat-option *ngIf="(filteredKeywords$ | async)?.length === 0 && searchControl.value" 
-                      (click)="createNewKeyword()">
-            <div class="create-new-option">
-              <mat-icon>add</mat-icon>
-              Create new keyword: "{{ searchControl.value }}"
-            </div>
-          </mat-option>
-        </mat-autocomplete>
-        
-        <div *ngIf="isLoading" class="loading">
-          <mat-spinner diameter="24"></mat-spinner>
-          <span>Searching keywords...</span>
-        </div>
-      </mat-dialog-content>
-      
-      <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-flat-button color="primary" 
-                (click)="createNewKeyword()" 
-                [disabled]="!searchControl.value">
-          <mat-icon>add</mat-icon>
-          Create New
-        </button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [`
-    .keyword-selection-dialog {
-      min-width: 400px;
-    }
-    
-    .search-field {
-      width: 100%;
-      margin-bottom: 16px;
-    }
-    
-    .keyword-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .keyword-text {
-      font-weight: 500;
-    }
-    
-    .keyword-category {
-      color: #666;
-      font-size: 0.9em;
-    }
-    
-    .create-new-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #1976d2;
-    }
-    
-    .loading {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 16px;
-      color: #666;
-    }
-  `]
+  templateUrl: './keyword-selection-dialog.component.html',
+  styleUrl: './keyword-selection-dialog.component.scss'
 })
 export class KeywordSelectionDialogComponent implements OnInit {
   searchControl = new FormControl('');
@@ -175,11 +87,16 @@ export class KeywordSelectionDialogComponent implements OnInit {
     return keyword ? keyword.text : '';
   }
 
-  onKeywordSelected(event: any) {
-    const keyword = event.option.value;
-    if (keyword) {
+  onOptionSelected(event: any) {
+    const value = event.option.value;
+    
+    if (value === null) {
+      // This is the "create new keyword" option
+      this.createNewKeyword();
+    } else if (value) {
+      // This is a regular keyword
       this.dialogRef.close({
-        keyword,
+        keyword: value,
         action: 'link'
       } as KeywordSelectionDialogResult);
     }
@@ -192,11 +109,20 @@ export class KeywordSelectionDialogComponent implements OnInit {
     // Get categories for the dialog
     const categories$ = this.keywordService.getUniqueCategories(this.data.projectName);
 
-    // Open the keyword creation dialog
+    // Create a temporary keyword object with the search term as the text
+    const tempKeyword: Keyword = {
+      id: 0, // Temporary ID
+      text: searchTerm,
+      category: null,
+      projectId: 1, // Mock project ID
+      translations: []
+    };
+
+    // Open the keyword creation dialog with the search term pre-filled
     const keywordDialogRef = this.dialog.open(KeywordDialogComponent, {
       data: {
         mode: 'add',
-        keyword: undefined, // Creating new keyword
+        keyword: tempKeyword, // Pre-fill with search term
         categories$: categories$
       },
       width: '500px'
@@ -204,9 +130,9 @@ export class KeywordSelectionDialogComponent implements OnInit {
 
     keywordDialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Close this dialog and return the created keyword
+        // Close this dialog and return the keyword creation request
         this.dialogRef.close({
-          keyword: result,
+          keywordRequest: result,
           action: 'create'
         } as KeywordSelectionDialogResult);
       }

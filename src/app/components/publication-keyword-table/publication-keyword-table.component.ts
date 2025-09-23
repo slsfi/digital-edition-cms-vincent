@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
@@ -24,6 +25,7 @@ import { Publication } from '../../models/publication';
     MatInputModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatButtonModule,
     ReactiveFormsModule
   ],
   templateUrl: './publication-keyword-table.component.html',
