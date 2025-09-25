@@ -1,6 +1,9 @@
 <div class="toc-tree">
   <!-- Root level nodes -->
-  <div class="root-nodes" cdkDropList [cdkDropListData]="toc.children" (cdkDropListDropped)="onDrop($event)">
+  <div class="root-nodes" 
+       cdkDropList
+       [cdkDropListData]="toc.children"
+       (cdkDropListDropped)="onDrop($event)">
     <app-toc-node 
       *ngFor="let node of toc.children; let i = index" 
       [node]="node" 
@@ -10,9 +13,7 @@
       [depth]="0"
       (nodeChanged)="onNodeChanged()"
       (deleteNode)="onDeleteNode($event)"
-      (addChildNode)="onAddNode($event)"
-      cdkDrag
-      [cdkDragData]="node">
+      (addChildNode)="onAddNode($event)">
     </app-toc-node>
   </div>
 

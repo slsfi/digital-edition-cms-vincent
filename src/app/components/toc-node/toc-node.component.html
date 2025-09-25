@@ -1,4 +1,4 @@
-<div [class]="getNodeClass()" cdkDrag [cdkDragData]="node">
+<div [class]="getNodeClass()" cdkDrag>
   <!-- Drag handle -->
   <div class="drag-handle" cdkDragHandle>
     <mat-icon>drag_indicator</mat-icon>
@@ -8,15 +8,17 @@
   <div class="node-content">
     <!-- Display Mode -->
     <div *ngIf="!isEditing" class="display-mode">
-      <div class="node-text">{{ node.text }}</div>
-      
-      <!-- Text Node Info - Simplified -->
-      <div *ngIf="isTextNode && (node.date || node.itemId)" class="text-node-info">
-        <span *ngIf="node.date" class="date">{{ node.date }}</span>
-        <span *ngIf="node.itemId" class="item-id">ID: {{ node.itemId }}</span>
+      <div class="text-content">
+        <div class="node-text">{{ node.text }}</div>
+        
+        <!-- Text Node Info - Simplified -->
+        <div *ngIf="isTextNode && (node.date || node.itemId)" class="text-node-info">
+          <span *ngIf="node.date" class="date">{{ node.date }}</span>
+          <span *ngIf="node.itemId" class="item-id">ID: {{ node.itemId }}</span>
+        </div>
       </div>
 
-      <!-- Node Actions - Moved below content -->
+      <!-- Node Actions - Right aligned collapse menu -->
       <div class="node-actions">
         <button mat-icon-button 
                 *ngIf="isSubtitle" 
@@ -26,22 +28,25 @@
         </button>
 
         <button mat-icon-button 
-                (click)="onEdit()"
-                matTooltip="Edit">
-          <mat-icon>edit</mat-icon>
+                [matMenuTriggerFor]="nodeMenu"
+                matTooltip="Node actions">
+          <mat-icon>more_vert</mat-icon>
         </button>
 
-        <button mat-icon-button 
-                (click)="onAddChild()"
-                matTooltip="Add child">
-          <mat-icon>add</mat-icon>
-        </button>
-
-        <button mat-icon-button 
-                (click)="onDelete()"
-                matTooltip="Delete">
-          <mat-icon>delete</mat-icon>
-        </button>
+        <mat-menu #nodeMenu="matMenu">
+          <button mat-menu-item (click)="onEdit()">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+          </button>
+          <button mat-menu-item (click)="onAddChild()">
+            <mat-icon>add</mat-icon>
+            <span>Add child</span>
+          </button>
+          <button mat-menu-item (click)="onDelete()" class="delete-action">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
       </div>
     </div>
 
@@ -85,8 +90,8 @@
   <!-- Children (for subtitle nodes) -->
   <div *ngIf="isSubtitle && !isCollapsed && node.children && node.children.length > 0" 
        class="children-container"
-       cdkDropList 
-       [cdkDropListData]="node.children" 
+       cdkDropList
+       [cdkDropListData]="node.children"
        (cdkDropListDropped)="onChildDrop($event)">
     
     <app-toc-node 
@@ -97,9 +102,7 @@
       [depth]="depth + 1"
       (nodeChanged)="nodeChanged.emit()"
       (deleteNode)="deleteNode.emit($event)"
-      (addChildNode)="addChildNode.emit($event)"
-      cdkDrag
-      [cdkDragData]="child">
+      (addChildNode)="addChildNode.emit($event)">
     </app-toc-node>
   </div>
 </div>

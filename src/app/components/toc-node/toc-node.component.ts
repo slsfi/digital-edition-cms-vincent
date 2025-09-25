@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
 
 import { TocNode } from '../../models/table-of-contents';
@@ -40,7 +40,7 @@ import { Publication } from '../../models/publication';
     MatDialogModule,
     MatSnackBarModule,
     CdkDropList,
-    CdkDrag
+    CdkDrag,
   ],
   templateUrl: './toc-node.component.html',
   styleUrls: ['./toc-node.component.scss']
@@ -197,19 +197,15 @@ export class TocNodeComponent implements OnInit, OnDestroy {
   }
 
   onChildDrop(event: CdkDragDrop<TocNode[]>): void {
+    // Only allow reordering within the same container
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+      
+      
+      this.nodeChanged.emit();
     }
-    
-    this.nodeChanged.emit();
   }
+
 
   getNodeIcon(): string {
     switch (this.node.type) {
@@ -240,6 +236,7 @@ export class TocNodeComponent implements OnInit, OnDestroy {
   getChildNodePath(index: number): number[] {
     return [...this.nodePath, index];
   }
+
 
   getNodeClass(): string {
     const classes = ['toc-node'];

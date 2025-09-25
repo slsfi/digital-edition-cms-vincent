@@ -1,16 +1,44 @@
 .toc-node {
   background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  margin-bottom: 1px;
+  border: 0.0625em solid #e0e0e0; // 1px equivalent in em
+  border-radius: 0.25em; // 4px equivalent in em
+  margin-bottom: 0.0625em; // 1px equivalent in em
   overflow: hidden;
   transition: all 0.2s ease;
   display: flex;
   align-items: flex-start; // Align to top instead of center
-  padding: 6px 8px;
+  padding: 0.375em 0.5em; // 6px 8px equivalent in em
   min-height: auto; // Remove fixed height
   color: #333 !important; // Force black text
   width: 100%; // Use full width
+
+  // Drag handle styling
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25em; // 20px equivalent in em
+    height: 1.25em; // 20px equivalent in em
+    margin-right: 0.5em; // 8px equivalent in em
+    margin-top: 0.125em; // 2px equivalent in em
+    cursor: grab;
+    color: #999;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 1em; // 16px equivalent in em
+      width: 1em;
+      height: 1em;
+    }
+
+    &:hover {
+      color: #666;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
 
   &:hover {
     background-color: #f5f5f5;
@@ -29,27 +57,31 @@
 
   // Depth-based indentation
   &.depth-1 {
-    margin-left: 16px;
-    width: calc(100% - 16px);
+    margin-left: 1em; // 16px equivalent in em
+    width: calc(100% - 1em - 1.75em); // Account for drag handle space (1.75em = 1.25em + 0.5em)
+    margin-right: 0; // Align right border with parent
   }
 
   &.depth-2 {
-    margin-left: 32px;
-    width: calc(100% - 32px);
+    margin-left: 2em; // 32px equivalent in em
+    width: calc(100% - 2em - 1.75em); // Account for drag handle space (1.75em = 1.25em + 0.5em)
+    margin-right: 0; // Align right border with parent
   }
 
   &.depth-3 {
-    margin-left: 48px;
-    width: calc(100% - 48px);
+    margin-left: 3em; // 48px equivalent in em
+    width: calc(100% - 3em - 1.75em); // Account for drag handle space (1.75em = 1.25em + 0.5em)
+    margin-right: 0; // Align right border with parent
   }
 
   &.depth-4 {
-    margin-left: 64px;
-    width: calc(100% - 64px);
+    margin-left: 4em; // 64px equivalent in em
+    width: calc(100% - 4em - 1.75em); // Account for drag handle space (1.75em = 1.25em + 0.5em)
+    margin-right: 0; // Align right border with parent
   }
 
   &.cdk-drag-preview {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0.3125em 0.9375em rgba(0, 0, 0, 0.2); // 0 5px 15px equivalent in em
     transform: rotate(2deg);
   }
 
@@ -72,18 +104,18 @@
   flex: 1;
   display: flex;
   align-items: flex-start; // Align to top
-  gap: 12px;
-  padding-top: 2px; // Small top padding for better alignment
+  gap: 0.75em; // 12px equivalent in em
+  padding-top: 0.125em; // 2px equivalent in em - Small top padding for better alignment
 }
 
 .node-actions {
   display: flex;
-  gap: 2px;
+  gap: 0.125em; // 2px equivalent in em
   opacity: 0;
   transition: opacity 0.2s ease;
   align-items: center;
-  margin-top: 8px; // More space from content above
-  justify-content: flex-start; // Align to left
+  justify-content: flex-end; // Align to right
+  flex-shrink: 0; // Don't shrink the actions area
 }
 
 .toc-node:hover .node-actions {
@@ -94,10 +126,10 @@
   display: flex;
   align-items: flex-start; // Align to top
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
-  margin-top: 2px; // Small top margin for better alignment
+  width: 1.25em; // 20px equivalent in em
+  height: 1.25em; // 20px equivalent in em
+  margin-right: 0.5em; // 8px equivalent in em
+  margin-top: 0.125em; // 2px equivalent in em
   cursor: grab;
   color: #666;
   transition: color 0.2s ease;
@@ -111,9 +143,9 @@
   }
 
   mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: 1em; // 16px equivalent in em
+    width: 1em; // 16px equivalent in em
+    height: 1em; // 16px equivalent in em
   }
 }
 
@@ -121,12 +153,21 @@
   width: 100%;
   display: flex;
   align-items: flex-start; // Align to top
-  gap: 0; // Remove gap since we're stacking vertically
-  flex-direction: column; // Stack text and info vertically
+  gap: 0.75em; // 12px equivalent in em - Space between text content and actions
+  flex-direction: row; // Horizontal layout
+  justify-content: space-between; // Push actions to the right
+}
+
+.text-content {
+  flex: 1; // Take up available space
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em; // 4px equivalent in em - Small gap between text and info
+  padding-right: 0.5em; // 8px equivalent in em - Small padding to prevent clipping against actions
 }
 
 .node-text {
-  font-size: 14px;
+  font-size: 0.875em; // 14px equivalent in em
   color: #333 !important;
   font-weight: 500;
   flex: 1;
@@ -136,39 +177,37 @@
 
 .text-node-info {
   display: flex;
-  gap: 16px;
-  font-size: 12px;
+  gap: 1em; // 16px equivalent in em
+  font-size: 0.75em; // 12px equivalent in em
   color: #666 !important;
-  margin-top: 4px; // Small gap from main text
-  margin-bottom: 4px; // Small gap before actions
 
   .date,
   .item-id {
     background-color: #f0f0f0;
-    padding: 2px 6px;
-    border-radius: 3px;
+    padding: 0.125em 0.375em; // 2px 6px equivalent in em
+    border-radius: 0.1875em; // 3px equivalent in em
     color: #333 !important;
   }
 }
 
 .publication-selection {
-  margin-top: 12px;
-  padding: 12px;
+  margin-top: 0.75em; // 12px equivalent in em
+  padding: 0.75em; // 12px equivalent in em
   background-color: #f8f8f8;
-  border-radius: 4px;
-  border-left: 3px solid #ccc;
+  border-radius: 0.25em; // 4px equivalent in em
+  border-left: 0.1875em solid #ccc; // 3px equivalent in em
 
   .selected-publication {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5em; // 8px equivalent in em
     color: #333;
     font-weight: 500;
 
     mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      font-size: 1.125em; // 18px equivalent in em
+      width: 1.125em; // 18px equivalent in em
+      height: 1.125em; // 18px equivalent in em
     }
   }
 
@@ -181,34 +220,34 @@
 .edit-mode {
   .full-width {
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 1em; // 16px equivalent in em
   }
 
   .text-node-fields {
-    margin-top: 16px;
-    padding: 16px;
+    margin-top: 1em; // 16px equivalent in em
+    padding: 1em; // 16px equivalent in em
     background-color: #f9f9f9;
-    border-radius: 4px;
-    border-left: 3px solid #4caf50;
+    border-radius: 0.25em; // 4px equivalent in em
+    border-left: 0.1875em solid #4caf50; // 3px equivalent in em
   }
 
   .publication-selection-edit {
-    margin-top: 16px;
+    margin-top: 1em; // 16px equivalent in em
   }
 
   .edit-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #e0e0e0;
+    gap: 0.5em; // 8px equivalent in em
+    margin-top: 1em; // 16px equivalent in em
+    padding-top: 1em; // 16px equivalent in em
+    border-top: 0.0625em solid #e0e0e0; // 1px equivalent in em
   }
 }
 
 .children-container {
   margin-left: 0; // Remove left margin
-  margin-top: 4px;
+  margin-top: 0.25em; // 4px equivalent in em
   border-left: none; // Remove border
   padding-left: 0; // Remove padding
   width: 100%; // Use full width
@@ -216,24 +255,39 @@
 
 
 .add-child-container {
-  padding: 16px;
+  padding: 1em; // 16px equivalent in em
   text-align: center;
-  border-top: 1px solid #e0e0e0;
+  border-top: 0.0625em solid #e0e0e0; // 1px equivalent in em
   background-color: #fafafa;
 }
 
 .add-child-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5em; // 8px equivalent in em
+}
+
+// Menu styling
+::ng-deep .mat-mdc-menu-panel {
+  .delete-action {
+    color: #f44336 !important;
+    
+    mat-icon {
+      color: #f44336 !important;
+    }
+    
+    &:hover {
+      background-color: #ffebee !important;
+    }
+  }
 }
 
 // Responsive design
-@media (max-width: 768px) {
+@media (max-width: 48em) { // 768px equivalent in em
   .node-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 0.5em; // 8px equivalent in em
   }
 
   .node-actions {
@@ -241,19 +295,42 @@
   }
 
   .children-list {
-    padding: 12px;
+    padding: 0.75em; // 12px equivalent in em
   }
 
   .child-node {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 0.5em; // 8px equivalent in em
   }
 
   .drag-handle {
     align-self: flex-start;
     margin-right: 0;
-    margin-bottom: 4px;
+    margin-bottom: 0.25em; // 4px equivalent in em
   }
+}
+
+// CDK Drag and Drop styling
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 0.25em; // 4px equivalent in em
+  box-shadow: 0 0.3125em 0.9375em -0.1875em rgba(0, 0, 0, 0.2), 0 0.1875em 0.375em -0.1875em rgba(0, 0, 0, 0.14), 0 0.1875em 0.1875em -0.1875em rgba(0, 0, 0, 0.12); // 5px 15px -3px, 3px 6px -3px, 3px 3px -3px
+  background-color: white;
+  opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+  background-color: #f0f0f0;
+  border: 0.125em dashed #ccc; // 2px dashed
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .toc-node:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 

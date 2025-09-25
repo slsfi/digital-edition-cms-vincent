@@ -130,6 +130,7 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
           this.currentToc = toc;
           this.hasUnsavedChanges = false;
           this.isLoading = false;
+          
         },
         error: (error) => {
           console.error('Error loading table of contents:', error);
@@ -144,6 +145,7 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
       return;
     }
 
+
     this.isSaving = true;
     this.tocService.saveToc(this.selectedCollectionId, this.currentToc)
       .pipe(takeUntil(this.destroy$))
@@ -152,6 +154,7 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
           if (success) {
             this.hasUnsavedChanges = false;
             this.showSuccess('Table of contents saved successfully');
+            console.log('TOC saved successfully');
           }
           this.isSaving = false;
         },
@@ -247,6 +250,7 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   onTocChanged(): void {
     this.hasUnsavedChanges = true;
     this.tocService.markAsChanged();
+    
   }
 
   private showSuccess(message: string): void {

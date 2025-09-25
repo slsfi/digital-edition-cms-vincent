@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, Inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { TocRoot, TocNode } from '../../models/table-of-contents';
 import { TocNodeComponent } from '../toc-node/toc-node.component';
@@ -28,13 +28,12 @@ import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.compo
     MatDialogModule,
     MatSnackBarModule,
     CdkDropList,
-    CdkDrag,
     TocNodeComponent
   ],
   templateUrl: './toc-tree.component.html',
   styleUrls: ['./toc-tree.component.scss']
 })
-export class TocTreeComponent implements OnInit {
+export class TocTreeComponent {
   @Input() toc!: TocRoot;
   @Input() collectionId!: number;
   @Output() tocChanged = new EventEmitter<void>();
@@ -44,9 +43,6 @@ export class TocTreeComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {}
 
-  ngOnInit(): void {
-    // Initialize the tree structure
-  }
 
   onNodeChanged(): void {
     this.tocChanged.emit();
@@ -74,7 +70,7 @@ export class TocTreeComponent implements OnInit {
     // Navigate to the parent node
     for (const index of parentPath) {
       if (current.children && current.children[index]) {
-        current = current.children[index] as any; // Type assertion for navigation
+        current = current.children[index] as TocRoot; // Type assertion for navigation
       } else {
         return; // Invalid path
       }
@@ -120,7 +116,7 @@ export class TocTreeComponent implements OnInit {
       for (let i = 0; i < nodePath.length - 1; i++) {
         const index = nodePath[i];
         if (current.children && current.children[index]) {
-          current = current.children[index] as any; // Type assertion for navigation
+          current = current.children[index] as TocRoot; // Type assertion for navigation
         } else {
           return; // Invalid path
         }
@@ -135,42 +131,21 @@ export class TocTreeComponent implements OnInit {
     this.onNodeChanged();
   }
 
-  onDrop(event: CdkDragDrop<TocNode[]>): void {
-    if (event.previousContainer === event.container) {
-      // Moving within the same container
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      // Moving between containers
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    }
-    
-    this.onNodeChanged();
-  }
 
-  onNodeDrop(event: CdkDragDrop<TocNode[]>, targetPath: number[]): void {
-    // Handle dropping a node onto another node (nesting)
+  onDrop(event: CdkDragDrop<TocNode[]>): void {
+    // Only allow reordering within the same container
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+      
+      
+      this.onNodeChanged();
     }
-    
-    this.onNodeChanged();
   }
 
   getNodePath(index: number): number[] {
     return [index];
   }
+
 
   getNestedNodePath(parentPath: number[], index: number): number[] {
     return [...parentPath, index];
@@ -192,5 +167,5 @@ export class TocTreeComponent implements OnInit {
   `
 })
 export class ConfirmDeleteDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { title: string; message: string; confirmText: string; cancelText: string }) {}
 }
