@@ -58,6 +58,7 @@
 
       .clear-filters-btn {
         height: 56px; // Match form field height
+        margin-bottom: 20px; // align with form fields
         white-space: nowrap;
       }
     }
@@ -78,12 +79,16 @@
         color: rgba(0, 0, 0, 0.87);
         padding: 16px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+        &.mat-column-actions {
+          text-align: center;
+        }
       }
 
       td {
-        padding: 16px;
+        padding: 8px 16px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        vertical-align: top;
+        vertical-align: middle;
       }
 
       tr:hover {
