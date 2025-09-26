@@ -102,7 +102,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1976d2;
+  color: #166abe;
 
   .mat-icon {
     margin-right: 0;
@@ -127,17 +127,17 @@
   outline: none;
   
   &:hover {
-    border-color: #1976d2;
+    border-color: #166abe;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   &:focus {
-    border-color: #1976d2;
+    border-color: #166abe;
     box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
   }
   
   &.selected {
-    border-color: #1976d2;
+    border-color: #166abe;
     background: #e3f2fd;
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
   }
