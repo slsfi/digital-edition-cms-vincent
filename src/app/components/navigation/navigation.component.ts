@@ -32,7 +32,7 @@ export class NavigationComponent implements OnDestroy {
     this.router.events
     .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.currentUrl = '/' + this.router.url.split('/')[1];
+        this.currentUrl = this.router.url.split('?')[0]; // Remove query parameters
       });
   }
 
@@ -50,5 +50,6 @@ export class NavigationComponent implements OnDestroy {
   toggleMenu() {
     this.menuToggle.emit();
   }
+
 
 }

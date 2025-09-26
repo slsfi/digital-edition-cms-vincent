@@ -15,13 +15,15 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Publication Collection</mat-label>
           <mat-select formControlName="publicationCollectionId" required>
-            <mat-option *ngFor="let collection of publicationCollections$ | async" [value]="collection.id">
-              {{ collection.name }}
-            </mat-option>
+            @for (collection of publicationCollections$ | async; track collection.id) {
+              <mat-option [value]="collection.id">
+                {{ collection.name }}
+              </mat-option>
+            }
           </mat-select>
-          <mat-error *ngIf="form.get('publicationCollectionId')?.hasError('required')">
-            Please select a publication collection
-          </mat-error>
+          @if (form.get('publicationCollectionId')?.hasError('required')) {
+            <mat-error>Please select a publication collection</mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -32,23 +34,23 @@
           <mat-form-field appearance="outline">
             <mat-label>Number of pages</mat-label>
             <input matInput type="number" formControlName="numberOfPages" min="1" required>
-            <mat-error *ngIf="form.get('numberOfPages')?.hasError('required')">
-              Number of pages is required
-            </mat-error>
-            <mat-error *ngIf="form.get('numberOfPages')?.hasError('min')">
-              Number of pages must be at least 1
-            </mat-error>
+            @if (form.get('numberOfPages')?.hasError('required')) {
+              <mat-error>Number of pages is required</mat-error>
+            }
+            @if (form.get('numberOfPages')?.hasError('min')) {
+              <mat-error>Number of pages must be at least 1</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Start page number</mat-label>
             <input matInput type="number" formControlName="startPageNumber" min="0" required>
-            <mat-error *ngIf="form.get('startPageNumber')?.hasError('required')">
-              Start page number is required
-            </mat-error>
-            <mat-error *ngIf="form.get('startPageNumber')?.hasError('min')">
-              Start page number must be at least 0
-            </mat-error>
+            @if (form.get('startPageNumber')?.hasError('required')) {
+              <mat-error>Start page number is required</mat-error>
+            }
+            @if (form.get('startPageNumber')?.hasError('min')) {
+              <mat-error>Start page number must be at least 0</mat-error>
+            }
           </mat-form-field>
         </div>
 
@@ -64,9 +66,9 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Description</mat-label>
           <textarea matInput formControlName="description" rows="3" required></textarea>
-          <mat-error *ngIf="form.get('description')?.hasError('required')">
-            Description is required
-          </mat-error>
+          @if (form.get('description')?.hasError('required')) {
+            <mat-error>Description is required</mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -144,7 +146,7 @@
 
         <div class="results-actions">
           <button mat-flat-button color="primary" (click)="onBackToFacsimiles()">
-            <mat-icon>list</mat-icon>
+            <mat-icon>arrow_back</mat-icon>
             Back to Facsimile Collections
           </button>
         </div>

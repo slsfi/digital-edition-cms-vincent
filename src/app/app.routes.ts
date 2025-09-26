@@ -10,6 +10,8 @@ import { NewPublicationFacsimileComponent } from './pages/new-publication-facsim
 import { FacsimileCollectionComponent } from './pages/facsimile-collection/facsimile-collection.component';
 import { PublicationBundleComponent } from './pages/publication-bundle/publication-bundle.component';
 import { AddFacsimileFromPublicationsComponent } from './pages/add-facsimile-from-publications/add-facsimile-from-publications.component';
+import { KeywordsManagementComponent } from './pages/keywords-management/keywords-management.component';
+import { KeywordLinkingComponent } from './pages/keyword-linking/keyword-linking.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
@@ -23,5 +25,7 @@ export const routes: Routes = [
   { path: 'facsimiles', component: FacsimilesComponent, canActivate: [authGuard] },
   { path: 'facsimiles/add-from-publications', component: AddFacsimileFromPublicationsComponent, canActivate: [authGuard] },
   { path: 'facsimiles/:id', component: FacsimileCollectionComponent, canActivate: [authGuard] },
+  { path: 'keywords', component: KeywordsManagementComponent, canActivate: [authGuard] },
+  { path: 'keywords/linking', component: KeywordLinkingComponent, canActivate: [authGuard] },
   { path: 'persons', component: PersonsComponent, canActivate: [authGuard] },
 ];

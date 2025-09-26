@@ -1,0 +1,51 @@
+<div class="keyword-selection-dialog">
+  <h2 mat-dialog-title>Search or Create Keyword</h2>
+  
+  <mat-dialog-content>
+    <p>Type to search existing keywords or create a new one. Click any option to link it to the publication.</p>
+    
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search keywords</mat-label>
+      <input matInput 
+             [formControl]="searchControl"
+             [matAutocomplete]="auto"
+             placeholder="Type to search keywords...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    
+    <mat-autocomplete #auto="matAutocomplete" 
+                     [displayWith]="displayKeyword"
+                     (optionSelected)="onOptionSelected($event)">
+      @for (keyword of filteredKeywords$ | async; track keyword.id) {
+        <mat-option [value]="keyword">
+          <div class="keyword-option">
+            <mat-icon class="action-icon">link</mat-icon>
+            <span class="keyword-text">{{ keyword.text }}</span>
+            @if (keyword.category) {
+              <span class="keyword-category">({{ keyword.category }})</span>
+            }
+          </div>
+        </mat-option>
+      }
+      @if (searchControl.value) {
+        <mat-option [value]="null">
+          <div class="create-new-option">
+            <mat-icon>add</mat-icon>
+            Create new keyword: "{{ searchControl.value }}"
+          </div>
+        </mat-option>
+      }
+    </mat-autocomplete>
+    
+    @if (isLoading) {
+      <div class="loading">
+        <mat-spinner diameter="24"></mat-spinner>
+        <span>Searching keywords...</span>
+      </div>
+    }
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+  </mat-dialog-actions>
+</div>
