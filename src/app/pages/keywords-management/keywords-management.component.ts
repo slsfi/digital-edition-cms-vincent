@@ -47,7 +47,7 @@ export class KeywordsManagementComponent implements OnInit {
   filteredKeywords$: Observable<Keyword[]> = of([]);
   categories$: Observable<string[]> = of([]);
   isLoading = false;
-  displayedColumns: string[] = ['text', 'category', 'translations', 'actions'];
+  displayedColumns: string[] = ['text', 'category', 'actions']; // 'translations' hidden for now
   
   // Search and filter controls
   searchControl = new FormControl('');
