@@ -76,18 +76,16 @@
   .search-field {
     width: 100%;
   }
-  
-  .keyword-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
+}
+
+.keyword-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
   .action-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
     color: #666;
+    margin-right: 0;
   }
   
   .keyword-text {
@@ -98,18 +96,16 @@
     color: #666;
     font-size: 0.9em;
   }
-  
-  .create-new-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #1976d2;
-    
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
+}
+
+.create-new-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1976d2;
+
+  .mat-icon {
+    margin-right: 0;
   }
 }
 
