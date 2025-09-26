@@ -43,8 +43,7 @@ import { PublicationKeywordTableComponent } from '../../components/publication-k
     MatChipsModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
-    PublicationKeywordTableComponent,
-    KeywordDialogComponent
+    PublicationKeywordTableComponent
   ],
   templateUrl: './keyword-linking.component.html',
   styleUrl: './keyword-linking.component.scss'
