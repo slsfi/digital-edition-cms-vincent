@@ -1,20 +1,129 @@
+<ng-template #tmplNode let-node="node">
+  <div class="node-item" [attr.data-id]="node.id" [attr.id]="'node-' + node.id">
+    
+    <div class="node-content">
+      <div class="node-header">
+        @if (node.children && node.children.length) {
+          <button class="expand-button" 
+                  (click)="toggleNodeExpansion(node)"
+                  (keydown.enter)="toggleNodeExpansion(node)"
+                  (keydown.space)="toggleNodeExpansion(node)"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-expanded]="node.isExpanded"
+                  [attr.aria-label]="'Toggle expansion for ' + node.text">
+            <mat-icon>{{node.isExpanded ? 'expand_less' : 'expand_more'}}</mat-icon>
+          </button>
+        }
+        
+        <div class="node-content-text" 
+             [class.no-expand]="!node.children || !node.children.length">
+          <div class="node-text">{{node.text}}</div>
+          
+          <!-- Additional info for non-subtitle nodes -->
+          @if (node.type !== 'subtitle') {
+            <div class="node-meta">
+              @if (node.description) {
+                <div class="node-description">
+                  {{node.description}}
+                </div>
+              }
+              <div class="meta-items">
+                @if (node.date) {
+                  <span class="meta-item date">
+                    <mat-icon class="meta-icon">event</mat-icon>
+                    {{node.date}}
+                  </span>
+                }
+                @if (node.category) {
+                  <span class="meta-item category">
+                    <mat-icon class="meta-icon">category</mat-icon>
+                    {{node.category}}
+                  </span>
+                }
+                @if (node.itemId) {
+                  <span class="meta-item item-id">
+                    <mat-icon class="meta-icon">link</mat-icon>
+                    ID: {{node.itemId}}
+                  </span>
+                }
+                @if (node.facsimileOnly) {
+                  <span class="meta-item facsimile">
+                    <mat-icon class="meta-icon">image</mat-icon>
+                    Facsimile Only
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="node-actions">
+          <button mat-icon-button 
+                  [matMenuTriggerFor]="nodeMenu"
+                  class="menu-trigger"
+                  [attr.aria-label]="'Actions for ' + node.text">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          
+          <mat-menu #nodeMenu="matMenu">
+            <button mat-menu-item (click)="onAddNode(getNodePath(node))">
+              <mat-icon>add</mat-icon>
+              <span>Add Child</span>
+            </button>
+            <button mat-menu-item (click)="onEditNode(node)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="onDeleteNode(getNodePath(node))" class="delete-action">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+
+    @if (node.isExpanded && node.children && node.children.length) {
+      <div class="node-children"
+           cdkDropList 
+           [cdkDropListData]="node.children"
+           [id]="node.id" 
+           [cdkDropListConnectedTo]="getAllDropListIds()"
+           (cdkDropListDropped)="drop($event)"
+           [cdkDropListSortingDisabled]="true">
+
+        @for (child of node.children; track child.id) {
+          <div cdkDrag 
+               [cdkDragData]="child.id" 
+               (cdkDragMoved)="onDragMoved($event)">
+            <ng-container *ngTemplateOutlet="tmplNode; context: {node: child}"></ng-container>  
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+</ng-template>
+
 <div class="toc-tree">
-  <!-- Root level nodes -->
-  <div class="root-nodes" 
-       cdkDropList
+  <div cdkDropList 
        [cdkDropListData]="toc.children"
-       (cdkDropListDropped)="onDrop($event)">
-    <app-toc-node 
-      *ngFor="let node of toc.children; let i = index" 
-      [node]="node" 
-      [nodePath]="getNodePath(i)"
-      [collectionId]="collectionId"
-      [isRootNode]="true"
-      [depth]="0"
-      (nodeChanged)="onNodeChanged()"
-      (deleteNode)="onDeleteNode($event)"
-      (addChildNode)="onAddNode($event)">
-    </app-toc-node>
+       [id]="'main'" 
+       [cdkDropListConnectedTo]="getAllDropListIds()"
+       (cdkDropListDropped)="drop($event)"
+       [cdkDropListSortingDisabled]="true">
+     
+    @for (node of toc.children; track node.id) {
+      <div cdkDrag 
+           [cdkDragData]="node.id"      
+           (cdkDragMoved)="onDragMoved($event)">
+
+        <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"></ng-container>
+
+      </div>
+    }
   </div>
 
   <!-- Add root level node button -->
@@ -28,3 +137,4 @@
     </button>
   </div>
 </div>
+

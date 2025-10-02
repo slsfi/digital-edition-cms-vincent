@@ -15,7 +15,7 @@ import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
-import { TocRoot, PublicationSortOption } from '../../models/table-of-contents';
+import { TocRoot, TocNode, PublicationSortOption } from '../../models/table-of-contents';
 import { PublicationCollection } from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 
@@ -145,16 +145,17 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Clean the TOC data before saving (remove id and isExpanded fields)
+    const cleanedToc = this.cleanTocForSaving(this.currentToc);
 
     this.isSaving = true;
-    this.tocService.saveToc(this.selectedCollectionId, this.currentToc)
+    this.tocService.saveToc(this.selectedCollectionId, cleanedToc)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (success) => {
           if (success) {
             this.hasUnsavedChanges = false;
             this.showSuccess('Table of contents saved successfully');
-            console.log('TOC saved successfully');
           }
           this.isSaving = false;
         },
@@ -164,6 +165,23 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
           this.isSaving = false;
         }
       });
+  }
+
+  private cleanTocForSaving(toc: TocRoot): TocRoot {
+    const cleanedToc = JSON.parse(JSON.stringify(toc)); // Deep copy
+    this.removeDragDropFields(cleanedToc);
+    return cleanedToc;
+  }
+
+  private removeDragDropFields(node: TocRoot | TocNode): void {
+    // Remove id and isExpanded fields
+    delete (node as any).id;
+    delete (node as any).isExpanded;
+    
+    // Recursively clean children
+    if (node.children) {
+      node.children.forEach((child: TocNode) => this.removeDragDropFields(child));
+    }
   }
 
   generateFlatToc(): void {

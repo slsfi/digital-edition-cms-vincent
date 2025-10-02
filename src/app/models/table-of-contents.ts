@@ -9,6 +9,8 @@ export interface TocNode {
   facsimileOnly?: boolean;
   collapsed?: boolean;
   children?: TocNode[];
+  id?: string; // Generated for drag/drop functionality
+  isExpanded?: boolean; // UI state for expansion
 }
 
 export interface TocRoot {
@@ -16,6 +18,8 @@ export interface TocRoot {
   collectionId: string;
   type: 'title';
   children: TocNode[];
+  id?: string; // Generated for drag/drop functionality
+  isExpanded?: boolean; // UI state for expansion
 }
 
 export interface TocUpdateRequest {
@@ -26,6 +30,11 @@ export interface TocResponse {
   success: boolean;
   message: string;
   data: TocRoot | null;
+}
+
+export interface DropInfo {
+  targetId: string;
+  action: 'before' | 'after' | 'inside';
 }
 
 export interface PublicationSortOption {
