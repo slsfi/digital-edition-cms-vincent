@@ -64,6 +64,9 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   isUpdatingFromDb = false;
   updateFields = ['text', 'date'];
 
+  // Publications cache for selected collection
+  publicationsForSelectedCollection: any[] = [];
+
   constructor(
     private tocService: TableOfContentsService,
     private publicationService: PublicationService,
@@ -116,7 +119,31 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   onCollectionSelected(collection: PublicationCollection): void {
     this.selectedCollection = collection;
     this.selectedCollectionId = collection.id;
+    this.loadPublicationsForSelectedCollection();
     this.loadTableOfContents();
+  }
+
+  private loadPublicationsForSelectedCollection(): void {
+    if (!this.selectedCollectionId) {
+      this.publicationsForSelectedCollection = [];
+      return;
+    }
+    const projectName = this.projectService.getCurrentProject();
+    if (!projectName) {
+      this.publicationsForSelectedCollection = [];
+      return;
+    }
+    this.publicationService
+      .getPublications(this.selectedCollectionId.toString(), projectName, true)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (publications) => {
+          this.publicationsForSelectedCollection = publications;
+        },
+        error: () => {
+          this.publicationsForSelectedCollection = [];
+        }
+      });
   }
 
   loadTableOfContents(): void {

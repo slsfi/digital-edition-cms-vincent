@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 
 import { TocRoot, TocNode, DropInfo } from '../../models/table-of-contents';
+import { Publication } from '../../models/publication';
 import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
@@ -38,6 +39,7 @@ import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-d
 export class TocTreeComponent implements OnChanges {
   @Input() toc!: TocRoot;
   @Input() collectionId!: number;
+  @Input() publications: Publication[] = [];
   @Output() tocChanged = new EventEmitter<void>();
 
   // Drag and drop properties
@@ -312,7 +314,8 @@ export class TocTreeComponent implements OnChanges {
       width: '500px',
       data: {
         collectionId: this.collectionId,
-        parentPath
+        parentPath,
+        publications: this.publications
       }
     });
 
@@ -340,7 +343,8 @@ export class TocTreeComponent implements OnChanges {
       data: {
         collectionId: this.collectionId,
         parentPath,
-        insertAfterIndex: siblingIndex
+        insertAfterIndex: siblingIndex,
+        publications: this.publications
       }
     });
 
@@ -582,7 +586,8 @@ export class TocTreeComponent implements OnChanges {
       width: '500px',
       data: {
         node: node,
-        collectionId: this.collectionId
+        collectionId: this.collectionId,
+        publications: this.publications
       }
     });
 

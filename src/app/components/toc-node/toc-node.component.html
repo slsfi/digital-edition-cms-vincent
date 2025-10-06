@@ -7,25 +7,29 @@
   <!-- Node Content -->
   <div class="node-content">
     <!-- Display Mode -->
-    <div *ngIf="!isEditing" class="display-mode">
+    @if (!isEditing) {
+    <div class="display-mode">
       <div class="text-content">
         <div class="node-text">{{ node.text }}</div>
         
         <!-- Text Node Info - Simplified -->
-        <div *ngIf="isTextNode && (node.date || node.itemId)" class="text-node-info">
-          <span *ngIf="node.date" class="date">{{ node.date }}</span>
-          <span *ngIf="node.itemId" class="item-id">ID: {{ node.itemId }}</span>
+        @if (isTextNode && (node.date || node.itemId)) {
+        <div class="text-node-info">
+          @if (node.date) { <span class="date">{{ node.date }}</span> }
+          @if (node.itemId) { <span class="item-id">ID: {{ node.itemId }}</span> }
         </div>
+        }
       </div>
 
       <!-- Node Actions - Right aligned collapse menu -->
       <div class="node-actions">
+        @if (isSubtitle) {
         <button mat-icon-button 
-                *ngIf="isSubtitle" 
                 (click)="onToggleCollapse()"
                 [matTooltip]="isCollapsed ? 'Expand' : 'Collapse'">
           <mat-icon>{{ isCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button>
+        }
 
         <button mat-icon-button 
                 [matMenuTriggerFor]="nodeMenu"
@@ -49,16 +53,19 @@
         </mat-menu>
       </div>
     </div>
+    }
 
     <!-- Edit Mode -->
-    <div *ngIf="isEditing" class="edit-mode">
+    @if (isEditing) {
+    <div class="edit-mode">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Text</mat-label>
         <input matInput [(ngModel)]="editText" placeholder="Enter text">
       </mat-form-field>
 
       <!-- Text Node Specific Fields -->
-      <div *ngIf="isTextNode" class="text-node-fields">
+      @if (isTextNode) {
+      <div class="text-node-fields">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date</mat-label>
           <input matInput [(ngModel)]="editDate" placeholder="YYYY-MM-DD">
@@ -70,13 +77,16 @@
             <mat-label>Link to Publication</mat-label>
             <mat-select [(value)]="selectedPublication" (selectionChange)="onPublicationSelected($event.value)">
               <mat-option [value]="null">No publication linked</mat-option>
-              <mat-option *ngFor="let pub of publications" [value]="pub">
-                {{ pub.name }} (ID: {{ pub.id }})
-              </mat-option>
+              @for (pub of publications; track pub.id) {
+                <mat-option [value]="pub">
+                  {{ pub.name }} (ID: {{ pub.id }})
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
       </div>
+      }
 
       <!-- Edit Actions -->
       <div class="edit-actions">
@@ -84,18 +94,20 @@
         <button mat-raised-button color="primary" (click)="onSave()">Save</button>
       </div>
     </div>
+    }
   </div>
 
 
   <!-- Children (for subtitle nodes) -->
-  <div *ngIf="isSubtitle && !isCollapsed && node.children && node.children.length > 0" 
+  @if (isSubtitle && !isCollapsed && node.children && node.children.length > 0) {
+  <div 
        class="children-container"
        cdkDropList
        [cdkDropListData]="node.children"
        (cdkDropListDropped)="onChildDrop($event)">
     
+    @for (child of node.children; track child.id || $index; let i = $index) {
     <app-toc-node 
-      *ngFor="let child of node.children; let i = index" 
       [node]="child" 
       [nodePath]="getChildNodePath(i)"
       [collectionId]="collectionId"
@@ -104,5 +116,7 @@
       (deleteNode)="deleteNode.emit($event)"
       (addChildNode)="addChildNode.emit($event)">
     </app-toc-node>
+    }
   </div>
+  }
 </div>

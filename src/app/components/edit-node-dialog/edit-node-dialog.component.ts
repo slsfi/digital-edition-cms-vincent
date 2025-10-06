@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatOptionModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -13,13 +15,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { TocNode } from '../../models/table-of-contents';
-import { PublicationService } from '../../services/publication.service';
-import { ProjectService } from '../../services/project.service';
 import { Publication } from '../../models/publication';
 
 export interface EditNodeDialogData {
   node: TocNode;
   collectionId: number;
+  publications: Publication[];
 }
 
 @Component({
@@ -37,7 +38,9 @@ export interface EditNodeDialogData {
     MatCheckboxModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatAutocompleteModule,
+    MatOptionModule
   ],
   templateUrl: './edit-node-dialog.component.html',
   styleUrls: ['./edit-node-dialog.component.scss']
@@ -54,19 +57,25 @@ export class EditNodeDialogComponent implements OnInit {
 
   // Publications for text nodes
   publications: Publication[] = [];
+  publicationQuery = '';
+  filteredPublications: Publication[] = [];
   selectedPublication: Publication | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<EditNodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: EditNodeDialogData,
-    private publicationService: PublicationService,
-    private projectService: ProjectService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadPublications();
+    this.publications = this.data.publications || [];
+    this.filteredPublications = this.publications;
+    if (this.itemId) {
+      const pubId = this.itemId.split('_').pop();
+      this.selectedPublication = this.publications.find(p => String(p.id) === pubId) || null;
+      this.publicationQuery = this.selectedPublication?.name || '';
+    }
   }
 
   private initializeForm(): void {
@@ -81,28 +90,14 @@ export class EditNodeDialogComponent implements OnInit {
     this.itemId = node.itemId || '';
   }
 
-  private loadPublications(): void {
-    const projectName = this.projectService.getCurrentProject();
-    if (!projectName) {
-      console.error('No project selected');
-      return;
-    }
-    
-    this.publicationService.getPublications(this.data.collectionId.toString(), projectName)
-      .subscribe({
-        next: (publications) => {
-          this.publications = publications;
-          // Find the currently selected publication if itemId exists
-          if (this.itemId) {
-            this.selectedPublication = publications.find(p => 
-              `${this.data.collectionId}_${p.id}` === this.itemId
-            ) || null;
-          }
-        },
-        error: (error) => {
-          console.error('Error loading publications:', error);
-        }
-      });
+  onPublicationQueryChange(query: string): void {
+    this.publicationQuery = query;
+    const q = query.toLowerCase();
+    this.filteredPublications = this.publications.filter(p =>
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.original_filename || '').toLowerCase().includes(q) ||
+      String(p.id).includes(q)
+    ).slice(0, 50);
   }
 
   onNodeTypeChange(): void {

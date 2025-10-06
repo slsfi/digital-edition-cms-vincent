@@ -10,9 +10,11 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Sort by</mat-label>
         <mat-select [(ngModel)]="selectedSortOption">
-          <mat-option *ngFor="let option of sortOptions" [value]="option.value">
-            {{ option.label }}
-          </mat-option>
+          @for (option of sortOptions; track option.value) {
+            <mat-option [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>
@@ -24,10 +26,9 @@
             color="primary" 
             (click)="onGenerate()" 
             [disabled]="isGenerating">
-      <mat-icon *ngIf="!isGenerating">auto_awesome</mat-icon>
-      <mat-spinner *ngIf="isGenerating" diameter="20"></mat-spinner>
-      <span *ngIf="!isGenerating">Generate Flat TOC</span>
-      <span *ngIf="isGenerating">Generating...</span>
+      @if (!isGenerating) { <mat-icon>auto_awesome</mat-icon> }
+      @if (isGenerating) { <mat-spinner diameter="20"></mat-spinner> }
+      @if (!isGenerating) { <span>Generate Flat TOC</span> } @else { <span>Generating...</span> }
     </button>
   </mat-dialog-actions>
 </div>
