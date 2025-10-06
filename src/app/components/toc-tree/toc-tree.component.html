@@ -59,21 +59,49 @@
         </div>
         
         <div class="node-actions">
+          <!-- Edit button (most used) -->
+          <button mat-icon-button 
+                  (click)="onEditNode(node)"
+                  matTooltip="Edit node"
+                  [attr.aria-label]="'Edit ' + node.text">
+            <mat-icon>edit</mat-icon>
+          </button>
+          
+          <!-- Up/Down movement buttons -->
+          <button mat-icon-button 
+                  (click)="onMoveNodeUp(getNodePath(node))"
+                  [disabled]="!canMoveUp(getNodePath(node))"
+                  matTooltip="Move up"
+                  [attr.aria-label]="'Move ' + node.text + ' up'">
+            <mat-icon>keyboard_arrow_up</mat-icon>
+          </button>
+          
+          <button mat-icon-button 
+                  (click)="onMoveNodeDown(getNodePath(node))"
+                  [disabled]="!canMoveDown(getNodePath(node))"
+                  matTooltip="Move down"
+                  [attr.aria-label]="'Move ' + node.text + ' down'">
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+          
+          <!-- Three-dot menu for other actions -->
           <button mat-icon-button 
                   [matMenuTriggerFor]="nodeMenu"
                   class="menu-trigger"
-                  [attr.aria-label]="'Actions for ' + node.text">
+                  [attr.aria-label]="'More actions for ' + node.text">
             <mat-icon>more_vert</mat-icon>
           </button>
           
           <mat-menu #nodeMenu="matMenu">
-            <button mat-menu-item (click)="onAddNode(getNodePath(node))">
+            @if (node.type === 'subtitle') {
+              <button mat-menu-item (click)="onAddNode(getNodePath(node))">
+                <mat-icon>add</mat-icon>
+                <span>Add Child</span>
+              </button>
+            }
+            <button mat-menu-item (click)="onAddSibling(getNodePath(node))">
               <mat-icon>add</mat-icon>
-              <span>Add Child</span>
-            </button>
-            <button mat-menu-item (click)="onEditNode(node)">
-              <mat-icon>edit</mat-icon>
-              <span>Edit</span>
+              <span>Add Sibling</span>
             </button>
             <button mat-menu-item (click)="onDeleteNode(getNodePath(node))" class="delete-action">
               <mat-icon>delete</mat-icon>
@@ -108,6 +136,33 @@
 </ng-template>
 
 <div class="toc-tree">
+  <!-- Root Title Section -->
+  <div class="root-title-section">
+    <div class="root-title-content">
+      <h2 class="root-title">{{ toc.text }}</h2>
+      <div class="root-actions">
+        <button mat-icon-button 
+                (click)="onCollapseAll()"
+                matTooltip="Collapse all"
+                [attr.aria-label]="'Collapse all nodes'">
+          <mat-icon>unfold_less</mat-icon>
+        </button>
+        <button mat-icon-button 
+                (click)="onExpandAll()"
+                matTooltip="Expand all"
+                [attr.aria-label]="'Expand all nodes'">
+          <mat-icon>unfold_more</mat-icon>
+        </button>
+        <button mat-icon-button 
+                (click)="onEditRootTitle()"
+                matTooltip="Edit root title"
+                [attr.aria-label]="'Edit root title'">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  
   <div cdkDropList 
        [cdkDropListData]="toc.children"
        [id]="'main'" 

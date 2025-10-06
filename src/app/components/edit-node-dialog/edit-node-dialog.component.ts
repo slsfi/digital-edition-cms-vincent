@@ -136,14 +136,44 @@ export class EditNodeDialogComponent implements OnInit {
     const updatedNode: TocNode = {
       ...this.data.node, // Preserve existing properties like id, isExpanded, children
       type: this.nodeType,
-      text: this.text.trim(),
-      description: this.description.trim() || undefined,
-      date: this.date || undefined,
-      category: this.category.trim() || undefined,
-      facsimileOnly: this.facsimileOnly,
-      collapsed: this.collapsed,
-      itemId: this.itemId || undefined
+      text: this.text.trim()
     };
+
+    // Remove type-inappropriate properties first
+    delete updatedNode.description;
+    delete updatedNode.date;
+    delete updatedNode.category;
+    delete updatedNode.facsimileOnly;
+    delete updatedNode.collapsed;
+    delete updatedNode.itemId;
+
+    // Add type-specific properties
+    if (this.nodeType === 'subtitle') {
+      // Subtitle-specific properties
+      if (this.collapsed) {
+        updatedNode.collapsed = this.collapsed;
+      }
+      if (this.itemId.trim()) {
+        updatedNode.itemId = this.itemId.trim();
+      }
+    } else if (this.nodeType === 'est') {
+      // Text node-specific properties
+      if (this.description.trim()) {
+        updatedNode.description = this.description.trim();
+      }
+      if (this.date) {
+        updatedNode.date = this.date;
+      }
+      if (this.category.trim()) {
+        updatedNode.category = this.category.trim();
+      }
+      if (this.facsimileOnly) {
+        updatedNode.facsimileOnly = this.facsimileOnly;
+      }
+      if (this.itemId) {
+        updatedNode.itemId = this.itemId;
+      }
+    }
 
     this.dialogRef.close(updatedNode);
   }

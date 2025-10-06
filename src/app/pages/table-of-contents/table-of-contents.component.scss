@@ -67,6 +67,17 @@
   padding: 8px 12px;
   border-radius: 4px;
   background-color: #f0f0f0;
+  
+  // Color coding for different statuses
+  &.unsaved-changes {
+    background-color: #fff3cd; // Orange background for unsaved changes
+    border: 1px solid #ffeaa7;
+  }
+  
+  &.all-saved {
+    background-color: #d4edda; // Green background for all saved
+    border: 1px solid #c3e6cb;
+  }
 
   mat-icon {
     font-size: 20px;
@@ -164,13 +175,5 @@
   }
 }
 
-// Success and error snackbar styles
-::ng-deep .success-snackbar {
-  background-color: #4caf50;
-  color: white;
-}
-
-::ng-deep .error-snackbar {
-  background-color: #f44336;
-  color: white;
-}
+// Note: Snackbar styles are now handled by global styles in src/styles.scss
+// Using .snackbar-success and .snackbar-error classes

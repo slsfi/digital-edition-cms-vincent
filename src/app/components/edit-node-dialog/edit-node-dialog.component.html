@@ -18,6 +18,11 @@
 
     <!-- Subtitle Specific Fields -->
     <div *ngIf="nodeType === 'subtitle'" class="subtitle-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Item ID (optional)</mat-label>
+        <input matInput [(ngModel)]="itemId" placeholder="Enter item ID">
+      </mat-form-field>
+      
       <mat-checkbox [(ngModel)]="collapsed">
         Collapsed by default
       </mat-checkbox>
@@ -25,6 +30,19 @@
 
     <!-- Text Node Specific Fields -->
     <div *ngIf="nodeType === 'est'" class="text-node-fields">
+      <!-- Publication Selection -->
+      <div class="publication-selection">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Link to Publication</mat-label>
+          <mat-select [(value)]="selectedPublication" (selectionChange)="onPublicationSelected($event.value)">
+            <mat-option [value]="null">No publication linked</mat-option>
+            <mat-option *ngFor="let pub of publications" [value]="pub">
+              {{ pub.name }} (ID: {{ pub.id }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Description</mat-label>
         <textarea matInput [(ngModel)]="description" rows="2" placeholder="Enter description"></textarea>
@@ -40,27 +58,19 @@
         <input matInput [(ngModel)]="category" placeholder="Enter category">
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Item ID (optional)</mat-label>
+        <input matInput [(ngModel)]="itemId" placeholder="Enter item ID">
+      </mat-form-field>
+
       <mat-checkbox [(ngModel)]="facsimileOnly">
         Facsimile Only
       </mat-checkbox>
-
-      <!-- Publication Selection -->
-      <div class="publication-selection">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Link to Publication</mat-label>
-          <mat-select [(value)]="selectedPublication" (selectionChange)="onPublicationSelected($event.value)">
-            <mat-option [value]="null">No publication linked</mat-option>
-            <mat-option *ngFor="let pub of publications" [value]="pub">
-              {{ pub.name }} (ID: {{ pub.id }})
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
     </div>
   </mat-dialog-content>
 
   <mat-dialog-actions>
     <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="onSave()">Save Changes</button>
+    <button mat-raised-button color="primary" (click)="onSave()">Update</button>
   </mat-dialog-actions>
 </div>

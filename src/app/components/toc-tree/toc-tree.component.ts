@@ -6,13 +6,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 
 import { TocRoot, TocNode, DropInfo } from '../../models/table-of-contents';
 import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
+import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
+import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
 
 @Component({
   selector: 'app-toc-tree',
@@ -61,11 +63,25 @@ export class TocTreeComponent implements OnChanges {
     }
   }
 
+  /**
+   * Prepare drag and drop functionality by setting up node lookup and drop targets.
+   * This method initializes the nodeLookup map for efficient node retrieval during drag operations
+   * and prepares the drop target IDs for CDK drag and drop connectivity.
+   * 
+   * @param nodes - Array of TOC nodes to prepare for drag and drop
+   */
   prepareDragDrop(nodes: TocNode[]): void {
     this.nodeLookup = {};
     this.generateIdsAndPrepareDragDrop(nodes, []);
   }
 
+  /**
+   * Recursively generate unique IDs for nodes and populate the nodeLookup map.
+   * This method assigns path-based IDs to each node and sets default expansion state.
+   * 
+   * @param nodes - Array of nodes to process
+   * @param path - Current path in the tree (array of indices)
+   */
   private generateIdsAndPrepareDragDrop(nodes: TocNode[], path: number[]): void {
     nodes.forEach((node, index) => {
       const currentPath = [...path, index];
@@ -124,6 +140,13 @@ export class TocTreeComponent implements OnChanges {
     };
   }
 
+  /**
+   * Handle drag movement events to provide real-time visual feedback.
+   * This method detects drop zones (before/after/inside) based on mouse position
+   * and updates visual indicators accordingly. Uses a 20/60/20 zone split for easier same-level reordering.
+   * 
+   * @param event - CDK drag move event containing pointer position
+   */
   onDragMoved = this.debounce((event: CdkDragMove) => {
     const element = this.document.elementFromPoint(event.pointerPosition.x, event.pointerPosition.y);
     
@@ -144,23 +167,31 @@ export class TocTreeComponent implements OnChanges {
     };
     
     const targetRect = targetContainer.getBoundingClientRect();
-    const oneThird = targetRect.height / 3;
+    const topZone = targetRect.height * 0.2; // Top 20%
+    const bottomZone = targetRect.height * 0.8; // Bottom 80%
 
     if (this.currentDropAction) {
-      if (event.pointerPosition.y - targetRect.top < oneThird) {
-        // before
+      if (event.pointerPosition.y - targetRect.top < topZone) {
+        // before (top 20%)
         this.currentDropAction.action = "before";
-      } else if (event.pointerPosition.y - targetRect.top > 2 * oneThird) {
-        // after
+      } else if (event.pointerPosition.y - targetRect.top > bottomZone) {
+        // after (bottom 20%)
         this.currentDropAction.action = "after";
       } else {
-        // inside
+        // inside (middle 60%)
         this.currentDropAction.action = "inside";
       }
     }
     this.showDragInfo();
   }, 50);
 
+  /**
+   * Handle drop events for drag and drop operations.
+   * This method implements the core drag and drop logic, removing the dragged item
+   * from its original position and inserting it at the new position based on the detected drop action.
+   * 
+   * @param event - CDK drag drop event containing source and target information
+   */
   drop(event: CdkDragDrop<TocNode[]>): void {
     if (!this.currentDropAction) return;
 
@@ -172,6 +203,35 @@ export class TocTreeComponent implements OnChanges {
 
     const oldItemContainer = parentItemId !== 'main' ? this.nodeLookup[parentItemId].children! : this.toc.children;
     const newContainer = targetListId !== 'main' ? this.nodeLookup[targetListId].children! : this.toc.children;
+
+    // Check if the item is being dropped in the same position
+    if (parentItemId === targetListId) {
+      const oldIndex = oldItemContainer.findIndex(c => c.id === draggedItemId);
+      const targetIndex = newContainer.findIndex(c => c.id === this.currentDropAction!.targetId);
+      
+      // If it's the same item and same position, don't move
+      if (draggedItemId === this.currentDropAction.targetId) {
+        this.clearDragInfo();
+        return;
+      }
+      
+      // Calculate the new position based on the action
+      let newPosition: number;
+      if (this.currentDropAction.action === 'before') {
+        newPosition = targetIndex;
+      } else if (this.currentDropAction.action === 'after') {
+        newPosition = targetIndex + 1;
+      } else {
+        // 'inside' action - always allow
+        newPosition = -1;
+      }
+      
+      // If the new position would be the same as the current position, don't move
+      if (newPosition !== -1 && oldIndex === newPosition) {
+        this.clearDragInfo();
+        return;
+      }
+    }
 
     const index = oldItemContainer.findIndex(c => c.id === draggedItemId);
     oldItemContainer.splice(index, 1);
@@ -263,7 +323,154 @@ export class TocTreeComponent implements OnChanges {
     });
   }
 
-  private addNodeToPath(parentPath: number[], node: TocNode): void {
+  /**
+   * Add a new sibling node after the specified node.
+   * This method opens the add node dialog and inserts the new node as a sibling
+   * (at the same level) after the current node.
+   * 
+   * @param siblingPath - Path to the node that will have a new sibling added after it
+   */
+  onAddSibling(siblingPath: number[]): void {
+    // Get the parent path (remove the last index)
+    const parentPath = siblingPath.slice(0, -1);
+    const siblingIndex = siblingPath[siblingPath.length - 1];
+    
+    const dialogRef = this.dialog.open(AddNodeDialogComponent, {
+      width: '500px',
+      data: {
+        collectionId: this.collectionId,
+        parentPath,
+        insertAfterIndex: siblingIndex
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addNodeToPath(parentPath, result, siblingIndex + 1);
+      }
+    });
+  }
+
+  canMoveUp(nodePath: number[]): boolean {
+    if (nodePath.length === 0) return false;
+    const index = nodePath[nodePath.length - 1];
+    return index > 0;
+  }
+
+  canMoveDown(nodePath: number[]): boolean {
+    if (nodePath.length === 0) return false;
+    const parentPath = nodePath.slice(0, -1);
+    const index = nodePath[nodePath.length - 1];
+    
+    let current = this.toc;
+    for (const pathIndex of parentPath) {
+      if (current.children && current.children[pathIndex]) {
+        current = current.children[pathIndex] as TocRoot;
+      } else {
+        return false;
+      }
+    }
+    
+    return current.children && index < current.children.length - 1;
+  }
+
+  onMoveNodeUp(nodePath: number[]): void {
+    if (!this.canMoveUp(nodePath)) return;
+    
+    const parentPath = nodePath.slice(0, -1);
+    const index = nodePath[nodePath.length - 1];
+    
+    let current = this.toc;
+    for (const pathIndex of parentPath) {
+      if (current.children && current.children[pathIndex]) {
+        current = current.children[pathIndex] as TocRoot;
+      } else {
+        return;
+      }
+    }
+    
+    if (current.children && index > 0) {
+      // Swap with previous element
+      const temp = current.children[index];
+      current.children[index] = current.children[index - 1];
+      current.children[index - 1] = temp;
+      this.onNodeChanged();
+    }
+  }
+
+  onMoveNodeDown(nodePath: number[]): void {
+    if (!this.canMoveDown(nodePath)) return;
+    
+    const parentPath = nodePath.slice(0, -1);
+    const index = nodePath[nodePath.length - 1];
+    
+    let current = this.toc;
+    for (const pathIndex of parentPath) {
+      if (current.children && current.children[pathIndex]) {
+        current = current.children[pathIndex] as TocRoot;
+      } else {
+        return;
+      }
+    }
+    
+    if (current.children && index < current.children.length - 1) {
+      // Swap with next element
+      const temp = current.children[index];
+      current.children[index] = current.children[index + 1];
+      current.children[index + 1] = temp;
+      this.onNodeChanged();
+    }
+  }
+
+  onEditRootTitle(): void {
+    const dialogRef = this.dialog.open(EditRootTitleDialogComponent, {
+      width: '400px',
+      data: {
+        currentTitle: this.toc.text
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.trim()) {
+        this.toc.text = result.trim();
+        this.tocChanged.emit();
+      }
+    });
+  }
+
+  onCollapseAll(): void {
+    this.setAllNodesExpanded(false);
+  }
+
+  onExpandAll(): void {
+    this.setAllNodesExpanded(true);
+  }
+
+  /**
+   * Recursively set the expansion state for all subtitle nodes in the tree.
+   * This method is used by the collapse/expand all functionality.
+   * 
+   * @param expanded - Whether nodes should be expanded (true) or collapsed (false)
+   */
+  private setAllNodesExpanded(expanded: boolean): void {
+    const setExpanded = (nodes: TocNode[]): void => {
+      nodes.forEach(node => {
+        if (node.type === 'subtitle') {
+          node.isExpanded = expanded;
+        }
+        if (node.children && node.children.length > 0) {
+          setExpanded(node.children);
+        }
+      });
+    };
+
+    if (this.toc.children) {
+      setExpanded(this.toc.children);
+      this.onNodeChanged();
+    }
+  }
+
+  private addNodeToPath(parentPath: number[], node: TocNode, insertIndex?: number): void {
     let current = this.toc;
     
     // Navigate to the parent node
@@ -279,7 +486,15 @@ export class TocTreeComponent implements OnChanges {
     if (!current.children) {
       current.children = [];
     }
-    current.children.push(node);
+    
+    if (insertIndex !== undefined) {
+      // Insert at specific index (for sibling insertion)
+      current.children.splice(insertIndex, 0, node);
+    } else {
+      // Append to end (for child insertion)
+      current.children.push(node);
+    }
+    
     this.onNodeChanged();
   }
 
@@ -385,20 +600,3 @@ export class TocTreeComponent implements OnChanges {
   }
 }
 
-// Simple confirmation dialog component
-@Component({
-  selector: 'app-confirm-delete-dialog',
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
-  template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>{{ data.message }}</mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button [mat-dialog-close]="false">{{ data.cancelText }}</button>
-      <button mat-button [mat-dialog-close]="true" color="warn">{{ data.confirmText }}</button>
-    </mat-dialog-actions>
-  `
-})
-export class ConfirmDeleteDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { title: string; message: string; confirmText: string; cancelText: string }) {}
-}

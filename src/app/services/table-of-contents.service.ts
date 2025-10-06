@@ -108,7 +108,7 @@ export class TableOfContentsService {
   /**
    * Generate a flat table of contents from publications
    */
-  generateFlatToc(collectionId: number, publications: Publication[], sortBy: string): TocRoot {
+  generateFlatToc(collectionId: number, publications: Publication[], sortBy: string, collectionTitle?: string): TocRoot {
     // Sort publications based on the selected criteria
     const sortedPublications = [...publications].sort((a, b) => {
       switch (sortBy) {
@@ -137,7 +137,7 @@ export class TableOfContentsService {
     }));
 
     return {
-      text: 'Table of Contents',
+      text: collectionTitle || 'Table of Contents',
       collectionId: collectionId.toString(),
       type: 'title',
       children

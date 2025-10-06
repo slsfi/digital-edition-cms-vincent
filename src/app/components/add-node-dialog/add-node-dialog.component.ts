@@ -50,6 +50,7 @@ export class AddNodeDialogComponent implements OnInit {
   category = '';
   facsimileOnly = false;
   collapsed = false;
+  itemId = '';
 
   // Publications for text nodes
   publications: Publication[] = [];
@@ -92,6 +93,8 @@ export class AddNodeDialogComponent implements OnInit {
     this.date = '';
     this.category = '';
     this.facsimileOnly = false;
+    this.collapsed = false;
+    this.itemId = '';
     this.selectedPublication = null;
   }
 
@@ -113,22 +116,39 @@ export class AddNodeDialogComponent implements OnInit {
 
     const node: TocNode = {
       type: this.nodeType,
-      text: this.text.trim(),
-      description: this.description.trim() || undefined,
-      date: this.date || undefined,
-      category: this.category.trim() || undefined,
-      facsimileOnly: this.facsimileOnly,
-      collapsed: this.collapsed
+      text: this.text.trim()
     };
 
-    // For text nodes, set itemId if a publication is selected
-    if (this.nodeType === 'est' && this.selectedPublication) {
-      node.itemId = `${this.data.collectionId}_${this.selectedPublication.id}`;
-    }
-
-    // For subtitle nodes, initialize children array
+    // Add type-specific properties
     if (this.nodeType === 'subtitle') {
+      // Subtitle-specific properties
+      if (this.collapsed) {
+        node.collapsed = this.collapsed;
+      }
+      if (this.itemId.trim()) {
+        node.itemId = this.itemId.trim();
+      }
       node.children = [];
+    } else if (this.nodeType === 'est') {
+      // Text node-specific properties
+      if (this.description.trim()) {
+        node.description = this.description.trim();
+      }
+      if (this.date) {
+        node.date = this.date;
+      }
+      if (this.category.trim()) {
+        node.category = this.category.trim();
+      }
+      if (this.facsimileOnly) {
+        node.facsimileOnly = this.facsimileOnly;
+      }
+      // Set itemId from manual input or publication selection
+      if (this.itemId.trim()) {
+        node.itemId = this.itemId.trim();
+      } else if (this.selectedPublication) {
+        node.itemId = `${this.data.collectionId}_${this.selectedPublication.id}`;
+      }
     }
 
     this.dialogRef.close(node);

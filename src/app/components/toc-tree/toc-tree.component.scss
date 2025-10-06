@@ -12,6 +12,32 @@
   }
 }
 
+.root-title-section {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  
+  .root-title-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .root-title {
+      margin: 0;
+      flex: 1;
+      font-size: 1.2em;
+      font-weight: 500;
+    }
+    
+    .root-actions {
+      display: flex;
+      gap: 4px;
+    }
+  }
+}
+
 .root-nodes {
   min-height: 100px;
 }

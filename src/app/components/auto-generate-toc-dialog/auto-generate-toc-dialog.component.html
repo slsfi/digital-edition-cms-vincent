@@ -1,0 +1,33 @@
+<div class="auto-generate-toc-dialog">
+  <h2 mat-dialog-title>Auto-generate Flat TOC</h2>
+  
+  <mat-dialog-content>
+    <p class="dialog-description">
+      Create a flat table of contents from all publications in the collection.
+    </p>
+    
+    <div class="generation-controls">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sort by</mat-label>
+        <mat-select [(ngModel)]="selectedSortOption">
+          <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="isGenerating">Cancel</button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onGenerate()" 
+            [disabled]="isGenerating">
+      <mat-icon *ngIf="!isGenerating">auto_awesome</mat-icon>
+      <mat-spinner *ngIf="isGenerating" diameter="20"></mat-spinner>
+      <span *ngIf="!isGenerating">Generate Flat TOC</span>
+      <span *ngIf="isGenerating">Generating...</span>
+    </button>
+  </mat-dialog-actions>
+</div>
