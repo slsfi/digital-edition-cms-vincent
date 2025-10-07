@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, switchMap } from 'rxjs';
+import { BehaviorSubject, filter, map, switchMap, shareReplay, Observable } from 'rxjs';
 
 import {
   EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
@@ -8,7 +8,7 @@ import {
 import {
   LinkTextToPublicationRequest, LinkTextToPublicationResponse, ManuscriptEditRequest,
   ManuscriptResponse, ManuscriptsResponse, Publication, PublicationAddRequest,
-  PublicationCollectionAddRequest, PublicationCollectionEditRequest,
+  PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest,
   PublicationCollectionResponse, PublicationCollectionsResponse, PublicationCommentRequest,
   PublicationCommentResponse, PublicationCommentsResponse, PublicationEditRequest,
   PublicationResponse, PublicationsResponse, VersionEditRequest, VersionResponse,
@@ -22,6 +22,7 @@ import { ProjectService } from './project.service';
 })
 export class PublicationService {
   selectedProject$: BehaviorSubject<string | null>;
+  private collectionsCache = new Map<string, Observable<PublicationCollection[]>>();
 
   constructor(private apiService: ApiService, private projectService: ProjectService) {
     this.selectedProject$ = this.projectService.selectedProject$;
@@ -34,12 +35,18 @@ export class PublicationService {
     return projectName;
   }
 
-  getPublicationCollections(projectName: string | null | undefined) {
+  getPublicationCollections(projectName: string | null | undefined): Observable<PublicationCollection[]> {
     const project = this.validateProject(projectName);
+    if (this.collectionsCache.has(project)) {
+      return this.collectionsCache.get(project)!;
+    }
     const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/name/asc/`;
-    return this.apiService.get<PublicationCollectionsResponse>(url).pipe(
-      map(response => response.data)
+    const stream: Observable<PublicationCollection[]> = this.apiService.get<PublicationCollectionsResponse>(url).pipe(
+      map(response => response.data),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
+    this.collectionsCache.set(project, stream);
+    return stream;
   }
 
   editPublicationCollection(collectionId: number, data: PublicationCollectionEditRequest, projectName: string | null | undefined) {
