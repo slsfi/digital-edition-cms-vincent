@@ -8,7 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil, tap, shareReplay } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil, tap } from 'rxjs';
 
 import { Column } from '../../models/common';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -95,8 +95,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
       tap(data => {
         this.originalData = [...data];
         this.originalCount = data.length;
-      }),
-      shareReplay({ bufferSize: 1, refCount: true })
+      })
     );
 
     // Subscribe to combined stream for filtering and sorting of data

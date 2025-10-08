@@ -22,7 +22,6 @@ import { ProjectService } from './project.service';
 })
 export class PublicationService {
   selectedProject$: BehaviorSubject<string | null>;
-  private collectionsCache = new Map<string, Observable<PublicationCollection[]>>();
 
   constructor(private apiService: ApiService, private projectService: ProjectService) {
     this.selectedProject$ = this.projectService.selectedProject$;
@@ -37,16 +36,11 @@ export class PublicationService {
 
   getPublicationCollections(projectName: string | null | undefined): Observable<PublicationCollection[]> {
     const project = this.validateProject(projectName);
-    if (this.collectionsCache.has(project)) {
-      return this.collectionsCache.get(project)!;
-    }
     const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/list/name/asc/`;
-    const stream: Observable<PublicationCollection[]> = this.apiService.get<PublicationCollectionsResponse>(url).pipe(
+    return this.apiService.get<PublicationCollectionsResponse>(url).pipe(
       map(response => response.data),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    this.collectionsCache.set(project, stream);
-    return stream;
   }
 
   editPublicationCollection(collectionId: number, data: PublicationCollectionEditRequest, projectName: string | null | undefined) {
