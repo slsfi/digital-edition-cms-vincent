@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, finalize, map, Observable, of, switchMap, take } from 'rxjs';
+import { catchError, finalize, map, Observable, of, switchMap, take, filter } from 'rxjs';
 
 import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -61,6 +61,20 @@ export class HomeComponent {
         );
       })
     );
+
+    // Auto-select project if only one is available and none is currently selected
+    this.availableProjects$.pipe(
+      take(1), // Only check once on load
+      filter(projects => projects.length === 1), // Only if exactly 1 project
+      filter(() => !this.projectService.getCurrentProject()) // Only if no project selected
+    ).subscribe(projects => {
+      const projectName = projects[0].name;
+      this.projectService.setSelectedProject(projectName);
+      this.snackbar.open(`Project ${projectName} selected`, 'Close', { 
+        panelClass: 'snackbar-success',
+        duration: 3000 
+      });
+    });
   }
 
   changeProject(event: MatSelectChange) {
