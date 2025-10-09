@@ -6,10 +6,7 @@
   background-color: #fafafa;
   color: #333 !important; // Force black text
 
-  // Ensure all text elements are black
-  * {
-    color: #333 !important;
-  }
+
 }
 
 .root-title-section {
@@ -151,7 +148,7 @@
   align-items: center;
   gap: 4px;
   font-size: 0.75em;
-  color: #666;
+  color: #333;
   background-color: rgba(0, 0, 0, 0.05);
   padding: 2px 6px;
   border-radius: 12px;
@@ -164,22 +161,18 @@
   }
 
   &.date {
-    color: #1976d2;
     background-color: rgba(25, 118, 210, 0.1);
   }
 
   &.category {
-    color: #388e3c;
     background-color: rgba(56, 142, 60, 0.1);
   }
 
   &.item-id {
-    color: #f57c00;
     background-color: rgba(245, 124, 0, 0.1);
   }
 
   &.facsimile {
-    color: #7b1fa2;
     background-color: rgba(123, 31, 162, 0.1);
   }
 }
@@ -195,17 +188,6 @@
   }
 }
 
-.menu-trigger {
-  min-width: 32px;
-  height: 32px;
-  padding: 4px;
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-}
 
 .delete-action {
   color: #f44336;

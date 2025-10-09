@@ -80,7 +80,8 @@ export class EditNodeDialogComponent implements OnInit {
 
   private initializeForm(): void {
     const node = this.data.node;
-    this.nodeType = node.type as 'subtitle' | 'est';
+    // Default to 'subtitle' if no type is specified (backend compatibility)
+    this.nodeType = (node.type as 'subtitle' | 'est') || 'subtitle';
     this.text = node.text || '';
     this.description = node.description || '';
     this.date = node.date || '';
@@ -93,6 +94,13 @@ export class EditNodeDialogComponent implements OnInit {
   onPublicationQueryChange(query: string): void {
     this.publicationQuery = query;
     const q = query.toLowerCase();
+    
+    // If query is "No publication linked", show all publications
+    if (q === 'no publication linked') {
+      this.filteredPublications = this.publications;
+      return;
+    }
+    
     this.filteredPublications = this.publications.filter(p =>
       (p.name || '').toLowerCase().includes(q) ||
       (p.original_filename || '').toLowerCase().includes(q) ||
@@ -111,11 +119,19 @@ export class EditNodeDialogComponent implements OnInit {
     this.itemId = '';
   }
 
-  onPublicationSelected(publication: Publication): void {
+  onPublicationSelected(publication: Publication | null): void {
+    if (!publication) {
+      this.selectedPublication = null;
+      this.date = '';
+      this.itemId = '';
+      this.publicationQuery = 'No publication linked';
+      return;
+    }
     this.selectedPublication = publication;
     this.text = publication.name || 'Untitled';
     this.date = publication.original_publication_date || '';
     this.itemId = `${this.data.collectionId}_${publication.id}`;
+    this.publicationQuery = publication.name || 'Untitled';
   }
 
   onCancel(): void {
@@ -123,7 +139,9 @@ export class EditNodeDialogComponent implements OnInit {
   }
 
   onSave(): void {
-    if (!this.text.trim()) {
+    // Ensure text is a string and trim it
+    const textValue = String(this.text || '').trim();
+    if (!textValue) {
       this.showError('Text is required');
       return;
     }
@@ -131,7 +149,7 @@ export class EditNodeDialogComponent implements OnInit {
     const updatedNode: TocNode = {
       ...this.data.node, // Preserve existing properties like id, isExpanded, children
       type: this.nodeType,
-      text: this.text.trim()
+      text: textValue
     };
 
     // Remove type-inappropriate properties first
@@ -145,9 +163,7 @@ export class EditNodeDialogComponent implements OnInit {
     // Add type-specific properties
     if (this.nodeType === 'subtitle') {
       // Subtitle-specific properties
-      if (this.collapsed) {
-        updatedNode.collapsed = this.collapsed;
-      }
+      updatedNode.collapsed = this.collapsed; // Always assign boolean value
       if (this.itemId.trim()) {
         updatedNode.itemId = this.itemId.trim();
       }
@@ -162,9 +178,7 @@ export class EditNodeDialogComponent implements OnInit {
       if (this.category.trim()) {
         updatedNode.category = this.category.trim();
       }
-      if (this.facsimileOnly) {
-        updatedNode.facsimileOnly = this.facsimileOnly;
-      }
+      updatedNode.facsimileOnly = this.facsimileOnly; // Always assign boolean value
       if (this.itemId) {
         updatedNode.itemId = this.itemId;
       }

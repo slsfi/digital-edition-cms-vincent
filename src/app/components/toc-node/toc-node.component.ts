@@ -119,7 +119,7 @@ export class TocNodeComponent implements OnInit, OnDestroy {
             this.publications = publications;
             // Find the publication that matches this node's itemId
             if (this.node.itemId) {
-              const [collectionId, publicationId] = this.node.itemId.split('_');
+              const [publicationId] = this.node.itemId.split('_');
               this.selectedPublication = publications.find(p => p.id === parseInt(publicationId)) || null;
             }
           },

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -9,14 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Subject, takeUntil, combineLatest } from 'rxjs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Subject, takeUntil } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
 import { TocRoot, TocNode, PublicationSortOption } from '../../models/table-of-contents';
-import { PublicationCollection } from '../../models/publication';
+import { PublicationCollection, Publication } from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 import { ConfirmUpdateDialogComponent } from '../../components/confirm-update-dialog/confirm-update-dialog.component';
 import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
@@ -65,7 +65,7 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   updateFields = ['text', 'date'];
 
   // Publications cache for selected collection
-  publicationsForSelectedCollection: any[] = [];
+  publicationsForSelectedCollection: Publication[] = [];
 
   constructor(
     private tocService: TableOfContentsService,
@@ -164,6 +164,8 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error loading table of contents:', error);
           this.showError('Failed to load table of contents');
+          this.currentToc = null; // Clear previous TOC
+          this.hasUnsavedChanges = false; // Reset unsaved changes
           this.isLoading = false;
         }
       });
@@ -213,43 +215,46 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
    */
   private removeDragDropFields(node: TocRoot | TocNode): void {
     // Remove UI-only fields
-    delete (node as any).id;
-    delete (node as any).isExpanded;
+    delete (node as TocNode).id;
+    delete (node as TocNode).isExpanded;
     
     // Remove unnecessary properties based on node type
-    if (node.type === 'subtitle') {
+    // Default to 'subtitle' if no type is specified (backend compatibility)
+    const nodeType = node.type || 'subtitle';
+    
+    if (nodeType === 'subtitle') {
       // Remove text-node specific properties from subtitle nodes
-      delete (node as any).description;
-      delete (node as any).date;
-      delete (node as any).category;
-      delete (node as any).facsimileOnly;
-      delete (node as any).itemId;
+      delete (node as TocNode).description;
+      delete (node as TocNode).date;
+      delete (node as TocNode).category;
+      delete (node as TocNode).facsimileOnly;
+      // Note: itemId is kept for subtitle nodes
       
       // Only include collapsed if it's true (default is false)
-      if (!(node as any).collapsed) {
-        delete (node as any).collapsed;
+      if (!(node as TocNode).collapsed) {
+        delete (node as TocNode).collapsed;
       }
-    } else if (node.type === 'est') {
+    } else if (nodeType === 'est') {
       // Remove subtitle-specific properties from text nodes
-      delete (node as any).collapsed;
+      delete (node as TocNode).collapsed;
       
       // Only include facsimileOnly if it's true (default is false)
-      if (!(node as any).facsimileOnly) {
-        delete (node as any).facsimileOnly;
+      if (!(node as TocNode).facsimileOnly) {
+        delete (node as TocNode).facsimileOnly;
       }
       
       // Remove empty optional properties
-      if (!(node as any).description) {
-        delete (node as any).description;
+      if (!(node as TocNode).description) {
+        delete (node as TocNode).description;
       }
-      if (!(node as any).date) {
-        delete (node as any).date;
+      if (!(node as TocNode).date) {
+        delete (node as TocNode).date;
       }
-      if (!(node as any).category) {
-        delete (node as any).category;
+      if (!(node as TocNode).category) {
+        delete (node as TocNode).category;
       }
-      if (!(node as any).itemId) {
-        delete (node as any).itemId;
+      if (!(node as TocNode).itemId) {
+        delete (node as TocNode).itemId;
       }
     }
     

@@ -1,5 +1,5 @@
 export interface TocNode {
-  type: 'title' | 'subtitle' | 'est';
+  type?: 'title' | 'subtitle' | 'est'; // Optional for backend compatibility
   text: string;
   collectionId?: string;
   itemId?: string;

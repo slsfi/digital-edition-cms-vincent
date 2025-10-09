@@ -75,6 +75,13 @@ export class AddNodeDialogComponent implements OnInit {
   onPublicationQueryChange(query: string): void {
     this.publicationQuery = query;
     const q = query.toLowerCase();
+    
+    // If query is "No publication linked", show all publications
+    if (q === 'no publication linked') {
+      this.filteredPublications = this.publications;
+      return;
+    }
+    
     this.filteredPublications = this.publications.filter(p =>
       (p.name || '').toLowerCase().includes(q) ||
       (p.original_filename || '').toLowerCase().includes(q) ||
@@ -94,11 +101,19 @@ export class AddNodeDialogComponent implements OnInit {
     this.selectedPublication = null;
   }
 
-  onPublicationSelected(publication: Publication): void {
+  onPublicationSelected(publication: Publication | null): void {
+    if (!publication) {
+      this.selectedPublication = null;
+      this.date = '';
+      this.itemId = '';
+      this.publicationQuery = 'No publication linked';
+      return;
+    }
     this.selectedPublication = publication;
     this.text = publication.name || 'Untitled';
     this.date = publication.original_publication_date || '';
     this.itemId = `${this.data.collectionId}_${publication.id}`;
+    this.publicationQuery = publication.name || 'Untitled';
   }
 
   onCancel(): void {
@@ -106,22 +121,22 @@ export class AddNodeDialogComponent implements OnInit {
   }
 
   onSave(): void {
-    if (!this.text.trim()) {
+    // Ensure text is a string and trim it
+    const textValue = String(this.text || '').trim();
+    if (!textValue) {
       this.showError('Text is required');
       return;
     }
 
     const node: TocNode = {
       type: this.nodeType,
-      text: this.text.trim()
+      text: textValue
     };
 
     // Add type-specific properties
     if (this.nodeType === 'subtitle') {
       // Subtitle-specific properties
-      if (this.collapsed) {
-        node.collapsed = this.collapsed;
-      }
+      node.collapsed = this.collapsed; // Always assign boolean value
       if (this.itemId.trim()) {
         node.itemId = this.itemId.trim();
       }
@@ -137,9 +152,7 @@ export class AddNodeDialogComponent implements OnInit {
       if (this.category.trim()) {
         node.category = this.category.trim();
       }
-      if (this.facsimileOnly) {
-        node.facsimileOnly = this.facsimileOnly;
-      }
+      node.facsimileOnly = this.facsimileOnly; // Always assign boolean value
       // Set itemId from manual input or publication selection
       if (this.itemId.trim()) {
         node.itemId = this.itemId.trim();

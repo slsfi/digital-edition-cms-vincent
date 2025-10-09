@@ -90,7 +90,10 @@ export class TocTreeComponent implements OnChanges {
       const nodeId = this.generateNodeId(currentPath);
       
       node.id = nodeId;
-      node.isExpanded = node.isExpanded ?? false;
+      // Initialize isExpanded based on collapsed property if not already set
+      if (node.isExpanded === undefined) {
+        node.isExpanded = !node.collapsed; // If collapsed is true, isExpanded should be false
+      }
       
       this.nodeLookup[nodeId] = node;
       
@@ -499,6 +502,11 @@ export class TocTreeComponent implements OnChanges {
       current.children.push(node);
     }
     
+    // Initialize isExpanded based on collapsed property
+    if (node.isExpanded === undefined) {
+      node.isExpanded = !node.collapsed; // If collapsed is true, isExpanded should be false
+    }
+    
     this.onNodeChanged();
   }
 
@@ -601,6 +609,12 @@ export class TocTreeComponent implements OnChanges {
   private updateNode(originalNode: TocNode, updatedNode: TocNode): void {
     // Update the original node with the new values
     Object.assign(originalNode, updatedNode);
+    
+    // If collapsed property changed, update isExpanded accordingly
+    if (updatedNode.collapsed !== undefined) {
+      originalNode.isExpanded = !updatedNode.collapsed;
+    }
+    
     this.onNodeChanged();
   }
 }
