@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, switchMap, shareReplay, Observable } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, shareReplay, switchMap } from 'rxjs';
 
 import {
   EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
