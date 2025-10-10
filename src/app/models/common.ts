@@ -51,4 +51,5 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Keywords', route: '/keywords', icon: 'label' },
   { label: 'Keyword linking', route: '/keywords/linking', icon: 'link' },
   { label: 'Index of persons', route: '/persons', icon: 'groups' },
+  { label: 'Table of Contents', route: '/table-of-contents', icon: 'list_alt' },
 ]

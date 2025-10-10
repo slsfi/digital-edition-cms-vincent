@@ -1,0 +1,88 @@
+<div class="add-node-dialog">
+  <h2 mat-dialog-title>Add New Node</h2>
+  
+  <mat-dialog-content>
+    <!-- Node Type Selection -->
+    <div class="node-type-selection">
+      <mat-radio-group [(ngModel)]="nodeType" (change)="onNodeTypeChange()">
+        <mat-radio-button value="subtitle">Subtitle</mat-radio-button>
+        <mat-radio-button value="est">Text Node</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <!-- Text Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Text</mat-label>
+      <input matInput [(ngModel)]="text" placeholder="Enter text" required>
+    </mat-form-field>
+
+    <!-- Subtitle Specific Fields -->
+    @if (nodeType === 'subtitle') {
+    <div class="subtitle-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Item ID (optional)</mat-label>
+        <input matInput [(ngModel)]="itemId" placeholder="Enter item ID">
+      </mat-form-field>
+      
+      <mat-checkbox [(ngModel)]="collapsed">
+        Collapsed by default
+      </mat-checkbox>
+    </div>
+    }
+
+    <!-- Text Node Specific Fields -->
+    @if (nodeType === 'est') {
+    <div class="text-node-fields">
+      <!-- Publication Selection -->
+      <div class="publication-selection">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Link to Publication</mat-label>
+          <input type="text"
+                 matInput
+                 [matAutocomplete]="pubAuto"
+                 [value]="selectedPublication?.name || publicationQuery"
+                 (input)="onPublicationQueryChange(($any($event.target)?.value) || '')"
+                 placeholder="Search by title, filename or ID">
+          <mat-autocomplete #pubAuto="matAutocomplete" (optionSelected)="onPublicationSelected($event.option.value)">
+            <mat-option [value]="null">No publication linked</mat-option>
+            @for (pub of filteredPublications; track pub.id) {
+              <mat-option [value]="pub">
+                {{ pub.name }} (ID: {{ pub.id }})
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput [(ngModel)]="description" rows="2" placeholder="Enter description"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Date</mat-label>
+        <input matInput [(ngModel)]="date" placeholder="YYYY-MM-DD">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Category</mat-label>
+        <input matInput [(ngModel)]="category" placeholder="Enter category">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Item ID (optional)</mat-label>
+        <input matInput [(ngModel)]="itemId" placeholder="Enter item ID">
+      </mat-form-field>
+
+      <mat-checkbox [(ngModel)]="facsimileOnly">
+        Facsimile Only
+      </mat-checkbox>
+    </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSave()">Add Node</button>
+  </mat-dialog-actions>
+</div>

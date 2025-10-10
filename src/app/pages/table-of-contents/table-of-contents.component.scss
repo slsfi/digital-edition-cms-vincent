@@ -1,0 +1,179 @@
+.table-of-contents-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #333 !important; // Force black text
+
+  // Ensure all text elements are black
+  * {
+    color: #333 !important;
+  }
+}
+
+.main-card {
+  margin-bottom: 20px;
+}
+
+.collection-selection {
+  margin-bottom: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+
+  button {
+    min-width: 120px;
+  }
+}
+
+.auto-generation {
+  margin-bottom: 20px;
+}
+
+.generation-card {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+}
+
+.generation-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    min-width: 200px;
+  }
+}
+
+.status-indicators {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  
+  // Color coding for different statuses
+  &.unsaved-changes {
+    background-color: #fff3cd; // Orange background for unsaved changes
+    border: 1px solid #ffeaa7;
+  }
+  
+  &.all-saved {
+    background-color: #d4edda; // Green background for all saved
+    border: 1px solid #c3e6cb;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+
+  mat-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #666;
+    margin: 0;
+  }
+}
+
+.toc-tree-container {
+  margin-top: 20px;
+}
+
+.tree-card {
+  min-height: 400px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: #ccc;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+  }
+
+  p {
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .table-of-contents-container {
+    padding: 12px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+
+  .generation-controls {
+    flex-direction: column;
+    align-items: stretch;
+
+    mat-form-field {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+
+  .status-indicators {
+    flex-direction: column;
+  }
+}
+
+// Note: Snackbar styles are now handled by global styles in src/styles.scss
+// Using .snackbar-success and .snackbar-error classes

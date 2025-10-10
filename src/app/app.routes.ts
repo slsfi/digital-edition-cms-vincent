@@ -10,6 +10,7 @@ import { NewPublicationFacsimileComponent } from './pages/new-publication-facsim
 import { FacsimileCollectionComponent } from './pages/facsimile-collection/facsimile-collection.component';
 import { PublicationBundleComponent } from './pages/publication-bundle/publication-bundle.component';
 import { AddFacsimileFromPublicationsComponent } from './pages/add-facsimile-from-publications/add-facsimile-from-publications.component';
+import { TableOfContentsComponent } from './pages/table-of-contents/table-of-contents.component';
 import { KeywordsManagementComponent } from './pages/keywords-management/keywords-management.component';
 import { KeywordLinkingComponent } from './pages/keyword-linking/keyword-linking.component';
 
@@ -28,4 +29,5 @@ export const routes: Routes = [
   { path: 'keywords', component: KeywordsManagementComponent, canActivate: [authGuard] },
   { path: 'keywords/linking', component: KeywordLinkingComponent, canActivate: [authGuard] },
   { path: 'persons', component: PersonsComponent, canActivate: [authGuard] },
+  { path: 'table-of-contents', component: TableOfContentsComponent, canActivate: [authGuard] },
 ];

@@ -15,7 +15,7 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Publication Collection</mat-label>
           <mat-select formControlName="publicationCollectionId" required>
-            @for (collection of publicationCollections$ | async; track collection.id) {
+            @for (collection of (publicationCollections$ | async); track collection.id) {
               <mat-option [value]="collection.id">
                 {{ collection.name }}
               </mat-option>

@@ -55,11 +55,11 @@ export class ApiService {
       )
   }
 
-  delete<T>(url: string, options: object = {}, disableErrorMessage = false) {
-    return this.http.delete<T>(url, options)
+  put<T>(url: string, body?: object | null, options: object = {}, disableErrorMessage = false) {
+    return this.http.put<T>(url, body, options)
       .pipe(
         map((response) => response),
-        catchError((error) => this.handleError(error, disableErrorMessage))
+        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
       )
   }
 
