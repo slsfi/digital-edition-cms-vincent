@@ -609,13 +609,12 @@ export class TocTreeComponent implements OnChanges {
   private updateNode(originalNode: TocNode, updatedNode: TocNode): void {
     // Update the original node with the new values
     Object.assign(originalNode, updatedNode);
-    
+  
     // If collapsed property changed, update isExpanded accordingly
-    if (updatedNode.collapsed !== undefined) {
-      originalNode.isExpanded = !updatedNode.collapsed;
-    }
-    
+    // if (updatedNode.collapsed !== undefined) {
+    //   originalNode.isExpanded = !updatedNode.collapsed;
+    // }
+  
     this.onNodeChanged();
   }
 }
-
