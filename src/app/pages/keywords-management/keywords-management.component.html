@@ -1,0 +1,132 @@
+<div class="container">
+  <div class="header">
+    <h1>Keywords Management</h1>
+    <p>Manage keywords for the current project. Keywords can be organized into categories and used to tag publications.</p>
+  </div>
+
+  <div class="content">
+    <div class="actions-bar">
+      <button mat-flat-button color="primary" (click)="addKeyword()" [disabled]="isLoading">
+        <mat-icon>add</mat-icon>
+        Add Keyword
+      </button>
+    </div>
+
+    <div class="filters-section">
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search keywords</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Type to search...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="category-filter-field">
+          <mat-label>Filter by category</mat-label>
+          <mat-select [formControl]="categoryFilterControl">
+            <mat-option value="">All categories</mat-option>
+            @for (category of categories$ | async; track category) {
+              <mat-option [value]="category">
+                {{ category }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="keywords-table">
+      <table mat-table [dataSource]="(filteredKeywords$ | async) || []" class="mat-elevation-z1">
+        <!-- Keyword Text Column -->
+        <ng-container matColumnDef="text">
+          <th mat-header-cell *matHeaderCellDef>Keyword</th>
+          <td mat-cell *matCellDef="let keyword">{{ keyword.text }}</td>
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let keyword">
+            <mat-chip-set>
+              @if (keyword.category) {
+                <mat-chip color="primary" variant="outlined">
+                  {{ keyword.category }}
+                </mat-chip>
+              } @else {
+                <span class="no-category">No category</span>
+              }
+            </mat-chip-set>
+          </td>
+        </ng-container>
+
+        <!-- Translations Column -->
+        <!--
+        <ng-container matColumnDef="translations">
+          <th mat-header-cell *matHeaderCellDef>Translations</th>
+          <td mat-cell *matCellDef="let keyword">
+            <div class="translations">
+              @for (translation of keyword.translations; track trackByTranslation($index, translation); let last = $last) {
+                <span>
+                  <strong>{{ translation.language }}:</strong> {{ translation.text }}@if (!last) {, }
+                </span>
+              }
+              @if (!hasTranslations(keyword.translations)) {
+                <span class="no-translations">
+                  No translations
+                </span>
+              }
+            </div>
+          </td>
+        </ng-container>
+        -->
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let keyword">
+            <div class="action-buttons">
+              <button mat-icon-button color="primary" (click)="editKeyword(keyword)" title="Edit keyword">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteKeyword(keyword)" title="Delete keyword">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <!-- Loading state inside table area -->
+      @if (isLoading || !hasLoadedOnce || (filteredKeywords$ | async) === null) {
+        <div class="loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading keywords...</p>
+        </div>
+      }
+
+      <!-- No data state -->
+      @if (!isLoading && hasLoadedOnce && (filteredKeywords$ | async) !== null && (filteredKeywords$ | async)?.length === 0) {
+        <div class="no-keywords">
+          <mat-icon>label_off</mat-icon>
+          @if (hasFilters) {
+            <p>No keywords match your current filters.</p>
+          }
+          @if (!hasFilters) {
+            <p>No keywords found for this project.</p>
+            <p>Click "Add Keyword" to create your first keyword.</p>
+          }
+          @if (hasFilters) {
+            <p>Try adjusting your search terms or clearing the filters.</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

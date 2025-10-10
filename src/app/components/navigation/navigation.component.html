@@ -1,6 +1,6 @@
 <div class="menu">
   <mat-nav-list>
-    @for (item of navItems; track item.route) {
+    @for (item of navItems; track item.label) {
       <a mat-list-item [routerLink]="item.route" [activated]="item.route === currentUrl" (click)="toggleMenu()">
         <div class="nav-link">
           <mat-icon>{{item.icon}}</mat-icon>

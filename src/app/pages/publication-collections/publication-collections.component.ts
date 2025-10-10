@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BehaviorSubject, combineLatest, filter, map, Observable, of, switchMap, take } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, of, shareReplay, switchMap, take } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from "../../components/custom-table/custom-table.component";
@@ -87,19 +87,22 @@ export class PublicationCollectionsComponent implements OnInit {
     );
 
     this.publicationCollections$ = this.loader$.asObservable().pipe(
-      switchMap(() => this.selectedProject$.pipe(
-        switchMap(project => {
-          if (!project) { return of([]); }
-          return this.publicationService.getPublicationCollections(project);
-        })
-      ))
+      switchMap(() => this.selectedProject$),
+      switchMap(project => project ? this.publicationService.getPublicationCollections(project) : of([])),
+      // share one HTTP result across all subscribers (parent + child),
+      // and replay to late subscribers (e.g., the child mounting later)
+      shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
-      filter(([, collectionId]) => collectionId != null),
-      map(([publications, collectionId]) => publications.find(publication => publication.id === parseInt(collectionId as string)) ?? null)
+    this.selectedPublicationCollection$ = combineLatest([
+      this.publicationCollections$,
+      this.publicationCollectionId$
+    ]).pipe(
+      filter(([, id]) => id != null),
+      map(([collections, id]) =>
+        collections.find(c => c.id === Number(id)) ?? null
+      )
     );
-
   }
 
   editPublicationCollection(publicationCollection: PublicationCollection | null = null) {

@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, finalize, map, Observable, of, switchMap, take } from 'rxjs';
+import { catchError, filter, finalize, map, Observable, of, switchMap, take, tap } from 'rxjs';
 
 import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -49,10 +49,25 @@ export class HomeComponent {
   ) {
     this.environment$ = this.apiService.environment$;
     this.loading$ = this.loadingService.loading$;
+
     this.availableProjects$ = this.projectService.getProjects().pipe(
-      map((projects) => projects.sort((a, b) => a.name.localeCompare(b.name)))
+      map(projects => projects.sort((a, b) => a.name.localeCompare(b.name))),
+
+      // Run auto-select of project as a side-effect so the template's
+      // single subscription triggers it. Only if exactly 1 project
+      // and the project is not selected yet.
+      tap(projects => {
+        if (
+          projects.length === 1 &&
+          !this.projectService.getCurrentProject()
+        ) {
+          this.projectService.setSelectedProject(projects[0].name);
+        }
+      })
     );
+
     this.selectedProject$ = this.projectService.selectedProject$;
+
     this.repoDetails$ = this.selectedProject$.pipe(
       switchMap(project => {
         if (!project) { return of(null); }
