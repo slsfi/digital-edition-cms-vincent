@@ -86,10 +86,6 @@ export class KeywordService {
           return keywords;
         }
         return [];
-      }),
-      catchError(error => {
-        // Fallback to mock data for development
-        return of(this.getMockKeywords(1)); // Use default project ID for mock data
       })
     );
   }
@@ -253,6 +249,7 @@ export class KeywordService {
         return [];
       }),
       catchError(error => {
+        console.error(error);
         // Fallback to extracting from keywords
         return this.getKeywords(projectName).pipe(
           map(keywords => {
@@ -260,6 +257,10 @@ export class KeywordService {
               .map(k => k.category)
               .filter((cat): cat is string => cat !== null && cat !== undefined && cat.trim() !== '');
             return [...new Set(categories)].sort();
+          }),
+          catchError(error => {
+            console.error(error);
+            return of([]);
           })
         );
       })
