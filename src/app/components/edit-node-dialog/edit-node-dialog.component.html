@@ -1,88 +1,92 @@
-<div class="edit-node-dialog">
-  <h2 mat-dialog-title>Edit Node</h2>
-  
-  <mat-dialog-content>
-    <!-- Node Type Selection -->
-    <div class="node-type-selection">
-      <mat-radio-group [(ngModel)]="nodeType" (change)="onNodeTypeChange()">
-        <mat-radio-button value="subtitle">Subtitle</mat-radio-button>
-        <mat-radio-button value="est">Text Node</mat-radio-button>
-      </mat-radio-group>
-    </div>
+<h2 mat-dialog-title>
+  @if (data.dialogMode === 'add') {
+    Add new node
+  } @else {
+    Edit node
+  }
+</h2>
 
-    <!-- Text Field -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Text</mat-label>
-      <input matInput [(ngModel)]="text" placeholder="Enter text" required>
+<mat-dialog-content>
+  <!-- Node Type Selection -->
+  <div class="highlight-wrapper">
+    <mat-radio-group [(ngModel)]="nodeType" (change)="setNodeType()">
+      <mat-radio-button value="subtitle">Heading node</mat-radio-button>
+      <mat-radio-button value="est">Text node</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <!-- Link to publication -->
+  <mat-form-field>
+    <mat-label>Link to publication</mat-label>
+    <input type="text"
+          matInput
+          [matAutocomplete]="pubAuto"
+          [value]="selectedPublication?.id
+                   ? `${selectedPublication?.name ?? ''} (ID: ${selectedPublication?.id ?? ''})`
+                   : publicationQuery"
+          (input)="queryPublication(($any($event.target)?.value) || '')"
+          placeholder="Search by title, filename or ID"
+    >
+    <mat-autocomplete #pubAuto="matAutocomplete"
+          (optionSelected)="selectPublication($event.option.value)"
+    >
+      <mat-option [value]="null">No publication linked</mat-option>
+      @for (pub of filteredPublications; track pub.id) {
+        <mat-option [value]="pub">
+          {{ pub.name }} (ID: {{ pub.id }})
+        </mat-option>
+      }
+    </mat-autocomplete>
+    <mat-icon matSuffix>arrow_drop_down</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Text</mat-label>
+    <input matInput [(ngModel)]="text" required>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Item ID</mat-label>
+    <input matInput [(ngModel)]="itemId" [required]="nodeType === 'est'">
+  </mat-form-field>
+
+  <!-- Subtitle Node Fields -->
+  @if (nodeType === 'subtitle') {    
+    <mat-checkbox [(ngModel)]="collapsed">
+      Collapsed by default
+    </mat-checkbox>
+  }
+
+  <!-- Text Node Fields -->
+  @if (nodeType === 'est') {
+    <mat-form-field>
+      <mat-label>Description</mat-label>
+      <textarea matInput [(ngModel)]="description" rows="2"></textarea>
     </mat-form-field>
 
-    <!-- Subtitle Specific Fields -->
-    @if (nodeType === 'subtitle') {
-    <div class="subtitle-fields">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Item ID (optional)</mat-label>
-        <input matInput [(ngModel)]="itemId" placeholder="Enter item ID">
-      </mat-form-field>
-      
-      <mat-checkbox [(ngModel)]="collapsed">
-        Collapsed by default
-      </mat-checkbox>
-    </div>
+    <mat-form-field>
+      <mat-label>Date</mat-label>
+      <input matInput [(ngModel)]="date" placeholder="YYYY-MM-DD">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Category</mat-label>
+      <input matInput [(ngModel)]="category">
+    </mat-form-field>
+
+    <mat-checkbox [(ngModel)]="facsimileOnly">
+      Facsimile only
+    </mat-checkbox>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="saveNode()" [disabled]="!text || (nodeType === 'est' && !itemId)">
+    @if (data.dialogMode === 'add') {
+      Add
+    } @else {
+      Update
     }
-
-    <!-- Text Node Specific Fields -->
-    @if (nodeType === 'est') {
-    <div class="text-node-fields">
-      <!-- Publication Selection -->
-      <div class="publication-selection">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Link to Publication</mat-label>
-          <input type="text"
-                 matInput
-                 [matAutocomplete]="pubAuto"
-                 [value]="selectedPublication?.name || publicationQuery"
-                 (input)="onPublicationQueryChange(($any($event.target)?.value) || '')"
-                 placeholder="Search by title, filename or ID">
-          <mat-autocomplete #pubAuto="matAutocomplete" (optionSelected)="onPublicationSelected($event.option.value)">
-            <mat-option [value]="null">No publication linked</mat-option>
-            @for (pub of filteredPublications; track pub.id) {
-              <mat-option [value]="pub">
-                {{ pub.name }} (ID: {{ pub.id }})
-              </mat-option>
-            }
-          </mat-autocomplete>
-        </mat-form-field>
-      </div>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput [(ngModel)]="description" rows="2" placeholder="Enter description"></textarea>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Date</mat-label>
-        <input matInput [(ngModel)]="date" placeholder="YYYY-MM-DD">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Category</mat-label>
-        <input matInput [(ngModel)]="category" placeholder="Enter category">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Item ID (optional)</mat-label>
-        <input matInput [(ngModel)]="itemId" placeholder="Enter item ID">
-      </mat-form-field>
-
-      <mat-checkbox [(ngModel)]="facsimileOnly">
-        Facsimile Only
-      </mat-checkbox>
-    </div>
-    }
-  </mat-dialog-content>
-
-  <mat-dialog-actions>
-    <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="onSave()">Update</button>
-  </mat-dialog-actions>
-</div>
+  </button>
+</mat-dialog-actions>

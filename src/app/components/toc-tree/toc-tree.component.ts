@@ -12,7 +12,6 @@ import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/dra
 
 import { TocRoot, TocNode, DropInfo } from '../../models/table-of-contents';
 import { Publication } from '../../models/publication';
-import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
 import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
@@ -313,11 +312,11 @@ export class TocTreeComponent implements OnChanges {
   }
 
   onAddNode(parentPath: number[] = []): void {
-    const dialogRef = this.dialog.open(AddNodeDialogComponent, {
+    const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
       data: {
+        dialogMode: 'add',
         collectionId: this.collectionId,
-        parentPath,
         publications: this.publications
       }
     });
@@ -341,12 +340,11 @@ export class TocTreeComponent implements OnChanges {
     const parentPath = siblingPath.slice(0, -1);
     const siblingIndex = siblingPath[siblingPath.length - 1];
     
-    const dialogRef = this.dialog.open(AddNodeDialogComponent, {
+    const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
       data: {
+        dialogMode: 'add',
         collectionId: this.collectionId,
-        parentPath,
-        insertAfterIndex: siblingIndex,
         publications: this.publications
       }
     });
@@ -593,6 +591,7 @@ export class TocTreeComponent implements OnChanges {
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
       data: {
+        dialogMode: 'edit',
         node: node,
         collectionId: this.collectionId,
         publications: this.publications

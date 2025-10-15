@@ -1,3 +1,5 @@
+import { Publication } from "./publication";
+
 export interface TocNode {
   type?: 'title' | 'subtitle' | 'est'; // Optional for backend compatibility
   text: string;
@@ -40,6 +42,13 @@ export interface DropInfo {
 export interface PublicationSortOption {
   value: string;
   label: string;
+}
+
+export interface EditNodeDialogData {
+  collectionId: number;
+  dialogMode: 'add' | 'edit';
+  node?: TocNode;
+  publications: Publication[];
 }
 
 export const PUBLICATION_SORT_OPTIONS: PublicationSortOption[] = [
