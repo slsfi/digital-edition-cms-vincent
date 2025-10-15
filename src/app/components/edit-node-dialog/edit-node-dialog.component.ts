@@ -190,7 +190,7 @@ export class EditNodeDialogComponent implements OnInit {
   private showError(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
-      panelClass: ['error-snackbar']
+      panelClass: ['snackbar-error']
     });
   }
 }

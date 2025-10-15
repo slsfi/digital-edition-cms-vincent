@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -25,23 +26,23 @@ export interface AddNodeDialogData {
 
 @Component({
   selector: 'app-add-node-dialog',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
     MatCheckboxModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule
-    ,MatAutocompleteModule
-    ,MatOptionModule
-  ],
+    MatSnackBarModule,
+    MatAutocompleteModule,
+    MatOptionModule
+],
   templateUrl: './add-node-dialog.component.html',
   styleUrls: ['./add-node-dialog.component.scss']
 })
@@ -72,7 +73,20 @@ export class AddNodeDialogComponent implements OnInit {
     this.filteredPublications = this.publications;
   }
 
-  onPublicationQueryChange(query: string): void {
+  setNodeType(): void {
+    // Reset form when node type changes
+    this.text = '';
+    this.description = '';
+    this.date = '';
+    this.category = '';
+    this.facsimileOnly = false;
+    this.collapsed = false;
+    this.itemId = '';
+    this.selectedPublication = null;
+    this.publicationQuery = 'No publication linked';
+  }
+
+  queryPublication(query: string): void {
     this.publicationQuery = query;
     const q = query.toLowerCase();
     
@@ -89,19 +103,7 @@ export class AddNodeDialogComponent implements OnInit {
     ).slice(0, 50);
   }
 
-  onNodeTypeChange(): void {
-    // Reset form when node type changes
-    this.text = '';
-    this.description = '';
-    this.date = '';
-    this.category = '';
-    this.facsimileOnly = false;
-    this.collapsed = false;
-    this.itemId = '';
-    this.selectedPublication = null;
-  }
-
-  onPublicationSelected(publication: Publication | null): void {
+  selectPublication(publication: Publication | null): void {
     if (!publication) {
       this.selectedPublication = null;
       this.date = '';
@@ -116,16 +118,19 @@ export class AddNodeDialogComponent implements OnInit {
     this.publicationQuery = publication.name || 'Untitled';
   }
 
-  onCancel(): void {
-    this.dialogRef.close();
-  }
-
-  onSave(): void {
-    // Ensure text is a string and trim it
+  saveNode(): void {
     const textValue = String(this.text || '').trim();
     if (!textValue) {
-      this.showError('Text is required');
+      this.showError('Text is required.');
       return;
+    }
+
+    if (this.nodeType === 'est') {
+      const itemIdValue = String(this.itemId || '').trim();
+      if (!itemIdValue) {
+        this.showError('Item ID is required.');
+        return;
+      }
     }
 
     const node: TocNode = {
@@ -167,7 +172,7 @@ export class AddNodeDialogComponent implements OnInit {
   private showError(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
-      panelClass: ['error-snackbar']
+      panelClass: ['snackbar-error']
     });
   }
 }
