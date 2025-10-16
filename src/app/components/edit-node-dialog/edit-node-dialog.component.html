@@ -25,7 +25,7 @@
                    ? `${selectedPublication?.name ?? ''} (ID: ${selectedPublication?.id ?? ''})`
                    : publicationQuery"
           (input)="queryPublication(($any($event.target)?.value) || '')"
-          placeholder="Search by title, filename or ID"
+          placeholder="Search by title or ID"
     >
     <mat-autocomplete #pubAuto="matAutocomplete"
           (optionSelected)="selectPublication($event.option.value)"

@@ -117,7 +117,6 @@ export class EditNodeDialogComponent implements OnInit {
     
     this.filteredPublications = this.publications.filter(p =>
       (p.name || '').toLowerCase().includes(q) ||
-      (p.original_filename || '').toLowerCase().includes(q) ||
       String(p.id).includes(q)
     ).slice(0, 50);
   }
