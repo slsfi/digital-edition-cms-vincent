@@ -7,18 +7,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 
 import { TocRoot, TocNode, DropInfo } from '../../models/table-of-contents';
-import { Publication } from '../../models/publication';
+import { PublicationLite } from '../../models/publication';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
 import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
 
 @Component({
   selector: 'app-toc-tree',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -28,7 +26,6 @@ import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-d
     MatFormFieldModule,
     MatMenuModule,
     MatDialogModule,
-    MatSnackBarModule,
     CdkDropList,
     CdkDrag
   ],
@@ -38,7 +35,7 @@ import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-d
 export class TocTreeComponent implements OnChanges {
   @Input() toc!: TocRoot;
   @Input() collectionId!: number;
-  @Input() publications: Publication[] = [];
+  @Input() publications: PublicationLite[] = [];
   @Output() tocChanged = new EventEmitter<void>();
 
   // Drag and drop properties
@@ -49,7 +46,6 @@ export class TocTreeComponent implements OnChanges {
 
   constructor(
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
     @Inject(DOCUMENT) private document: Document
   ) {
     // Initialize drag and drop when component loads

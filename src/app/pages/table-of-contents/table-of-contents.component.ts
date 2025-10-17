@@ -10,13 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
+import { map, Subject, takeUntil } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
 import { TocRoot, TocNode, PublicationSortOption } from '../../models/table-of-contents';
-import { PublicationCollection, Publication } from '../../models/publication';
+import { PublicationCollection, Publication, PublicationLite, toPublicationLite } from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 import { ConfirmUpdateDialogComponent } from '../../components/confirm-update-dialog/confirm-update-dialog.component';
 import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
@@ -65,7 +65,7 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   updateFields = ['text', 'date'];
 
   // Publications cache for selected collection
-  publicationsForSelectedCollection: Publication[] = [];
+  publicationsForSelectedCollection: PublicationLite[] = [];
 
   constructor(
     private tocService: TableOfContentsService,
@@ -133,17 +133,20 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
       this.publicationsForSelectedCollection = [];
       return;
     }
-    this.publicationService
-      .getPublications(this.selectedCollectionId.toString(), projectName, true)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (publications) => {
-          this.publicationsForSelectedCollection = publications;
-        },
-        error: () => {
-          this.publicationsForSelectedCollection = [];
-        }
-      });
+    this.publicationService.getPublications(
+      this.selectedCollectionId.toString(), projectName, true, 'name'
+    ).pipe(
+      // convert Publication[] -> PublicationLite[]
+      map((list: Publication[]) => list.map(toPublicationLite)),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (publications: PublicationLite[]) => {
+        this.publicationsForSelectedCollection = publications;
+      },
+      error: () => {
+        this.publicationsForSelectedCollection = [];
+      }
+    });
   }
 
   loadTableOfContents(): void {

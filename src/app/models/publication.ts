@@ -59,6 +59,25 @@ export interface Publication {
   publication_comment_id: number | null;
   published: Published;
 }
+
+export interface PublicationLite {
+  // Slimmed down version of Publication with only a few
+  // essential fields
+  id: number;
+  name: string;
+  original_publication_date: string | null;
+
+  /** Precomputed index for fast filtering */
+  _search: string;
+}
+
+export const toPublicationLite = (p: Publication): PublicationLite => ({
+  id: p.id,
+  name: p.name || '',
+  original_publication_date: p.original_publication_date,
+  _search: `${p.name ?? ''} ${p.id}`.toLowerCase()
+});
+
 export interface PublicationAddRequest {
   name?: string | null;
   publication_comment_id?: number;

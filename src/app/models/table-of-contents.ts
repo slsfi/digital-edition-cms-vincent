@@ -1,4 +1,4 @@
-import { Publication } from "./publication";
+import { PublicationLite } from "./publication";
 
 export interface TocNode {
   type?: 'title' | 'subtitle' | 'est'; // Optional for backend compatibility
@@ -48,7 +48,7 @@ export interface EditNodeDialogData {
   collectionId: number;
   dialogMode: 'add' | 'edit';
   node?: TocNode;
-  publications: Publication[];
+  publications: PublicationLite[];
 }
 
 export const PUBLICATION_SORT_OPTIONS: PublicationSortOption[] = [

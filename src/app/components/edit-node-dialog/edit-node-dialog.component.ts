@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, OnInit } from '@angular/core';
+import { AsyncPipe, CommonModule } from '@angular/common';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,11 +11,10 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { debounceTime, distinctUntilChanged, map, Observable, of, startWith } from 'rxjs';
 
-import { Publication } from '../../models/publication';
+import { PublicationLite } from '../../models/publication';
 import { EditNodeDialogData, TocNode } from '../../models/table-of-contents';
 
 
@@ -24,24 +23,28 @@ import { EditNodeDialogData, TocNode } from '../../models/table-of-contents';
   imports: [
     CommonModule,
     FormsModule,
-    MatDialogModule,
+    MatAutocompleteModule,
     MatButtonModule,
+    MatCheckboxModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule,
+    MatOptionModule,
     MatRadioModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
+    MatSelectModule,
     MatSnackBarModule,
-    MatAutocompleteModule,
-    MatOptionModule
+    ReactiveFormsModule,
+    AsyncPipe
   ],
   templateUrl: './edit-node-dialog.component.html',
   styleUrls: ['./edit-node-dialog.component.scss']
 })
 export class EditNodeDialogComponent implements OnInit {
+  readonly data: EditNodeDialogData = inject(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject(MatDialogRef<EditNodeDialogComponent>);
+  private readonly snackBar = inject(MatSnackBar);
+
   nodeType: 'subtitle' | 'est' = 'subtitle';
   text = '';
   description = '';
@@ -51,17 +54,12 @@ export class EditNodeDialogComponent implements OnInit {
   collapsed = false;
   itemId = '';
 
-  // Publications for text nodes
-  publications: Publication[] = [];
-  publicationQuery = '';
-  filteredPublications: Publication[] = [];
-  selectedPublication: Publication | null = null;
+  publications: PublicationLite[] = [];
+  filteredPublications$: Observable<PublicationLite[]> = of([]);
+  selectedPublication: PublicationLite | null = null;
+  searchControl = new FormControl<string | PublicationLite>('');
 
-  constructor(
-    public dialogRef: MatDialogRef<EditNodeDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: EditNodeDialogData,
-    private snackBar: MatSnackBar
-  ) {}
+  readonly MAX_FILTERED = 50;
 
   ngOnInit(): void {
     if (this.data.dialogMode === 'edit' && this.data.node) {
@@ -69,20 +67,27 @@ export class EditNodeDialogComponent implements OnInit {
     }
 
     this.publications = this.data.publications || [];
-    this.filteredPublications = this.publications;
 
-    if (this.itemId) {
-      const pubId = Number(this.itemId.split('_')[1] ?? undefined);
-      if (!Number.isNaN(pubId)) {
-        this.selectedPublication = this.publications.find(p => p.id === pubId) || null;
-        this.publicationQuery = this.selectedPublication?.name || '';
-      }
-    }
+    // preselect the linked pub in edit mode using itemId -> pubId
+    this.selectInitialPublicationFromItemId();
+
+    this.filteredPublications$ = this.searchControl.valueChanges.pipe(
+      startWith(''),
+      // normalize the control value to a plain string
+      map(v => typeof v === 'string' ? v : (v?.name ?? '')),
+      debounceTime(300),
+      distinctUntilChanged(),
+      // if < 3 characters, don't filter
+      map(v => v.length < 3 ? this.publications : this.filterPublications(v))
+    );
   }
 
   private setInitialFormValuesFromNode(node: TocNode): void {
-    // Default to 'subtitle' if no type is specified (backend compatibility)
-    this.nodeType = (node.type as 'subtitle' | 'est') || 'subtitle';
+    // Default to 'subtitle' if no type is specified or
+    // type not 'subtitle' or 'est' (backend compatibility)
+    this.nodeType = (node.type === 'subtitle' || node.type === 'est')
+                    ? (node.type as 'subtitle' | 'est')
+                    : 'subtitle';
     this.text = node.text || '';
     this.description = node.description || '';
     this.date = node.date || '';
@@ -92,48 +97,65 @@ export class EditNodeDialogComponent implements OnInit {
     this.itemId = node.itemId || '';
   }
 
+  private getPubIdFromItemId(itemId: string): number | null {
+    const raw = itemId?.split('_')[1];
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  private selectInitialPublicationFromItemId(): void {
+    const pubId = this.getPubIdFromItemId(this.itemId);
+    if (pubId == null) {
+      return;
+    }
+
+    const pub = this.publications.find(p => p.id === pubId) || null;
+    this.selectedPublication = pub;
+
+    // Populate the autocomplete input with the Publication object,
+    // but don't fire valueChanges (avoids triggering filtering).
+    if (pub) {
+      this.searchControl.setValue(pub, { emitEvent: false });
+    }
+  }
+
+  private filterPublications(query: string): PublicationLite[] {
+    const q = query.toLowerCase();
+    const out: PublicationLite[] = [];
+    for (const p of this.publications) {
+      if (p._search.includes(q)) {
+        out.push(p);
+        if (out.length === this.MAX_FILTERED) {
+          break;
+        }
+      }
+    }
+    return out;
+  }
+
+  displayPublication(pub?: PublicationLite | null): string {
+    return pub ? `${pub.name} (ID: ${pub.id})` : '';
+  }
+
   setNodeType(): void {
-    // Reset form when node type changes
-    this.text = '';
+    // Reset fields that are not shared when node type changes
     this.description = '';
     this.date = '';
     this.category = '';
     this.facsimileOnly = false;
     this.collapsed = false;
-    this.itemId = '';
-    this.selectedPublication = null;
-    this.publicationQuery = 'No publication linked';
   }
 
-  queryPublication(query: string): void {
-    this.publicationQuery = query;
-    const q = query.toLowerCase();
-    
-    // If query is "No publication linked", show all publications
-    if (q === 'no publication linked') {
-      this.filteredPublications = this.publications;
-      return;
-    }
-    
-    this.filteredPublications = this.publications.filter(p =>
-      (p.name || '').toLowerCase().includes(q) ||
-      String(p.id).includes(q)
-    ).slice(0, 50);
-  }
-
-  selectPublication(publication: Publication | null): void {
-    if (!publication) {
-      this.selectedPublication = null;
-      this.date = '';
-      this.itemId = '';
-      this.publicationQuery = 'No publication linked';
-      return;
-    }
+  selectPublication(publication: PublicationLite): void {
     this.selectedPublication = publication;
     this.text = publication.name || 'Untitled';
     this.date = publication.original_publication_date || '';
     this.itemId = `${this.data.collectionId}_${publication.id}`;
-    this.publicationQuery = publication.name || 'Untitled';
+  }
+
+  clearPublicationSearch(event: MouseEvent) {
+    this.searchControl.setValue('');
+    event.stopPropagation();
   }
 
   saveNode(): void {

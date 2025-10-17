@@ -10,34 +10,39 @@
   <!-- Node Type Selection -->
   <div class="highlight-wrapper">
     <mat-radio-group [(ngModel)]="nodeType" (change)="setNodeType()">
-      <mat-radio-button value="subtitle">Heading node</mat-radio-button>
+      <mat-radio-button value="subtitle">Section node</mat-radio-button>
       <mat-radio-button value="est">Text node</mat-radio-button>
     </mat-radio-group>
   </div>
 
   <!-- Link to publication -->
-  <mat-form-field>
-    <mat-label>Link to publication</mat-label>
+  <mat-form-field [hintLabel]="`Search results are limited to ${MAX_FILTERED} publications`" class="field-with-hint">
+    <mat-label>Publication</mat-label>
     <input type="text"
           matInput
           [matAutocomplete]="pubAuto"
-          [value]="selectedPublication?.id
-                   ? `${selectedPublication?.name ?? ''} (ID: ${selectedPublication?.id ?? ''})`
-                   : publicationQuery"
-          (input)="queryPublication(($any($event.target)?.value) || '')"
+          [formControl]="searchControl"
           placeholder="Search by title or ID"
     >
     <mat-autocomplete #pubAuto="matAutocomplete"
+          [displayWith]="displayPublication"
           (optionSelected)="selectPublication($event.option.value)"
     >
-      <mat-option [value]="null">No publication linked</mat-option>
-      @for (pub of filteredPublications; track pub.id) {
+      @for (pub of filteredPublications$ | async; track pub.id) {
         <mat-option [value]="pub">
           {{ pub.name }} (ID: {{ pub.id }})
         </mat-option>
       }
     </mat-autocomplete>
-    <mat-icon matSuffix>arrow_drop_down</mat-icon>
+    @if (searchControl.value) {
+      <button matIconButton
+            matSuffix
+            (click)="clearPublicationSearch($event)"
+            aria-label="Clear publication search"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
   </mat-form-field>
 
   <mat-form-field>
