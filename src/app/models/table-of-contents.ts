@@ -1,7 +1,18 @@
 import { PublicationLite } from "./publication";
 
+export type TocNodeType = 'section' | 'text';
+
+export interface TocRoot {
+  text: string;
+  collectionId: string;
+  type: 'title';
+  children: TocNode[];
+  id?: string; // Generated for drag/drop functionality
+  isExpanded?: boolean; // UI state for expansion
+}
+
 export interface TocNode {
-  type?: 'title' | 'subtitle' | 'est'; // Optional for backend compatibility
+  type: TocNodeType;
   text: string;
   collectionId?: string;
   itemId?: string;
@@ -15,23 +26,26 @@ export interface TocNode {
   isExpanded?: boolean; // UI state for expansion
 }
 
-export interface TocRoot {
-  text: string;
-  collectionId: string;
-  type: 'title';
-  children: TocNode[];
-  id?: string; // Generated for drag/drop functionality
-  isExpanded?: boolean; // UI state for expansion
+export interface TocRootApi extends Omit<TocRoot, 'children'> {
+  children: TocNodeApi[];
 }
 
-export interface TocUpdateRequest {
-  update: string[];
+// In the ToC API response, we allow any string value for `type`
+// on the node object, and then normalize the values to TocNodeType
+export interface TocNodeApi
+  extends Omit<TocNode, 'type' | 'children'> {
+  type?: string;
+  children?: TocNodeApi[];
 }
 
 export interface TocResponse {
   success: boolean;
   message: string;
-  data: TocRoot | null;
+  data: TocRootApi | null;
+}
+
+export interface TocUpdateRequest {
+  update: string[];
 }
 
 export interface DropInfo {
@@ -53,7 +67,7 @@ export interface EditNodeDialogData {
 
 export const PUBLICATION_SORT_OPTIONS: PublicationSortOption[] = [
   { value: 'id', label: 'ID' },
-  { value: 'title', label: 'Title' },
-  { value: 'original_filename', label: 'Original Filename' },
-  { value: 'original_publication_date', label: 'Publication Date' }
+  { value: 'name', label: 'Name' },
+  { value: 'original_filename', label: 'File path' },
+  { value: 'original_publication_date', label: 'Date of origin' }
 ];

@@ -1,6 +1,5 @@
 <ng-template #tmplNode let-node="node">
   <div class="node-item" [attr.data-id]="node.id" [attr.id]="'node-' + node.id">
-    
     <div class="node-content">
       <div class="node-header">
         @if (node.children && node.children.length) {
@@ -11,17 +10,18 @@
                   tabindex="0"
                   role="button"
                   [attr.aria-expanded]="node.isExpanded"
-                  [attr.aria-label]="'Toggle expansion for ' + node.text">
+                  [attr.aria-label]="'Toggle expansion for ' + node.text"
+          >
             <mat-icon>{{node.isExpanded ? 'expand_less' : 'expand_more'}}</mat-icon>
           </button>
         }
         
         <div class="node-content-text" 
-             [class.no-expand]="!node.children || !node.children.length">
+             [class.no-expand]="!node.children || !node.children.length"
+        >
           <div class="node-text">{{node.text}}</div>
-          
-          <!-- Additional info for non-subtitle nodes -->
-          @if (node.type !== 'subtitle') {
+          <!-- Additional info for non-section nodes -->
+          @if (node.type !== 'section') {
             <div class="node-meta">
               @if (node.description) {
                 <div class="node-description">
@@ -63,7 +63,8 @@
           <button mat-icon-button 
                   (click)="onEditNode(node)"
                   matTooltip="Edit node"
-                  [attr.aria-label]="'Edit ' + node.text">
+                  [attr.aria-label]="'Edit ' + node.text"
+          >
             <mat-icon>edit</mat-icon>
           </button>
           
@@ -72,7 +73,8 @@
                   (click)="onMoveNodeUp(getNodePath(node))"
                   [disabled]="!canMoveUp(getNodePath(node))"
                   matTooltip="Move up"
-                  [attr.aria-label]="'Move ' + node.text + ' up'">
+                  [attr.aria-label]="'Move ' + node.text + ' up'"
+          >
             <mat-icon>keyboard_arrow_up</mat-icon>
           </button>
           
@@ -80,7 +82,8 @@
                   (click)="onMoveNodeDown(getNodePath(node))"
                   [disabled]="!canMoveDown(getNodePath(node))"
                   matTooltip="Move down"
-                  [attr.aria-label]="'Move ' + node.text + ' down'">
+                  [attr.aria-label]="'Move ' + node.text + ' down'"
+          >
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
           
@@ -88,12 +91,13 @@
           <button mat-icon-button 
                   [matMenuTriggerFor]="nodeMenu"
                   class="menu-trigger"
-                  [attr.aria-label]="'More actions for ' + node.text">
+                  [attr.aria-label]="'More actions for ' + node.text"
+          >
             <mat-icon>more_vert</mat-icon>
           </button>
           
           <mat-menu #nodeMenu="matMenu">
-            @if (node.type === 'subtitle') {
+            @if (node.type === 'section') {
               <button mat-menu-item (click)="onAddNode(getNodePath(node))">
                 <mat-icon>add</mat-icon>
                 <span>Add Child</span>
@@ -119,19 +123,18 @@
            [id]="node.id" 
            [cdkDropListConnectedTo]="getAllDropListIds()"
            (cdkDropListDropped)="drop($event)"
-           [cdkDropListSortingDisabled]="true">
-
+           [cdkDropListSortingDisabled]="true"
+      >
         @for (child of node.children; track child.id) {
           <div cdkDrag 
                [cdkDragData]="child.id" 
-               (cdkDragMoved)="onDragMoved($event)">
-            <ng-container *ngTemplateOutlet="tmplNode; context: {node: child}"></ng-container>  
+               (cdkDragMoved)="onDragMoved($event)"
+          >
+            <ng-container *ngTemplateOutlet="tmplNode; context: {node: child}"/>  
           </div>
         }
-
       </div>
     }
-
   </div>
 </ng-template>
 
@@ -144,19 +147,22 @@
         <button mat-icon-button 
                 (click)="onCollapseAll()"
                 matTooltip="Collapse all"
-                [attr.aria-label]="'Collapse all nodes'">
+                [attr.aria-label]="'Collapse all nodes'"
+        >
           <mat-icon>unfold_less</mat-icon>
         </button>
         <button mat-icon-button 
                 (click)="onExpandAll()"
                 matTooltip="Expand all"
-                [attr.aria-label]="'Expand all nodes'">
+                [attr.aria-label]="'Expand all nodes'"
+        >
           <mat-icon>unfold_more</mat-icon>
         </button>
         <button mat-icon-button 
                 (click)="onEditRootTitle()"
                 matTooltip="Edit root title"
-                [attr.aria-label]="'Edit root title'">
+                [attr.aria-label]="'Edit root title'"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </div>
@@ -168,15 +174,14 @@
        [id]="'main'" 
        [cdkDropListConnectedTo]="getAllDropListIds()"
        (cdkDropListDropped)="drop($event)"
-       [cdkDropListSortingDisabled]="true">
-     
+       [cdkDropListSortingDisabled]="true"
+  >
     @for (node of toc.children; track node.id) {
       <div cdkDrag 
            [cdkDragData]="node.id"      
-           (cdkDragMoved)="onDragMoved($event)">
-
-        <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"></ng-container>
-
+           (cdkDragMoved)="onDragMoved($event)"
+      >
+        <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
       </div>
     }
   </div>
@@ -186,10 +191,10 @@
     <button mat-raised-button 
             color="primary" 
             (click)="onAddNode()"
-            class="add-root-btn">
+            class="add-root-btn"
+    >
       <mat-icon>add</mat-icon>
       Add Root Node
     </button>
   </div>
 </div>
-

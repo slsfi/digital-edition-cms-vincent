@@ -15,7 +15,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged, map, Observable, of, startWith } from 'rxjs';
 
 import { PublicationLite } from '../../models/publication';
-import { EditNodeDialogData, TocNode } from '../../models/table-of-contents';
+import { EditNodeDialogData, TocNode, TocNodeType } from '../../models/table-of-contents';
 
 
 @Component({
@@ -45,7 +45,7 @@ export class EditNodeDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<EditNodeDialogComponent>);
   private readonly snackBar = inject(MatSnackBar);
 
-  nodeType: 'subtitle' | 'est' = 'subtitle';
+  nodeType: TocNodeType = 'section';
   text = '';
   description = '';
   date = '';
@@ -83,11 +83,7 @@ export class EditNodeDialogComponent implements OnInit {
   }
 
   private setInitialFormValuesFromNode(node: TocNode): void {
-    // Default to 'subtitle' if no type is specified or
-    // type not 'subtitle' or 'est' (backend compatibility)
-    this.nodeType = (node.type === 'subtitle' || node.type === 'est')
-                    ? (node.type as 'subtitle' | 'est')
-                    : 'subtitle';
+    this.nodeType = node.type || 'section';
     this.text = node.text || '';
     this.description = node.description || '';
     this.date = node.date || '';
@@ -165,7 +161,7 @@ export class EditNodeDialogComponent implements OnInit {
       return;
     }
 
-    if (this.nodeType === 'est') {
+    if (this.nodeType === 'text') {
       if (!this.itemId.trim()) {
         this.showError('Item ID is required.');
         return;
@@ -197,14 +193,14 @@ export class EditNodeDialogComponent implements OnInit {
     }
 
     // Add type-specific properties
-    if (this.nodeType === 'subtitle') {
-      // Subtitle-specific properties
+    if (this.nodeType === 'section') {
+      // Section node-specific properties
       newNode.collapsed = this.collapsed; // Always assign boolean value
       
       if (this.data.dialogMode === 'add') {
         newNode.children = []
       }
-    } else if (this.nodeType === 'est') {
+    } else if (this.nodeType === 'text') {
       // Text node-specific properties
       if (this.description.trim()) {
         newNode.description = this.description.trim();

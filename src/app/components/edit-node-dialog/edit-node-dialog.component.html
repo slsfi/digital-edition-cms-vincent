@@ -7,11 +7,11 @@
 </h2>
 
 <mat-dialog-content>
-  <!-- Node Type Selection -->
+  <!-- Node type selection -->
   <div class="highlight-wrapper">
     <mat-radio-group [(ngModel)]="nodeType" (change)="setNodeType()">
-      <mat-radio-button value="subtitle">Section node</mat-radio-button>
-      <mat-radio-button value="est">Text node</mat-radio-button>
+      <mat-radio-button value="section">Section node</mat-radio-button>
+      <mat-radio-button value="text">Text node</mat-radio-button>
     </mat-radio-group>
   </div>
 
@@ -52,18 +52,18 @@
 
   <mat-form-field>
     <mat-label>Item ID</mat-label>
-    <input matInput [(ngModel)]="itemId" [required]="nodeType === 'est'">
+    <input matInput [(ngModel)]="itemId" [required]="nodeType === 'text'">
   </mat-form-field>
 
-  <!-- Subtitle Node Fields -->
-  @if (nodeType === 'subtitle') {    
+  <!-- Section node fields -->
+  @if (nodeType === 'section') {    
     <mat-checkbox [(ngModel)]="collapsed">
       Collapsed by default
     </mat-checkbox>
   }
 
-  <!-- Text Node Fields -->
-  @if (nodeType === 'est') {
+  <!-- Text node fields -->
+  @if (nodeType === 'text') {
     <mat-form-field>
       <mat-label>Description</mat-label>
       <textarea matInput [(ngModel)]="description" rows="2"></textarea>
@@ -87,7 +87,7 @@
 
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-flat-button (click)="saveNode()" [disabled]="!text || (nodeType === 'est' && !itemId)">
+  <button mat-flat-button (click)="saveNode()" [disabled]="!text || (nodeType === 'text' && !itemId)">
     @if (data.dialogMode === 'add') {
       Add
     } @else {

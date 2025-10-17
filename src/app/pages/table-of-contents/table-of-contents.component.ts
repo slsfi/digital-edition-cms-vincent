@@ -165,7 +165,6 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
           
         },
         error: (error) => {
-          console.error('Error loading table of contents:', error);
           this.showError('Failed to load table of contents');
           this.currentToc = null; // Clear previous TOC
           this.hasUnsavedChanges = false; // Reset unsaved changes
@@ -208,10 +207,12 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Recursively remove UI-only fields and clean up unnecessary properties from TOC nodes.
+   * Recursively remove UI-only fields and clean up unnecessary properties
+   * from TOC nodes.
    * This method ensures that only relevant data is sent to the backend by:
    * - Removing UI-only fields (id, isExpanded)
-   * - Removing type-inappropriate properties (e.g., facsimileOnly from subtitle nodes)
+   * - Removing type-inappropriate properties (e.g., facsimileOnly from
+   *   section nodes)
    * - Removing empty/null optional properties to reduce JSON size
    * 
    * @param node - The TOC node or root to clean
@@ -222,23 +223,21 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
     delete (node as TocNode).isExpanded;
     
     // Remove unnecessary properties based on node type
-    // Default to 'subtitle' if no type is specified (backend compatibility)
-    const nodeType = node.type || 'subtitle';
-    
-    if (nodeType === 'subtitle') {
-      // Remove text-node specific properties from subtitle nodes
+  
+    if (node.type === 'section') {
+      // Remove text-node specific properties from section nodes
       delete (node as TocNode).description;
       delete (node as TocNode).date;
       delete (node as TocNode).category;
       delete (node as TocNode).facsimileOnly;
-      // Note: itemId is kept for subtitle nodes
+      // Note: itemId is kept for section nodes
       
       // Only include collapsed if it's true (default is false)
       if (!(node as TocNode).collapsed) {
         delete (node as TocNode).collapsed;
       }
-    } else if (nodeType === 'est') {
-      // Remove subtitle-specific properties from text nodes
+    } else if (node.type === 'text') {
+      // Remove section-specific properties from text nodes
       delete (node as TocNode).collapsed;
       
       // Only include facsimileOnly if it's true (default is false)

@@ -15,6 +15,10 @@ import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.co
 import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
 import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
 
+
+type TocSectionNode = TocNode & { type: 'section'; children: TocNode[] };
+type TocContainer = Pick<TocRoot, 'children'> | TocSectionNode;
+
 @Component({
   selector: 'app-toc-tree',
   imports: [
@@ -363,16 +367,10 @@ export class TocTreeComponent implements OnChanges {
     const parentPath = nodePath.slice(0, -1);
     const index = nodePath[nodePath.length - 1];
     
-    let current = this.toc;
-    for (const pathIndex of parentPath) {
-      if (current.children && current.children[pathIndex]) {
-        current = current.children[pathIndex] as TocRoot;
-      } else {
-        return false;
-      }
-    }
-    
-    return current.children && index < current.children.length - 1;
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent) return false;
+
+    return index < parent.children.length - 1;
   }
 
   onMoveNodeUp(nodePath: number[]): void {
@@ -381,22 +379,14 @@ export class TocTreeComponent implements OnChanges {
     const parentPath = nodePath.slice(0, -1);
     const index = nodePath[nodePath.length - 1];
     
-    let current = this.toc;
-    for (const pathIndex of parentPath) {
-      if (current.children && current.children[pathIndex]) {
-        current = current.children[pathIndex] as TocRoot;
-      } else {
-        return;
-      }
-    }
-    
-    if (current.children && index > 0) {
-      // Swap with previous element
-      const temp = current.children[index];
-      current.children[index] = current.children[index - 1];
-      current.children[index - 1] = temp;
-      this.onNodeChanged();
-    }
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent || index <= 0) return;
+
+    const arr = parent.children;
+
+    // swap with previous
+    [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+    this.onNodeChanged();
   }
 
   onMoveNodeDown(nodePath: number[]): void {
@@ -405,22 +395,15 @@ export class TocTreeComponent implements OnChanges {
     const parentPath = nodePath.slice(0, -1);
     const index = nodePath[nodePath.length - 1];
     
-    let current = this.toc;
-    for (const pathIndex of parentPath) {
-      if (current.children && current.children[pathIndex]) {
-        current = current.children[pathIndex] as TocRoot;
-      } else {
-        return;
-      }
-    }
-    
-    if (current.children && index < current.children.length - 1) {
-      // Swap with next element
-      const temp = current.children[index];
-      current.children[index] = current.children[index + 1];
-      current.children[index + 1] = temp;
-      this.onNodeChanged();
-    }
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent) return;
+
+    const arr = parent.children;
+    if (index >= arr.length - 1) return;
+
+    // swap with next
+    [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+    this.onNodeChanged();
   }
 
   onEditRootTitle(): void {
@@ -448,7 +431,7 @@ export class TocTreeComponent implements OnChanges {
   }
 
   /**
-   * Recursively set the expansion state for all subtitle nodes in the tree.
+   * Recursively set the expansion state for all section nodes in the tree.
    * This method is used by the collapse/expand all functionality.
    * 
    * @param expanded - Whether nodes should be expanded (true) or collapsed (false)
@@ -456,7 +439,7 @@ export class TocTreeComponent implements OnChanges {
   private setAllNodesExpanded(expanded: boolean): void {
     const setExpanded = (nodes: TocNode[]): void => {
       nodes.forEach(node => {
-        if (node.type === 'subtitle') {
+        if (node.type === 'section') {
           node.isExpanded = expanded;
         }
         if (node.children && node.children.length > 0) {
@@ -472,35 +455,22 @@ export class TocTreeComponent implements OnChanges {
   }
 
   private addNodeToPath(parentPath: number[], node: TocNode, insertIndex?: number): void {
-    let current = this.toc;
-    
-    // Navigate to the parent node
-    for (const index of parentPath) {
-      if (current.children && current.children[index]) {
-        current = current.children[index] as TocRoot; // Type assertion for navigation
-      } else {
-        return; // Invalid path
-      }
-    }
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent) return;
 
-    // Add the new node
-    if (!current.children) {
-      current.children = [];
-    }
-    
     if (insertIndex !== undefined) {
       // Insert at specific index (for sibling insertion)
-      current.children.splice(insertIndex, 0, node);
+      parent.children.splice(insertIndex, 0, node);
     } else {
       // Append to end (for child insertion)
-      current.children.push(node);
+      parent.children.push(node);
     }
-    
+
     // Initialize isExpanded based on collapsed property
     if (node.isExpanded === undefined) {
       node.isExpanded = !node.collapsed; // If collapsed is true, isExpanded should be false
     }
-    
+
     this.onNodeChanged();
   }
 
@@ -527,27 +497,23 @@ export class TocTreeComponent implements OnChanges {
   }
 
   private deleteNodeByPath(nodePath: number[]): void {
-    if (nodePath.length === 1) {
-      // Deleting from root level
-      this.toc.children.splice(nodePath[0], 1);
-    } else {
-      // Deleting from nested level
-      let current = this.toc;
-      for (let i = 0; i < nodePath.length - 1; i++) {
-        const index = nodePath[i];
-        if (current.children && current.children[index]) {
-          current = current.children[index] as TocRoot; // Type assertion for navigation
-        } else {
-          return; // Invalid path
-        }
-      }
+    if (nodePath.length === 0) return; // never delete root
 
-      const lastIndex = nodePath[nodePath.length - 1];
-      if (current.children) {
-        current.children.splice(lastIndex, 1);
-      }
+    if (nodePath.length === 1) {
+      // delete from root level
+      this.toc.children.splice(nodePath[0], 1);
+      this.onNodeChanged();
+      return;
     }
 
+    // delete from nested level
+    const parentPath = nodePath.slice(0, -1);
+    const lastIndex = nodePath[nodePath.length - 1];
+
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent) return;
+
+    parent.children.splice(lastIndex, 1);
     this.onNodeChanged();
   }
 
@@ -611,5 +577,25 @@ export class TocTreeComponent implements OnChanges {
     // }
   
     this.onNodeChanged();
+  }
+
+  private isSectionNode(n: TocNode | undefined): n is TocSectionNode {
+    return !!n && n.type === 'section' && Array.isArray(n.children);
+  }
+
+  /**
+   * Walk down to the container at `path`. Root is a container; each step
+   * must land on a section node. Returns undefined if the path is invalid.
+   */
+  private getContainerAtPath(path: number[]): TocContainer | undefined {
+    let container: TocContainer = this.toc; // start at root
+    for (const idx of path) {
+      // Explicitly annotate the child; no optional chaining since containers
+      // always have children
+      const child: TocNode | undefined = container.children[idx];
+      if (!this.isSectionNode(child)) return undefined; // invalid step
+      container = child; // narrowed by the type guard to TocSectionNode
+    }
+    return container;
   }
 }

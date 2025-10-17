@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { catchError, map, Observable, throwError } from 'rxjs';
+
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { PublicationService } from './publication.service';
-import { TocRoot, TocNode, TocUpdateRequest, TocResponse, PublicationSortOption, PUBLICATION_SORT_OPTIONS } from '../models/table-of-contents';
+import { TocRoot, TocNode, TocRootApi, TocNodeApi, TocNodeType, TocUpdateRequest, TocResponse, PublicationSortOption, PUBLICATION_SORT_OPTIONS } from '../models/table-of-contents';
 import { Publication } from '../models/publication';
 
 @Injectable({
@@ -16,8 +15,7 @@ export class TableOfContentsService {
 
   constructor(
     private apiService: ApiService,
-    private projectService: ProjectService,
-    private publicationService: PublicationService
+    private projectService: ProjectService
   ) {}
 
   /**
@@ -34,9 +32,10 @@ export class TableOfContentsService {
     return this.apiService.get<TocResponse>(url).pipe(
       map(response => {
         if (response.success && response.data) {
-          this.currentToc = response.data;
+          const normalized = this.normalizeTocRoot(response.data);
+          this.currentToc = normalized;
           this._hasUnsavedChanges = false;
-          return response.data;
+          return normalized;
         } else {
           throw new Error(response.message || 'Failed to load table of contents');
         }
@@ -91,9 +90,10 @@ export class TableOfContentsService {
     return this.apiService.post<TocResponse>(url, request).pipe(
       map(response => {
         if (response.success && response.data) {
-          this.currentToc = response.data;
+          const normalized = this.normalizeTocRoot(response.data);
+          this.currentToc = normalized;
           this._hasUnsavedChanges = true; // Mark as unsaved since we updated the data
-          return response.data;
+          return normalized;
         } else {
           throw new Error(response.message || 'Failed to update table of contents');
         }
@@ -114,7 +114,7 @@ export class TableOfContentsService {
       switch (sortBy) {
         case 'id':
           return a.id - b.id;
-        case 'title':
+        case 'name':
           return (a.name || '').localeCompare(b.name || '');
         case 'original_filename':
           return (a.original_filename || '').localeCompare(b.original_filename || '');
@@ -127,7 +127,7 @@ export class TableOfContentsService {
 
     // Create text nodes for each publication
     const children: TocNode[] = sortedPublications.map(publication => ({
-      type: 'est',
+      type: 'text',
       text: publication.name || 'Untitled',
       itemId: `${collectionId}_${publication.id}`,
       date: publication.original_publication_date || undefined,
@@ -166,14 +166,6 @@ export class TableOfContentsService {
   }
 
   /**
-   * Clear current table of contents
-   */
-  clearCurrentToc(): void {
-    this.currentToc = null;
-    this._hasUnsavedChanges = false;
-  }
-
-  /**
    * Get available sort options
    */
   getSortOptions(): PublicationSortOption[] {
@@ -181,148 +173,50 @@ export class TableOfContentsService {
   }
 
   /**
-   * Create a new subtitle node
+   * Normalizes a ToC node from the backend to a new shape to handle
+   * legacy ToC data. Specifically, it modifies the value of the `type`
+   * property of the node:
+   * - `type` is set to "section" if the incoming node has a non-empty
+   *   `children` property;
+   * - if the incoming `type` already is "section" but the `children`
+   *   property is missing or empty, it is set to an empty array;
+   * - in other cases, the `type` is inferred as "text"; text nodes
+   *   can't have children.
    */
-  createSubtitleNode(text: string, collapsed: boolean = false): TocNode {
+  private normalizeTocNode(node: TocNodeApi): TocNode {
+    const incomingChildren = Array.isArray(node.children)
+      ? node.children
+      : [];
+    const hasValidChildren = incomingChildren.length > 0;
+
+    // Normalize children only if non-empty; text nodes must not have children.
+    const normalizedChildren = hasValidChildren
+      ? incomingChildren.map(child => this.normalizeTocNode(child))
+      : undefined;
+
+    const type: TocNodeType = (hasValidChildren || node.type === 'section')
+      ? 'section'
+      : 'text';
+
+    const { type: _ignored, children: _ignoredChildren, ...rest } = node;
+
     return {
-      type: 'subtitle',
-      text,
-      collapsed,
-      children: []
+      ...rest,
+      type,
+      ...(normalizedChildren
+        ? { children: normalizedChildren }
+        : type === 'section'
+          ? { children: [] }
+          : {})
     };
   }
 
-  /**
-   * Create a new text node
-   */
-  createTextNode(text: string, itemId?: string, date?: string, description?: string, category?: string, facsimileOnly: boolean = false): TocNode {
+  private normalizeTocRoot(root: TocRootApi): TocRoot {
     return {
-      type: 'est',
-      text,
-      itemId,
-      date,
-      description,
-      category,
-      facsimileOnly
+      ...root,
+      type: 'title',
+      children: (root.children ?? []).map(n => this.normalizeTocNode(n))
     };
   }
 
-  /**
-   * Add a node to the table of contents
-   */
-  addNode(parentPath: number[], node: TocNode): void {
-    if (!this.currentToc) {
-      return;
-    }
-
-    let current = this.currentToc;
-    for (let i = 0; i < parentPath.length; i++) {
-      const index = parentPath[i];
-      if (current.children && current.children[index]) {
-        current = current.children[index] as any; // Type assertion for navigation
-      } else {
-        return; // Invalid path
-      }
-    }
-
-    if (!current.children) {
-      current.children = [];
-    }
-    current.children.push(node);
-    this.markAsChanged();
-  }
-
-  /**
-   * Remove a node from the table of contents
-   */
-  removeNode(nodePath: number[]): void {
-    if (!this.currentToc || nodePath.length === 0) {
-      return;
-    }
-
-    if (nodePath.length === 1) {
-      // Removing from root level
-      this.currentToc.children.splice(nodePath[0], 1);
-    } else {
-      // Removing from nested level
-      let current = this.currentToc;
-      for (let i = 0; i < nodePath.length - 1; i++) {
-        const index = nodePath[i];
-        if (current.children && current.children[index]) {
-          current = current.children[index] as any; // Type assertion for navigation
-        } else {
-          return; // Invalid path
-        }
-      }
-
-      const lastIndex = nodePath[nodePath.length - 1];
-      if (current.children) {
-        current.children.splice(lastIndex, 1);
-      }
-    }
-
-    this.markAsChanged();
-  }
-
-  /**
-   * Move a node to a new position
-   */
-  moveNode(fromPath: number[], toPath: number[], toIndex: number): void {
-    if (!this.currentToc) {
-      return;
-    }
-
-    // Get the node to move
-    const nodeToMove = this.getNodeByPath(fromPath);
-    if (!nodeToMove) {
-      return;
-    }
-
-    // Remove from original position
-    this.removeNode(fromPath);
-
-    // Add to new position
-    if (toPath.length === 0) {
-      // Moving to root level
-      this.currentToc.children.splice(toIndex, 0, nodeToMove);
-    } else {
-      // Moving to nested level
-      let current = this.currentToc;
-      for (let i = 0; i < toPath.length; i++) {
-        const index = toPath[i];
-        if (current.children && current.children[index]) {
-          current = current.children[index] as any; // Type assertion for navigation
-        } else {
-          return; // Invalid path
-        }
-      }
-
-      if (!current.children) {
-        current.children = [];
-      }
-      current.children.splice(toIndex, 0, nodeToMove);
-    }
-
-    this.markAsChanged();
-  }
-
-  /**
-   * Get a node by its path
-   */
-  private getNodeByPath(path: number[]): TocNode | null {
-    if (!this.currentToc || path.length === 0) {
-      return null;
-    }
-
-    let current: TocNode | TocRoot = this.currentToc;
-    for (const index of path) {
-      if (current.children && current.children[index]) {
-        current = current.children[index];
-      } else {
-        return null;
-      }
-    }
-
-    return current as TocNode;
-  }
 }
