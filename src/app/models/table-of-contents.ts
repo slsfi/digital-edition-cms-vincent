@@ -2,6 +2,10 @@ import { PublicationLite } from "./publication";
 
 export type TocNodeType = 'section' | 'text';
 
+export type TocSectionNode = TocNode & { type: 'section'; children: TocNode[] };
+
+export type TocContainer = Pick<TocRoot, 'children'> | TocSectionNode;
+
 export interface TocRoot {
   text: string;
   collectionId: string;

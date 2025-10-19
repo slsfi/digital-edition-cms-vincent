@@ -1,34 +1,42 @@
 <ng-template #tmplNode let-node="node">
   <div class="node-item" [attr.data-id]="node.id" [attr.id]="'node-' + node.id">
-    <div class="node-content">
-      <div class="node-header">
-        @if (node.children && node.children.length) {
-          <button class="expand-button" 
-                  (click)="toggleNodeExpansion(node)"
-                  (keydown.enter)="toggleNodeExpansion(node)"
-                  (keydown.space)="toggleNodeExpansion(node)"
-                  tabindex="0"
-                  role="button"
-                  [attr.aria-expanded]="node.isExpanded"
-                  [attr.aria-label]="'Toggle expansion for ' + node.text"
-          >
-            <mat-icon>{{node.isExpanded ? 'expand_less' : 'expand_more'}}</mat-icon>
-          </button>
-        }
-        
-        <div class="node-content-text" 
-             [class.no-expand]="!node.children || !node.children.length"
+    <div class="node-header">
+      @if (node.type === 'section') {
+        <button class="expand-button"
+                [disabled]="!node.children.length" 
+                (click)="toggleNodeExpansion(node)"
+                (keydown.enter)="toggleNodeExpansion(node)"
+                (keydown.space)="toggleNodeExpansion(node)"
+                tabindex="0"
+                role="button"
+                [attr.aria-expanded]="node.isExpanded && node.children.length"
+                [attr.aria-label]="'Toggle expansion for ' + node.text"
         >
-          <div class="node-text">{{node.text}}</div>
-          <!-- Additional info for non-section nodes -->
-          @if (node.type !== 'section') {
-            <div class="node-meta">
-              @if (node.description) {
-                <div class="node-description">
-                  {{node.description}}
-                </div>
-              }
+          <mat-icon>{{node.isExpanded && node.children.length ? 'expand_less' : 'expand_more'}}</mat-icon>
+        </button>
+      }
+      
+      <div class="node-content-text" 
+            [class.no-expand]="node.type === 'text'"
+      >
+        <div class="node-text">{{node.text}}</div>
+        @if (node.itemId || node.description) {
+          <div class="node-meta">
+            @if (node.description) {
+              <div class="node-description">
+                {{node.description}}
+              </div>
+            }
+            @if (node.itemId) {
+              <!-- text nodes always have itemId and section nodes
+               may have it, so enough to check for its presence -->
               <div class="meta-items">
+                @if (node.itemId) {
+                  <span class="meta-item item-id">
+                    <mat-icon class="meta-icon">link</mat-icon>
+                    {{node.itemId}}
+                  </span>
+                }
                 @if (node.date) {
                   <span class="meta-item date">
                     <mat-icon class="meta-icon">event</mat-icon>
@@ -41,78 +49,73 @@
                     {{node.category}}
                   </span>
                 }
-                @if (node.itemId) {
-                  <span class="meta-item item-id">
-                    <mat-icon class="meta-icon">link</mat-icon>
-                    ID: {{node.itemId}}
-                  </span>
-                }
                 @if (node.facsimileOnly) {
                   <span class="meta-item facsimile">
                     <mat-icon class="meta-icon">image</mat-icon>
-                    Facsimile Only
+                    Facsimile only
                   </span>
                 }
               </div>
-            </div>
-          }
-        </div>
-        
-        <div class="node-actions">
-          <!-- Edit button (most used) -->
-          <button mat-icon-button 
-                  (click)="onEditNode(node)"
-                  matTooltip="Edit node"
-                  [attr.aria-label]="'Edit ' + node.text"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
-          
-          <!-- Up/Down movement buttons -->
-          <button mat-icon-button 
-                  (click)="onMoveNodeUp(getNodePath(node))"
-                  [disabled]="!canMoveUp(getNodePath(node))"
-                  matTooltip="Move up"
-                  [attr.aria-label]="'Move ' + node.text + ' up'"
-          >
-            <mat-icon>keyboard_arrow_up</mat-icon>
-          </button>
-          
-          <button mat-icon-button 
-                  (click)="onMoveNodeDown(getNodePath(node))"
-                  [disabled]="!canMoveDown(getNodePath(node))"
-                  matTooltip="Move down"
-                  [attr.aria-label]="'Move ' + node.text + ' down'"
-          >
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </button>
-          
-          <!-- Three-dot menu for other actions -->
-          <button mat-icon-button 
-                  [matMenuTriggerFor]="nodeMenu"
-                  class="menu-trigger"
-                  [attr.aria-label]="'More actions for ' + node.text"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          
-          <mat-menu #nodeMenu="matMenu">
-            @if (node.type === 'section') {
-              <button mat-menu-item (click)="onAddNode(getNodePath(node))">
-                <mat-icon>add</mat-icon>
-                <span>Add Child</span>
-              </button>
             }
-            <button mat-menu-item (click)="onAddSibling(getNodePath(node))">
+          </div>
+        }
+      </div>
+      
+      <div class="node-actions">
+        <!-- Edit button (most used) -->
+        <button mat-icon-button 
+                (click)="editNode(node)"
+                matTooltip="Edit node properties"
+                [attr.aria-label]="'Edit node properties'"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        
+        <!-- Up/Down movement buttons -->
+        <button mat-icon-button 
+                (click)="moveNodeUp(getNodePath(node))"
+                [disabled]="!canMoveUp(getNodePath(node))"
+                matTooltip="Move node up"
+                [attr.aria-label]="'Move node up'"
+        >
+          <mat-icon>arrow_upward_alt</mat-icon>
+        </button>
+        
+        <button mat-icon-button 
+                (click)="moveNodeDown(getNodePath(node))"
+                [disabled]="!canMoveDown(getNodePath(node))"
+                matTooltip="Move node down"
+                [attr.aria-label]="'Move node down'"
+        >
+          <mat-icon>arrow_downward_alt</mat-icon>
+        </button>
+        
+        <!-- Three-dot menu for other actions -->
+        <button mat-icon-button 
+                [matMenuTriggerFor]="nodeMenu"
+                class="menu-trigger"
+                [attr.aria-label]="'Additional node actions'"
+                matTooltip="Additional node actions"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        
+        <mat-menu #nodeMenu="matMenu">
+          @if (node.type === 'section') {
+            <button mat-menu-item (click)="addChildNode(getNodePath(node))">
               <mat-icon>add</mat-icon>
-              <span>Add Sibling</span>
+              <span>Add Child</span>
             </button>
-            <button mat-menu-item (click)="onDeleteNode(getNodePath(node))" class="delete-action">
-              <mat-icon>delete</mat-icon>
-              <span>Delete</span>
-            </button>
-          </mat-menu>
-        </div>
+          }
+          <button mat-menu-item (click)="addSiblingNode(getNodePath(node))">
+            <mat-icon>add</mat-icon>
+            <span>Add Sibling</span>
+          </button>
+          <button mat-menu-item (click)="deleteNode(getNodePath(node))" class="delete-action">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
       </div>
     </div>
 
@@ -128,7 +131,7 @@
         @for (child of node.children; track child.id) {
           <div cdkDrag 
                [cdkDragData]="child.id" 
-               (cdkDragMoved)="onDragMoved($event)"
+               (cdkDragMoved)="dragMoved($event)"
           >
             <ng-container *ngTemplateOutlet="tmplNode; context: {node: child}"/>  
           </div>
@@ -145,23 +148,25 @@
       <h2 class="root-title">{{ toc.text }}</h2>
       <div class="root-actions">
         <button mat-icon-button 
-                (click)="onCollapseAll()"
+                (click)="collapseAll()"
                 matTooltip="Collapse all"
                 [attr.aria-label]="'Collapse all nodes'"
+                matTooltip="Collapse all nodes"
         >
-          <mat-icon>unfold_less</mat-icon>
+          <mat-icon>collapse_all</mat-icon>
         </button>
         <button mat-icon-button 
-                (click)="onExpandAll()"
+                (click)="expandAll()"
                 matTooltip="Expand all"
                 [attr.aria-label]="'Expand all nodes'"
+                matTooltip="Expand all nodes"
         >
-          <mat-icon>unfold_more</mat-icon>
+          <mat-icon>expand_all</mat-icon>
         </button>
         <button mat-icon-button 
-                (click)="onEditRootTitle()"
-                matTooltip="Edit root title"
-                [attr.aria-label]="'Edit root title'"
+                (click)="editTocTitle()"
+                [attr.aria-label]="'Edit table of contents title'"
+                matTooltip="Edit table of contents title"
         >
           <mat-icon>edit</mat-icon>
         </button>
@@ -179,7 +184,7 @@
     @for (node of toc.children; track node.id) {
       <div cdkDrag 
            [cdkDragData]="node.id"      
-           (cdkDragMoved)="onDragMoved($event)"
+           (cdkDragMoved)="dragMoved($event)"
       >
         <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
       </div>
@@ -190,7 +195,7 @@
   <div class="add-root-button">
     <button mat-raised-button 
             color="primary" 
-            (click)="onAddNode()"
+            (click)="addChildNode()"
             class="add-root-btn"
     >
       <mat-icon>add</mat-icon>

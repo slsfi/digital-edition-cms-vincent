@@ -1,42 +1,44 @@
-import { Component, Input, Output, EventEmitter, Inject, DOCUMENT, OnChanges } from '@angular/core';
+import { Component, DOCUMENT, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 
-import { TocRoot, TocNode, DropInfo } from '../../models/table-of-contents';
+import { DropInfo, TocContainer, TocNode, TocRoot, TocSectionNode } from '../../models/table-of-contents';
 import { PublicationLite } from '../../models/publication';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
 import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
 
 
-type TocSectionNode = TocNode & { type: 'section'; children: TocNode[] };
-type TocContainer = Pick<TocRoot, 'children'> | TocSectionNode;
-
 @Component({
   selector: 'app-toc-tree',
   imports: [
     CommonModule,
     FormsModule,
-    MatIconModule,
     MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatMenuModule,
     MatDialogModule,
-    CdkDropList,
-    CdkDrag
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatTooltipModule,
+    CdkDrag,
+    CdkDropList
   ],
   templateUrl: './toc-tree.component.html',
   styleUrls: ['./toc-tree.component.scss']
 })
 export class TocTreeComponent implements OnChanges {
+  private readonly dialog = inject(MatDialog);
+  private document: Document = inject(DOCUMENT);
+
   @Input() toc!: TocRoot;
   @Input() collectionId!: number;
   @Input() publications: PublicationLite[] = [];
@@ -48,25 +50,22 @@ export class TocTreeComponent implements OnChanges {
   private cachedDropListIds: string[] = [];
   private dropListIdsCacheValid = false;
 
-  constructor(
-    private dialog: MatDialog,
-    @Inject(DOCUMENT) private document: Document
-  ) {
-    // Initialize drag and drop when component loads
-    if (this.toc) {
-      this.prepareDragDrop(this.toc.children);
-    }
-  }
-
-  ngOnChanges(): void {
-    if (this.toc) {
-      this.prepareDragDrop(this.toc.children);
+  ngOnChanges(changes: SimpleChanges): void {
+    // only prepare drag-drop if toc in changes -> avoids
+    // running the prepare method multiple times for the same toc
+    if ('toc' in changes) {
+      const curr = changes['toc'].currentValue as TocRoot | null | undefined;
+      if (curr) {
+        this.prepareDragDrop(curr.children);
+      }
     }
   }
 
   /**
-   * Prepare drag and drop functionality by setting up node lookup and drop targets.
-   * This method initializes the nodeLookup map for efficient node retrieval during drag operations
+   * Prepare drag and drop functionality by setting up node lookup and drop
+   * targets.
+   * This method initializes the nodeLookup map for efficient node retrieval
+   * during drag operations
    * and prepares the drop target IDs for CDK drag and drop connectivity.
    * 
    * @param nodes - Array of TOC nodes to prepare for drag and drop
@@ -147,11 +146,11 @@ export class TocTreeComponent implements OnChanges {
   /**
    * Handle drag movement events to provide real-time visual feedback.
    * This method detects drop zones (before/after/inside) based on mouse position
-   * and updates visual indicators accordingly. Uses a 20/60/20 zone split for easier same-level reordering.
+   * and updates visual indicators accordingly. Uses a 25/50/25 zone split for easier same-level reordering.
    * 
    * @param event - CDK drag move event containing pointer position
    */
-  onDragMoved = this.debounce((event: CdkDragMove) => {
+  dragMoved = this.debounce((event: CdkDragMove) => {
     const element = this.document.elementFromPoint(event.pointerPosition.x, event.pointerPosition.y);
     
     if (!element) {
@@ -171,18 +170,18 @@ export class TocTreeComponent implements OnChanges {
     };
     
     const targetRect = targetContainer.getBoundingClientRect();
-    const topZone = targetRect.height * 0.2; // Top 20%
-    const bottomZone = targetRect.height * 0.8; // Bottom 80%
+    const topZone = targetRect.height * 0.25; // Top 25%
+    const bottomZone = targetRect.height * 0.75; // Bottom 75%
 
     if (this.currentDropAction) {
       if (event.pointerPosition.y - targetRect.top < topZone) {
-        // before (top 20%)
+        // before (top 25%)
         this.currentDropAction.action = "before";
       } else if (event.pointerPosition.y - targetRect.top > bottomZone) {
-        // after (bottom 20%)
+        // after (bottom 25%)
         this.currentDropAction.action = "after";
       } else {
-        // inside (middle 60%)
+        // inside (middle 50%)
         this.currentDropAction.action = "inside";
       }
     }
@@ -262,7 +261,7 @@ export class TocTreeComponent implements OnChanges {
     }
 
     this.clearDragInfo(true);
-    this.onNodeChanged();
+    this.runNodeChangedActions();
   }
 
   getParentNodeId(id: string, nodesToSearch: TocNode[], parentId: string): string {
@@ -301,7 +300,7 @@ export class TocTreeComponent implements OnChanges {
       .forEach(element => element.classList.remove("drop-inside"));
   }
 
-  onNodeChanged(): void {
+  runNodeChangedActions(): void {
     // Regenerate IDs after changes
     this.prepareDragDrop(this.toc.children);
     // Invalidate cache after DOM update
@@ -311,7 +310,7 @@ export class TocTreeComponent implements OnChanges {
     this.tocChanged.emit();
   }
 
-  onAddNode(parentPath: number[] = []): void {
+  addChildNode(parentPath: number[] = []): void {
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
       data: {
@@ -335,7 +334,7 @@ export class TocTreeComponent implements OnChanges {
    * 
    * @param siblingPath - Path to the node that will have a new sibling added after it
    */
-  onAddSibling(siblingPath: number[]): void {
+  addSiblingNode(siblingPath: number[]): void {
     // Get the parent path (remove the last index)
     const parentPath = siblingPath.slice(0, -1);
     const siblingIndex = siblingPath[siblingPath.length - 1];
@@ -373,7 +372,7 @@ export class TocTreeComponent implements OnChanges {
     return index < parent.children.length - 1;
   }
 
-  onMoveNodeUp(nodePath: number[]): void {
+  moveNodeUp(nodePath: number[]): void {
     if (!this.canMoveUp(nodePath)) return;
     
     const parentPath = nodePath.slice(0, -1);
@@ -386,10 +385,10 @@ export class TocTreeComponent implements OnChanges {
 
     // swap with previous
     [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
-    this.onNodeChanged();
+    this.runNodeChangedActions();
   }
 
-  onMoveNodeDown(nodePath: number[]): void {
+  moveNodeDown(nodePath: number[]): void {
     if (!this.canMoveDown(nodePath)) return;
     
     const parentPath = nodePath.slice(0, -1);
@@ -403,10 +402,10 @@ export class TocTreeComponent implements OnChanges {
 
     // swap with next
     [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
-    this.onNodeChanged();
+    this.runNodeChangedActions();
   }
 
-  onEditRootTitle(): void {
+  editTocTitle(): void {
     const dialogRef = this.dialog.open(EditRootTitleDialogComponent, {
       width: '400px',
       data: {
@@ -422,11 +421,11 @@ export class TocTreeComponent implements OnChanges {
     });
   }
 
-  onCollapseAll(): void {
+  collapseAll(): void {
     this.setAllNodesExpanded(false);
   }
 
-  onExpandAll(): void {
+  expandAll(): void {
     this.setAllNodesExpanded(true);
   }
 
@@ -450,7 +449,9 @@ export class TocTreeComponent implements OnChanges {
 
     if (this.toc.children) {
       setExpanded(this.toc.children);
-      this.onNodeChanged();
+      // ToC should not be marked as changed just because nodes
+      // are collapsed/expanded in the UI
+      // this.onNodeChanged();
     }
   }
 
@@ -471,10 +472,10 @@ export class TocTreeComponent implements OnChanges {
       node.isExpanded = !node.collapsed; // If collapsed is true, isExpanded should be false
     }
 
-    this.onNodeChanged();
+    this.runNodeChangedActions();
   }
 
-  onDeleteNode(nodePath: number[]): void {
+  deleteNode(nodePath: number[]): void {
     if (nodePath.length === 0) {
       return; // Cannot delete root
     }
@@ -502,7 +503,7 @@ export class TocTreeComponent implements OnChanges {
     if (nodePath.length === 1) {
       // delete from root level
       this.toc.children.splice(nodePath[0], 1);
-      this.onNodeChanged();
+      this.runNodeChangedActions();
       return;
     }
 
@@ -514,7 +515,7 @@ export class TocTreeComponent implements OnChanges {
     if (!parent) return;
 
     parent.children.splice(lastIndex, 1);
-    this.onNodeChanged();
+    this.runNodeChangedActions();
   }
 
   toggleNodeExpansion(node: TocNode): void {
@@ -549,7 +550,7 @@ export class TocTreeComponent implements OnChanges {
     return [];
   }
 
-  onEditNode(node: TocNode): void {
+  editNode(node: TocNode): void {
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
       data: {
@@ -576,7 +577,7 @@ export class TocTreeComponent implements OnChanges {
     //   originalNode.isExpanded = !updatedNode.collapsed;
     // }
   
-    this.onNodeChanged();
+    this.runNodeChangedActions();
   }
 
   private isSectionNode(n: TocNode | undefined): n is TocSectionNode {
