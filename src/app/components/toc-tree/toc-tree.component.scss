@@ -84,6 +84,7 @@
   outline: none;
 
   &:disabled {
+    color: #a6a6a8;
     cursor: default;
   }
 
@@ -182,7 +183,8 @@
   */
 }
 
-.delete-action {
+.delete-action,
+.delete-action mat-icon {
   color: #c90d00;
 }
 

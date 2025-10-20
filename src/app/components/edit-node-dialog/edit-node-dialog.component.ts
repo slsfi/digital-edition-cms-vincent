@@ -93,6 +93,7 @@ export class EditNodeDialogComponent implements OnInit {
     this.itemId = node.itemId || '';
   }
 
+  // Extracts publication ID from an itemId
   private getPubIdFromItemId(itemId: string): number | null {
     const raw = itemId?.split('_')[1];
     const n = Number(raw);

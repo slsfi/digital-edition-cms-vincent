@@ -28,6 +28,7 @@ export interface TocNode {
   children?: TocNode[];
   id?: string; // Generated for drag/drop functionality
   isExpanded?: boolean; // UI state for expansion
+  path?: number[]; // Precomputed node path
 }
 
 export interface TocRootApi extends Omit<TocRoot, 'children'> {

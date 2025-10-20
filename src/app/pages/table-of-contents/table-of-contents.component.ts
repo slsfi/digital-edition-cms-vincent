@@ -22,8 +22,7 @@ import { ConfirmUpdateDialogComponent } from '../../components/confirm-update-di
 import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
 
 @Component({
-  selector: 'app-table-of-contents',
-  standalone: true,
+  selector: 'toc-management',
   imports: [
     CommonModule,
     FormsModule,

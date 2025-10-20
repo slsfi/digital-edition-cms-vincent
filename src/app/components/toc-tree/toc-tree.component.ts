@@ -15,10 +15,12 @@ import { PublicationLite } from '../../models/publication';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
 import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
+import { CanMoveNodeDownPipe } from '../../pipes/can-move-node-down.pipe';
+import { CanMoveNodeUpPipe } from '../../pipes/can-move-node-up.pipe';
 
 
 @Component({
-  selector: 'app-toc-tree',
+  selector: 'toc-tree',
   imports: [
     CommonModule,
     FormsModule,
@@ -30,7 +32,9 @@ import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-d
     MatMenuModule,
     MatTooltipModule,
     CdkDrag,
-    CdkDropList
+    CdkDropList,
+    CanMoveNodeDownPipe,
+    CanMoveNodeUpPipe
   ],
   templateUrl: './toc-tree.component.html',
   styleUrls: ['./toc-tree.component.scss']
@@ -65,19 +69,20 @@ export class TocTreeComponent implements OnChanges {
    * Prepare drag and drop functionality by setting up node lookup and drop
    * targets.
    * This method initializes the nodeLookup map for efficient node retrieval
-   * during drag operations
-   * and prepares the drop target IDs for CDK drag and drop connectivity.
+   * during drag operations and prepares the drop target IDs for CDK drag
+   * and drop connectivity.
    * 
    * @param nodes - Array of TOC nodes to prepare for drag and drop
    */
-  prepareDragDrop(nodes: TocNode[]): void {
+  private prepareDragDrop(nodes: TocNode[]): void {
     this.nodeLookup = {};
     this.generateIdsAndPrepareDragDrop(nodes, []);
   }
 
   /**
    * Recursively generate unique IDs for nodes and populate the nodeLookup map.
-   * This method assigns path-based IDs to each node and sets default expansion state.
+   * This method assigns path-based IDs to each node, stores the node path on
+   * each node, and sets default expansion state.
    * 
    * @param nodes - Array of nodes to process
    * @param path - Current path in the tree (array of indices)
@@ -88,14 +93,17 @@ export class TocTreeComponent implements OnChanges {
       const nodeId = this.generateNodeId(currentPath);
       
       node.id = nodeId;
+      node.path = currentPath; // keep the path on the node
+
       // Initialize isExpanded based on collapsed property if not already set
       if (node.isExpanded === undefined) {
-        node.isExpanded = !node.collapsed; // If collapsed is true, isExpanded should be false
+        // If collapsed is true, isExpanded should be false
+        node.isExpanded = !node.collapsed;
       }
       
       this.nodeLookup[nodeId] = node;
       
-      if (node.children && node.children.length > 0) {
+      if (node.children?.length) {
         this.generateIdsAndPrepareDragDrop(node.children, currentPath);
       }
     });
@@ -158,33 +166,41 @@ export class TocTreeComponent implements OnChanges {
       return;
     }
     
-    const targetContainer = element.classList.contains("node-item") ? element : element.closest(".node-item");
+    const targetContainer = element.classList.contains("node-item")
+      ? element
+      : element.closest(".node-item");
+
     if (!targetContainer) {
       this.clearDragInfo();
       return;
     }
     
-    this.currentDropAction = {
-      targetId: targetContainer.getAttribute("data-id") || '',
-      action: 'before' // Will be updated below
-    };
-    
-    const targetRect = targetContainer.getBoundingClientRect();
+    const targetId = (targetContainer as HTMLElement).id || '';
+    this.currentDropAction = { targetId, action: 'before' };
+
+    const targetRect = (targetContainer as HTMLElement).getBoundingClientRect();
     const topZone = targetRect.height * 0.25; // Top 25%
     const bottomZone = targetRect.height * 0.75; // Bottom 75%
+    const y = event.pointerPosition.y - targetRect.top;
 
-    if (this.currentDropAction) {
-      if (event.pointerPosition.y - targetRect.top < topZone) {
-        // before (top 25%)
-        this.currentDropAction.action = "before";
-      } else if (event.pointerPosition.y - targetRect.top > bottomZone) {
-        // after (bottom 25%)
-        this.currentDropAction.action = "after";
+    if (y < topZone) {
+      // before (top 25%)
+      this.currentDropAction.action = 'before';
+    } else if (y > bottomZone) {
+      // after (bottom 25%)
+      this.currentDropAction.action = 'after';
+    } else {
+      // middle 50% → "inside" ONLY if target is a section
+      if (this.canDropInside(targetId)) {
+        this.currentDropAction.action = 'inside';
       } else {
-        // inside (middle 50%)
-        this.currentDropAction.action = "inside";
+        // pick the nearer edge for non-section nodes
+        this.currentDropAction.action = (y < targetRect.height / 2)
+          ? 'before'
+          : 'after';
       }
     }
+
     this.showDragInfo();
   }, 50);
 
@@ -200,20 +216,30 @@ export class TocTreeComponent implements OnChanges {
 
     const draggedItemId = event.item.data;
     const parentItemId = event.previousContainer.id;
-    const targetListId = this.getParentNodeId(this.currentDropAction.targetId, this.toc.children, 'main');
+    const targetId = this.currentDropAction.targetId;
 
+    // If somehow "inside" slipped in for a non-section, coerce to 'after'
+    if (this.currentDropAction.action === 'inside' && !this.canDropInside(targetId)) {
+      this.currentDropAction.action = 'after';
+    }
+
+    const targetListId = this.getParentNodeId(targetId, this.toc.children, 'main');
     const draggedItem = this.nodeLookup[draggedItemId];
 
-    const oldItemContainer = parentItemId !== 'main' ? this.nodeLookup[parentItemId].children! : this.toc.children;
-    const newContainer = targetListId !== 'main' ? this.nodeLookup[targetListId].children! : this.toc.children;
+    const oldItemContainer = parentItemId !== 'main'
+      ? this.nodeLookup[parentItemId].children!
+      : this.toc.children;
+    const newContainer = targetListId !== 'main'
+      ? this.nodeLookup[targetListId].children!
+      : this.toc.children;
 
     // Check if the item is being dropped in the same position
     if (parentItemId === targetListId) {
       const oldIndex = oldItemContainer.findIndex(c => c.id === draggedItemId);
-      const targetIndex = newContainer.findIndex(c => c.id === this.currentDropAction!.targetId);
+      const targetIndex = newContainer.findIndex(c => c.id === targetId);
       
       // If it's the same item and same position, don't move
-      if (draggedItemId === this.currentDropAction.targetId) {
+      if (draggedItemId === targetId) {
         this.clearDragInfo();
         return;
       }
@@ -242,7 +268,7 @@ export class TocTreeComponent implements OnChanges {
     switch (this.currentDropAction.action) {
       case 'before':
       case 'after': {
-        const targetIndex = newContainer.findIndex(c => c.id === this.currentDropAction!.targetId);
+        const targetIndex = newContainer.findIndex(c => c.id === targetId);
         if (this.currentDropAction.action === 'before') {
           newContainer.splice(targetIndex, 0, draggedItem);
         } else {
@@ -250,21 +276,23 @@ export class TocTreeComponent implements OnChanges {
         }
         break;
       }
-
-      case 'inside':
-        if (!this.nodeLookup[this.currentDropAction.targetId].children) {
-          this.nodeLookup[this.currentDropAction.targetId].children = [];
+      case 'inside': {
+        // allowed only for section nodes
+        const targetNode = this.nodeLookup[targetId];
+        if (!targetNode.children) {
+          targetNode.children = [];
         }
-        this.nodeLookup[this.currentDropAction.targetId].children!.push(draggedItem);
-        this.nodeLookup[this.currentDropAction.targetId].isExpanded = true;
+        targetNode.children.push(draggedItem);
+        targetNode.isExpanded = true;
         break;
+      }
     }
 
     this.clearDragInfo(true);
     this.runNodeChangedActions();
   }
 
-  getParentNodeId(id: string, nodesToSearch: TocNode[], parentId: string): string {
+  private getParentNodeId(id: string, nodesToSearch: TocNode[], parentId: string): string {
     for (const node of nodesToSearch) {
       if (node.id === id) return parentId;
       if (node.children) {
@@ -275,17 +303,24 @@ export class TocTreeComponent implements OnChanges {
     return '';
   }
 
-  showDragInfo(): void {
+  private showDragInfo(): void {
     this.clearDragInfo();
-    if (this.currentDropAction) {
-      const element = this.document.getElementById("node-" + this.currentDropAction.targetId);
-      if (element) {
-        element.classList.add("drop-" + this.currentDropAction.action);
-      }
+    if (!this.currentDropAction) return;
+
+    let { targetId, action } = this.currentDropAction;
+    if (action === 'inside' && !this.canDropInside(targetId)) {
+      // defensive fallback for visuals, it is not possible to
+      // drop nodes 'inside' any other nodes than section nodes
+      action = 'after';
+    }
+
+    const el = this.document.getElementById(targetId);
+    if (el) {
+      el.classList.add('drop-' + action);
     }
   }
 
-  clearDragInfo(dropped = false): void {
+  private clearDragInfo(dropped = false): void {
     if (dropped) {
       this.currentDropAction = null;
     }
@@ -300,7 +335,12 @@ export class TocTreeComponent implements OnChanges {
       .forEach(element => element.classList.remove("drop-inside"));
   }
 
-  runNodeChangedActions(): void {
+  private canDropInside(targetId: string): boolean {
+    const n = this.nodeLookup[targetId];
+    return this.isSectionNode(n); // only sections can have children
+  }
+
+  private runNodeChangedActions(): void {
     // Regenerate IDs after changes
     this.prepareDragDrop(this.toc.children);
     // Invalidate cache after DOM update
@@ -310,7 +350,39 @@ export class TocTreeComponent implements OnChanges {
     this.tocChanged.emit();
   }
 
-  addChildNode(parentPath: number[] = []): void {
+  editNode(node: TocNode): void {
+    const dialogRef = this.dialog.open(EditNodeDialogComponent, {
+      width: '500px',
+      data: {
+        dialogMode: 'edit',
+        node: node,
+        collectionId: this.collectionId,
+        publications: this.publications
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.updateNode(node, result);
+      }
+    });
+  }
+
+  private updateNode(originalNode: TocNode, updatedNode: TocNode): void {
+    // Update the original node with the new values
+    Object.assign(originalNode, updatedNode);
+  
+    // If collapsed property changed, update isExpanded accordingly
+    // if (updatedNode.collapsed !== undefined) {
+    //   originalNode.isExpanded = !updatedNode.collapsed;
+    // }
+  
+    this.runNodeChangedActions();
+  }
+
+  addChildNode(target?: TocNode): void {
+    // If no target, add to root
+    const parentPath = target ? this.resolvePath(target) : [];
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
       data: {
@@ -332,12 +404,13 @@ export class TocTreeComponent implements OnChanges {
    * This method opens the add node dialog and inserts the new node as a sibling
    * (at the same level) after the current node.
    * 
-   * @param siblingPath - Path to the node that will have a new sibling added after it
+   * @param target - The node that will have a new sibling added after it
    */
-  addSiblingNode(siblingPath: number[]): void {
+  addSiblingNode(target: TocNode): void {
     // Get the parent path (remove the last index)
-    const parentPath = siblingPath.slice(0, -1);
-    const siblingIndex = siblingPath[siblingPath.length - 1];
+    const nodePath = this.resolvePath(target);
+    const parentPath = nodePath.slice(0, -1);
+    const siblingIndex = nodePath[nodePath.length - 1];
     
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       width: '500px',
@@ -355,25 +428,9 @@ export class TocTreeComponent implements OnChanges {
     });
   }
 
-  canMoveUp(nodePath: number[]): boolean {
-    if (nodePath.length === 0) return false;
-    const index = nodePath[nodePath.length - 1];
-    return index > 0;
-  }
-
-  canMoveDown(nodePath: number[]): boolean {
-    if (nodePath.length === 0) return false;
-    const parentPath = nodePath.slice(0, -1);
-    const index = nodePath[nodePath.length - 1];
-    
-    const parent = this.getContainerAtPath(parentPath);
-    if (!parent) return false;
-
-    return index < parent.children.length - 1;
-  }
-
-  moveNodeUp(nodePath: number[]): void {
-    if (!this.canMoveUp(nodePath)) return;
+  moveNodeUp(target: TocNode): void {
+    const nodePath = this.resolvePath(target);
+    if (!this.canMoveNodeUp(nodePath)) return;
     
     const parentPath = nodePath.slice(0, -1);
     const index = nodePath[nodePath.length - 1];
@@ -388,8 +445,9 @@ export class TocTreeComponent implements OnChanges {
     this.runNodeChangedActions();
   }
 
-  moveNodeDown(nodePath: number[]): void {
-    if (!this.canMoveDown(nodePath)) return;
+  moveNodeDown(target: TocNode): void {
+    const nodePath = this.resolvePath(target);
+    if (!this.canMoveNodeDown(nodePath)) return;
     
     const parentPath = nodePath.slice(0, -1);
     const index = nodePath[nodePath.length - 1];
@@ -403,6 +461,73 @@ export class TocTreeComponent implements OnChanges {
     // swap with next
     [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
     this.runNodeChangedActions();
+  }
+
+  private canMoveNodeUp(nodePath: number[]): boolean {
+    if (nodePath.length === 0) return false;
+    const index = nodePath[nodePath.length - 1];
+    return index > 0;
+  }
+
+  private canMoveNodeDown(nodePath: number[]): boolean {
+    if (nodePath.length === 0) return false;
+    const parentPath = nodePath.slice(0, -1);
+    const index = nodePath[nodePath.length - 1];
+    
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent) return false;
+
+    return index < parent.children.length - 1;
+  }
+
+  deleteNode(target: TocNode): void {
+    const nodePath = this.resolvePath(target);
+    if (nodePath.length === 0) return; // Never delete root
+
+    // Show confirmation dialog
+    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      data: {
+        title: 'Delete Node',
+        message: 'Are you sure you want to delete this node? This action cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteNodeByPath(nodePath);
+      }
+    });
+  }
+
+  private deleteNodeByPath(nodePath: number[]): void {
+    if (nodePath.length === 0) return; // Never delete root
+
+    if (nodePath.length === 1) {
+      // delete from root level
+      this.toc.children.splice(nodePath[0], 1);
+      this.runNodeChangedActions();
+      return;
+    }
+
+    // delete from nested level
+    const parentPath = nodePath.slice(0, -1);
+    const lastIndex = nodePath[nodePath.length - 1];
+
+    const parent = this.getContainerAtPath(parentPath);
+    if (!parent) return;
+
+    parent.children.splice(lastIndex, 1);
+    this.runNodeChangedActions();
+  }
+
+    toggleNodeExpansion(node: TocNode): void {
+    node.isExpanded = !node.isExpanded;
+    // Invalidate cache after DOM update
+    setTimeout(() => {
+      this.invalidateDropListCache();
+    }, 0);
   }
 
   editTocTitle(): void {
@@ -475,60 +600,10 @@ export class TocTreeComponent implements OnChanges {
     this.runNodeChangedActions();
   }
 
-  deleteNode(nodePath: number[]): void {
-    if (nodePath.length === 0) {
-      return; // Cannot delete root
-    }
-
-    // Show confirmation dialog
-    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
-      data: {
-        title: 'Delete Node',
-        message: 'Are you sure you want to delete this node? This action cannot be undone.',
-        confirmText: 'Delete',
-        cancelText: 'Cancel'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.deleteNodeByPath(nodePath);
-      }
-    });
-  }
-
-  private deleteNodeByPath(nodePath: number[]): void {
-    if (nodePath.length === 0) return; // never delete root
-
-    if (nodePath.length === 1) {
-      // delete from root level
-      this.toc.children.splice(nodePath[0], 1);
-      this.runNodeChangedActions();
-      return;
-    }
-
-    // delete from nested level
-    const parentPath = nodePath.slice(0, -1);
-    const lastIndex = nodePath[nodePath.length - 1];
-
-    const parent = this.getContainerAtPath(parentPath);
-    if (!parent) return;
-
-    parent.children.splice(lastIndex, 1);
-    this.runNodeChangedActions();
-  }
-
-  toggleNodeExpansion(node: TocNode): void {
-    node.isExpanded = !node.isExpanded;
-    // Invalidate cache after DOM update
-    setTimeout(() => {
-      this.invalidateDropListCache();
-    }, 0);
-  }
-
-  getNodePath(node: TocNode): number[] {
-    // Find the path to this node in the tree
-    return this.findNodePath(node, this.toc.children, []);
+  private resolvePath(node: TocNode): number[] {
+    // Get the precomputed path to this node in the tree, or
+    // compute it if it's not on the node
+    return node.path ?? this.findNodePath(node, this.toc.children, []);
   }
 
   private findNodePath(targetNode: TocNode, nodes: TocNode[], currentPath: number[]): number[] {
@@ -548,36 +623,6 @@ export class TocTreeComponent implements OnChanges {
       }
     }
     return [];
-  }
-
-  editNode(node: TocNode): void {
-    const dialogRef = this.dialog.open(EditNodeDialogComponent, {
-      width: '500px',
-      data: {
-        dialogMode: 'edit',
-        node: node,
-        collectionId: this.collectionId,
-        publications: this.publications
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.updateNode(node, result);
-      }
-    });
-  }
-
-  private updateNode(originalNode: TocNode, updatedNode: TocNode): void {
-    // Update the original node with the new values
-    Object.assign(originalNode, updatedNode);
-  
-    // If collapsed property changed, update isExpanded accordingly
-    // if (updatedNode.collapsed !== undefined) {
-    //   originalNode.isExpanded = !updatedNode.collapsed;
-    // }
-  
-    this.runNodeChangedActions();
   }
 
   private isSectionNode(n: TocNode | undefined): n is TocSectionNode {

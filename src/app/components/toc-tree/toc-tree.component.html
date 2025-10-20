@@ -1,16 +1,14 @@
 <ng-template #tmplNode let-node="node">
-  <div class="node-item" [attr.data-id]="node.id" [attr.id]="'node-' + node.id">
+  <div class="node-item" [attr.id]="node.id">
     <div class="node-header">
       @if (node.type === 'section') {
         <button class="expand-button"
                 [disabled]="!node.children.length" 
                 (click)="toggleNodeExpansion(node)"
-                (keydown.enter)="toggleNodeExpansion(node)"
-                (keydown.space)="toggleNodeExpansion(node)"
                 tabindex="0"
                 role="button"
-                [attr.aria-expanded]="node.isExpanded && node.children.length"
-                [attr.aria-label]="'Toggle expansion for ' + node.text"
+                [attr.aria-expanded]="(!!node.children?.length && !!node.isExpanded) ? 'true' : 'false'"
+                [attr.aria-label]="'Toggle expansion for section node'"
         >
           <mat-icon>{{node.isExpanded && node.children.length ? 'expand_less' : 'expand_more'}}</mat-icon>
         </button>
@@ -73,8 +71,8 @@
         
         <!-- Up/Down movement buttons -->
         <button mat-icon-button 
-                (click)="moveNodeUp(getNodePath(node))"
-                [disabled]="!canMoveUp(getNodePath(node))"
+                (click)="moveNodeUp(node)"
+                [disabled]="!(node.path | canMoveNodeUp)"
                 matTooltip="Move node up"
                 [attr.aria-label]="'Move node up'"
         >
@@ -82,8 +80,8 @@
         </button>
         
         <button mat-icon-button 
-                (click)="moveNodeDown(getNodePath(node))"
-                [disabled]="!canMoveDown(getNodePath(node))"
+                (click)="moveNodeDown(node)"
+                [disabled]="!(toc | canMoveNodeDown: node.path)"
                 matTooltip="Move node down"
                 [attr.aria-label]="'Move node down'"
         >
@@ -94,24 +92,24 @@
         <button mat-icon-button 
                 [matMenuTriggerFor]="nodeMenu"
                 class="menu-trigger"
-                [attr.aria-label]="'Additional node actions'"
                 matTooltip="Additional node actions"
+                [attr.aria-label]="'Additional node actions'"
         >
           <mat-icon>more_vert</mat-icon>
         </button>
         
         <mat-menu #nodeMenu="matMenu">
           @if (node.type === 'section') {
-            <button mat-menu-item (click)="addChildNode(getNodePath(node))">
+            <button mat-menu-item (click)="addChildNode(node)">
               <mat-icon>add</mat-icon>
               <span>Add Child</span>
             </button>
           }
-          <button mat-menu-item (click)="addSiblingNode(getNodePath(node))">
+          <button mat-menu-item (click)="addSiblingNode(node)">
             <mat-icon>add</mat-icon>
             <span>Add Sibling</span>
           </button>
-          <button mat-menu-item (click)="deleteNode(getNodePath(node))" class="delete-action">
+          <button mat-menu-item (click)="deleteNode(node)" class="delete-action">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>
@@ -149,24 +147,22 @@
       <div class="root-actions">
         <button mat-icon-button 
                 (click)="collapseAll()"
-                matTooltip="Collapse all"
-                [attr.aria-label]="'Collapse all nodes'"
                 matTooltip="Collapse all nodes"
+                [attr.aria-label]="'Collapse all nodes'"
         >
           <mat-icon>collapse_all</mat-icon>
         </button>
         <button mat-icon-button 
                 (click)="expandAll()"
-                matTooltip="Expand all"
-                [attr.aria-label]="'Expand all nodes'"
                 matTooltip="Expand all nodes"
+                [attr.aria-label]="'Expand all nodes'"
         >
           <mat-icon>expand_all</mat-icon>
         </button>
         <button mat-icon-button 
                 (click)="editTocTitle()"
-                [attr.aria-label]="'Edit table of contents title'"
                 matTooltip="Edit table of contents title"
+                [attr.aria-label]="'Edit table of contents title'"
         >
           <mat-icon>edit</mat-icon>
         </button>
