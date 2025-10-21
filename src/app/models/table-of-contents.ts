@@ -11,6 +11,10 @@ export interface TocRoot {
   collectionId: string;
   type: 'title';
   children: TocNode[];
+  coverPageName?: string;
+  titlePageName?: string;
+  forewordPageName?: string;
+  introductionPageName?: string;
   id?: string; // Generated for drag/drop functionality
   isExpanded?: boolean; // UI state for expansion
 }
@@ -38,8 +42,9 @@ export interface TocRootApi extends Omit<TocRoot, 'children'> {
 // In the ToC API response, we allow any string value for `type`
 // on the node object, and then normalize the values to TocNodeType
 export interface TocNodeApi
-  extends Omit<TocNode, 'type' | 'children'> {
+  extends Omit<TocNode, 'type' | 'children' | 'url'> {
   type?: string;
+  url?: string; // Legacy property which is ignored if present
   children?: TocNodeApi[];
 }
 

@@ -13,8 +13,8 @@ import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/dra
 import { DropInfo, TocContainer, TocNode, TocRoot, TocSectionNode } from '../../models/table-of-contents';
 import { PublicationLite } from '../../models/publication';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
-import { EditRootTitleDialogComponent } from '../edit-root-title-dialog/edit-root-title-dialog.component';
-import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
+import { EditTocRootDialogComponent } from '../edit-toc-root-dialog/edit-toc-root-dialog.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CanMoveNodeDownPipe } from '../../pipes/can-move-node-down.pipe';
 import { CanMoveNodeUpPipe } from '../../pipes/can-move-node-up.pipe';
 
@@ -352,7 +352,6 @@ export class TocTreeComponent implements OnChanges {
 
   editNode(node: TocNode): void {
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
-      width: '500px',
       data: {
         dialogMode: 'edit',
         node: node,
@@ -384,7 +383,6 @@ export class TocTreeComponent implements OnChanges {
     // If no target, add to root
     const parentPath = target ? this.resolvePath(target) : [];
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
-      width: '500px',
       data: {
         dialogMode: 'add',
         collectionId: this.collectionId,
@@ -413,7 +411,6 @@ export class TocTreeComponent implements OnChanges {
     const siblingIndex = nodePath[nodePath.length - 1];
     
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
-      width: '500px',
       data: {
         dialogMode: 'add',
         collectionId: this.collectionId,
@@ -485,9 +482,9 @@ export class TocTreeComponent implements OnChanges {
     if (nodePath.length === 0) return; // Never delete root
 
     // Show confirmation dialog
-    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Delete Node',
+        title: 'Delete node',
         message: 'Are you sure you want to delete this node? This action cannot be undone.',
         confirmText: 'Delete',
         cancelText: 'Cancel'
@@ -495,7 +492,7 @@ export class TocTreeComponent implements OnChanges {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+      if (result?.value) {
         this.deleteNodeByPath(nodePath);
       }
     });
@@ -522,7 +519,7 @@ export class TocTreeComponent implements OnChanges {
     this.runNodeChangedActions();
   }
 
-    toggleNodeExpansion(node: TocNode): void {
+  toggleNodeExpansion(node: TocNode): void {
     node.isExpanded = !node.isExpanded;
     // Invalidate cache after DOM update
     setTimeout(() => {
@@ -530,17 +527,40 @@ export class TocTreeComponent implements OnChanges {
     }, 0);
   }
 
-  editTocTitle(): void {
-    const dialogRef = this.dialog.open(EditRootTitleDialogComponent, {
-      width: '400px',
+  editTocRootProperties(): void {
+    const dialogRef = this.dialog.open(EditTocRootDialogComponent, {
       data: {
-        currentTitle: this.toc.text
+        title: this.toc.text,
+        coverPageName: this.toc.coverPageName,
+        titlePageName: this.toc.titlePageName,
+        forewordPageName: this.toc.forewordPageName,
+        introductionPageName: this.toc.introductionPageName
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.trim()) {
-        this.toc.text = result.trim();
+      if (result && result.value) {
+        this.toc.text = result.data.title;
+        if (result.data.coverPageName) {
+          this.toc.coverPageName = result.data.coverPageName;
+        } else {
+          delete this.toc.coverPageName;
+        }
+        if (result.data.titlePageName) {
+          this.toc.titlePageName = result.data.titlePageName;
+        } else {
+          delete this.toc.titlePageName;
+        }
+        if (result.data.forewordPageName) {
+          this.toc.forewordPageName = result.data.forewordPageName;
+        } else {
+          delete this.toc.forewordPageName;
+        }
+        if (result.data.introductionPageName) {
+          this.toc.introductionPageName = result.data.introductionPageName;
+        } else {
+          delete this.toc.introductionPageName;
+        }
         this.tocChanged.emit();
       }
     });

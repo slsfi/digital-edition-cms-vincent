@@ -51,7 +51,7 @@ export class EditNodeDialogComponent implements OnInit {
   date = '';
   category = '';
   facsimileOnly = false;
-  collapsed = false;
+  collapsed = true;
   itemId = '';
 
   publications: PublicationLite[] = [];
@@ -88,8 +88,8 @@ export class EditNodeDialogComponent implements OnInit {
     this.description = node.description || '';
     this.date = node.date || '';
     this.category = node.category || '';
-    this.facsimileOnly = node.facsimileOnly || false;
-    this.collapsed = node.collapsed || false;
+    this.facsimileOnly = node.facsimileOnly ?? false;
+    this.collapsed = node.collapsed ?? true;
     this.itemId = node.itemId || '';
   }
 
@@ -140,7 +140,7 @@ export class EditNodeDialogComponent implements OnInit {
     this.date = '';
     this.category = '';
     this.facsimileOnly = false;
-    this.collapsed = false;
+    this.collapsed = true;
   }
 
   selectPublication(publication: PublicationLite): void {
@@ -223,7 +223,7 @@ export class EditNodeDialogComponent implements OnInit {
 
   private showError(message: string): void {
     this.snackBar.open(message, 'Close', {
-      duration: 3000,
+      duration: undefined,
       panelClass: ['snackbar-error']
     });
   }

@@ -6,48 +6,51 @@
   background-color: #fafafa;
 }
 
-.root-title-section {
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  
-  .root-title-content {
+.toc-root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin: 0 3px 1em 3px;
+  padding: 6px 0 0.75em 0;
+  border-bottom: 1px solid #e0e0e0;
+
+  .toc-title {
+    font-size: 1.2em;
+    font-weight: 500;
+  }
+
+  .frontmatter-page-name-wrapper {
+    margin-top: 0.5em;
+    padding-bottom: 0.375em;
+    display: table;
+  }
+
+  .frontmatter-page-name {
+    display: table-row;
+  }
+
+  .root-label,
+  .fm-name {
+    display: table-cell;
+    padding: 0.1875em 0;
+  }
+
+  .root-label {
+    padding-right: 1em;
+  }
+
+  .root-actions {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    
-    .root-title {
-      margin: 0;
-      flex: 1;
-      font-size: 1.2em;
-      font-weight: 500;
-    }
-    
-    .root-actions {
-      display: flex;
-      gap: 4px;
-    }
+    gap: 4px;
   }
 }
 
-.root-nodes {
-  min-height: 100px;
-}
-
-.add-root-button {
+.add-root-button-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.add-root-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin: 16px 0 12px 0;
 }
 
 .node-item {
@@ -260,10 +263,6 @@
 
 // Responsive design
 @media (max-width: 768px) {
-  .toc-tree {
-    padding: 12px;
-  }
-
   .drag-handle {
     align-self: flex-start;
     margin-right: 0;

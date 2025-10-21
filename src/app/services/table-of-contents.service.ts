@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { catchError, map, Observable, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable, throwError } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
@@ -10,13 +10,11 @@ import { Publication } from '../models/publication';
   providedIn: 'root'
 })
 export class TableOfContentsService {
+  private readonly apiService = inject(ApiService);
+  private readonly projectService = inject(ProjectService);
+
   private currentToc: TocRoot | null = null;
   private _hasUnsavedChanges = false;
-
-  constructor(
-    private apiService: ApiService,
-    private projectService: ProjectService
-  ) {}
 
   /**
    * Load table of contents for a collection
@@ -24,12 +22,12 @@ export class TableOfContentsService {
   loadToc(collectionId: number): Observable<TocRoot> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
-      return throwError(() => new Error('No project selected'));
+      return throwError(() => new Error('No project selected.'));
     }
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
     
-    return this.apiService.get<TocResponse>(url).pipe(
+    return this.apiService.get<TocResponse>(url, {}, true).pipe(
       map(response => {
         if (response.success && response.data) {
           const normalized = this.normalizeTocRoot(response.data);
@@ -37,12 +35,8 @@ export class TableOfContentsService {
           this._hasUnsavedChanges = false;
           return normalized;
         } else {
-          throw new Error(response.message || 'Failed to load table of contents');
+          throw new Error(response.message || 'Failed to load table of contents.');
         }
-      }),
-      catchError(error => {
-        console.error('Error loading table of contents:', error);
-        return throwError(() => error);
       })
     );
   }
@@ -53,7 +47,7 @@ export class TableOfContentsService {
   saveToc(collectionId: number, toc: TocRoot): Observable<boolean> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
-      return throwError(() => new Error('No project selected'));
+      return throwError(() => new Error('No project selected.'));
     }
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
@@ -65,12 +59,8 @@ export class TableOfContentsService {
           this._hasUnsavedChanges = false;
           return true;
         } else {
-          throw new Error(response.message || 'Failed to save table of contents');
+          throw new Error(response.message || 'Failed to save table of contents.');
         }
-      }),
-      catchError(error => {
-        console.error('Error saving table of contents:', error);
-        return throwError(() => error);
       })
     );
   }
@@ -78,10 +68,13 @@ export class TableOfContentsService {
   /**
    * Update table of contents with fresh publication data from database
    */
-  updateTocWithPublicationData(collectionId: number, updateFields: string[]): Observable<TocRoot> {
+  updateTocWithPublicationData(
+    collectionId: number,
+    updateFields: string[]
+  ): Observable<TocRoot> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
-      return throwError(() => new Error('No project selected'));
+      return throwError(() => new Error('No project selected.'));
     }
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc-update-items/${collectionId}`;
@@ -95,12 +88,8 @@ export class TableOfContentsService {
           this._hasUnsavedChanges = true; // Mark as unsaved since we updated the data
           return normalized;
         } else {
-          throw new Error(response.message || 'Failed to update table of contents');
+          throw new Error(response.message || 'Failed to update table of contents.');
         }
-      }),
-      catchError(error => {
-        console.error('Error updating table of contents with publication data:', error);
-        return throwError(() => error);
       })
     );
   }
@@ -108,7 +97,12 @@ export class TableOfContentsService {
   /**
    * Generate a flat table of contents from publications
    */
-  generateFlatToc(collectionId: number, publications: Publication[], sortBy: string, collectionTitle?: string): TocRoot {
+  generateFlatToc(
+    collectionId: number,
+    publications: Publication[],
+    sortBy: string,
+    collectionTitle?: string
+  ): TocRoot {
     // Sort publications based on the selected criteria
     const sortedPublications = [...publications].sort((a, b) => {
       switch (sortBy) {
@@ -130,15 +124,15 @@ export class TableOfContentsService {
       type: 'text',
       text: publication.name || 'Untitled',
       itemId: `${collectionId}_${publication.id}`,
-      date: publication.original_publication_date || undefined,
-      description: undefined,
-      category: undefined,
-      facsimileOnly: false
+      ...(publication.original_publication_date
+        ? { date: publication.original_publication_date }
+        : {}
+      )
     }));
 
     return {
-      text: collectionTitle || 'Table of Contents',
-      collectionId: collectionId.toString(),
+      text: collectionTitle || 'Table of contents',
+      collectionId: String(collectionId),
       type: 'title',
       children
     };
@@ -174,14 +168,19 @@ export class TableOfContentsService {
 
   /**
    * Normalizes a ToC node from the backend to a new shape to handle
-   * legacy ToC data. Specifically, it modifies the value of the `type`
-   * property of the node:
+   * legacy ToC data.
+   * 
+   * The `type` property is modified accordingly:
    * - `type` is set to "section" if the incoming node has a non-empty
    *   `children` property;
    * - if the incoming `type` already is "section" but the `children`
    *   property is missing or empty, it is set to an empty array;
    * - in other cases, the `type` is inferred as "text"; text nodes
    *   can't have children.
+   * 
+   * The `collapsed` property is modified accordingly:
+   * - `collapsed` is set to "true" on section nodes that are missing
+   *   the property (collapsed is true by default)
    */
   private normalizeTocNode(node: TocNodeApi): TocNode {
     const incomingChildren = Array.isArray(node.children)
@@ -198,16 +197,31 @@ export class TableOfContentsService {
       ? 'section'
       : 'text';
 
-    const { type: _ignored, children: _ignoredChildren, ...rest } = node;
+    // default value for 'collapsed' is true if undefined
+    const collapsed: boolean = node.collapsed === false
+      ? false
+      : true;
+
+    const {
+      type: _ignoredType,
+      collapsed: _ignoredCollapsed,
+      children: _ignoredChildren,
+      url: _ignoredUrl, // Legacy property which is ignored
+      ...rest
+    } = node;
 
     return {
       ...rest,
       type,
-      ...(normalizedChildren
+      ...(type === 'section' // add 'collapsed' only if section node
+        ? { collapsed }
+        : {}
+      ),
+      ...(normalizedChildren // add normalized children if defined ...
         ? { children: normalizedChildren }
-        : type === 'section'
+        : type === 'section' // or empty 'children' if section node ...
           ? { children: [] }
-          : {})
+          : {}) // otherwise don't add 'children' property
     };
   }
 

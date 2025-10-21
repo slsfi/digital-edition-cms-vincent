@@ -1,22 +1,6 @@
-.auto-generate-toc-dialog {
-  .dialog-description {
-    margin-bottom: 20px;
-    color: #666;
-  }
-  
-  .generation-controls {
-    margin-bottom: 20px;
-  }
-  
-  .full-width {
-    width: 100%;
-  }
-  
-  mat-dialog-actions {
-    button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+mat-dialog-content {
+  p {
+    font-size: 1.125rem;
+    line-height: 1.5;
   }
 }

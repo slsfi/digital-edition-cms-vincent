@@ -1,12 +1,11 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormsModule } from '@angular/forms';
+
 
 export interface AutoGenerateTocDialogData {
   selectedCollectionId: number;
@@ -15,43 +14,21 @@ export interface AutoGenerateTocDialogData {
 }
 
 @Component({
-  selector: 'app-auto-generate-toc-dialog',
-  standalone: true,
+  selector: 'auto-generate-toc-dialog',
   imports: [
     CommonModule,
-    MatDialogModule,
+    FormsModule,
     MatButtonModule,
+    MatDialogModule,
     MatFormFieldModule,
-    MatSelectModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    FormsModule
+    MatSelectModule
   ],
   templateUrl: './auto-generate-toc-dialog.component.html',
   styleUrls: ['./auto-generate-toc-dialog.component.scss']
 })
 export class AutoGenerateTocDialogComponent {
-  selectedSortOption: string;
-  sortOptions: { value: string; label: string }[];
-  isGenerating = false;
+  private readonly data = inject<AutoGenerateTocDialogData>(MAT_DIALOG_DATA);
 
-  constructor(
-    public dialogRef: MatDialogRef<AutoGenerateTocDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: AutoGenerateTocDialogData
-  ) {
-    this.selectedSortOption = data.selectedSortOption;
-    this.sortOptions = data.sortOptions;
-  }
-
-  onCancel(): void {
-    this.dialogRef.close();
-  }
-
-  onGenerate(): void {
-    this.isGenerating = true;
-    // The actual generation will be handled by the parent component
-    this.dialogRef.close({
-      selectedSortOption: this.selectedSortOption
-    });
-  }
+  selectedSortOption: string = this.data.selectedSortOption;
+  sortOptions: { value: string; label: string }[] = this.data.sortOptions;
 }

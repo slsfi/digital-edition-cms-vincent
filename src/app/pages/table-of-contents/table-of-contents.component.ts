@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { map, Subject, takeUntil } from 'rxjs';
+import { map, take } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
@@ -18,7 +18,7 @@ import { ProjectService } from '../../services/project.service';
 import { TocRoot, TocNode, PublicationSortOption } from '../../models/table-of-contents';
 import { PublicationCollection, Publication, PublicationLite, toPublicationLite } from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
-import { ConfirmUpdateDialogComponent } from '../../components/confirm-update-dialog/confirm-update-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
 
 @Component({
@@ -40,8 +40,14 @@ import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-t
   templateUrl: './table-of-contents.component.html',
   styleUrls: ['./table-of-contents.component.scss']
 })
-export class TableOfContentsComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class TableOfContentsComponent implements OnInit {
+  private readonly dialog = inject(MatDialog);
+  private readonly projectService = inject(ProjectService);
+  private readonly publicationService = inject(PublicationService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly tocService = inject(TableOfContentsService);
+
+  projectName: string | null = null;
 
   // Collections
   collections: PublicationCollection[] = [];
@@ -66,56 +72,40 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   // Publications cache for selected collection
   publicationsForSelectedCollection: PublicationLite[] = [];
 
-  constructor(
-    private tocService: TableOfContentsService,
-    private publicationService: PublicationService,
-    private projectService: ProjectService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {}
-
   ngOnInit(): void {
-    this.initializeComponent();
-  }
+    // Get project name
+    this.projectName = this.projectService.getCurrentProject();
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private initializeComponent(): void {
     // Get sort options
     this.sortOptions = this.tocService.getSortOptions();
 
     // Load collections
-    this.loadCollections();
+    this.loadCollections(this.projectName);
 
     // Subscribe to current TOC changes
     this.tocService.getCurrentToc();
     this.hasUnsavedChanges = this.tocService.hasUnsavedChanges();
   }
 
-  private loadCollections(): void {
-    const projectName = this.projectService.getCurrentProject();
+  private loadCollections(projectName: string | null): void {
     if (!projectName) {
-      this.showError('No project selected. Please select a project first.');
       return;
     }
-    
-    this.publicationService.getPublicationCollections(projectName)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (collections) => {
-          this.collections = collections;
-        },
-        error: (error) => {
-          console.error('Error loading collections:', error);
-          this.showError('Failed to load collections');
-        }
-      });
+
+    this.publicationService.getPublicationCollections(projectName).pipe(
+      take(1)
+    ).subscribe({
+      next: (collections) => {
+        this.collections = collections;
+      },
+      error: (error) => {
+        console.error('Error loading collections:', error);
+        this.showError('Failed to load collections.');
+      }
+    });
   }
 
-  onCollectionSelected(collection: PublicationCollection): void {
+  setSelectedCollection(collection: PublicationCollection): void {
     this.selectedCollection = collection;
     this.selectedCollectionId = collection.id;
     this.loadPublicationsForSelectedCollection();
@@ -123,21 +113,17 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
   }
 
   private loadPublicationsForSelectedCollection(): void {
-    if (!this.selectedCollectionId) {
+    if (!this.projectName || !this.selectedCollectionId) {
       this.publicationsForSelectedCollection = [];
       return;
     }
-    const projectName = this.projectService.getCurrentProject();
-    if (!projectName) {
-      this.publicationsForSelectedCollection = [];
-      return;
-    }
+
     this.publicationService.getPublications(
-      this.selectedCollectionId.toString(), projectName, true, 'name'
+      String(this.selectedCollectionId), this.projectName, true, 'name'
     ).pipe(
       // convert Publication[] -> PublicationLite[]
       map((list: Publication[]) => list.map(toPublicationLite)),
-      takeUntil(this.destroy$)
+      take(1)
     ).subscribe({
       next: (publications: PublicationLite[]) => {
         this.publicationsForSelectedCollection = publications;
@@ -154,22 +140,22 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    this.tocService.loadToc(this.selectedCollectionId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (toc) => {
-          this.currentToc = toc;
-          this.hasUnsavedChanges = false;
-          this.isLoading = false;
-          
-        },
-        error: (error) => {
-          this.showError('Failed to load table of contents');
-          this.currentToc = null; // Clear previous TOC
-          this.hasUnsavedChanges = false; // Reset unsaved changes
-          this.isLoading = false;
-        }
-      });
+    this.tocService.loadToc(this.selectedCollectionId).pipe(
+      take(1)
+    ).subscribe({
+      next: (toc) => {
+        this.currentToc = toc;
+        this.hasUnsavedChanges = false;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading table of contents:', error);
+        this.showError('Failed to load table of contents.');
+        this.currentToc = null; // Clear previous TOC
+        this.hasUnsavedChanges = false; // Reset unsaved changes
+        this.isLoading = false;
+      }
+    });
   }
 
   saveTableOfContents(): void {
@@ -177,31 +163,37 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Clean the TOC data before saving (remove id and isExpanded fields)
+    // Clean the TOC data before saving
     const cleanedToc = this.cleanTocForSaving(this.currentToc);
 
     this.isSaving = true;
-    this.tocService.saveToc(this.selectedCollectionId, cleanedToc)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (success) => {
-          if (success) {
-            this.hasUnsavedChanges = false;
-            this.showSuccess('Table of contents saved successfully');
-          }
-          this.isSaving = false;
-        },
-        error: (error) => {
-          console.error('Error saving table of contents:', error);
-          this.showError('Failed to save table of contents');
-          this.isSaving = false;
+    this.tocService.saveToc(this.selectedCollectionId, cleanedToc).pipe(
+      take(1)
+    ).subscribe({
+      next: (success) => {
+        if (success) {
+          this.hasUnsavedChanges = false;
+          this.showSuccess('Table of contents saved successfully.');
         }
-      });
+        this.isSaving = false;
+      },
+      error: (error) => {
+        console.error('Error saving table of contents:', error);
+        this.showError('Failed to save table of contents.');
+        this.isSaving = false;
+      }
+    });
   }
 
   private cleanTocForSaving(toc: TocRoot): TocRoot {
-    const cleanedToc = JSON.parse(JSON.stringify(toc)); // Deep copy
-    this.removeDragDropFields(cleanedToc);
+    const cleanedToc: TocRoot = JSON.parse(JSON.stringify(toc)); // Deep copy
+
+    if (cleanedToc.children) {
+      cleanedToc.children.forEach(
+        (child: TocNode) => this.normalizeNodeForSaving(child)
+      );
+    }
+
     return cleanedToc;
   }
 
@@ -209,59 +201,62 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
    * Recursively remove UI-only fields and clean up unnecessary properties
    * from TOC nodes.
    * This method ensures that only relevant data is sent to the backend by:
-   * - Removing UI-only fields (id, isExpanded)
-   * - Removing type-inappropriate properties (e.g., facsimileOnly from
+   * - Removing UI-only fields (id, isExpanded, path)
+   * - Removing type-exclusive properties (e.g., facsimileOnly from
    *   section nodes)
    * - Removing empty/null optional properties to reduce JSON size
    * 
-   * @param node - The TOC node or root to clean
+   * @param node - The TOC node to clean
    */
-  private removeDragDropFields(node: TocRoot | TocNode): void {
+  private normalizeNodeForSaving(node: TocNode): void {
     // Remove UI-only fields
-    delete (node as TocNode).id;
-    delete (node as TocNode).isExpanded;
-    
+    delete node.id;
+    delete node.isExpanded;
+    delete node.path;
+
     // Remove unnecessary properties based on node type
   
     if (node.type === 'section') {
       // Remove text-node specific properties from section nodes
-      delete (node as TocNode).description;
-      delete (node as TocNode).date;
-      delete (node as TocNode).category;
-      delete (node as TocNode).facsimileOnly;
-      // Note: itemId is kept for section nodes
-      
-      // Only include collapsed if it's true (default is false)
-      if (!(node as TocNode).collapsed) {
-        delete (node as TocNode).collapsed;
+      delete node.description;
+      delete node.date;
+      delete node.category;
+      delete node.facsimileOnly;
+
+      // Only include itemId if it's not nullish and not empty string
+      if ((node.itemId ?? '') === '') {
+        delete node.itemId;
+      }
+
+      // Only include collapsed if it's false (default is true)
+      if (node.collapsed) {
+        delete node.collapsed;
       }
     } else if (node.type === 'text') {
       // Remove section-specific properties from text nodes
-      delete (node as TocNode).collapsed;
+      delete node.collapsed;
       
+      // Remove falsy optional properties
+      if (!node.description) {
+        delete node.description;
+      }
+      if (!node.date) {
+        delete node.date;
+      }
+      if (!node.category) {
+        delete node.category;
+      }
       // Only include facsimileOnly if it's true (default is false)
-      if (!(node as TocNode).facsimileOnly) {
-        delete (node as TocNode).facsimileOnly;
-      }
-      
-      // Remove empty optional properties
-      if (!(node as TocNode).description) {
-        delete (node as TocNode).description;
-      }
-      if (!(node as TocNode).date) {
-        delete (node as TocNode).date;
-      }
-      if (!(node as TocNode).category) {
-        delete (node as TocNode).category;
-      }
-      if (!(node as TocNode).itemId) {
-        delete (node as TocNode).itemId;
+      if (!node.facsimileOnly) {
+        delete node.facsimileOnly;
       }
     }
-    
+
     // Recursively clean children
     if (node.children) {
-      node.children.forEach((child: TocNode) => this.removeDragDropFields(child));
+      node.children.forEach(
+        (child: TocNode) => this.normalizeNodeForSaving(child)
+      );
     }
   }
 
@@ -271,7 +266,6 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
     }
 
     const dialogRef = this.dialog.open(AutoGenerateTocDialogComponent, {
-      width: '500px',
       data: {
         selectedCollectionId: this.selectedCollectionId,
         selectedSortOption: this.selectedSortOption,
@@ -280,20 +274,14 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+      if (result?.value && result.selectedSortOption) {
         this.generateFlatToc(result.selectedSortOption);
       }
     });
   }
 
-  generateFlatToc(sortOption?: string): void {
-    if (!this.selectedCollectionId) {
-      return;
-    }
-
-    const projectName = this.projectService.getCurrentProject();
-    if (!projectName) {
-      this.showError('No project selected. Please select a project first.');
+  private generateFlatToc(sortOption?: string): void {
+    if (!this.projectName || !this.selectedCollectionId) {
       return;
     }
 
@@ -302,91 +290,93 @@ export class TableOfContentsComponent implements OnInit, OnDestroy {
     // Use provided sort option or default
     const sortBy = sortOption || this.selectedSortOption;
     
-    // Load publications for the selected collection
-    this.publicationService.getPublications(this.selectedCollectionId.toString(), projectName)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (publications) => {
-          this.currentToc = this.tocService.generateFlatToc(
-            this.selectedCollectionId!,
-            publications,
-            sortBy,
-            this.selectedCollection?.name
-          );
-          this.hasUnsavedChanges = true;
-          this.isGeneratingFlatToc = false;
-          this.showSuccess('Flat table of contents generated');
-        },
-        error: (error) => {
-          console.error('Error loading publications:', error);
-          this.showError('Failed to load publications for auto-generation');
-          this.isGeneratingFlatToc = false;
-        }
-      });
+    // Load publications for the selected collection and generate
+    this.publicationService.getPublications(
+      String(this.selectedCollectionId), this.projectName, true, sortBy
+    ).pipe(
+      take(1)
+    ).subscribe({
+      next: (publications) => {
+        this.currentToc = this.tocService.generateFlatToc(
+          this.selectedCollectionId!,
+          publications,
+          sortBy,
+          this.selectedCollection?.name
+        );
+        this.hasUnsavedChanges = true;
+        this.isGeneratingFlatToc = false;
+        this.showSuccess('Flat table of contents generated.');
+      },
+      error: (error) => {
+        console.error('Error loading publications:', error);
+        this.showError('Failed to load publications for table of contents generation.');
+        this.isGeneratingFlatToc = false;
+      }
+    });
   }
 
-  updateFromDatabase(): void {
+  openUpdateNodeFieldsDialog(): void {
     if (!this.selectedCollectionId || this.hasUnsavedChanges) {
-      this.showError('Please save your changes before updating from database');
+      this.showError('Please save your changes before updating node fields with publication data from the database.');
       return;
     }
 
     // Show confirmation dialog
-    const dialogRef = this.dialog.open(ConfirmUpdateDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Update from Database',
-        message: 'This will replace the current table of contents data with fresh publication data from the database. Continue?',
+        title: 'Update node fields with publication data',
+        message: `This will replace the ${new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(this.updateFields)} fields of all nodes in the table of contents, which are linked to publications, with fresh publication data from the database. This action will not automatically save the updated table of contents. Continue?`,
         confirmText: 'Update',
         cancelText: 'Cancel'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.performDatabaseUpdate();
+      if (result?.value) {
+        this.updateFromDatabase();
       }
     });
   }
 
-  private performDatabaseUpdate(): void {
+  private updateFromDatabase(): void {
     if (!this.selectedCollectionId) {
       return;
     }
 
     this.isUpdatingFromDb = true;
-    this.tocService.updateTocWithPublicationData(this.selectedCollectionId, this.updateFields)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (updatedToc) => {
-          this.currentToc = updatedToc;
-          this.hasUnsavedChanges = true;
-          this.isUpdatingFromDb = false;
-          this.showSuccess('Table of contents updated with fresh publication data');
-        },
-        error: (error) => {
-          console.error('Error updating from database:', error);
-          this.showError('Failed to update table of contents from database');
-          this.isUpdatingFromDb = false;
-        }
-      });
+    this.tocService.updateTocWithPublicationData(
+      this.selectedCollectionId, this.updateFields
+    ).pipe(
+      take(1)
+    ).subscribe({
+      next: (updatedToc) => {
+        this.currentToc = updatedToc;
+        this.hasUnsavedChanges = true;
+        this.isUpdatingFromDb = false;
+        this.showSuccess('Table of contents updated with fresh publication metadata.');
+      },
+      error: (error) => {
+        console.error('Error updating from database:', error);
+        this.showError('Failed to update publication metadata from database.');
+        this.isUpdatingFromDb = false;
+      }
+    });
   }
 
-  onTocChanged(): void {
+  markTocAsChanged(): void {
     this.hasUnsavedChanges = true;
     this.tocService.markAsChanged();
-    
   }
 
   private showSuccess(message: string): void {
     this.snackBar.open(message, 'Close', {
-      duration: 3000,
       panelClass: ['snackbar-success']
     });
   }
 
   private showError(message: string): void {
     this.snackBar.open(message, 'Close', {
-      duration: 5000,
+      duration: undefined,
       panelClass: ['snackbar-error']
     });
   }

@@ -15,20 +15,26 @@ export interface ConfirmDialogData {
   message: string;
   cancelText: string;
   confirmText: string;
+  title?: string;
   showCascadeBoolean?: boolean;
   cascadeText?: string;
-  // New fields for metadata selection
   showMetadataFields?: boolean;
   metadataFields?: MetadataFieldOption[];
 }
 
 @Component({
   selector: 'app-comfirm-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatSlideToggleModule, FormsModule],
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSlideToggleModule
+  ],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss'
 })
 export class ConfirmDialogComponent {
+  title = ''; 
   message = '';
   cancelText = 'Cancel';
   confirmText = 'Confirm';
@@ -37,12 +43,12 @@ export class ConfirmDialogComponent {
   showMetadataFields = false;
   metadataFields: MetadataFieldOption[] = [];
   selectedFields: { [key: string]: boolean } = {};
-
   cascadeBoolean = false;
 
   readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
   constructor() {
+    this.title = this.data.title ?? '';
     this.message = this.data.message;
     this.cancelText = this.data.cancelText;
     this.confirmText = this.data.confirmText;

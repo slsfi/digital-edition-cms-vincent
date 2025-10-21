@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Confirm action</h2>
+<h2 mat-dialog-title>@if (title) { {{title}} } @else { Confirm action }</h2>
 <mat-dialog-content>
   <p>{{ message }}</p>
   
@@ -20,8 +20,8 @@
   }
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="{value: false}">{{ cancelText }}</button>
-  <button mat-flat-button 
+  <button matButton [mat-dialog-close]="{value: false}">{{ cancelText }}</button>
+  <button matButton="filled" 
     [mat-dialog-close]="{value: true, cascadeBoolean, selectedFields}" 
     cdkFocusInitial>{{ confirmText }}</button>
 </mat-dialog-actions>

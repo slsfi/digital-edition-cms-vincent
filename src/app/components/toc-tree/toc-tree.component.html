@@ -1,3 +1,85 @@
+<div class="toc-tree">
+  <!-- ToC root properties -->
+  <div class="toc-root">
+    <div class="root-properties">
+      <div class="toc-title">{{ toc.text }}</div>
+      @if (toc.coverPageName || toc.titlePageName || toc.forewordPageName || toc.introductionPageName) {
+        <div class="frontmatter-page-name-wrapper">
+          @if (toc.coverPageName) {
+            <div class="frontmatter-page-name">
+              <span class="root-label">Cover page name: </span><span class="fm-name">{{ toc.coverPageName }}</span>
+            </div>
+          }
+          @if (toc.titlePageName) {
+            <div class="frontmatter-page-name">
+              <span class="root-label">Title page name: </span><span class="fm-name">{{ toc.titlePageName }}</span>
+            </div>
+          }
+          @if (toc.forewordPageName) {
+            <div class="frontmatter-page-name">
+              <span class="root-label">Foreword page name: </span><span class="fm-name">{{ toc.forewordPageName }}</span>
+            </div>
+          }
+          @if (toc.introductionPageName) {
+            <div class="frontmatter-page-name">
+              <span class="root-label">Introduction page name: </span><span class="fm-name">{{ toc.introductionPageName }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    <div class="root-actions">
+      <button mat-icon-button 
+              (click)="editTocRootProperties()"
+              matTooltip="Edit base properties"
+              [attr.aria-label]="'Edit base properties'"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button 
+              (click)="collapseAll()"
+              matTooltip="Collapse all nodes"
+              [attr.aria-label]="'Collapse all nodes'"
+      >
+        <mat-icon>collapse_all</mat-icon>
+      </button>
+      <button mat-icon-button 
+              (click)="expandAll()"
+              matTooltip="Expand all nodes"
+              [attr.aria-label]="'Expand all nodes'"
+      >
+        <mat-icon>expand_all</mat-icon>
+      </button>
+    </div>
+  </div>
+  
+  <div cdkDropList 
+       [cdkDropListData]="toc.children"
+       [id]="'main'" 
+       [cdkDropListConnectedTo]="getAllDropListIds()"
+       (cdkDropListDropped)="drop($event)"
+       [cdkDropListSortingDisabled]="true"
+  >
+    @for (node of toc.children; track node.id) {
+      <div cdkDrag 
+           [cdkDragData]="node.id"      
+           (cdkDragMoved)="dragMoved($event)"
+      >
+        <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
+      </div>
+    }
+  </div>
+
+  <!-- Add root level node button -->
+  <div class="add-root-button-wrapper">
+    <button matButton="outlined" (click)="addChildNode()">
+      <mat-icon>add</mat-icon>
+      Add node
+    </button>
+  </div>
+</div>
+
+<!-- Template for each node -->
 <ng-template #tmplNode let-node="node">
   <div class="node-item" [attr.id]="node.id">
     <div class="node-header">
@@ -102,12 +184,12 @@
           @if (node.type === 'section') {
             <button mat-menu-item (click)="addChildNode(node)">
               <mat-icon>add</mat-icon>
-              <span>Add Child</span>
+              <span>Add child</span>
             </button>
           }
           <button mat-menu-item (click)="addSiblingNode(node)">
             <mat-icon>add</mat-icon>
-            <span>Add Sibling</span>
+            <span>Add sibling</span>
           </button>
           <button mat-menu-item (click)="deleteNode(node)" class="delete-action">
             <mat-icon>delete</mat-icon>
@@ -138,64 +220,3 @@
     }
   </div>
 </ng-template>
-
-<div class="toc-tree">
-  <!-- Root Title Section -->
-  <div class="root-title-section">
-    <div class="root-title-content">
-      <h2 class="root-title">{{ toc.text }}</h2>
-      <div class="root-actions">
-        <button mat-icon-button 
-                (click)="collapseAll()"
-                matTooltip="Collapse all nodes"
-                [attr.aria-label]="'Collapse all nodes'"
-        >
-          <mat-icon>collapse_all</mat-icon>
-        </button>
-        <button mat-icon-button 
-                (click)="expandAll()"
-                matTooltip="Expand all nodes"
-                [attr.aria-label]="'Expand all nodes'"
-        >
-          <mat-icon>expand_all</mat-icon>
-        </button>
-        <button mat-icon-button 
-                (click)="editTocTitle()"
-                matTooltip="Edit table of contents title"
-                [attr.aria-label]="'Edit table of contents title'"
-        >
-          <mat-icon>edit</mat-icon>
-        </button>
-      </div>
-    </div>
-  </div>
-  
-  <div cdkDropList 
-       [cdkDropListData]="toc.children"
-       [id]="'main'" 
-       [cdkDropListConnectedTo]="getAllDropListIds()"
-       (cdkDropListDropped)="drop($event)"
-       [cdkDropListSortingDisabled]="true"
-  >
-    @for (node of toc.children; track node.id) {
-      <div cdkDrag 
-           [cdkDragData]="node.id"      
-           (cdkDragMoved)="dragMoved($event)"
-      >
-        <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
-      </div>
-    }
-  </div>
-
-  <!-- Add root level node button -->
-  <div class="add-root-button">
-    <button mat-raised-button 
-            color="primary" 
-            (click)="addChildNode()"
-            class="add-root-btn"
-    >
-      <mat-icon>add</mat-icon>
-      Add Root Node
-    </button>
-  </div>
-</div>
