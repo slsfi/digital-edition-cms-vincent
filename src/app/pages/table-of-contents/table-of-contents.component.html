@@ -41,14 +41,29 @@
       </div>
 
       <div class="right-aligned">
-        @if (hasUnsavedChanges) {
+        @if (isLoading || isSaving || isUpdatingFromDb || isGeneratingFlatToc) {
+          <div class="status-item progress-activity">
+            <mat-icon class="spin">progress_activity</mat-icon>
+            <span>
+              @if (isLoading) {
+                Loading…
+              } @else if (isSaving) {
+                Saving…
+              } @else if (isUpdatingFromDb) {
+                Updating…
+              } @else if (isGeneratingFlatToc) {
+                Generating…
+              }
+            </span>
+          </div>
+        } @else if (hasUnsavedChanges) {
           <div class="status-item unsaved-changes">
-            <mat-icon color="warn">warning</mat-icon>
+            <mat-icon>warning</mat-icon>
             <span>Unsaved changes</span>
           </div>
         } @else if (currentToc) {
           <div class="status-item all-saved">
-            <mat-icon color="primary">check_circle</mat-icon>
+            <mat-icon>check_circle</mat-icon>
             <span>All changes saved</span>
           </div>
         }
@@ -65,7 +80,7 @@
   @if (isLoading) {
     <div class="loading-container">
       <mat-spinner></mat-spinner>
-      <p>Loading table of contents...</p>
+      <p>Loading table of contents…</p>
     </div>
   }
 

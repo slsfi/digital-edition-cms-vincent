@@ -35,26 +35,49 @@ h2 {
 .status-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 12px;
+  border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #f0f0f0;
+  min-width: 9em;
   
   // Color coding for different statuses
   &.unsaved-changes {
     background-color: #fff3cd; // Orange background for unsaved changes
-    border: 1px solid #ffeaa7;
+    border-color: #ffeaa7;
   }
   
   &.all-saved {
     background-color: #d4edda; // Green background for all saved
-    border: 1px solid #c3e6cb;
+    border-color: #c3e6cb;
+  }
+
+  &.progress-activity {
+    background-color: #fce3e3; // Red background for work in progress
+    border-color: #f3a6a6;
   }
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
+
+    &.spin {
+      display: inline-block;
+      animation: mat-rotate 1s linear infinite;
+      transform-origin: center;
+
+      @keyframes mat-rotate {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    mat-icon.spin { animation: none; }
   }
 
   span {
