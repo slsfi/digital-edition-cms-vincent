@@ -236,7 +236,6 @@
 }
 
 .cdk-drag-preview {
-  box-sizing: border-box;
   /*
   box-sizing: border-box;
   border-radius: 4px;
@@ -247,20 +246,20 @@
   padding: 8px;
   border: 1px solid #e0e0e0;
   */
-  /*
+
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
               0 8px 10px 1px rgba(0, 0, 0, 0.14),
               0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  background-color: #fff;
+  background-color: transparent;
   border-radius: 4px;
-  height:fit-content;
+
   .node-item {
     margin: 0;
   }
-  */
+
   // Hide possible children of the node in the drag preview,
   // but otherwise, don't change the styling of the preview
-  .node-children { display: none; }
+  // .node-children { display: none; }
 }
 
 /* When suppressing, remove the preview immediately and skip transitions */
