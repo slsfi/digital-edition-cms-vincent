@@ -53,6 +53,7 @@ export class TocTreeComponent implements OnChanges {
   currentDropAction: DropInfo | null = null;
   private cachedDropListIds: string[] = [];
   private dropListIdsCacheValid = false;
+  suppressDropAnim = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     // only prepare drag-drop if toc in changes -> avoids
@@ -289,7 +290,21 @@ export class TocTreeComponent implements OnChanges {
     }
 
     this.clearDragInfo(true);
-    this.runNodeChangedActions();
+    // Small defer so we rebuild after CDK finishes its own microtasks
+    setTimeout(() => {
+      this.runNodeChangedActions();
+      // (No need to flip suppressDropAnim here; onDragEnded will clear it)
+    }, 0);
+  }
+
+  dragReleasedActions(): void {
+    // Fires as soon as the pointer is released (before CDK drop animation starts)
+    this.suppressDropAnim = true;
+  }
+
+  dragEndedActions() {
+    // Always clear once CDK is fully done
+    this.suppressDropAnim = false;
   }
 
   private getParentNodeId(id: string, nodesToSearch: TocNode[], parentId: string): string {

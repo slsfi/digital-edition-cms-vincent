@@ -1,4 +1,4 @@
-<div class="toc-tree">
+<div class="toc-tree" [class.suppress-drop-anim]="suppressDropAnim">
   <!-- ToC root properties -->
   <div class="toc-root">
     <div class="root-properties">
@@ -61,9 +61,12 @@
        [cdkDropListSortingDisabled]="true"
   >
     @for (node of toc.children; track node.id) {
-      <div cdkDrag 
-           [cdkDragData]="node.id"      
+      <div cdkDrag
+           [cdkDragPreviewContainer]="'parent'"
+           [cdkDragData]="node.id"
            (cdkDragMoved)="dragMoved($event)"
+           (cdkDragReleased)="dragReleasedActions()"
+           (cdkDragEnded)="dragEndedActions()"
       >
         <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
       </div>
@@ -209,9 +212,12 @@
            [cdkDropListSortingDisabled]="true"
       >
         @for (child of node.children; track child.id) {
-          <div cdkDrag 
-               [cdkDragData]="child.id" 
+          <div cdkDrag
+               [cdkDragPreviewContainer]="'parent'"
+               [cdkDragData]="child.id"
                (cdkDragMoved)="dragMoved($event)"
+               (cdkDragReleased)="dragReleasedActions()"
+               (cdkDragEnded)="dragEndedActions()"
           >
             <ng-container *ngTemplateOutlet="tmplNode; context: {node: child}"/>  
           </div>
