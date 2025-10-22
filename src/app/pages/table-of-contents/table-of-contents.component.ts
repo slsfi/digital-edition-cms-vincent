@@ -1,15 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { map, take } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
@@ -26,15 +26,15 @@ import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-t
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
     MatButtonModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    MatCardModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatSnackBarModule,
     TocTreeComponent
   ],
   templateUrl: './table-of-contents.component.html',
