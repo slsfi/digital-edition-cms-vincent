@@ -22,7 +22,7 @@
     <div class="actions-wrapper">
       <div class="left-aligned">
         <button matButton="filled"
-              (click)="loadTableOfContents()"
+              (click)="openReloadTableOfContentsDialog()"
               [disabled]="isLoading || isUpdatingFromDb || isSaving || isGeneratingFlatToc || (!currentToc && !isLoading)"
         >
           <mat-icon>refresh</mat-icon>
