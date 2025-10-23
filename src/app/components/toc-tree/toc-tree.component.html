@@ -54,19 +54,19 @@
   </div>
   
   <div cdkDropList 
-       [cdkDropListData]="toc.children"
-       [id]="'main'" 
+       [id]="'main'"
        [cdkDropListConnectedTo]="getAllDropListIds()"
-       (cdkDropListDropped)="drop($event)"
+       [cdkDropListData]="toc.children"
        [cdkDropListSortingDisabled]="true"
+       (cdkDropListDropped)="drop($event)"
   >
     @for (node of toc.children; track node.id) {
       <div cdkDrag
-           [cdkDragPreviewContainer]="'parent'"
            [cdkDragData]="node.id"
+           [cdkDragPreviewContainer]="'parent'"
+           (cdkDragEnded)="dragEndedActions()"
            (cdkDragMoved)="dragMoved($event)"
            (cdkDragReleased)="dragReleasedActions()"
-           (cdkDragEnded)="dragEndedActions()"
       >
         <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
       </div>
@@ -204,20 +204,20 @@
 
     @if (node.isExpanded && node.children && node.children.length) {
       <div class="node-children"
-           cdkDropList 
-           [cdkDropListData]="node.children"
-           [id]="node.id" 
+           cdkDropList
+           [id]="node.id"
            [cdkDropListConnectedTo]="getAllDropListIds()"
+           [cdkDropListData]="node.children"
            (cdkDropListDropped)="drop($event)"
            [cdkDropListSortingDisabled]="true"
       >
         @for (child of node.children; track child.id) {
           <div cdkDrag
-               [cdkDragPreviewContainer]="'parent'"
                [cdkDragData]="child.id"
+               [cdkDragPreviewContainer]="'parent'"
+               (cdkDragEnded)="dragEndedActions()"
                (cdkDragMoved)="dragMoved($event)"
                (cdkDragReleased)="dragReleasedActions()"
-               (cdkDragEnded)="dragEndedActions()"
           >
             <ng-container *ngTemplateOutlet="tmplNode; context: {node: child}"/>  
           </div>
