@@ -63,9 +63,14 @@ export class PublicationService {
     );
   }
 
-  getPublications(collectionId: string, projectName: string | null | undefined, disableErrorMessage = false) {
+  getPublications(
+    collectionId: string,
+    projectName: string | null | undefined,
+    disableErrorMessage = false,
+    orderBy = 'id'
+  ) {
     const project = this.validateProject(projectName);
-    const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/`;
+    const url = `${this.apiService.prefixedUrl}/${project}/publication_collection/${collectionId}/publications/${orderBy}/`;
     return this.apiService.get<PublicationsResponse>(url, {}, disableErrorMessage).pipe(
       map(response => response.data)
     );

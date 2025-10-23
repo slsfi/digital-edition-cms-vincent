@@ -12,8 +12,7 @@ import { Pipe, PipeTransform } from '@angular/core';
  */
 
 @Pipe({
-  name: 'rangeArray',
-  standalone: true
+  name: 'rangeArray'
 })
 export class RangeArrayPipe implements PipeTransform {
 

@@ -4,58 +4,55 @@
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: #fafafa;
-  color: #333 !important; // Force black text
-
-
 }
 
-.root-title-section {
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  
-  .root-title-content {
+.toc-root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin: 0 3px 1em 3px;
+  padding: 6px 0 0.75em 0;
+  border-bottom: 1px solid #e0e0e0;
+
+  .toc-title {
+    font-size: 1.2em;
+    font-weight: 500;
+  }
+
+  .frontmatter-page-name-wrapper {
+    margin-top: 0.5em;
+    padding-bottom: 0.375em;
+    display: table;
+  }
+
+  .frontmatter-page-name {
+    display: table-row;
+  }
+
+  .root-label,
+  .fm-name {
+    display: table-cell;
+    padding: 0.1875em 0;
+  }
+
+  .root-label {
+    padding-right: 1em;
+  }
+
+  .root-actions {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    
-    .root-title {
-      margin: 0;
-      flex: 1;
-      font-size: 1.2em;
-      font-weight: 500;
-    }
-    
-    .root-actions {
-      display: flex;
-      gap: 4px;
-    }
+    gap: 4px;
   }
 }
 
-.root-nodes {
-  min-height: 100px;
-}
-
-
-
-.add-root-button {
+.add-root-button-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  margin: 16px 0 12px 0;
 }
 
-.add-root-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-// Node item styling
 .node-item {
   margin: 4px 0;
   padding: 8px;
@@ -67,11 +64,6 @@
   &:hover {
     background-color: #f5f5f5;
   }
-}
-
-.node-content {
-  display: flex;
-  flex-direction: column;
 }
 
 .node-header {
@@ -94,11 +86,16 @@
   height: 32px;
   outline: none;
 
-  &:hover {
+  &:disabled {
+    color: #a6a6a8;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
     background-color: rgba(0, 0, 0, 0.04);
   }
 
-  &:focus {
+  &:focus:not(:disabled) {
     background-color: rgba(0, 0, 0, 0.04);
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
   }
@@ -122,7 +119,6 @@
 
 .node-text {
   font-weight: 500;
-  margin-bottom: 4px;
 }
 
 .node-meta {
@@ -131,7 +127,7 @@
 
 .node-description {
   font-size: 0.85em;
-  color: #666;
+  color: #353535;
   margin-bottom: 6px;
   line-height: 1.3;
   font-style: italic;
@@ -148,7 +144,7 @@
   align-items: center;
   gap: 4px;
   font-size: 0.75em;
-  color: #333;
+  color: #222222;
   background-color: rgba(0, 0, 0, 0.05);
   padding: 2px 6px;
   border-radius: 12px;
@@ -180,23 +176,23 @@
 .node-actions {
   display: flex;
   align-items: center;
+  /*
   opacity: 0;
   transition: opacity 0.2s ease;
 
   .node-item:hover & {
     opacity: 1;
   }
+  */
 }
 
-
-.delete-action {
-  color: #f44336;
+.delete-action,
+.delete-action mat-icon {
+  color: #c90d00;
 }
 
 .node-children {
   margin-left: 20px;
-  margin-top: 8px;
-  border-left: 2px solid #e0e0e0;
   padding-left: 12px;
 }
 
@@ -224,15 +220,8 @@
 
 // CDK Drop List styling
 .cdk-drop-list {
-  min-height: 50px;
   border: 2px dashed transparent;
-  border-radius: 4px;
-  transition: border-color 0.2s ease;
-
-  &.cdk-drop-list-receiving {
-    border-color: #2196f3;
-    background-color: rgba(33, 150, 243, 0.05);
-  }
+  position: relative;
 }
 
 // CDK Drag styling
@@ -245,49 +234,26 @@
 }
 
 .cdk-drag-preview {
-  box-sizing: border-box;
+  background-color: transparent;
   border-radius: 4px;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
               0 8px 10px 1px rgba(0, 0, 0, 0.14),
               0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  background-color: #fff;
-  padding: 8px;
-  border: 1px solid #e0e0e0;
+
+  .node-item {
+    margin: 0;
+  }
 }
 
+/* When suppressing, remove the preview immediately and skip transitions */
+.suppress-drop-anim .cdk-drag-preview {
+  display: none !important;        /* hide the flying preview */
+}
+.suppress-drop-anim .cdk-drag-animating {
+  transition: none !important;     /* prevent any snap-back tween on source */
+}
+
+/* Hide CDK placeholder everywhere (we’ll use our own green/orange clues) */
 .cdk-drag-placeholder {
-  opacity: 0.4;
-  background-color: #f0f0f0;
-  border: 2px dashed #ccc;
-  border-radius: 4px;
-  margin: 4px 0;
+  display: none !important;
 }
-
-// Responsive design
-@media (max-width: 768px) {
-  .toc-tree {
-    padding: 12px;
-  }
-
-  .node-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .drag-handle {
-    align-self: flex-start;
-    margin-right: 0;
-    margin-bottom: 4px;
-  }
-
-  .add-button-container {
-    margin-left: 0;
-    justify-content: center;
-  }
-
-  .add-button {
-    opacity: 1; // Always show on mobile
-  }
-}
-

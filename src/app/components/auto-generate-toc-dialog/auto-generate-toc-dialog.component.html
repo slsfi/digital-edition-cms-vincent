@@ -1,34 +1,26 @@
-<div class="auto-generate-toc-dialog">
-  <h2 mat-dialog-title>Auto-generate Flat TOC</h2>
-  
-  <mat-dialog-content>
-    <p class="dialog-description">
-      Create a flat table of contents from all publications in the collection.
-    </p>
-    
-    <div class="generation-controls">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Sort by</mat-label>
-        <mat-select [(ngModel)]="selectedSortOption">
-          @for (option of sortOptions; track option.value) {
-            <mat-option [value]="option.value">
-              {{ option.label }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </mat-dialog-content>
-  
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()" [disabled]="isGenerating">Cancel</button>
-    <button mat-raised-button 
-            color="primary" 
-            (click)="onGenerate()" 
-            [disabled]="isGenerating">
-      @if (!isGenerating) { <mat-icon>auto_awesome</mat-icon> }
-      @if (isGenerating) { <mat-spinner diameter="20"></mat-spinner> }
-      @if (!isGenerating) { <span>Generate Flat TOC</span> } @else { <span>Generating...</span> }
-    </button>
-  </mat-dialog-actions>
-</div>
+<h2 mat-dialog-title>Generate table of contents from publications</h2>
+
+<mat-dialog-content>
+  <p class="dialog-description">
+    Create a flat table of contents from all publications in the collection.
+  </p>
+  <mat-form-field class="select-sort-order">
+    <mat-label>Sort by publication</mat-label>
+    <mat-select [(ngModel)]="selectedSortOption">
+      @for (option of sortOptions; track option.value) {
+        <mat-option [value]="option.value">
+          {{ option.label }}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button matButton [mat-dialog-close]="{value: false}">Cancel</button>
+  <button matButton="filled"
+        [mat-dialog-close]="{value: true, selectedSortOption}"
+  >
+    Generate
+  </button>
+</mat-dialog-actions>

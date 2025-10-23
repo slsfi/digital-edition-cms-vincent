@@ -1,0 +1,15 @@
+mat-dialog-content {
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0 0 0.5em 0;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  p + mat-form-field {
+    margin-top: 1em;
+  }
+}

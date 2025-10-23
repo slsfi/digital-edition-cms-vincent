@@ -1,8 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'idRoute',
-  standalone: true
+  name: 'idRoute'
 })
 export class IdRoutePipe implements PipeTransform {
 

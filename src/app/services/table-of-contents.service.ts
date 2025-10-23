@@ -1,24 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable, throwError } from 'rxjs';
+
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { PublicationService } from './publication.service';
-import { TocRoot, TocNode, TocUpdateRequest, TocResponse, PublicationSortOption, PUBLICATION_SORT_OPTIONS } from '../models/table-of-contents';
+import { TocRoot, TocNode, TocRootApi, TocNodeApi, TocNodeType, TocUpdateRequest, TocResponse, PublicationSortOption, PUBLICATION_SORT_OPTIONS } from '../models/table-of-contents';
 import { Publication } from '../models/publication';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TableOfContentsService {
+  private readonly apiService = inject(ApiService);
+  private readonly projectService = inject(ProjectService);
+
   private currentToc: TocRoot | null = null;
   private _hasUnsavedChanges = false;
-
-  constructor(
-    private apiService: ApiService,
-    private projectService: ProjectService,
-    private publicationService: PublicationService
-  ) {}
 
   /**
    * Load table of contents for a collection
@@ -26,24 +22,21 @@ export class TableOfContentsService {
   loadToc(collectionId: number): Observable<TocRoot> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
-      return throwError(() => new Error('No project selected'));
+      return throwError(() => new Error('No project selected.'));
     }
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
     
-    return this.apiService.get<TocResponse>(url).pipe(
+    return this.apiService.get<TocResponse>(url, {}, true).pipe(
       map(response => {
         if (response.success && response.data) {
-          this.currentToc = response.data;
+          const normalized = this.normalizeTocRoot(response.data);
+          this.currentToc = normalized;
           this._hasUnsavedChanges = false;
-          return response.data;
+          return normalized;
         } else {
-          throw new Error(response.message || 'Failed to load table of contents');
+          throw new Error(response.message || 'Failed to load table of contents.');
         }
-      }),
-      catchError(error => {
-        console.error('Error loading table of contents:', error);
-        return throwError(() => error);
       })
     );
   }
@@ -54,7 +47,7 @@ export class TableOfContentsService {
   saveToc(collectionId: number, toc: TocRoot): Observable<boolean> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
-      return throwError(() => new Error('No project selected'));
+      return throwError(() => new Error('No project selected.'));
     }
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
@@ -66,12 +59,8 @@ export class TableOfContentsService {
           this._hasUnsavedChanges = false;
           return true;
         } else {
-          throw new Error(response.message || 'Failed to save table of contents');
+          throw new Error(response.message || 'Failed to save table of contents.');
         }
-      }),
-      catchError(error => {
-        console.error('Error saving table of contents:', error);
-        return throwError(() => error);
       })
     );
   }
@@ -79,10 +68,13 @@ export class TableOfContentsService {
   /**
    * Update table of contents with fresh publication data from database
    */
-  updateTocWithPublicationData(collectionId: number, updateFields: string[]): Observable<TocRoot> {
+  updateTocWithPublicationData(
+    collectionId: number,
+    updateFields: string[]
+  ): Observable<TocRoot> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
-      return throwError(() => new Error('No project selected'));
+      return throwError(() => new Error('No project selected.'));
     }
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc-update-items/${collectionId}`;
@@ -91,16 +83,13 @@ export class TableOfContentsService {
     return this.apiService.post<TocResponse>(url, request).pipe(
       map(response => {
         if (response.success && response.data) {
-          this.currentToc = response.data;
+          const normalized = this.normalizeTocRoot(response.data);
+          this.currentToc = normalized;
           this._hasUnsavedChanges = true; // Mark as unsaved since we updated the data
-          return response.data;
+          return normalized;
         } else {
-          throw new Error(response.message || 'Failed to update table of contents');
+          throw new Error(response.message || 'Failed to update table of contents.');
         }
-      }),
-      catchError(error => {
-        console.error('Error updating table of contents with publication data:', error);
-        return throwError(() => error);
       })
     );
   }
@@ -108,13 +97,18 @@ export class TableOfContentsService {
   /**
    * Generate a flat table of contents from publications
    */
-  generateFlatToc(collectionId: number, publications: Publication[], sortBy: string, collectionTitle?: string): TocRoot {
+  generateFlatToc(
+    collectionId: number,
+    publications: Publication[],
+    sortBy: string,
+    collectionTitle?: string
+  ): TocRoot {
     // Sort publications based on the selected criteria
     const sortedPublications = [...publications].sort((a, b) => {
       switch (sortBy) {
         case 'id':
           return a.id - b.id;
-        case 'title':
+        case 'name':
           return (a.name || '').localeCompare(b.name || '');
         case 'original_filename':
           return (a.original_filename || '').localeCompare(b.original_filename || '');
@@ -127,18 +121,18 @@ export class TableOfContentsService {
 
     // Create text nodes for each publication
     const children: TocNode[] = sortedPublications.map(publication => ({
-      type: 'est',
+      type: 'text',
       text: publication.name || 'Untitled',
       itemId: `${collectionId}_${publication.id}`,
-      date: publication.original_publication_date || undefined,
-      description: undefined,
-      category: undefined,
-      facsimileOnly: false
+      ...(publication.original_publication_date
+        ? { date: publication.original_publication_date }
+        : {}
+      )
     }));
 
     return {
-      text: collectionTitle || 'Table of Contents',
-      collectionId: collectionId.toString(),
+      text: collectionTitle || 'Table of contents',
+      collectionId: String(collectionId),
       type: 'title',
       children
     };
@@ -166,14 +160,6 @@ export class TableOfContentsService {
   }
 
   /**
-   * Clear current table of contents
-   */
-  clearCurrentToc(): void {
-    this.currentToc = null;
-    this._hasUnsavedChanges = false;
-  }
-
-  /**
    * Get available sort options
    */
   getSortOptions(): PublicationSortOption[] {
@@ -181,148 +167,70 @@ export class TableOfContentsService {
   }
 
   /**
-   * Create a new subtitle node
+   * Normalizes a ToC node from the backend to a new shape to handle
+   * legacy ToC data.
+   * 
+   * The `type` property is modified accordingly:
+   * - `type` is set to "section" if the incoming node has a non-empty
+   *   `children` property;
+   * - if the incoming `type` already is "section" but the `children`
+   *   property is missing or empty, it is set to an empty array;
+   * - in other cases, the `type` is inferred as "text"; text nodes
+   *   can't have children.
+   * 
+   * The `collapsed` property is modified accordingly:
+   * - `collapsed` is set to "true" on section nodes that are missing
+   *   the property (collapsed is true by default)
    */
-  createSubtitleNode(text: string, collapsed: boolean = false): TocNode {
+  private normalizeTocNode(node: TocNodeApi): TocNode {
+    const incomingChildren = Array.isArray(node.children)
+      ? node.children
+      : [];
+    const hasValidChildren = incomingChildren.length > 0;
+
+    // Normalize children only if non-empty; text nodes must not have children.
+    const normalizedChildren = hasValidChildren
+      ? incomingChildren.map(child => this.normalizeTocNode(child))
+      : undefined;
+
+    const type: TocNodeType = (hasValidChildren || node.type === 'section')
+      ? 'section'
+      : 'text';
+
+    // default value for 'collapsed' is true if undefined
+    const collapsed: boolean = node.collapsed === false
+      ? false
+      : true;
+
+    const {
+      type: _ignoredType,
+      collapsed: _ignoredCollapsed,
+      children: _ignoredChildren,
+      url: _ignoredUrl, // Legacy property which is ignored
+      ...rest
+    } = node;
+
     return {
-      type: 'subtitle',
-      text,
-      collapsed,
-      children: []
+      ...rest,
+      type,
+      ...(type === 'section' // add 'collapsed' only if section node
+        ? { collapsed }
+        : {}
+      ),
+      ...(normalizedChildren // add normalized children if defined ...
+        ? { children: normalizedChildren }
+        : type === 'section' // or empty 'children' if section node ...
+          ? { children: [] }
+          : {}) // otherwise don't add 'children' property
     };
   }
 
-  /**
-   * Create a new text node
-   */
-  createTextNode(text: string, itemId?: string, date?: string, description?: string, category?: string, facsimileOnly: boolean = false): TocNode {
+  private normalizeTocRoot(root: TocRootApi): TocRoot {
     return {
-      type: 'est',
-      text,
-      itemId,
-      date,
-      description,
-      category,
-      facsimileOnly
+      ...root,
+      type: 'title',
+      children: (root.children ?? []).map(n => this.normalizeTocNode(n))
     };
   }
 
-  /**
-   * Add a node to the table of contents
-   */
-  addNode(parentPath: number[], node: TocNode): void {
-    if (!this.currentToc) {
-      return;
-    }
-
-    let current = this.currentToc;
-    for (let i = 0; i < parentPath.length; i++) {
-      const index = parentPath[i];
-      if (current.children && current.children[index]) {
-        current = current.children[index] as any; // Type assertion for navigation
-      } else {
-        return; // Invalid path
-      }
-    }
-
-    if (!current.children) {
-      current.children = [];
-    }
-    current.children.push(node);
-    this.markAsChanged();
-  }
-
-  /**
-   * Remove a node from the table of contents
-   */
-  removeNode(nodePath: number[]): void {
-    if (!this.currentToc || nodePath.length === 0) {
-      return;
-    }
-
-    if (nodePath.length === 1) {
-      // Removing from root level
-      this.currentToc.children.splice(nodePath[0], 1);
-    } else {
-      // Removing from nested level
-      let current = this.currentToc;
-      for (let i = 0; i < nodePath.length - 1; i++) {
-        const index = nodePath[i];
-        if (current.children && current.children[index]) {
-          current = current.children[index] as any; // Type assertion for navigation
-        } else {
-          return; // Invalid path
-        }
-      }
-
-      const lastIndex = nodePath[nodePath.length - 1];
-      if (current.children) {
-        current.children.splice(lastIndex, 1);
-      }
-    }
-
-    this.markAsChanged();
-  }
-
-  /**
-   * Move a node to a new position
-   */
-  moveNode(fromPath: number[], toPath: number[], toIndex: number): void {
-    if (!this.currentToc) {
-      return;
-    }
-
-    // Get the node to move
-    const nodeToMove = this.getNodeByPath(fromPath);
-    if (!nodeToMove) {
-      return;
-    }
-
-    // Remove from original position
-    this.removeNode(fromPath);
-
-    // Add to new position
-    if (toPath.length === 0) {
-      // Moving to root level
-      this.currentToc.children.splice(toIndex, 0, nodeToMove);
-    } else {
-      // Moving to nested level
-      let current = this.currentToc;
-      for (let i = 0; i < toPath.length; i++) {
-        const index = toPath[i];
-        if (current.children && current.children[index]) {
-          current = current.children[index] as any; // Type assertion for navigation
-        } else {
-          return; // Invalid path
-        }
-      }
-
-      if (!current.children) {
-        current.children = [];
-      }
-      current.children.splice(toIndex, 0, nodeToMove);
-    }
-
-    this.markAsChanged();
-  }
-
-  /**
-   * Get a node by its path
-   */
-  private getNodeByPath(path: number[]): TocNode | null {
-    if (!this.currentToc || path.length === 0) {
-      return null;
-    }
-
-    let current: TocNode | TocRoot = this.currentToc;
-    for (const index of path) {
-      if (current.children && current.children[index]) {
-        current = current.children[index];
-      } else {
-        return null;
-      }
-    }
-
-    return current as TocNode;
-  }
 }

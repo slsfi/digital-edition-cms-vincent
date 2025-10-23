@@ -1,5 +1,26 @@
+import { PublicationLite } from "./publication";
+
+export type TocNodeType = 'section' | 'text';
+
+export type TocSectionNode = TocNode & { type: 'section'; children: TocNode[] };
+
+export type TocContainer = Pick<TocRoot, 'children'> | TocSectionNode;
+
+export interface TocRoot {
+  text: string;
+  collectionId: string;
+  type: 'title';
+  children: TocNode[];
+  coverPageName?: string;
+  titlePageName?: string;
+  forewordPageName?: string;
+  introductionPageName?: string;
+  id?: string; // Generated for drag/drop functionality
+  isExpanded?: boolean; // UI state for expansion
+}
+
 export interface TocNode {
-  type?: 'title' | 'subtitle' | 'est'; // Optional for backend compatibility
+  type: TocNodeType;
   text: string;
   collectionId?: string;
   itemId?: string;
@@ -11,25 +32,30 @@ export interface TocNode {
   children?: TocNode[];
   id?: string; // Generated for drag/drop functionality
   isExpanded?: boolean; // UI state for expansion
+  path?: number[]; // Precomputed node path
 }
 
-export interface TocRoot {
-  text: string;
-  collectionId: string;
-  type: 'title';
-  children: TocNode[];
-  id?: string; // Generated for drag/drop functionality
-  isExpanded?: boolean; // UI state for expansion
+export interface TocRootApi extends Omit<TocRoot, 'children'> {
+  children: TocNodeApi[];
 }
 
-export interface TocUpdateRequest {
-  update: string[];
+// In the ToC API response, we allow any string value for `type`
+// on the node object, and then normalize the values to TocNodeType
+export interface TocNodeApi
+  extends Omit<TocNode, 'type' | 'children' | 'url'> {
+  type?: string;
+  url?: string; // Legacy property which is ignored if present
+  children?: TocNodeApi[];
 }
 
 export interface TocResponse {
   success: boolean;
   message: string;
-  data: TocRoot | null;
+  data: TocRootApi | null;
+}
+
+export interface TocUpdateRequest {
+  update: string[];
 }
 
 export interface DropInfo {
@@ -42,9 +68,16 @@ export interface PublicationSortOption {
   label: string;
 }
 
+export interface EditNodeDialogData {
+  collectionId: number;
+  dialogMode: 'add' | 'edit';
+  node?: TocNode;
+  publications: PublicationLite[];
+}
+
 export const PUBLICATION_SORT_OPTIONS: PublicationSortOption[] = [
   { value: 'id', label: 'ID' },
-  { value: 'title', label: 'Title' },
-  { value: 'original_filename', label: 'Original Filename' },
-  { value: 'original_publication_date', label: 'Publication Date' }
+  { value: 'name', label: 'Name' },
+  { value: 'original_filename', label: 'File path' },
+  { value: 'original_publication_date', label: 'Date of origin' }
 ];

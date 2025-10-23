@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Edit base properties</h2>
+
+<mat-dialog-content>
+  <p>The title of the table of contents is required and may differ from the collection name.</p>
+  <p>If you provide a custom name for a front matter page, it will replace the default name of the page in the table of contents.</p>
+
+  <mat-form-field>
+    <mat-label>Table of contents title</mat-label>
+    <input matInput [(ngModel)]="title" required>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Cover page name</mat-label>
+    <input matInput [(ngModel)]="coverPageName">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Title page name</mat-label>
+    <input matInput [(ngModel)]="titlePageName">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Foreword page name</mat-label>
+    <input matInput [(ngModel)]="forewordPageName">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Introduction page name</mat-label>
+    <input matInput [(ngModel)]="introductionPageName">
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button matButton (click)="dismiss()">Cancel</button>
+  <button matButton="filled" (click)="save()" [disabled]="title | isEmptyString">
+    Save
+  </button>
+</mat-dialog-actions>
