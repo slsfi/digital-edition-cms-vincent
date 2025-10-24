@@ -270,7 +270,7 @@ export class TableOfContentsComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Reload table of contents',
-        message: `This will replace the current table of contents with the one that is saved in the project repository. All changes to the current table of contents will be lost. Continue?`,
+        message: `This will replace the current table of contents with the one that is saved in the project repository. All unsaved changes to the current table of contents will be lost. Continue?`,
         confirmText: 'Reload',
         cancelText: 'Cancel'
       }
@@ -384,6 +384,40 @@ export class TableOfContentsComponent implements OnInit {
         this.isUpdatingFromDb = false;
       }
     });
+  }
+
+  newTableOfContents(): void {
+    if (!this.selectedCollectionId) {
+      return;
+    }
+
+    if (this.currentToc === null) {
+      this.createNewToc();
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Create new table of contents',
+        message: `This will clear the current table of contents and create a new, empty one. All unsaved changes to the current table of contents will be lost. Continue?`,
+        confirmText: 'Create',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.value) {
+        this.createNewToc();
+      }
+    });
+  }
+
+  private createNewToc() {
+    this.currentToc = this.tocService.createNewTocRoot(
+      this.selectedCollectionId!,
+      this.selectedCollection?.name
+    );
+    this.hasUnsavedChanges = true;
   }
 
   markTocAsChanged(): void {
