@@ -1,20 +1,29 @@
 <h2 mat-dialog-title>
   @if (data.dialogMode === 'add') {
-    Add new node
+    Add item
   } @else {
-    Edit node
+    Edit item
   }
 </h2>
 
 <mat-dialog-content>
   <!-- Node type selection -->
   <div class="highlight-wrapper">
-    <mat-radio-group [(ngModel)]="nodeType" (change)="setNodeType()">
-      <mat-radio-button value="section">Section node</mat-radio-button>
-      <mat-radio-button value="text">Text node</mat-radio-button>
-    </mat-radio-group>
+    <div class="item-type-wrapper">
+      <label id="item-type-label">Item type:</label>
+      <mat-radio-group
+        [(ngModel)]="nodeType"
+        (change)="setNodeType()"
+        aria-labelledby="item-type-label"
+      >
+        <mat-radio-button value="section">Section</mat-radio-button>
+        <mat-radio-button value="text">Text</mat-radio-button>
+      </mat-radio-group>
+    </div>
     @if (data.dialogMode === 'edit' && nodeType === 'text' && data.node?.type === 'section') {
-      <div class="node-type-warning">You are about to change a section node to a text node. This will delete any child nodes previously attached to the node.</div>
+      <div class="node-type-warning">
+        You are about to change the type of the item from a section to text. This will delete all child items of the section.
+      </div>
     }
   </div>
 

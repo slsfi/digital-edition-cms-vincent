@@ -277,7 +277,7 @@ export class TableOfContentsComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Reload table of contents',
-        message: `This will replace the current table of contents with the one that is saved in the project repository. All unsaved changes to the current table of contents will be lost. Continue?`,
+        message: `This will replace the current table of contents with the one that is saved in the project repository. All unsaved changes to the current table of contents will be lost.`,
         confirmText: 'Reload',
         cancelText: 'Cancel'
       }
@@ -347,17 +347,15 @@ export class TableOfContentsComponent implements OnInit {
 
   openUpdateNodeFieldsDialog(): void {
     if (!this.selectedCollectionId || this.hasUnsavedChanges) {
-      this.showError('Please save your changes before updating node fields with publication data from the database.');
+      this.showError('Please save your changes before updating item fields with publication data from the database.');
       return;
     }
-
-    const updateFieldNames: string[] = this.UPDATE_FIELDS.map(f => f.key);
 
     // Show confirmation dialog
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Update node fields with publication data',
-        message: 'This action will update the selected fields of all nodes that are linked to publications, with fresh publication data from the database. Please observe that missing publication data in the database will result in empty field values. Nodes whose `itemId` have been modified with chapter/position information will not be updated. The updated table of contents will not be saved automatically.',
+        title: 'Update item fields with publication data',
+        message: 'This action will update the selected fields of all items that are linked to publications, with fresh publication data from the database. Please observe that missing publication data in the database will result in empty field values. Items whose `itemId` have been modified with chapter/position information will not be updated. The updated table of contents will not be saved automatically.',
         confirmText: 'Update',
         cancelText: 'Cancel',
         showTocUpdateFields: true,
@@ -412,7 +410,7 @@ export class TableOfContentsComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Create new table of contents',
-        message: `This will clear the current table of contents and create a new, empty one. All unsaved changes to the current table of contents will be lost. Continue?`,
+        message: `This will clear the current table of contents and create a new, empty one. All unsaved changes to the current table of contents will be lost.`,
         confirmText: 'Create',
         cancelText: 'Cancel'
       }
