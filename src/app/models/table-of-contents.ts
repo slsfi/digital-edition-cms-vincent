@@ -1,3 +1,4 @@
+import { ApiResponse } from "./common";
 import { PublicationLite } from "./publication";
 import { LanguageObj } from "./translation";
 
@@ -67,10 +68,16 @@ export interface TocNodeApi
   children?: TocNodeApi[];
 }
 
-export interface TocResponse {
-  success: boolean;
-  message: string;
-  data: TocRootApi | null;
+export interface TocResponseApi extends ApiResponse {
+  data: TocRootApi;
+}
+
+export interface TocResponse extends ApiResponse {
+  data: TocRoot;
+}
+
+export interface SaveTocResponse extends ApiResponse {
+  data: null;
 }
 
 export interface TocUpdateRequest {
