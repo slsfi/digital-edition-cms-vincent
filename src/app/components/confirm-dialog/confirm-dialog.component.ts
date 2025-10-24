@@ -11,6 +11,12 @@ export interface MetadataFieldOption {
   defaultSelected: boolean;
 }
 
+export interface TocNodeUpdateFieldOption {
+  key: string;
+  label: string;
+  defaultSelected: boolean;
+}
+
 export interface ConfirmDialogData {
   message: string;
   cancelText: string;
@@ -20,6 +26,8 @@ export interface ConfirmDialogData {
   cascadeText?: string;
   showMetadataFields?: boolean;
   metadataFields?: MetadataFieldOption[];
+  showTocUpdateFields?: boolean;
+  tocUpdateFields?: TocNodeUpdateFieldOption[];
 }
 
 @Component({
@@ -34,32 +42,30 @@ export interface ConfirmDialogData {
   styleUrl: './confirm-dialog.component.scss'
 })
 export class ConfirmDialogComponent {
-  title = ''; 
-  message = '';
-  cancelText = 'Cancel';
-  confirmText = 'Confirm';
-  showCascadeBoolean = false;
-  cascadeText = 'Cascade';
-  showMetadataFields = false;
-  metadataFields: MetadataFieldOption[] = [];
-  selectedFields: { [key: string]: boolean } = {};
-  cascadeBoolean = false;
-
   readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
-  constructor() {
-    this.title = this.data.title ?? '';
-    this.message = this.data.message;
-    this.cancelText = this.data.cancelText;
-    this.confirmText = this.data.confirmText;
-    this.showCascadeBoolean = this.data.showCascadeBoolean || false;
-    this.cascadeText = this.data.cascadeText || 'Cascade';
-    this.showMetadataFields = this.data.showMetadataFields || false;
-    this.metadataFields = this.data.metadataFields || [];
-    
+  title = this.data.title ?? ''; 
+  message = this.data.message ?? '';
+  cancelText = this.data.cancelText ?? 'Cancel';
+  confirmText = this.data.confirmText ?? 'Confirm';
+  cascadeText = this.data.cascadeText || 'Cascade';
+  showCascadeBoolean = this.data.showCascadeBoolean || false;
+  showMetadataFields = this.data.showMetadataFields || false;
+  showTocUpdateFields = this.data.showTocUpdateFields || false;
+  metadataFields: MetadataFieldOption[] = this.data.metadataFields || [];
+  tocUpdateFields: TocNodeUpdateFieldOption[] = this.data.tocUpdateFields || [];
+  cascadeBoolean = false;
+  selectedMetadataFields: { [key: string]: boolean } = {};
+  selectedTocUpdateFields: { [key: string]: boolean } = {};
+
+  constructor() {    
     // Initialize selected fields with defaults
     this.metadataFields.forEach(field => {
-      this.selectedFields[field.key] = field.defaultSelected;
+      this.selectedMetadataFields[field.key] = field.defaultSelected;
+    });
+
+    this.tocUpdateFields.forEach(field => {
+      this.selectedTocUpdateFields[field.key] = field.defaultSelected;
     });
   }
 }

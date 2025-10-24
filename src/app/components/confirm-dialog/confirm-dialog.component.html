@@ -3,16 +3,31 @@
   <p>{{ message }}</p>
   
   @if (showCascadeBoolean) {
-    <mat-slide-toggle [(ngModel)]="cascadeBoolean" color="primary">{{ cascadeText }}</mat-slide-toggle>
+    <mat-slide-toggle [(ngModel)]="cascadeBoolean">
+      {{ cascadeText }}
+    </mat-slide-toggle>
   }
   
   @if (showMetadataFields) {
-    <div class="metadata-fields">
+    <div class="toggle-fields">
       <h3>Select fields to update:</h3>
       @for (field of metadataFields; track field.key) {
         <mat-slide-toggle 
-          [(ngModel)]="selectedFields[field.key]" 
-          color="primary">
+          [(ngModel)]="selectedMetadataFields[field.key]" 
+        >
+          {{ field.label }}
+        </mat-slide-toggle>
+      }
+    </div>
+  }
+
+  @if (showTocUpdateFields) {
+    <div class="toggle-fields">
+      <h3>Select fields to update:</h3>
+      @for (field of tocUpdateFields; track field.key) {
+        <mat-slide-toggle 
+          [(ngModel)]="selectedTocUpdateFields[field.key]" 
+        >
           {{ field.label }}
         </mat-slide-toggle>
       }
@@ -20,8 +35,11 @@
   }
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button matButton [mat-dialog-close]="{value: false}">{{ cancelText }}</button>
-  <button matButton="filled" 
-    [mat-dialog-close]="{value: true, cascadeBoolean, selectedFields}" 
-    cdkFocusInitial>{{ confirmText }}</button>
+  <button matButton
+    [matDialogClose]="{value: false}"
+  >{{ cancelText }}</button>
+  <button matButton="filled"
+    [matDialogClose]="{value: true, cascadeBoolean, selectedMetadataFields, selectedTocUpdateFields}"
+    cdkFocusInitial
+  >{{ confirmText }}</button>
 </mat-dialog-actions>
