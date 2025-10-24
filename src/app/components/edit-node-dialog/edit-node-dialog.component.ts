@@ -146,7 +146,6 @@ export class EditNodeDialogComponent implements OnInit {
 
   setNodeType(): void {
     // Reset fields that are not shared when node type changes
-    this.description = '';
     this.date = '';
     this.category = '';
     this.facsimileOnly = false;
@@ -190,15 +189,15 @@ export class EditNodeDialogComponent implements OnInit {
       ...(this.language ? {language: this.language} : {})
     };
 
+    const descValue = this.trimmedStringOrNullish(this.description);
+    if (descValue) {
+      patchNode.description = descValue;
+    }
+
     // Add type-specific properties
     if (this.nodeType === 'section') {
       patchNode.collapsed = this.collapsed; // Always assign boolean value
     } else if (this.nodeType === 'text') {
-      const descValue = this.trimmedStringOrNullish(this.description);
-      if (descValue) {
-        patchNode.description = descValue;
-      }
-
       const dateValue = this.trimmedStringOrNullish(this.date);
       if (dateValue) {
         patchNode.date = dateValue;
@@ -217,7 +216,9 @@ export class EditNodeDialogComponent implements OnInit {
 
   private setLanguage(languageCode: string | null | undefined): void {
     if (languageCode) {
-      const validLang = this.languageOptions.find((lang) => lang.code === languageCode);
+      const validLang = this.languageOptions.find(
+        (lang: LanguageObj) => lang.code === languageCode
+      );
       this.language = validLang ? languageCode : null;
     } else {
       this.language = null;

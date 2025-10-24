@@ -58,13 +58,13 @@
     <input matInput type="text" [(ngModel)]="itemId" [required]="nodeType === 'text'">
   </mat-form-field>
 
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput type="text" [(ngModel)]="description" rows="2"></textarea>
+  </mat-form-field>
+
   <!-- Text node fields -->
   @if (nodeType === 'text') {
-    <mat-form-field>
-      <mat-label>Description</mat-label>
-      <textarea matInput type="text" [(ngModel)]="description" rows="2"></textarea>
-    </mat-form-field>
-
     <mat-form-field>
       <mat-label>Date</mat-label>
       <input matInput type="text" [(ngModel)]="date" placeholder="YYYY-MM-DD">
