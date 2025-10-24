@@ -6,10 +6,21 @@
   border: 1px solid #e0e0e0;
 }
 
+.item-type-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  label {
+    color: #000;
+    padding-right: 16px;
+  }
+}
+
 .node-type-warning {
   color: #c90d00;
-  font-size: 0.85714em;
-  margin: 0.5em;
+  font-size: 1em;
+  margin: 0.5em 0;
 }
 
 mat-radio-group {

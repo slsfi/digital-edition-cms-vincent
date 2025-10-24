@@ -38,16 +38,16 @@
       </button>
       <button mat-icon-button 
               (click)="collapseAll()"
-              matTooltip="Collapse all nodes"
-              [attr.aria-label]="'Collapse all nodes'"
+              matTooltip="Collapse all items"
+              [attr.aria-label]="'Collapse all items'"
               [disabled]="toc.children.length === 0"
       >
         <mat-icon>collapse_all</mat-icon>
       </button>
       <button mat-icon-button 
               (click)="expandAll()"
-              matTooltip="Expand all nodes"
-              [attr.aria-label]="'Expand all nodes'"
+              matTooltip="Expand all items"
+              [attr.aria-label]="'Expand all items'"
               [disabled]="toc.children.length === 0"
       >
         <mat-icon>expand_all</mat-icon>
@@ -81,7 +81,7 @@
   <div class="add-root-button-wrapper">
     <button matButton="outlined" (click)="addChildNode()">
       <mat-icon>add</mat-icon>
-      Add node
+      Add item
     </button>
   </div>
 </div>
@@ -97,7 +97,7 @@
                 tabindex="0"
                 role="button"
                 [attr.aria-expanded]="(!!node.children?.length && !!node.isExpanded) ? 'true' : 'false'"
-                [attr.aria-label]="'Toggle expansion for section node'"
+                [attr.aria-label]="'Toggle expansion for section'"
         >
           <mat-icon>{{node.isExpanded && node.children.length ? 'expand_less' : 'expand_more'}}</mat-icon>
         </button>
@@ -156,8 +156,8 @@
         <!-- Edit button (most used) -->
         <button mat-icon-button 
                 (click)="editNode(node)"
-                matTooltip="Edit node properties"
-                [attr.aria-label]="'Edit node properties'"
+                matTooltip="Edit item properties"
+                [attr.aria-label]="'Edit item properties'"
         >
           <mat-icon>edit</mat-icon>
         </button>
@@ -166,8 +166,8 @@
         <button mat-icon-button 
                 (click)="moveNodeUp(node)"
                 [disabled]="!(node.path | canMoveNodeUp)"
-                matTooltip="Move node up"
-                [attr.aria-label]="'Move node up'"
+                matTooltip="Move item up"
+                [attr.aria-label]="'Move item up'"
         >
           <mat-icon>arrow_upward_alt</mat-icon>
         </button>
@@ -175,8 +175,8 @@
         <button mat-icon-button 
                 (click)="moveNodeDown(node)"
                 [disabled]="!(toc | canMoveNodeDown: node.path)"
-                matTooltip="Move node down"
-                [attr.aria-label]="'Move node down'"
+                matTooltip="Move item down"
+                [attr.aria-label]="'Move item down'"
         >
           <mat-icon>arrow_downward_alt</mat-icon>
         </button>
@@ -185,8 +185,8 @@
         <button mat-icon-button 
                 [matMenuTriggerFor]="nodeMenu"
                 class="menu-trigger"
-                matTooltip="Additional node actions"
-                [attr.aria-label]="'Additional node actions'"
+                matTooltip="Additional item actions"
+                [attr.aria-label]="'Additional item actions'"
         >
           <mat-icon>more_vert</mat-icon>
         </button>

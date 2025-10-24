@@ -534,8 +534,8 @@ export class TocTreeComponent implements OnChanges {
     // Show confirmation dialog
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Delete node',
-        message: 'Are you sure you want to delete this node? This action cannot be undone.',
+        title: 'Delete item',
+        message: 'Are you sure you want to delete this item? If it’s a section with child items, they will also be deleted. This action cannot be undone.',
         confirmText: 'Delete',
         cancelText: 'Cancel'
       }
