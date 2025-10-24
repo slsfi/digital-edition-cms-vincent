@@ -10,7 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 
-import { DropInfo, TocContainer, TocNode, TocRoot, TocSectionNode } from '../../models/table-of-contents';
+import { DropInfo, EditableTocNode, TocContainer, TocNode, TocRoot, TocSectionNode, EDITABLE_TOC_NODE_KEYS_SET, EditableTocNodeKey } from '../../models/table-of-contents';
 import { PublicationLite } from '../../models/publication';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditTocRootDialogComponent } from '../edit-toc-root-dialog/edit-toc-root-dialog.component';
@@ -375,22 +375,47 @@ export class TocTreeComponent implements OnChanges {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: EditableTocNode | null | undefined) => {
       if (result) {
         this.updateNode(node, result);
       }
     });
   }
 
-  private updateNode(originalNode: TocNode, updatedNode: TocNode): void {
-    // Update the original node with the new values
-    Object.assign(originalNode, updatedNode);
-  
+  private updateNode(original: TocNode, patch: EditableTocNode): void {
+    const prevType = original.type;
+
+    this.syncTocNode(original, patch);
+
+    // UI collapsed/isExpanded sync disabled for now, not sure it
+    // is good UX.
     // If collapsed property changed, update isExpanded accordingly
     // if (updatedNode.collapsed !== undefined) {
     //   originalNode.isExpanded = !updatedNode.collapsed;
     // }
-  
+
+    // If user converted a text node → section in *edit* mode,
+    // give it a children array so it can accept drops immediately.
+    if (
+      prevType === 'text' &&
+      original.type === 'section'
+    ) {
+      if (!original.children) {
+        original.children = [];
+      }
+      const collapsed = (Object.hasOwn(patch, 'collapsed')
+                         ? patch.collapsed
+                         : original.collapsed) ?? true; // default: collapsed
+      original.isExpanded = !collapsed;
+    }
+
+    // If converting section → text, drop the children subtree
+    // and isExpanded:
+    if (prevType === 'section' && original.type === 'text') {
+      delete original.children;
+      delete original.isExpanded;
+    }
+
     this.runNodeChangedActions();
   }
 
@@ -405,9 +430,14 @@ export class TocTreeComponent implements OnChanges {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: EditableTocNode | null | undefined) => {
       if (result) {
-        this.addNodeToPath(parentPath, result);
+        const newNode: TocNode = result;
+        // Add empty children array if section node
+        if (newNode.type === 'section') {
+          newNode.children = [];
+        }
+        this.addNodeToPath(parentPath, newNode);
       }
     });
   }
@@ -433,9 +463,14 @@ export class TocTreeComponent implements OnChanges {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: EditableTocNode | null | undefined) => {
       if (result) {
-        this.addNodeToPath(parentPath, result, siblingIndex + 1);
+        const newNode: TocNode = result;
+        // Add empty children array if section node
+        if (newNode.type === 'section') {
+          newNode.children = [];
+        }
+        this.addNodeToPath(parentPath, newNode, siblingIndex + 1);
       }
     });
   }
@@ -678,5 +713,56 @@ export class TocTreeComponent implements OnChanges {
       container = child; // narrowed by the type guard to TocSectionNode
     }
     return container;
+  }
+
+  /**
+   * Mutate 'target' so its enumerable keys/values match 'source',
+   * but only touch keys listed in EDITABLE_TOC_NODE_KEYS.
+   * - Removes keys missing from 'source'
+   * - Adds/overwrites keys from 'source'
+   */
+  private syncTocNode(target: TocNode, source: EditableTocNode): void {
+    // 1. DELETE missing keys from target (if they are editable)
+    for (const key of Object.keys(target)) {
+      // Inside this block, 'key' is EditableTocNodeKey.
+      if (!this.isEditableKey(key)) {
+        continue;
+      }
+
+      // If the key is not present in the source, delete it from the
+      // target. We use the narrowed 'key' (EditableTocNodeKey) for
+      // safe indexing.
+      if (!Object.hasOwn(source, key) || source[key] === undefined) {
+        // We must assert the key on delete because dynamic deletion
+        // from a typed object without an index signature is
+        // structurally tricky.
+        delete target[key as keyof TocNode];
+      }
+    }
+
+    // 2. ASSIGN provided keys from source to target (if they are editable)
+    for (const key of Object.keys(source)) {
+      // Inside this block, 'key' is EditableTocNodeKey.
+      if (!this.isEditableKey(key)) {
+        continue;
+      }
+
+      const val = source[key];
+
+      // Assigning to target[key] is also safe.
+      if (val !== undefined) {
+        // TypeScript incorrectly computes the intersection of property
+        // types when indexing 'target' with a union key
+        // ('EditableTocNodeKey'), resulting in 'never'. We use an
+        // 'as any' cast on the target object for the assignment, which
+        // is safe because the type guard 'this.isEditableKey(key)'
+        // ensures 'key' is valid.
+        (target as any)[key] = val;
+      }
+    }
+  }
+
+  private isEditableKey(key: string): key is EditableTocNodeKey {
+    return EDITABLE_TOC_NODE_KEYS_SET.has(key);
   }
 }

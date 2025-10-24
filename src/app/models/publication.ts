@@ -66,6 +66,7 @@ export interface PublicationLite {
   id: number;
   name: string;
   original_publication_date: string | null;
+  language: string | null;
 
   /** Precomputed index for fast filtering */
   _search: string;
@@ -73,8 +74,9 @@ export interface PublicationLite {
 
 export const toPublicationLite = (p: Publication): PublicationLite => ({
   id: p.id,
-  name: p.name || '',
-  original_publication_date: p.original_publication_date,
+  name: (p.name)?.trim() || '',
+  original_publication_date: (p.original_publication_date)?.trim() || null,
+  language: (p.language)?.trim() || null,
   _search: `${p.name ?? ''} ${p.id}`.toLowerCase()
 });
 

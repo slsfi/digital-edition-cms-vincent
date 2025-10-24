@@ -13,6 +13,9 @@
       <mat-radio-button value="section">Section node</mat-radio-button>
       <mat-radio-button value="text">Text node</mat-radio-button>
     </mat-radio-group>
+    @if (data.dialogMode === 'edit' && nodeType === 'text' && data.node?.type === 'section') {
+      <div class="node-type-warning">You are about to change a section node to a text node. This will delete any child nodes previously attached to the node.</div>
+    }
   </div>
 
   <!-- Link to publication -->
@@ -47,12 +50,34 @@
 
   <mat-form-field>
     <mat-label>Text</mat-label>
-    <input matInput [(ngModel)]="text" required>
+    <input matInput type="text" [(ngModel)]="text" required>
   </mat-form-field>
 
   <mat-form-field>
     <mat-label>Item ID</mat-label>
-    <input matInput [(ngModel)]="itemId" [required]="nodeType === 'text'">
+    <input matInput type="text" [(ngModel)]="itemId" [required]="nodeType === 'text'">
+  </mat-form-field>
+
+  <!-- Text node fields -->
+  @if (nodeType === 'text') {
+    <mat-form-field>
+      <mat-label>Description</mat-label>
+      <textarea matInput type="text" [(ngModel)]="description" rows="2"></textarea>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Date</mat-label>
+      <input matInput type="text" [(ngModel)]="date" placeholder="YYYY-MM-DD">
+    </mat-form-field>
+  }
+
+  <mat-form-field>
+    <mat-label>Language</mat-label>
+    <mat-select [(ngModel)]="language" canSelectNullableOptions>
+      @for (option of languageOptions; track option.label) {
+        <mat-option [value]="option.code">{{option.label}}@if (option.code) { ({{option.code}})}</mat-option>
+      }
+    </mat-select>
   </mat-form-field>
 
   <!-- Section node fields -->
@@ -62,21 +87,11 @@
     </mat-checkbox>
   }
 
-  <!-- Text node fields -->
+  <!-- Additional text node fields -->
   @if (nodeType === 'text') {
     <mat-form-field>
-      <mat-label>Description</mat-label>
-      <textarea matInput [(ngModel)]="description" rows="2"></textarea>
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Date</mat-label>
-      <input matInput [(ngModel)]="date" placeholder="YYYY-MM-DD">
-    </mat-form-field>
-
-    <mat-form-field>
       <mat-label>Category</mat-label>
-      <input matInput [(ngModel)]="category">
+      <input matInput type="text" [(ngModel)]="category">
     </mat-form-field>
 
     <mat-checkbox [(ngModel)]="facsimileOnly">
@@ -86,8 +101,8 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-flat-button (click)="saveNode()" [disabled]="!text || (nodeType === 'text' && !itemId)">
+  <button matButton [matDialogClose]="undefined">Cancel</button>
+  <button matButton="filled" (click)="saveNode()" [disabled]="!text || (nodeType === 'text' && !itemId)">
     @if (data.dialogMode === 'add') {
       Add
     } @else {

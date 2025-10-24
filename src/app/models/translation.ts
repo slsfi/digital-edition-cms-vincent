@@ -35,6 +35,11 @@ export interface TranslationRequestPost {
   deleted?: Deleted;
 }
 
+export interface LanguageObj {
+  label: string;
+  code: string | null;
+}
+
 export enum Langugage {
   FINNISH = 'fi',
   SWEDISH = 'sv',

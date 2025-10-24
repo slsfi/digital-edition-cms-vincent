@@ -157,11 +157,15 @@
   }
 
   &.date {
-    background-color: rgba(25, 118, 210, 0.1);
+    background-color: rgba(56, 142, 60, 0.1);
+  }
+
+  &.item-lang {
+    background-color: rgba(25, 210, 201, 0.1);
   }
 
   &.category {
-    background-color: rgba(56, 142, 60, 0.1);
+    background-color: rgba(25, 118, 210, 0.1);
   }
 
   &.item-id {

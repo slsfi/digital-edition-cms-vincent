@@ -15,9 +15,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged, map, Observable, of, startWith } from 'rxjs';
 
 import { PublicationLite } from '../../models/publication';
-import { EditNodeDialogData, TocNode, TocNodeType } from '../../models/table-of-contents';
+import { EditableTocNode, EditNodeDialogData, TocNode, TocNodeType, tocLanguageOptions } from '../../models/table-of-contents';
+import { LanguageObj } from '../../models/translation';
 
-
+/**
+ * To modify the fields that can be edited in this dialog, you also have
+ * to modify the EDITABLE_TOC_NODE_KEYS constant and possibly the TocNode
+ * interface in models/table-of-contents.ts.
+ */
 @Component({
   selector: 'edit-toc-node-dialog',
   imports: [
@@ -53,11 +58,15 @@ export class EditNodeDialogComponent implements OnInit {
   facsimileOnly = false;
   collapsed = true;
   itemId = '';
+  language: string | null = null;
 
   publications: PublicationLite[] = [];
   filteredPublications$: Observable<PublicationLite[]> = of([]);
   selectedPublication: PublicationLite | null = null;
   searchControl = new FormControl<string | PublicationLite>('');
+
+  private readonly noneLanguageOption: LanguageObj[] = [{label: 'None', code: null}];
+  readonly languageOptions: LanguageObj[] = this.noneLanguageOption.concat(tocLanguageOptions);
 
   readonly MAX_FILTERED = 50;
 
@@ -91,6 +100,7 @@ export class EditNodeDialogComponent implements OnInit {
     this.facsimileOnly = node.facsimileOnly ?? false;
     this.collapsed = node.collapsed ?? true;
     this.itemId = node.itemId || '';
+    this.setLanguage(node.language);
   }
 
   // Extracts publication ID from an itemId
@@ -148,6 +158,7 @@ export class EditNodeDialogComponent implements OnInit {
     this.text = publication.name || 'Untitled';
     this.date = publication.original_publication_date || '';
     this.itemId = `${this.data.collectionId}_${publication.id}`;
+    this.setLanguage(publication.language);
   }
 
   clearPublicationSearch(event: MouseEvent) {
@@ -156,69 +167,65 @@ export class EditNodeDialogComponent implements OnInit {
   }
 
   saveNode(): void {
-    const textValue = this.text.trim();
+    const textValue = this.trimmedStringOrNullish(this.text);
+
     if (!textValue) {
       this.showError('Text is required.');
       return;
     }
 
+    const itemIdValue = this.trimmedStringOrNullish(this.itemId);
+
     if (this.nodeType === 'text') {
-      if (!this.itemId.trim()) {
+      if (!itemIdValue) {
         this.showError('Item ID is required.');
         return;
       }
     }
 
-    let newNode: TocNode = {
+    const patchNode: EditableTocNode = {
       type: this.nodeType,
-      text: textValue
+      text: textValue,
+      ...(itemIdValue ? {itemId: itemIdValue} : {}),
+      ...(this.language ? {language: this.language} : {})
     };
-
-    if (this.data.dialogMode === 'edit') {
-      newNode = {
-        ...this.data.node, // Preserve existing properties like id, isExpanded, children
-        ...newNode
-      };
-
-      // Remove type-inappropriate properties
-      delete newNode.description;
-      delete newNode.date;
-      delete newNode.category;
-      delete newNode.facsimileOnly;
-      delete newNode.collapsed;
-      delete newNode.itemId;
-    }
-
-    if (this.itemId.trim()) {
-      newNode.itemId = this.itemId.trim();
-    }
 
     // Add type-specific properties
     if (this.nodeType === 'section') {
-      // Section node-specific properties
-      newNode.collapsed = this.collapsed; // Always assign boolean value
-      
-      if (this.data.dialogMode === 'add') {
-        newNode.children = []
-      }
+      patchNode.collapsed = this.collapsed; // Always assign boolean value
     } else if (this.nodeType === 'text') {
-      // Text node-specific properties
-      if (this.description.trim()) {
-        newNode.description = this.description.trim();
+      const descValue = this.trimmedStringOrNullish(this.description);
+      if (descValue) {
+        patchNode.description = descValue;
       }
 
-      if (this.date.trim()) {
-        newNode.date = this.date.trim();
+      const dateValue = this.trimmedStringOrNullish(this.date);
+      if (dateValue) {
+        patchNode.date = dateValue;
       }
 
-      if (this.category.trim()) {
-        newNode.category = this.category.trim();
+      const catValue = this.trimmedStringOrNullish(this.category);
+      if (catValue) {
+        patchNode.category = catValue;
       }
   
-      newNode.facsimileOnly = this.facsimileOnly; // Always assign boolean value
+      patchNode.facsimileOnly = this.facsimileOnly; // Always assign boolean value
     }
 
-    this.dialogRef.close(newNode);
+    this.dialogRef.close(patchNode);
+  }
+
+  private setLanguage(languageCode: string | null | undefined): void {
+    if (languageCode) {
+      const validLang = this.languageOptions.find((lang) => lang.code === languageCode);
+      this.language = validLang ? languageCode : null;
+    } else {
+      this.language = null;
+    }
+  }
+
+  private trimmedStringOrNullish(value: any): string | null | undefined {
+    return ((value ?? '') === '') ? value : String(value).trim();
   }
 
   private showError(message: string): void {
