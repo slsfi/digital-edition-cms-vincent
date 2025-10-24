@@ -17,7 +17,7 @@ export class TableOfContentsService {
   private _hasUnsavedChanges = false;
 
   /**
-   * Load table of contents for a collection
+   * Load table of contents for a collection.
    */
   loadToc(collectionId: number): Observable<TocRoot> {
     const projectName = this.projectService.getCurrentProject();
@@ -38,7 +38,7 @@ export class TableOfContentsService {
   }
 
   /**
-   * Save table of contents for a collection
+   * Save table of contents for a collection.
    */
   saveToc(collectionId: number, toc: TocRoot): Observable<SaveTocResponse> {
     const projectName = this.projectService.getCurrentProject();
@@ -57,7 +57,7 @@ export class TableOfContentsService {
   }
 
   /**
-   * Update table of contents with fresh publication data from database
+   * Update table of contents with fresh publication data from database.
    */
   updateTocWithPublicationData(
     collectionId: number,
@@ -87,7 +87,23 @@ export class TableOfContentsService {
   }
 
   /**
-   * Generate a flat table of contents from publications
+   * Creates a new TocRoot object from the given parameters.
+   */
+  createNewTocRoot(
+    collectionId: number,
+    collectionTitle: string = 'Table of contents',
+    children: TocNode[] = []
+  ): TocRoot {
+    return {
+      text: collectionTitle,
+      collectionId: String(collectionId),
+      type: 'title',
+      children
+    };
+  }
+
+  /**
+   * Generate a flat table of contents from publications.
    */
   generateFlatToc(
     collectionId: number,
@@ -122,12 +138,7 @@ export class TableOfContentsService {
       )
     }));
 
-    return {
-      text: collectionTitle || 'Table of contents',
-      collectionId: String(collectionId),
-      type: 'title',
-      children
-    };
+    return this.createNewTocRoot(collectionId, collectionTitle, children);
   }
 
   /**

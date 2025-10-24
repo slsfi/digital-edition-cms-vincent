@@ -38,6 +38,11 @@
           <mat-icon>auto_awesome</mat-icon>
           Generate
         </button>
+        <button matButton="filled" (click)="newTableOfContents()" 
+                [disabled]="isLoading || isUpdatingFromDb || isSaving || isGeneratingFlatToc">
+          <mat-icon>docs_add_on</mat-icon>
+          New
+        </button>
       </div>
 
       <div class="right-aligned">
@@ -102,7 +107,8 @@
     <div class="empty-state">
       <mat-icon>folder_open</mat-icon>
       <h3>No table of contents</h3>
-      <p>This collection doesn’t have a table of contents yet.</p>
+      <p>This collection doesn’t have a table of contents yet,<br>
+        or an error prevented it from being loaded.</p>
     </div>
   }
 }

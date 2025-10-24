@@ -40,6 +40,7 @@
               (click)="collapseAll()"
               matTooltip="Collapse all nodes"
               [attr.aria-label]="'Collapse all nodes'"
+              [disabled]="toc.children.length === 0"
       >
         <mat-icon>collapse_all</mat-icon>
       </button>
@@ -47,31 +48,34 @@
               (click)="expandAll()"
               matTooltip="Expand all nodes"
               [attr.aria-label]="'Expand all nodes'"
+              [disabled]="toc.children.length === 0"
       >
         <mat-icon>expand_all</mat-icon>
       </button>
     </div>
   </div>
-  
-  <div cdkDropList 
-       [id]="'main'"
-       [cdkDropListConnectedTo]="getAllDropListIds()"
-       [cdkDropListData]="toc.children"
-       [cdkDropListSortingDisabled]="true"
-       (cdkDropListDropped)="drop($event)"
-  >
-    @for (node of toc.children; track node.id) {
-      <div cdkDrag
-           [cdkDragData]="node.id"
-           [cdkDragPreviewContainer]="'parent'"
-           (cdkDragEnded)="dragEndedActions()"
-           (cdkDragMoved)="dragMoved($event)"
-           (cdkDragReleased)="dragReleasedActions()"
-      >
-        <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
-      </div>
-    }
-  </div>
+
+  @if (toc.children.length > 0) {
+    <div cdkDropList 
+        [id]="'main'"
+        [cdkDropListConnectedTo]="getAllDropListIds()"
+        [cdkDropListData]="toc.children"
+        [cdkDropListSortingDisabled]="true"
+        (cdkDropListDropped)="drop($event)"
+    >
+      @for (node of toc.children; track node.id) {
+        <div cdkDrag
+            [cdkDragData]="node.id"
+            [cdkDragPreviewContainer]="'parent'"
+            (cdkDragEnded)="dragEndedActions()"
+            (cdkDragMoved)="dragMoved($event)"
+            (cdkDragReleased)="dragReleasedActions()"
+        >
+          <ng-container *ngTemplateOutlet="tmplNode; context: {node: node}"/>
+        </div>
+      }
+    </div>
+  }
 
   <!-- Add root level node button -->
   <div class="add-root-button-wrapper">
