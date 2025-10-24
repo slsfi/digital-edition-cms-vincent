@@ -216,6 +216,9 @@ export class TableOfContentsComponent implements OnInit {
     delete node.path;
 
     // Remove falsy properties
+    if (!node.description) {
+      delete node.description;
+    }
 
     if (!node.language) {
       delete node.language;
@@ -225,7 +228,6 @@ export class TableOfContentsComponent implements OnInit {
   
     if (node.type === 'section') {
       // Remove text-node specific properties from section nodes
-      delete node.description;
       delete node.date;
       delete node.category;
       delete node.facsimileOnly;
@@ -244,9 +246,6 @@ export class TableOfContentsComponent implements OnInit {
       delete node.collapsed;
       
       // Remove falsy optional properties
-      if (!node.description) {
-        delete node.description;
-      }
       if (!node.date) {
         delete node.date;
       }
