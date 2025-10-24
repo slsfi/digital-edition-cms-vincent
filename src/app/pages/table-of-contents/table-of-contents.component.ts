@@ -214,6 +214,12 @@ export class TableOfContentsComponent implements OnInit {
     delete node.isExpanded;
     delete node.path;
 
+    // Remove falsy properties
+
+    if (!node.language) {
+      delete node.language;
+    }
+
     // Remove unnecessary properties based on node type
   
     if (node.type === 'section') {
@@ -398,4 +404,3 @@ export class TableOfContentsComponent implements OnInit {
     });
   }
 }
-

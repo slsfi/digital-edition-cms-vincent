@@ -103,16 +103,14 @@
             [class.no-expand]="node.type === 'text'"
       >
         <div class="node-text">{{node.text}}</div>
-        @if (node.itemId || node.description) {
+        @if (node.itemId || node.description || node.language) {
           <div class="node-meta">
             @if (node.description) {
               <div class="node-description">
                 {{node.description}}
               </div>
             }
-            @if (node.itemId) {
-              <!-- text nodes always have itemId and section nodes
-               may have it, so enough to check for its presence -->
+            @if (node.itemId || node.language) {
               <div class="meta-items">
                 @if (node.itemId) {
                   <span class="meta-item item-id">
@@ -124,6 +122,12 @@
                   <span class="meta-item date">
                     <mat-icon class="meta-icon">event</mat-icon>
                     {{node.date}}
+                  </span>
+                }
+                @if (node.language) {
+                  <span class="meta-item item-lang">
+                    <mat-icon class="meta-icon">translate</mat-icon>
+                    {{node.language}}
                   </span>
                 }
                 @if (node.category) {

@@ -1,4 +1,5 @@
 import { PublicationLite } from "./publication";
+import { LanguageObj } from "./translation";
 
 export type TocNodeType = 'section' | 'text';
 
@@ -28,12 +29,30 @@ export interface TocNode {
   date?: string;
   category?: string;
   facsimileOnly?: boolean;
+  language?: string;
   collapsed?: boolean;
   children?: TocNode[];
   id?: string; // Generated for drag/drop functionality
   isExpanded?: boolean; // UI state for expansion
   path?: number[]; // Precomputed node path
 }
+
+// Keys in TocNode that are editable in the edit node dialog
+export const EDITABLE_TOC_NODE_KEYS = [
+  'category',
+  'collapsed',
+  'date',
+  'description',
+  'facsimileOnly',
+  'itemId',
+  'language',
+  'text',
+  'type',
+] as const satisfies ReadonlyArray<keyof TocNode>;
+
+export type EditableTocNodeKey = typeof EDITABLE_TOC_NODE_KEYS[number];
+export type EditableTocNode = Pick<TocNode, EditableTocNodeKey>;
+export const EDITABLE_TOC_NODE_KEYS_SET = new Set<string>(EDITABLE_TOC_NODE_KEYS as ReadonlyArray<string>);
 
 export interface TocRootApi extends Omit<TocRoot, 'children'> {
   children: TocNodeApi[];
@@ -80,4 +99,29 @@ export const PUBLICATION_SORT_OPTIONS: PublicationSortOption[] = [
   { value: 'name', label: 'Name' },
   { value: 'original_filename', label: 'File path' },
   { value: 'original_publication_date', label: 'Date of origin' }
+];
+
+export const tocLanguageOptions: LanguageObj[] = [
+  { label: 'Arabic', code: 'ar' },
+  { label: 'Czech', code: 'cs' },
+  { label: 'Danish', code: 'da' },
+  { label: 'Dutch', code: 'nl' },
+  { label: 'Estonian', code: 'et' },
+  { label: 'Finnish', code: 'fi' },
+  { label: 'French', code: 'fr' },
+  { label: 'German', code: 'de' },
+  { label: 'Greek', code: 'el' },
+  { label: 'Hebrew', code: 'he' },
+  { label: 'Hungarian', code: 'hu' },
+  { label: 'Icelandic', code: 'is' },
+  { label: 'Italian', code: 'it' },
+  { label: 'Latin', code: 'la' },
+  { label: 'Latvian', code: 'lv' },
+  { label: 'Lithuanian', code: 'lt' },
+  { label: 'Norwegian', code: 'no' },
+  { label: 'Polish', code: 'pl' },
+  { label: 'Portuguese', code: 'pt' },
+  { label: 'Russian', code: 'ru' },
+  { label: 'Spanish', code: 'es' },
+  { label: 'Swedish', code: 'sv' },
 ];
