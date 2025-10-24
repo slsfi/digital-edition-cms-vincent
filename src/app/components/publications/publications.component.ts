@@ -84,8 +84,8 @@ export class PublicationsComponent implements OnInit {
 
   // Metadata field configuration for selective updates
   private readonly METADATA_FIELDS: MetadataFieldOption[] = [
-    { key: 'name', label: 'Publication Name', defaultSelected: true },
-    { key: 'original_publication_date', label: 'Date of Origin', defaultSelected: true },
+    { key: 'name', label: 'Publication name', defaultSelected: true },
+    { key: 'original_publication_date', label: 'Date of origin', defaultSelected: true },
     { key: 'language', label: 'Language', defaultSelected: true },
     { key: 'genre', label: 'Genre', defaultSelected: true }
   ];
@@ -535,7 +535,8 @@ export class PublicationsComponent implements OnInit {
   updateMetadataAll(collectionId: string) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        message: 'This action fetches metadata of all publications in the collection from the reading-text XML files, and overwrites the data in the database with the fresh data from XML. Please observe that missing data in the XML files will result in empty field values in the database. Note that this action cannot be undone, so make sure the values and fields selected are correct! Select which fields should be updated:',
+        title: 'Update publications data from XML',
+        message: 'This action fetches metadata of all publications in the collection from the reading-text XML files, and overwrites the data in the database with the fresh data from XML. Please observe that missing data in the XML files will result in empty field values in the database. Note that this action can’t be undone!',
         confirmText: 'Update',
         cancelText: 'Cancel',
         showMetadataFields: true,
@@ -553,11 +554,19 @@ export class PublicationsComponent implements OnInit {
         const filterMetadata = (metadata: XmlMetadata): Partial<PublicationEditRequest> => {
           const filtered: Partial<PublicationEditRequest> = {};
           
-          if (selectedFields['name']) filtered.name = metadata.name;
-          if (selectedFields['original_publication_date']) filtered.original_publication_date = metadata.original_publication_date;
-          if (selectedFields['language']) filtered.language = metadata.language;
-          if (selectedFields['genre']) filtered.genre = metadata.genre;
-          
+          if (selectedFields['name']) {
+            filtered.name = metadata.name;
+          }
+          if (selectedFields['original_publication_date']) {
+            filtered.original_publication_date = metadata.original_publication_date;
+          }
+          if (selectedFields['language']) {
+            filtered.language = metadata.language;
+          }
+          if (selectedFields['genre']) {
+            filtered.genre = metadata.genre;
+          }
+
           return filtered;
         };
 
@@ -570,7 +579,7 @@ export class PublicationsComponent implements OnInit {
           tap((publications: Publication[]) => {
             if (publications.length > 40) {
               progressSnackbarRef = this.snackbar.open(
-                'Updating metadata of all publications from XML ...', 'Close',
+                'Updating metadata of all publications from XML…', 'Close',
                 { panelClass: 'snackbar-info', duration: undefined }
               );
             }
