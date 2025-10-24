@@ -15,11 +15,12 @@ import { map, take } from 'rxjs';
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
-import { TocRoot, TocNode, PublicationSortOption } from '../../models/table-of-contents';
-import { PublicationCollection, Publication, PublicationLite, toPublicationLite } from '../../models/publication';
+import { PublicationSortOption, SaveTocResponse, TocNode, TocResponse, TocRoot } from '../../models/table-of-contents';
+import { Publication, PublicationCollection, PublicationLite, toPublicationLite } from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
+
 
 @Component({
   selector: 'toc-management',
@@ -143,14 +144,14 @@ export class TableOfContentsComponent implements OnInit {
     this.tocService.loadToc(this.selectedCollectionId).pipe(
       take(1)
     ).subscribe({
-      next: (toc) => {
+      next: (toc: TocRoot) => {
         this.currentToc = toc;
         this.hasUnsavedChanges = false;
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading table of contents:', error);
-        this.showError('Failed to load table of contents.');
+        this.showError(error.error.message);
         this.currentToc = null; // Clear previous TOC
         this.hasUnsavedChanges = false; // Reset unsaved changes
         this.isLoading = false;
@@ -170,16 +171,16 @@ export class TableOfContentsComponent implements OnInit {
     this.tocService.saveToc(this.selectedCollectionId, cleanedToc).pipe(
       take(1)
     ).subscribe({
-      next: (success) => {
-        if (success) {
+      next: (response: SaveTocResponse) => {
+        if (response.success) {
           this.hasUnsavedChanges = false;
-          this.showSuccess('Table of contents saved successfully.');
+          this.showSuccess(response.message);
         }
         this.isSaving = false;
       },
       error: (error) => {
         console.error('Error saving table of contents:', error);
-        this.showError('Failed to save table of contents.');
+        this.showError(error.error.message);
         this.isSaving = false;
       }
     });
@@ -372,15 +373,15 @@ export class TableOfContentsComponent implements OnInit {
     ).pipe(
       take(1)
     ).subscribe({
-      next: (updatedToc) => {
-        this.currentToc = updatedToc;
+      next: (response: TocResponse) => {
+        this.currentToc = response.data;
         this.hasUnsavedChanges = true;
         this.isUpdatingFromDb = false;
-        this.showSuccess('Table of contents updated with fresh publication metadata.');
+        this.showSuccess(response.message);
       },
       error: (error) => {
         console.error('Error updating from database:', error);
-        this.showError('Failed to update publication metadata from database.');
+        this.showError(error.error.message);
         this.isUpdatingFromDb = false;
       }
     });

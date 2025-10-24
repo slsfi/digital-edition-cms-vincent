@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, throwError } from 'rxjs';
+import { map, Observable, tap, throwError } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { TocRoot, TocNode, TocRootApi, TocNodeApi, TocNodeType, TocUpdateRequest, TocResponse, PublicationSortOption, PUBLICATION_SORT_OPTIONS } from '../models/table-of-contents';
+import { PUBLICATION_SORT_OPTIONS, PublicationSortOption, SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse, TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest } from '../models/table-of-contents';
 import { Publication } from '../models/publication';
 
 @Injectable({
@@ -27,16 +27,12 @@ export class TableOfContentsService {
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
     
-    return this.apiService.get<TocResponse>(url, {}, true).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          const normalized = this.normalizeTocRoot(response.data);
-          this.currentToc = normalized;
-          this._hasUnsavedChanges = false;
-          return normalized;
-        } else {
-          throw new Error(response.message || 'Failed to load table of contents.');
-        }
+    return this.apiService.get<TocResponseApi>(url, {}, true).pipe(
+      map((response: TocResponseApi) => {
+        const normalized = this.normalizeTocRoot(response.data);
+        this.currentToc = normalized;
+        this._hasUnsavedChanges = false;
+        return normalized;
       })
     );
   }
@@ -44,7 +40,7 @@ export class TableOfContentsService {
   /**
    * Save table of contents for a collection
    */
-  saveToc(collectionId: number, toc: TocRoot): Observable<boolean> {
+  saveToc(collectionId: number, toc: TocRoot): Observable<SaveTocResponse> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
       return throwError(() => new Error('No project selected.'));
@@ -52,15 +48,10 @@ export class TableOfContentsService {
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
     
-    return this.apiService.put<TocResponse>(url, toc).pipe(
-      map(response => {
-        if (response.success) {
-          this.currentToc = toc;
-          this._hasUnsavedChanges = false;
-          return true;
-        } else {
-          throw new Error(response.message || 'Failed to save table of contents.');
-        }
+    return this.apiService.put<SaveTocResponse>(url, toc).pipe(
+      tap(() => {
+        this.currentToc = toc;
+        this._hasUnsavedChanges = false;
       })
     );
   }
@@ -71,7 +62,7 @@ export class TableOfContentsService {
   updateTocWithPublicationData(
     collectionId: number,
     updateFields: string[]
-  ): Observable<TocRoot> {
+  ): Observable<TocResponse> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
       return throwError(() => new Error('No project selected.'));
@@ -80,16 +71,17 @@ export class TableOfContentsService {
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc-update-items/${collectionId}`;
     const request: TocUpdateRequest = { update: updateFields };
     
-    return this.apiService.post<TocResponse>(url, request).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          const normalized = this.normalizeTocRoot(response.data);
-          this.currentToc = normalized;
-          this._hasUnsavedChanges = true; // Mark as unsaved since we updated the data
-          return normalized;
-        } else {
-          throw new Error(response.message || 'Failed to update table of contents.');
+    return this.apiService.post<TocResponseApi>(url, request).pipe(
+      map((response: TocResponseApi) => {
+        const normalizedTocRoot: TocRoot = this.normalizeTocRoot(response.data);
+        this.currentToc = normalizedTocRoot;
+        this._hasUnsavedChanges = true; // Mark as unsaved since we updated the data
+        const normalizedResp: TocResponse = {
+          success: response.success,
+          data: normalizedTocRoot,
+          message: response.message
         }
+        return normalizedResp;
       })
     );
   }
