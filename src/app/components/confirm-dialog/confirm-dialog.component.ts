@@ -23,7 +23,7 @@ export interface ConfirmDialogData {
 }
 
 @Component({
-  selector: 'app-comfirm-dialog',
+  selector: 'confirm-dialog',
   imports: [
     FormsModule,
     MatButtonModule,
