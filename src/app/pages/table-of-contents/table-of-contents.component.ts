@@ -18,7 +18,7 @@ import { ProjectService } from '../../services/project.service';
 import { PublicationSortOption, SaveTocResponse, TocNode, TocResponse, TocRoot } from '../../models/table-of-contents';
 import { Publication, PublicationCollection, PublicationLite, toPublicationLite } from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent, TocNodeUpdateFieldOption } from '../../components/confirm-dialog/confirm-dialog.component';
 import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
 
 
@@ -68,7 +68,14 @@ export class TableOfContentsComponent implements OnInit {
 
   // Data sync
   isUpdatingFromDb = false;
-  updateFields = ['text', 'date'];
+  private readonly UPDATE_FIELDS: TocNodeUpdateFieldOption[] = [
+    { key: 'text', label: 'Text (from publication name)',
+      defaultSelected: true },
+    { key: 'date', label: 'Date (from publication date of origin)',
+      defaultSelected: false },
+    { key: 'language', label: 'Language (from publication language)',
+      defaultSelected: false }
+  ];
 
   // Publications cache for selected collection
   publicationsForSelectedCollection: PublicationLite[] = [];
@@ -344,31 +351,37 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
+    const updateFieldNames: string[] = this.UPDATE_FIELDS.map(f => f.key);
+
     // Show confirmation dialog
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Update node fields with publication data',
-        message: `This will replace the ${new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(this.updateFields)} fields of all nodes in the table of contents, which are linked to publications, with fresh publication data from the database. This action will not automatically save the updated table of contents. Continue?`,
+        message: 'This action will update the selected fields of all nodes that are linked to publications, with fresh publication data from the database. Please observe that missing publication data in the database will result in empty field values. Nodes whose `itemId` have been modified with chapter/position information will not be updated. The updated table of contents will not be saved automatically.',
         confirmText: 'Update',
-        cancelText: 'Cancel'
+        cancelText: 'Cancel',
+        showTocUpdateFields: true,
+        tocUpdateFields: this.UPDATE_FIELDS
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
-        this.updateFromDatabase();
+        const selectedFields: { [key: string]: boolean } = result.selectedTocUpdateFields || {};
+        const enabledFields: string[] = Object.keys(selectedFields).filter(key => selectedFields[key]);
+        this.updateFromDatabase(enabledFields);
       }
     });
   }
 
-  private updateFromDatabase(): void {
-    if (!this.selectedCollectionId) {
+  private updateFromDatabase(fields: string[]): void {
+    if (fields.length === 0 || !this.selectedCollectionId) {
       return;
     }
 
     this.isUpdatingFromDb = true;
     this.tocService.updateTocWithPublicationData(
-      this.selectedCollectionId, this.updateFields
+      this.selectedCollectionId, fields
     ).pipe(
       take(1)
     ).subscribe({
