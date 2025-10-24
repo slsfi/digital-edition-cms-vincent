@@ -1,27 +1,17 @@
-import { ProjectService } from './project.service';
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
+import { inject, Injectable } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs';
+
+import { ApiService } from './api.service';
+import { ProjectService } from './project.service';
 import { TranslationRequest, TranslationRequestPost, TranslationResponse, TranslationsResponse } from '../models/translation';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class TranslationService {
-
-  selectedProject$;
-
-  constructor(private apiService: ApiService, private projectService: ProjectService) {
-    this.selectedProject$ = this.projectService.selectedProject$;
-  }
-
-  private validateProject(projectName: string | null | undefined): string | never {
-    if (!projectName) {
-      throw new Error('Project name is required');
-    }
-    return projectName;
-  }
-
+  private readonly apiService = inject(ApiService);
+  private readonly projectService = inject(ProjectService);
 
   addTranslation(payload: TranslationRequest, projectName: string | null | undefined) {
     const project = this.validateProject(projectName);
@@ -45,9 +35,16 @@ export class TranslationService {
 
   // Legacy method for reactive updates on home page
   getTranslationsForCurrentProject(translation_id: number, data: TranslationRequestPost) {
-    return this.selectedProject$.pipe(
+    return this.projectService.selectedProject$.pipe(
       filter(project => !!project),
       switchMap(project => this.getTranslations(translation_id, data, project))
     );
+  }
+
+  private validateProject(projectName: string | null | undefined): string | never {
+    if (!projectName) {
+      throw new Error('Project name is required.');
+    }
+    return projectName;
   }
 }
