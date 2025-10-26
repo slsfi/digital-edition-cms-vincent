@@ -13,8 +13,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { Column, Deleted } from '../../models/common';
-import { EditProjectData, Project, ProjectResponse } from '../../models/project';
+import { Column, Deleted } from '../../models/common.model';
+import { EditProjectData, Project, ProjectResponse } from '../../models/project.model';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from './../../services/query-params.service';

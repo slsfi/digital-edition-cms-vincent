@@ -1,6 +1,6 @@
-import { ApiResponse, LabelledOption, LabelledSelectOption } from "./common";
-import { PublicationLite } from "./publication";
-import { LanguageObj } from "./translation";
+import { ApiResponse, LabelledOption, LabelledSelectOption } from "./common.model";
+import { PublicationLite } from "./publication.model";
+import { LanguageObj } from "./translation.model";
 
 export type TocNodeType = 'section' | 'text';
 

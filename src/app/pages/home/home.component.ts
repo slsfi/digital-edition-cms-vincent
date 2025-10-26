@@ -13,8 +13,8 @@ import { catchError, filter, finalize, map, Observable, of, switchMap, take, tap
 
 import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { navigationItems } from '../../models/common';
-import { Project, RepoDetails } from '../../models/project';
+import { navigationItems } from '../../models/common.model';
+import { Project, RepoDetails } from '../../models/project.model';
 import { ApiService } from './../../services/api.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';

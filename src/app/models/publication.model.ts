@@ -1,4 +1,4 @@
-import { ApiResponse, Deleted, LabelledSelectOption, Published } from "./common";
+import { ApiResponse, Deleted, LabelledSelectOption, Published } from "./common.model";
 
 export interface PublicationCollectionsResponse extends ApiResponse {
   data: PublicationCollection[];

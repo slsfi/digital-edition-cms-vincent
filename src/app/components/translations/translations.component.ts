@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject, filter, Observable, switchMap, take, tap } from 'rxjs';
 
-import { languageOptions, nameForLanguage, Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation';
+import { languageOptions, nameForLanguage, Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation.model';
 import { ProjectService } from '../../services/project.service';
 import { TranslationService } from '../../services/translation.service';
 

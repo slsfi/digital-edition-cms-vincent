@@ -1,4 +1,4 @@
-import { ApiResponse, Deleted } from "./common";
+import { ApiResponse, Deleted } from "./common.model";
 
 export interface TranslationsResponse extends ApiResponse {
   data: Translation[];

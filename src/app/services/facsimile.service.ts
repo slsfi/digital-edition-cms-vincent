@@ -7,8 +7,8 @@ import {
   FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest,
   FacsimileCollectionResponse, FacsimileCollectionsResponse, VerifyFacsimileFileResponse,
   FacsimileCreationConfig, FacsimileCreationResult, FacsimileCreationSummary
-} from '../models/facsimile';
-import { Publication, Manuscript } from '../models/publication';
+} from '../models/facsimile.model';
+import { Publication, Manuscript } from '../models/publication.model';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 import { PublicationService } from './publication.service';

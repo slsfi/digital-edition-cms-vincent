@@ -6,8 +6,8 @@ import { ProjectService } from './project.service';
 import {
   SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse,
   TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest
-} from '../models/table-of-contents';
-import { Publication } from '../models/publication';
+} from '../models/table-of-contents.model';
+import { Publication } from '../models/publication.model';
 import { getReadableDate } from '../utils/utility-functions';
 
 

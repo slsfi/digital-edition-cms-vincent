@@ -15,8 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Observable, of, take, startWith, debounceTime, catchError, BehaviorSubject, switchMap, shareReplay } from 'rxjs';
 
-import { Keyword, KeywordCreationRequest } from '../../models/keyword';
-import { Publication, PublicationCollection } from '../../models/publication';
+import { Keyword, KeywordCreationRequest } from '../../models/keyword.model';
+import { Publication, PublicationCollection } from '../../models/publication.model';
 import { KeywordService } from '../../services/keyword.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';

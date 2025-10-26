@@ -14,7 +14,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { Observable, of, take, combineLatest, startWith, map, debounceTime, catchError, BehaviorSubject, switchMap, shareReplay } from 'rxjs';
 
-import { Keyword, KeywordCreationRequest, KeywordUpdateRequest, KeywordTranslation } from '../../models/keyword';
+import { Keyword, KeywordCreationRequest, KeywordUpdateRequest, KeywordTranslation } from '../../models/keyword.model';
 import { KeywordService } from '../../services/keyword.service';
 import { ProjectService } from '../../services/project.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';

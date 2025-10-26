@@ -1,4 +1,4 @@
-import { ApiResponse, Deleted } from "./common";
+import { ApiResponse, Deleted } from "./common.model";
 
 export interface PersonResponse extends ApiResponse {
   data: Person[];

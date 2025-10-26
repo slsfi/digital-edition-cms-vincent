@@ -15,8 +15,8 @@ import { CustomTableComponent } from "../../components/custom-table/custom-table
 import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
-import { Column, Deleted } from '../../models/common';
-import { Person } from '../../models/person';
+import { Column, Deleted } from '../../models/common.model';
+import { Person } from '../../models/person.model';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';

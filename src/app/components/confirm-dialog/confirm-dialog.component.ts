@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-import { LabelledSelectOption } from '../../models/common';
+import { LabelledSelectOption } from '../../models/common.model';
 
 
 export interface ConfirmDialogData {

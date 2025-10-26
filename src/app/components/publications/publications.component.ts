@@ -30,12 +30,12 @@ import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
-import { Column, Deleted } from '../../models/common';
-import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile';
+import { Column, Deleted } from '../../models/common.model';
+import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile.model';
 import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript,
          ManuscriptResponse, Publication, PublicationComment, PublicationCommentResponse,
          PublicationEditRequest, PublicationResponse, Version, VersionResponse,
-         XmlMetadata, METADATA_FIELDS } from '../../models/publication';
+         XmlMetadata, METADATA_FIELDS } from '../../models/publication.model';
 import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/utility-functions';
 
 @Component({

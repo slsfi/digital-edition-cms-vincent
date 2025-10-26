@@ -3,7 +3,7 @@ import { filter, map, switchMap } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { TranslationRequest, TranslationRequestPost, TranslationResponse, TranslationsResponse } from '../models/translation';
+import { TranslationRequest, TranslationRequestPost, TranslationResponse, TranslationsResponse } from '../models/translation.model';
 
 
 @Injectable({
