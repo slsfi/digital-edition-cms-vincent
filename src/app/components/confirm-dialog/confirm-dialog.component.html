@@ -39,6 +39,7 @@
     [matDialogClose]="{value: false}"
   >{{ cancelText }}</button>
   <button matButton="filled"
+    [class.delete-action]="isDeleteAction"
     [matDialogClose]="{value: true, cascadeBoolean, selectedMetadataFields, selectedTocUpdateFields}"
     cdkFocusInitial
   >{{ confirmText }}</button>
