@@ -18,10 +18,10 @@ import { ProjectService } from '../../services/project.service';
 import {
   SaveTocResponse, TocNode, TocResponse, TocRoot, GENERATE_TOC_FIELDS,
   UPDATE_TOC_FIELDS, PUBLICATION_SORT_OPTIONS
-} from '../../models/table-of-contents';
+} from '../../models/table-of-contents.model';
 import {
   Publication, PublicationCollection, PublicationLite, toPublicationLite
-} from '../../models/publication';
+} from '../../models/publication.model';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {

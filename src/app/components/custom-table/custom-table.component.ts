@@ -10,7 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil, tap } from 'rxjs';
 
-import { Column } from '../../models/common';
+import { Column } from '../../models/common.model';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
 import { LoadingService } from '../../services/loading.service';

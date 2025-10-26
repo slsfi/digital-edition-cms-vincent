@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
 
-import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login';
+import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login.model';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 

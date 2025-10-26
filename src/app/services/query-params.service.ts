@@ -1,6 +1,6 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { QueryParamType } from '../models/common';
+import { QueryParamType } from '../models/common.model';
 import { map, Observable } from 'rxjs';
 
 

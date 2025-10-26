@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, of, startWith, map, debounceTime, switchMap, catchError } from 'rxjs';
 
-import { Keyword, KeywordCreationRequest } from '../../models/keyword';
+import { Keyword, KeywordCreationRequest } from '../../models/keyword.model';
 import { KeywordService } from '../../services/keyword.service';
 import { KeywordDialogComponent } from '../keyword-dialog/keyword-dialog.component';
 

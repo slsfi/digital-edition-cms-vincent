@@ -1,7 +1,7 @@
 import { QueryParamsService } from './../../services/query-params.service';
 import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Column, QueryParamType } from '../../models/common';
+import { Column, QueryParamType } from '../../models/common.model';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';

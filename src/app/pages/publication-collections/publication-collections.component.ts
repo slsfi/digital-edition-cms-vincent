@@ -16,8 +16,8 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 import { PublicationsComponent } from "../../components/publications/publications.component";
 import { TableFiltersComponent } from '../../components/table-filters/table-filters.component';
 import { TableSortingComponent } from '../../components/table-sorting/table-sorting.component';
-import { Column, Deleted } from '../../models/common';
-import { PublicationCollection, PublicationCollectionResponse } from '../../models/publication';
+import { Column, Deleted } from '../../models/common.model';
+import { PublicationCollection, PublicationCollectionResponse } from '../../models/publication.model';
 import { LoadingService } from './../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';

@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Observable, take } from 'rxjs';
 
-import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword';
+import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword.model';
 
 export interface KeywordDialogData {
   mode: 'add' | 'edit';

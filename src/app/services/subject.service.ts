@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 import { filter, map, Observable, switchMap } from 'rxjs';
-import { Person, PersonPayload, PersonResponse } from '../models/person';
+import { Person, PersonPayload, PersonResponse } from '../models/person.model';
 
 @Injectable({
   providedIn: 'root'

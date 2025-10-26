@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
-import { Publication } from '../../models/publication';
+import { Publication } from '../../models/publication.model';
 
 @Component({
   selector: 'publication-keyword-table',

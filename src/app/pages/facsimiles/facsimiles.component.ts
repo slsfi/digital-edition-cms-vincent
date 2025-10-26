@@ -21,8 +21,8 @@ import { FacsimileService } from '../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
-import { Column, Deleted } from '../../models/common';
-import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/facsimile';
+import { Column, Deleted } from '../../models/common.model';
+import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/facsimile.model';
 
 @Component({
   selector: 'app-facsimiles',

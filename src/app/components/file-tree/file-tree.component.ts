@@ -6,7 +6,7 @@ import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { filter, map, Subject, takeUntil } from 'rxjs';
 
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
-import { FileTree } from '../../models/project';
+import { FileTree } from '../../models/project.model';
 import { ProjectService } from '../../services/project.service';
 
 interface TreeNode {

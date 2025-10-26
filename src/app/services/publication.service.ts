@@ -4,7 +4,7 @@ import { BehaviorSubject, filter, map, Observable, shareReplay, switchMap } from
 import {
   EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
   LinkPublicationToFacsimileRequest, PublicationFacsimileResponse
-} from '../models/facsimile';
+} from '../models/facsimile.model';
 import {
   LinkTextToPublicationRequest, LinkTextToPublicationResponse, ManuscriptEditRequest,
   ManuscriptResponse, ManuscriptsResponse, Publication, PublicationAddRequest,
@@ -13,7 +13,7 @@ import {
   PublicationCommentResponse, PublicationCommentsResponse, PublicationEditRequest,
   PublicationResponse, PublicationsResponse, VersionEditRequest, VersionResponse,
   VersionsResponse, XmlMetadataResponse
-} from '../models/publication';
+} from '../models/publication.model';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 

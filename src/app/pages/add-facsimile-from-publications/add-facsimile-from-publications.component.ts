@@ -12,8 +12,8 @@ import { Router, RouterLink } from '@angular/router';
 import { Observable, of, switchMap, take } from 'rxjs';
 
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { FacsimileCreationConfig, FacsimileCreationSummary } from '../../models/facsimile';
-import { PublicationCollection } from '../../models/publication';
+import { FacsimileCreationConfig, FacsimileCreationSummary } from '../../models/facsimile.model';
+import { PublicationCollection } from '../../models/publication.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';

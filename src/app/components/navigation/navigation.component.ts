@@ -6,7 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { navigationItems } from '../../models/common';
+import { navigationItems } from '../../models/common.model';
 import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
 

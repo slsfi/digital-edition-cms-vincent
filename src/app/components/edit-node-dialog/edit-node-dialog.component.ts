@@ -14,9 +14,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged, map, Observable, of, startWith } from 'rxjs';
 
-import { PublicationLite } from '../../models/publication';
-import { EditableTocNode, EditNodeDialogData, TocNode, TocNodeType, tocLanguageOptions } from '../../models/table-of-contents';
-import { LanguageObj } from '../../models/translation';
+import { PublicationLite } from '../../models/publication.model';
+import { EditableTocNode, EditNodeDialogData, TocNode, TocNodeType, tocLanguageOptions } from '../../models/table-of-contents.model';
+import { LanguageObj } from '../../models/translation.model';
 
 /**
  * To modify the fields that can be edited in this dialog, you also have

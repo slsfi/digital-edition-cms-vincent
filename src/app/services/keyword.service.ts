@@ -5,7 +5,7 @@ import {
   Keyword, 
   KeywordCreationRequest, 
   KeywordUpdateRequest
-} from '../models/keyword';
+} from '../models/keyword.model';
 import { ApiService } from './api.service';
 
 // Backend API response interfaces

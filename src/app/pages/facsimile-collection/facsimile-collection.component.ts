@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Observable, take } from 'rxjs';
 
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
-import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile';
+import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { RangeArrayPipe } from '../../pipes/range-array.pipe';

@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-import { LabelledOption, LabelledSelectOption } from '../../models/common';
+import { LabelledOption, LabelledSelectOption } from '../../models/common.model';
 
 
 export interface AutoGenerateTocDialogData {

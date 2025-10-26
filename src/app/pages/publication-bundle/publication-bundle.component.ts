@@ -16,9 +16,9 @@ import { catchError, combineLatest, finalize, from, map, mergeMap,
          Observable, of, switchMap, take, tap, toArray} from 'rxjs';
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { Published, PublishedOptions } from '../../models/common';
+import { Published, PublishedOptions } from '../../models/common.model';
 import { LinkTextToPublicationRequest, PublicationAddRequest, PublicationCollection,
-         PublicationResponse, XmlMetadata } from '../../models/publication';
+         PublicationResponse, XmlMetadata } from '../../models/publication.model';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';

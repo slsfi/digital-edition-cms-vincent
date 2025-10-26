@@ -10,8 +10,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 
-import { DropInfo, EditableTocNode, TocContainer, TocNode, TocRoot, TocSectionNode, EDITABLE_TOC_NODE_KEYS_SET, EditableTocNodeKey } from '../../models/table-of-contents';
-import { PublicationLite } from '../../models/publication';
+import { DropInfo, EditableTocNode, TocContainer, TocNode, TocRoot, TocSectionNode, EDITABLE_TOC_NODE_KEYS_SET, EditableTocNodeKey } from '../../models/table-of-contents.model';
+import { PublicationLite } from '../../models/publication.model';
 import { EditNodeDialogComponent } from '../edit-node-dialog/edit-node-dialog.component';
 import { EditTocRootDialogComponent } from '../edit-toc-root-dialog/edit-toc-root-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import type { TocContainer, TocNode, TocRoot, TocSectionNode } from '../models/table-of-contents';
+import type { TocContainer, TocNode, TocRoot, TocSectionNode } from '../models/table-of-contents.model';
 
 @Pipe({
   name: 'canMoveNodeDown'

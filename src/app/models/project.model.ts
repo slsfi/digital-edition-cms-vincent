@@ -1,4 +1,4 @@
-import { ApiResponse } from "./common";
+import { ApiResponse } from "./common.model";
 
 export interface ProjectsResponse extends ApiResponse {
   data: Project[];

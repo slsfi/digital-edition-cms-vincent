@@ -1,4 +1,4 @@
-import { Column } from "../../models/common";
+import { Column } from '../../models/common.model';
 
 export const publicationColumnsData: Column[] = [
   { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },

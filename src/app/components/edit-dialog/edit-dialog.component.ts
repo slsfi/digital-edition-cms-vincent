@@ -15,9 +15,9 @@ import { finalize, take } from 'rxjs';
 
 import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { TranslationsComponent } from '../translations/translations.component';
-import { Column, PublishedOptions } from '../../models/common';
-import { personTypeOptions } from '../../models/person';
-import { XmlMetadata } from './../../models/publication';
+import { Column, PublishedOptions } from '../../models/common.model';
+import { personTypeOptions } from '../../models/person.model';
+import { XmlMetadata } from './../../models/publication.model';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 
