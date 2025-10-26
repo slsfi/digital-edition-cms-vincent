@@ -71,3 +71,46 @@ export function shallowArrayEqual<T extends readonly unknown[]>(a: T, b: T): boo
   }
   return true;
 }
+
+
+/**
+ * Simple conversion of a string date in YYYY-MM-DD format to d.m.YYYY
+ * format (or with any other separator). Treats the input date as a string
+ * and does not make any checks on it, thus date strings like 1876-03-XX
+ * are converted to xx.3.1876.
+ * Returns an empty string if the input date can't be converted, and the
+ * date as it is if it's only a year in YYYY format.
+ */
+export function getReadableDate(date: string, separator = '.'): string {
+  const fromDate = date.trim().toLowerCase();
+  const dateParts = fromDate.split('-');
+
+  if (dateParts.length === 1 && isNDigits(dateParts[0], 4)) {
+    // date is only a year
+    return dateParts[0];
+  } else if (
+    dateParts.length === 3 &&
+    dateParts[0].length === 4 &&
+    dateParts[1].length === 2 &&
+    dateParts[2].length === 2
+  ) {
+    const day = dateParts[2].startsWith('0')
+      ? dateParts[2].slice(1)
+      : dateParts[2];
+    const month = dateParts[1].startsWith('0')
+      ? dateParts[1].slice(1)
+      : dateParts[1];
+    return `${day}${separator}${month}${separator}${dateParts[0]}`;
+  } else {
+    return '';
+  }
+}
+
+
+/**
+ * Returns true if the string `str` consists of `n` digits.
+ */
+export function isNDigits(str: string, n: number): boolean {
+  const re = new RegExp(`^\\d{${n}}$`);
+  return re.test(str);
+}

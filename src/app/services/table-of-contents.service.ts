@@ -3,8 +3,13 @@ import { map, Observable, tap, throwError } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { PUBLICATION_SORT_OPTIONS, PublicationSortOption, SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse, TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest } from '../models/table-of-contents';
+import {
+  SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse,
+  TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest
+} from '../models/table-of-contents';
 import { Publication } from '../models/publication';
+import { getReadableDate } from '../utils/utility-functions';
+
 
 @Injectable({
   providedIn: 'root'
@@ -109,7 +114,8 @@ export class TableOfContentsService {
     collectionId: number,
     publications: Publication[],
     sortBy: string,
-    collectionTitle?: string
+    collectionTitle?: string,
+    includedFields?: string[]
   ): TocRoot {
     // Sort publications based on the selected criteria
     const sortedPublications = [...publications].sort((a, b) => {
@@ -132,8 +138,26 @@ export class TableOfContentsService {
       type: 'text',
       text: publication.name || 'Untitled',
       itemId: `${collectionId}_${publication.id}`,
-      ...(publication.original_publication_date
+      ...(includedFields?.includes('date') && publication.original_publication_date
         ? { date: publication.original_publication_date }
+        : {}
+      ),
+      ...(includedFields?.includes('dateDescription') &&
+            publication.original_publication_date &&
+            getReadableDate(publication.original_publication_date)
+        ? { description: getReadableDate(publication.original_publication_date) }
+        : {}
+      ),
+      ...(includedFields?.includes('language') && publication.language
+        ? { language: publication.language }
+        : {}
+      ),
+      ...(includedFields?.includes('category') && publication.genre
+        ? { category: publication.genre }
+        : {}
+      ),
+      ...(includedFields?.includes('facsimileOnly')
+        ? { facsimileOnly: true }
         : {}
       )
     }));
@@ -160,13 +184,6 @@ export class TableOfContentsService {
    */
   markAsChanged(): void {
     this._hasUnsavedChanges = true;
-  }
-
-  /**
-   * Get available sort options
-   */
-  getSortOptions(): PublicationSortOption[] {
-    return PUBLICATION_SORT_OPTIONS;
   }
 
   /**

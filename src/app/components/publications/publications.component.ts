@@ -19,7 +19,7 @@ import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData
          allPublicationColumnsData, allVersionColumnsData, commentsColumnData,
          facsimileColumnData, manuscriptColumnsData, publicationColumnsData,
          versionColumnsData } from './columns';
-import { ConfirmDialogComponent, MetadataFieldOption } from '../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { EditDialogComponent, EditDialogData } from '../edit-dialog/edit-dialog.component';
 import { FileTreeDialogComponent } from '../file-tree-dialog/file-tree-dialog.component';
@@ -35,7 +35,7 @@ import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../
 import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript,
          ManuscriptResponse, Publication, PublicationComment, PublicationCommentResponse,
          PublicationEditRequest, PublicationResponse, Version, VersionResponse,
-         XmlMetadata } from '../../models/publication';
+         XmlMetadata, METADATA_FIELDS } from '../../models/publication';
 import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/utility-functions';
 
 @Component({
@@ -81,14 +81,6 @@ export class PublicationsComponent implements OnInit {
   isSmallScreen = false;
   metadataUpdateFailures: number[] = [];
   metadataUpdating = false;
-
-  // Metadata field configuration for selective updates
-  private readonly METADATA_FIELDS: MetadataFieldOption[] = [
-    { key: 'name', label: 'Publication name', defaultSelected: true },
-    { key: 'original_publication_date', label: 'Date of origin', defaultSelected: true },
-    { key: 'language', label: 'Language', defaultSelected: true },
-    { key: 'genre', label: 'Genre', defaultSelected: true }
-  ];
 
   constructor(
     private publicationService: PublicationService,
@@ -540,7 +532,7 @@ export class PublicationsComponent implements OnInit {
         confirmText: 'Update',
         cancelText: 'Cancel',
         showMetadataFields: true,
-        metadataFields: this.METADATA_FIELDS
+        metadataFields: METADATA_FIELDS
       }
     });
 

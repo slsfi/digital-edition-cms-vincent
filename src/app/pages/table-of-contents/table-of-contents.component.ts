@@ -15,11 +15,19 @@ import { map, take } from 'rxjs';
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
-import { PublicationSortOption, SaveTocResponse, TocNode, TocResponse, TocRoot } from '../../models/table-of-contents';
-import { Publication, PublicationCollection, PublicationLite, toPublicationLite } from '../../models/publication';
+import {
+  SaveTocResponse, TocNode, TocResponse, TocRoot, GENERATE_TOC_FIELDS,
+  UPDATE_TOC_FIELDS, PUBLICATION_SORT_OPTIONS
+} from '../../models/table-of-contents';
+import {
+  Publication, PublicationCollection, PublicationLite, toPublicationLite
+} from '../../models/publication';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
-import { ConfirmDialogComponent, TocNodeUpdateFieldOption } from '../../components/confirm-dialog/confirm-dialog.component';
-import { AutoGenerateTocDialogComponent } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import {
+  AutoGenerateTocDialogComponent, AutoGenerateTocDialogData,
+  AutoGenerateTocDialogResult
+} from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
 
 
 @Component({
@@ -62,20 +70,11 @@ export class TableOfContentsComponent implements OnInit {
   hasUnsavedChanges = false;
 
   // Auto-generation
-  sortOptions: PublicationSortOption[] = [];
   selectedSortOption = 'id';
   isGeneratingFlatToc = false;
 
   // Data sync
   isUpdatingFromDb = false;
-  private readonly UPDATE_FIELDS: TocNodeUpdateFieldOption[] = [
-    { key: 'text', label: 'Text (from publication name)',
-      defaultSelected: true },
-    { key: 'date', label: 'Date (from publication date of origin)',
-      defaultSelected: false },
-    { key: 'language', label: 'Language (from publication language)',
-      defaultSelected: false }
-  ];
 
   // Publications cache for selected collection
   publicationsForSelectedCollection: PublicationLite[] = [];
@@ -83,9 +82,6 @@ export class TableOfContentsComponent implements OnInit {
   ngOnInit(): void {
     // Get project name
     this.projectName = this.projectService.getCurrentProject();
-
-    // Get sort options
-    this.sortOptions = this.tocService.getSortOptions();
 
     // Load collections
     this.loadCollections(this.projectName);
@@ -295,22 +291,29 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(AutoGenerateTocDialogComponent, {
+    const dialogRef = this.dialog.open<
+      AutoGenerateTocDialogComponent,
+      AutoGenerateTocDialogData,
+      AutoGenerateTocDialogResult
+    >(AutoGenerateTocDialogComponent, {
       data: {
         selectedCollectionId: this.selectedCollectionId,
         selectedSortOption: this.selectedSortOption,
-        sortOptions: this.sortOptions
-      }
+        sortOptions: PUBLICATION_SORT_OPTIONS,
+        includedFields: GENERATE_TOC_FIELDS
+      } satisfies AutoGenerateTocDialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result?: AutoGenerateTocDialogResult) => {
       if (result?.value && result.selectedSortOption) {
-        this.generateFlatToc(result.selectedSortOption);
+        const selectedFields: { [key: string]: boolean } = result.selectedFields || {};
+        const enabledFields: string[] = Object.keys(selectedFields).filter(key => selectedFields[key]);
+        this.generateFlatToc(result.selectedSortOption, enabledFields);
       }
     });
   }
 
-  private generateFlatToc(sortOption?: string): void {
+  private generateFlatToc(sortOption?: string, includedFields?: string[]): void {
     if (!this.projectName || !this.selectedCollectionId) {
       return;
     }
@@ -326,12 +329,13 @@ export class TableOfContentsComponent implements OnInit {
     ).pipe(
       take(1)
     ).subscribe({
-      next: (publications) => {
+      next: (publications: Publication[]) => {
         this.currentToc = this.tocService.generateFlatToc(
           this.selectedCollectionId!,
           publications,
           sortBy,
-          this.selectedCollection?.name
+          this.selectedCollection?.name,
+          includedFields
         );
         this.hasUnsavedChanges = true;
         this.isGeneratingFlatToc = false;
@@ -359,7 +363,7 @@ export class TableOfContentsComponent implements OnInit {
         confirmText: 'Update',
         cancelText: 'Cancel',
         showTocUpdateFields: true,
-        tocUpdateFields: this.UPDATE_FIELDS
+        tocUpdateFields: UPDATE_TOC_FIELDS
       }
     });
 

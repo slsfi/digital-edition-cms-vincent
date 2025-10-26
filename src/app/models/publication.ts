@@ -1,4 +1,4 @@
-import { ApiResponse, Deleted, Published } from "./common";
+import { ApiResponse, Deleted, LabelledSelectOption, Published } from "./common";
 
 export interface PublicationCollectionsResponse extends ApiResponse {
   data: PublicationCollection[];
@@ -250,3 +250,10 @@ export interface LinkTextToPublication {
   sort_order: number;
   type: number;
 }
+
+export const METADATA_FIELDS: LabelledSelectOption[] = [
+  { key: 'name', label: 'Publication name', defaultSelected: true },
+  { key: 'original_publication_date', label: 'Date of origin', defaultSelected: true },
+  { key: 'language', label: 'Language', defaultSelected: true },
+  { key: 'genre', label: 'Genre', defaultSelected: true }
+];
