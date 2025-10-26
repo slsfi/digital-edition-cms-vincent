@@ -5,17 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-export interface MetadataFieldOption {
-  key: string;
-  label: string;
-  defaultSelected: boolean;
-}
+import { LabelledSelectOption } from '../../models/common';
 
-export interface TocNodeUpdateFieldOption {
-  key: string;
-  label: string;
-  defaultSelected: boolean;
-}
 
 export interface ConfirmDialogData {
   message: string;
@@ -25,9 +16,9 @@ export interface ConfirmDialogData {
   showCascadeBoolean?: boolean;
   cascadeText?: string;
   showMetadataFields?: boolean;
-  metadataFields?: MetadataFieldOption[];
+  metadataFields?: LabelledSelectOption[];
   showTocUpdateFields?: boolean;
-  tocUpdateFields?: TocNodeUpdateFieldOption[];
+  tocUpdateFields?: LabelledSelectOption[];
 }
 
 @Component({
@@ -52,8 +43,8 @@ export class ConfirmDialogComponent {
   showCascadeBoolean = this.data.showCascadeBoolean || false;
   showMetadataFields = this.data.showMetadataFields || false;
   showTocUpdateFields = this.data.showTocUpdateFields || false;
-  metadataFields: MetadataFieldOption[] = this.data.metadataFields || [];
-  tocUpdateFields: TocNodeUpdateFieldOption[] = this.data.tocUpdateFields || [];
+  metadataFields: LabelledSelectOption[] = this.data.metadataFields || [];
+  tocUpdateFields: LabelledSelectOption[] = this.data.tocUpdateFields || [];
   cascadeBoolean = false;
   selectedMetadataFields: { [key: string]: boolean } = {};
   selectedTocUpdateFields: { [key: string]: boolean } = {};

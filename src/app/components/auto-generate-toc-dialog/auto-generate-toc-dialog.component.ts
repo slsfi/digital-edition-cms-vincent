@@ -5,12 +5,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
+import { LabelledOption, LabelledSelectOption } from '../../models/common';
 
 
 export interface AutoGenerateTocDialogData {
   selectedCollectionId: number;
   selectedSortOption: string;
-  sortOptions: { value: string; label: string }[];
+  sortOptions: LabelledOption[];
+  includedFields?: LabelledSelectOption[];
+}
+
+export interface AutoGenerateTocDialogResult {
+  value: boolean;
+  selectedSortOption?: string;
+  selectedFields?: { [key: string]: boolean }
 }
 
 @Component({
@@ -21,7 +31,8 @@ export interface AutoGenerateTocDialogData {
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSlideToggleModule
   ],
   templateUrl: './auto-generate-toc-dialog.component.html',
   styleUrls: ['./auto-generate-toc-dialog.component.scss']
@@ -30,5 +41,14 @@ export class AutoGenerateTocDialogComponent {
   private readonly data = inject<AutoGenerateTocDialogData>(MAT_DIALOG_DATA);
 
   selectedSortOption: string = this.data.selectedSortOption;
-  sortOptions: { value: string; label: string }[] = this.data.sortOptions;
+  sortOptions: LabelledOption[] = this.data.sortOptions;
+
+  fields: LabelledSelectOption[] = this.data.includedFields || [];
+  selectedFields: { [key: string]: boolean } = {};
+
+  constructor() {
+    this.fields.forEach(field => {
+      this.selectedFields[field.key] = field.defaultSelected;
+    });
+  }
 }

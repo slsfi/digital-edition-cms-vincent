@@ -1,4 +1,4 @@
-import { ApiResponse } from "./common";
+import { ApiResponse, LabelledOption, LabelledSelectOption } from "./common";
 import { PublicationLite } from "./publication";
 import { LanguageObj } from "./translation";
 
@@ -89,11 +89,6 @@ export interface DropInfo {
   action: 'before' | 'after' | 'inside';
 }
 
-export interface PublicationSortOption {
-  value: string;
-  label: string;
-}
-
 export interface EditNodeDialogData {
   collectionId: number;
   dialogMode: 'add' | 'edit';
@@ -101,11 +96,33 @@ export interface EditNodeDialogData {
   publications: PublicationLite[];
 }
 
-export const PUBLICATION_SORT_OPTIONS: PublicationSortOption[] = [
-  { value: 'id', label: 'ID' },
-  { value: 'name', label: 'Name' },
-  { value: 'original_filename', label: 'File path' },
-  { value: 'original_publication_date', label: 'Date of origin' }
+export const PUBLICATION_SORT_OPTIONS: LabelledOption[] = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'name' },
+  { key: 'original_filename', label: 'file path' },
+  { key: 'original_publication_date', label: 'date of origin' }
+];
+
+export const UPDATE_TOC_FIELDS: LabelledSelectOption[] = [
+  { key: 'text', label: 'Text (from publication name)',
+    defaultSelected: true },
+  { key: 'date', label: 'Date (from publication date of origin)',
+    defaultSelected: false },
+  { key: 'language', label: 'Language (from publication language)',
+    defaultSelected: false }
+];
+
+export const GENERATE_TOC_FIELDS: LabelledSelectOption[] = [
+  { key: 'date', label: 'Date (from publication date of origin)',
+    defaultSelected: false },
+  { key: 'dateDescription', label: 'Description as date in d.m.YYYY format (from publication date of origin)',
+    defaultSelected: false },
+  { key: 'language', label: 'Language (from publication language)',
+    defaultSelected: false },
+  { key: 'category', label: 'Category (from publication genre)',
+    defaultSelected: false },
+  { key: 'facsimileOnly', label: 'Facsimile only set to true',
+    defaultSelected: false }
 ];
 
 export const tocLanguageOptions: LanguageObj[] = [

@@ -53,3 +53,12 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Index of persons', route: '/persons', icon: 'groups' },
   { label: 'Table of Contents', route: '/table-of-contents', icon: 'list_alt' },
 ]
+
+export interface LabelledOption {
+  key: string;
+  label: string;
+}
+
+export interface LabelledSelectOption extends LabelledOption {
+  defaultSelected: boolean;
+}
