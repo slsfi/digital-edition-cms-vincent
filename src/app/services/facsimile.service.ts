@@ -98,7 +98,7 @@ export class FacsimileService {
   ) {
     const project = this.validateProject(projectName);
     
-    return this.publicationService.getPublications(config.publicationCollectionId.toString(), project).pipe(
+    return this.publicationService.getPublications(String(config.publicationCollectionId), project).pipe(
       take(1),
       switchMap((publications: Publication[]) => {
         return from(publications).pipe(
@@ -132,10 +132,9 @@ export class FacsimileService {
     currentIndex: number,
     totalCount: number
   ) {
-    
     // Step 1: Get manuscripts if needed for title
     const titleSource$ = config.titleSource === 'manuscript' 
-      ? this.publicationService.getManuscriptsForPublication(publication.id.toString(), project).pipe(
+      ? this.publicationService.getManuscriptsForPublication(String(publication.id), project).pipe(
           take(1),
           map((manuscripts: Manuscript[]) => manuscripts.length > 0 ? manuscripts[0].name : (publication.name || `Publication ${publication.id}`))
         )
