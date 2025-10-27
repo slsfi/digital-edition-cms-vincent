@@ -85,10 +85,6 @@ export class TableOfContentsComponent implements OnInit {
 
     // Load collections
     this.loadCollections(this.projectName);
-
-    // Subscribe to current TOC changes
-    this.tocService.getCurrentToc();
-    this.hasUnsavedChanges = this.tocService.hasUnsavedChanges();
   }
 
   private loadCollections(projectName: string | null): void {
@@ -437,7 +433,6 @@ export class TableOfContentsComponent implements OnInit {
 
   markTocAsChanged(): void {
     this.hasUnsavedChanges = true;
-    this.tocService.markAsChanged();
   }
 
   private showSuccess(message: string): void {
