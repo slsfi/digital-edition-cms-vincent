@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable, take } from 'rxjs';
 
 import { SkipLoading } from '../interceptors/loading.interceptor';
-import {
-  AddProjectData, EditProjectData, FileTree, FileTreeResponse, Project, ProjectResponse,
-  ProjectsResponse, RepoDetails, RepoDetailsResponse, SyncFilesResponse
-} from '../models/project.model';
+import { AddProjectData, EditProjectData, FileTree, FileTreeResponse,
+         Project, ProjectResponse, ProjectsResponse, RepoDetails,
+         RepoDetailsResponse, SyncFilesResponse } from '../models/project.model';
 import { ApiService } from './api.service';
+
 
 @Injectable({
   providedIn: 'root'
