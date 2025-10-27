@@ -635,7 +635,7 @@ export class PublicationsComponent implements OnInit {
               this.publicationsLoader$.next(0); // Refresh the list
             } else if (this.metadataUpdateFailures.length < results.length) {
               // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
-              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'Close', {
+              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'Close', {
                 panelClass: 'snackbar-warning',
                 duration: undefined
               });
