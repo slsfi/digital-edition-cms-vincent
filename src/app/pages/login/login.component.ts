@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule,
+         Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 
+import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { AuthService } from '../../services/auth.service';
 import { LoadingService } from './../../services/loading.service';
@@ -33,27 +35,13 @@ const requiredIfEnvironmentIsCustom = function(control: AbstractControl) {
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  constructor(
-    private apiService: ApiService,
-    private authService: AuthService,
-    private loadingService: LoadingService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-  }
+  private readonly apiService = inject(ApiService);
+  private readonly authService = inject(AuthService);
+  private readonly loadingService = inject(LoadingService);
 
+  appVersion = APP_VERSION;
+  loading$ = this.loadingService.loading$;
   valueChanges: Subscription = new Subscription();
-
-  loading$;
-
-  ngOnInit() {
-    this.valueChanges = this.environment.valueChanges.subscribe(() => {
-      this.customEnvironment.updateValueAndValidity()
-    });
-  }
-
-  ngOnDestroy() {
-    this.valueChanges.unsubscribe();
-  }
 
   environments = [
     {value: 'https://api.sls.fi/', name: 'Production'},
@@ -91,17 +79,26 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.loginForm.get('customEnvironment') as FormControl;
   }
 
+  ngOnInit() {
+    this.valueChanges = this.environment.valueChanges.subscribe(() => {
+      this.customEnvironment.updateValueAndValidity()
+    });
+  }
+
+  ngOnDestroy() {
+    this.valueChanges.unsubscribe();
+  }
+
   togglePasswordVisibility(event: MouseEvent) {
     this.hidePassword.set(!this.hidePassword());
     event.preventDefault();
   }
 
-  onSubmit(event: Event) {
+  login(event: Event) {
     event.preventDefault();
     const {email, password, environment, customEnvironment} = this.loginForm.value;
     const env = environment === ' ' ? customEnvironment : environment;
     this.apiService.setEnvironment(env);
     this.authService.login(email, password);
   }
-
 }
