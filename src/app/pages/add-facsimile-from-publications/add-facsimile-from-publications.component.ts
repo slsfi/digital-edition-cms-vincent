@@ -18,8 +18,9 @@ import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 
+
 @Component({
-  selector: 'app-add-facsimile-from-publications',
+  selector: 'add-facsimile-from-publications',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -36,7 +37,6 @@ import { PublicationService } from '../../services/publication.service';
   styleUrl: './add-facsimile-from-publications.component.scss'
 })
 export class AddFacsimileFromPublicationsComponent implements OnInit {
-  
   form: FormGroup;
   publicationCollections$: Observable<PublicationCollection[]> = of([]);
   isProcessing = false;
@@ -56,7 +56,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
       numberOfPages: [4, [Validators.required, Validators.min(1)]],
       startPageNumber: [0, [Validators.required, Validators.min(0)]],
       titleSource: ['publication', Validators.required],
-      description: ['', Validators.required]
+      description: ['']
     });
   }
 
@@ -79,19 +79,19 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
           return of('');
         })
       ).subscribe(collectionName => {
-        if (collectionName && !this.form.get('description')?.value) {
+        if (collectionName) {
           this.form.patchValue({ description: collectionName });
         }
       });
     }
   }
 
-  onSubmit() {
+  createFacsimileCollections() {
     if (this.form.valid && !this.isProcessing) {
       const config: FacsimileCreationConfig = this.form.value;
       
       this.isProcessing = true;
-      this.progressMessage = 'Starting facsimile collection creation...';
+      this.progressMessage = 'Creating facsimile collections…';
       this.creationSummary = null;
 
       const currentProject = this.projectService.getCurrentProject();
@@ -102,21 +102,6 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
         next: (summary: FacsimileCreationSummary) => {
           this.isProcessing = false;
           this.creationSummary = summary;
-          
-          if (summary.failed === 0) {
-            this.snackbar.open(
-              `Successfully created ${summary.successful} facsimile collections!`, 
-              'Close', 
-              { panelClass: ['snackbar-success'] }
-            );
-            // Removed automatic redirect - user can now read the summary and navigate manually
-          } else {
-            this.snackbar.open(
-              `Created ${summary.successful} facsimile collections, but ${summary.failed} failed.`, 
-              'Close', 
-              { panelClass: ['snackbar-warning'] }
-            );
-          }
         },
         error: (error) => {
           this.isProcessing = false;
@@ -131,11 +116,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
     }
   }
 
-  onCancel() {
-    this.router.navigate(['/facsimiles']);
-  }
-
-  onBackToFacsimiles() {
+  navToFacsimileCollections() {
     this.router.navigate(['/facsimiles']);
   }
 
