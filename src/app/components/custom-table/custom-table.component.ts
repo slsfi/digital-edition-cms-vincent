@@ -37,6 +37,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   @Input() selectable = false;
   @Input() paginationEnabled = true;
   @Input() disableSortAndFilter = false;
+  @Input() extraFilterColumns: Column[] = []; // extra columns that can be filtered by but are not displayed in the table
 
   @Output() editRow: EventEmitter<T> = new EventEmitter<T>();
   @Output() editRowSecondary: EventEmitter<T> = new EventEmitter<T>();
@@ -89,6 +90,19 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
       this.displayedColumns = ['select', ...this.displayedColumns];
     }
     this.filterableColumns = this.originalColumns.filter(column => column.filterable);
+
+    // Merge in extraFilterColumns to filterable columns (these fields are not displayed in the table)
+    // (dedupe by field, extra wins)
+    if (this.extraFilterColumns?.length) {
+      const byField = new Map<string, Column>(
+        this.filterableColumns.map(c => [c.field, c])
+      );
+      for (const col of this.extraFilterColumns) {
+        const prev = byField.get(col.field);
+        byField.set(col.field, { ...(prev ?? {} as Column), ...col });
+      }
+      this.filterableColumns = Array.from(byField.values());
+    }
 
     // Prepare data stream that also updates original data snapshot
     const dataWithOriginal$ = this.data$.pipe(
