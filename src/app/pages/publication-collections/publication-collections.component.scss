@@ -4,7 +4,7 @@
   align-items: center;
 }
 
-::ng-deep .mat-badge-content {
-  background-color: #f44336 !important;
-  color: white !important;
+custom-table.all-collections-table {
+  width: 100%;
+  max-width: 1200px;
 }

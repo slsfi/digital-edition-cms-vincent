@@ -1,31 +1,48 @@
-.content {
+.publications-wrapper {
   display: flex;
   gap: 50px;
   margin-top: 1em;
 
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 1599px) {
+    gap: 30px;
+  }
+
+  @media screen and (max-width: 1400px) {
     gap: 20px;
   }
 
   .publications-col {
-    flex-grow: 2;
-    min-width: 800px;
+    width: 100%;
+    max-width: 1200px;
 
-    @media screen and (max-width: 2500px) {
-      min-width: 725px;
-    }
-    @media screen and (max-width: 2100px) {
-      min-width: 675px;
-    }
-    @media screen and (max-width: 1750px) {
-      min-width: 600px;
-    }
-    @media screen and (max-width: 1600px) {
-      min-width: 550px;
+    &.publication-selected {
+      flex-grow: 0;
+      flex-shrink: 0;
+      width: 900px;
+      max-width: unset;
+
+      @media screen and (max-width: 2500px) {
+        width: 825px;
+      }
+      @media screen and (max-width: 2250px) {
+        width: 750px;
+      }
+      @media screen and (max-width: 2100px) {
+        width: 675px;
+      }
+      @media screen and (max-width: 1750px) {
+        width: 600px;
+      }
+      @media screen and (max-width: 1600px) {
+        width: 550px;
+      }
     }
   }
 
   .selected-publication-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     flex-grow: 3;
   }
 }
@@ -67,28 +84,4 @@ td.selected {
   align-items: center;
   gap: 0.5em;
   padding-top: 0.25em;
-}
-
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.title-card {
-  @media screen and (max-width: 960px) {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-}
-
-::ng-deep .mat-mdc-card-header-text {
-  width: 100%;
-}
-
-::ng-deep .mat-mdc-card-title {
-  display: flex !important;
-  justify-content: space-between;
-  align-items: center;
 }

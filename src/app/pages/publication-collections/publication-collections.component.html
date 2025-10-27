@@ -1,6 +1,8 @@
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
 @let selectedProject = selectedProject$ | async;
+@let selectedPublicationCollection = selectedPublicationCollection$ | async;
+@let publicationCollectionId = publicationCollectionId$ | async;
 
 <h1>Text collection management</h1>
 
@@ -8,16 +10,17 @@
   <p>Please select a project</p>
 } @else {
   <div class="selected-collection">
-    @if (selectedPublicationCollection$ | async; as selectedPublicationCollection) {
+    @if (selectedPublicationCollection) {
       <a mat-icon-button routerLink="/publication-collections"><mat-icon>west</mat-icon></a>
       <h2>{{ selectedPublicationCollection.name }} (ID {{ selectedPublicationCollection.id }})</h2>
     }
   </div>
 
-  @if (publicationCollectionId$ | async; as publicationCollectionId) {
+  @if (publicationCollectionId) {
     <publications></publications>
   } @else {
     <custom-table
+      class="all-collections-table"
       [data$]="publicationCollections$"
       [columns]="publicationCollectionColumnsData"
       [idRouteParams]="['/publication-collections/']"

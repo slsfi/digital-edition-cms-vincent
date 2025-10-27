@@ -1,6 +1,6 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BehaviorSubject, catchError, combineLatest, concatMap,
          distinctUntilChanged, finalize, from, map, Observable, of,
          switchMap, take, tap, toArray } from 'rxjs';
@@ -78,7 +77,6 @@ export class PublicationsComponent implements OnInit {
   facsimiles$: Observable<PublicationFacsimile[]> = of([]);
   facsimileColumnData = facsimileColumnData;
 
-  isSmallScreen = false;
   metadataUpdateFailures: number[] = [];
   metadataUpdating = false;
 
@@ -89,12 +87,10 @@ export class PublicationsComponent implements OnInit {
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private snackbar: MatSnackBar,
-    private loadingService: LoadingService,
-    private breakpointObserver: BreakpointObserver
+    private loadingService: LoadingService
   ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.publicationService.selectedProject$;
-    this.isSmallScreen = this.breakpointObserver.isMatched('(max-width: 960px)');
     this.sortParams$ = this.queryParamsService.sortParams$;
     this.filterParams$ = this.queryParamsService.filterParams$;
   }
