@@ -11,7 +11,7 @@ import { FacsimileCollectionComponent } from './pages/facsimile-collection/facsi
 import { PublicationBundleComponent } from './pages/publication-bundle/publication-bundle.component';
 import { AddFacsimileFromPublicationsComponent } from './pages/add-facsimile-from-publications/add-facsimile-from-publications.component';
 import { TableOfContentsComponent } from './pages/table-of-contents/table-of-contents.component';
-import { KeywordsManagementComponent } from './pages/keywords-management/keywords-management.component';
+import { KeywordsManagementComponent } from './pages/keywords/keywords.component';
 import { KeywordLinkingComponent } from './pages/keyword-linking/keyword-linking.component';
 
 export const routes: Routes = [

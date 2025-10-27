@@ -20,9 +20,9 @@ import { ProjectService } from '../../services/project.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-dialog.component';
 
+
 @Component({
-  selector: 'app-keywords-management',
-  standalone: true,
+  selector: 'keywords',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -39,8 +39,8 @@ import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-
     MatTableModule,
     MatChipsModule
   ],
-  templateUrl: './keywords-management.component.html',
-  styleUrl: './keywords-management.component.scss'
+  templateUrl: './keywords.component.html',
+  styleUrl: './keywords.component.scss'
 })
 export class KeywordsManagementComponent implements OnInit {
   keywords$: Observable<Keyword[]> = of([]);
