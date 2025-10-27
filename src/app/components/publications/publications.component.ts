@@ -60,6 +60,7 @@ export class PublicationsComponent implements OnInit {
   publicationId$: Observable<string | null> = new Observable<string | null>();
   selectedPublication$: Observable<Publication | null> = new Observable<Publication | null>();
   publicationColumnsData = publicationColumnsData;
+  extraFilterColumns: Column[] = [];
   // VERSIONS
   versionsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   versions$: Observable<Version[]> = of([]);
@@ -154,6 +155,13 @@ export class PublicationsComponent implements OnInit {
         })
       ))
     );
+
+    // Set extra columns that can be filtered by, but are not displayed in the publications table
+    const originalDateCol =
+      allPublicationColumnsData.find(c => c.field === 'original_publication_date');
+    this.extraFilterColumns = originalDateCol
+      ? [{ ...originalDateCol, filterable: true, filterType: 'contains' }]
+      : [];
   }
 
   editPublication(publication: Publication | null = null, collectionId: string) {
@@ -509,14 +517,21 @@ export class PublicationsComponent implements OnInit {
 
   filter() {
     const columns = this.publicationColumnsData.filter(column => column.filterable);
+
+    // add the extra columns that can be filtered and sorted by but are not displayed
+    const filterColumns = [...columns, ...this.extraFilterColumns];
+
     this.dialog.open(TableFiltersComponent, {
-      data: columns
+      data: filterColumns
     });
   }
 
   sort() {
+    // add the extra columns that can be sorted and filtered by but are not displayed
+    const sortColumns = [...this.publicationColumnsData, ...this.extraFilterColumns];
+
     this.dialog.open(TableSortingComponent, {
-      data: this.publicationColumnsData
+      data: sortColumns
     });
   }
 

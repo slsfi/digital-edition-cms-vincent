@@ -13,6 +13,7 @@
       <custom-table
         [data$]="publications$"
         [columns]="publicationColumnsData"
+        [extraFilterColumns]="extraFilterColumns"
         [selectedId]="publicationId$ | async"
         [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
         [preserveQueryParams]="true"
