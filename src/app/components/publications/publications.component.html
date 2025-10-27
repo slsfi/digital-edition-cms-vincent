@@ -1,170 +1,163 @@
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
+@let publicationCollectionId = publicationCollectionId$ | async;
+@let selectedPublication = selectedPublication$ | async;
 
-@if (publicationCollectionId$ | async; as publicationCollectionId) {
-  <div class="content">
-    @if ((isSmallScreen && (publicationId$ | async) === null) || !isSmallScreen) {
-      <div class="publications-col">
-        @if ((loading$ | async) || metadataUpdating) {
-          <loading-spinner [overlay]="true"></loading-spinner>
-        }
-        <!-- List of publications -->
-        <custom-table
-          [data$]="publications$"
-          [columns]="publicationColumnsData"
-          [selectedId]="publicationId$ | async"
-          [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
-          [preserveQueryParams]="true"
-          (editRow)="editPublication($event, publicationCollectionId)"
-          (deleteRow)="deletePublication($event)">
-          <ng-content custom-table-title>Publications</ng-content>
-          <ng-content custom-table-actions>
-            <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()">
-              <mat-icon>sort</mat-icon>
-              Sort
-            </button>
-            <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()">
-              <mat-icon>filter_list</mat-icon>
-              Filter
-            </button>
-            <button mat-flat-button [matMenuTriggerFor]="addPublicationMenu">
+@if (publicationCollectionId) {
+  <div class="publications-wrapper">
+    <div class="publications-col" [class.publication-selected]="selectedPublication">
+      @if ((loading$ | async) || metadataUpdating) {
+        <loading-spinner [overlay]="true"></loading-spinner>
+      }
+      <!-- List of publications -->
+      <custom-table
+        [data$]="publications$"
+        [columns]="publicationColumnsData"
+        [selectedId]="publicationId$ | async"
+        [idRouteParams]="['/publication-collections/', publicationCollectionId, 'publication']"
+        [preserveQueryParams]="true"
+        (editRow)="editPublication($event, publicationCollectionId)"
+        (deleteRow)="deletePublication($event)">
+        <ng-content custom-table-title>Publications</ng-content>
+        <ng-content custom-table-actions>
+          <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()">
+            <mat-icon>sort</mat-icon>
+            Sort
+          </button>
+          <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()">
+            <mat-icon>filter_list</mat-icon>
+            Filter
+          </button>
+          <button mat-flat-button [matMenuTriggerFor]="addPublicationMenu">
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+          <mat-menu #addPublicationMenu="matMenu">
+            <button mat-menu-item (click)="editPublication(null, publicationCollectionId)">
               <mat-icon>add</mat-icon>
-              Add
+              Add single
             </button>
-            <mat-menu #addPublicationMenu="matMenu">
-              <button mat-menu-item (click)="editPublication(null, publicationCollectionId)">
-                <mat-icon>add</mat-icon>
-                Add single
-              </button>
-              <a mat-menu-item class="add-bundle" aria-label="Add multiple" [routerLink]="['/publication-collections', publicationCollectionId, 'bundle-add']">
-                <mat-icon>library_add</mat-icon>
-                Add multiple
-              </a>
-            </mat-menu>
-            <button mat-icon-button
-              [matMenuTriggerFor]="moreActionsMenu"
-              aria-label="More actions"
-              matTooltip="More actions"
+            <a mat-menu-item class="add-bundle" aria-label="Add multiple" [routerLink]="['/publication-collections', publicationCollectionId, 'bundle-add']">
+              <mat-icon>library_add</mat-icon>
+              Add multiple
+            </a>
+          </mat-menu>
+          <button mat-icon-button
+            [matMenuTriggerFor]="moreActionsMenu"
+            aria-label="More actions"
+            matTooltip="More actions"
+            >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #moreActionsMenu="matMenu">
+            <button mat-menu-item
+              (click)="updateMetadataAll(publicationCollectionId)"
+              matTooltip="Update metadata of all publications in the collection from XML"
+              [disabled]="metadataUpdating"
               >
-              <mat-icon>more_vert</mat-icon>
+              <mat-icon>sync</mat-icon>
+              Update metadata from XML
             </button>
-            <mat-menu #moreActionsMenu="matMenu">
-              <button mat-menu-item
-                (click)="updateMetadataAll(publicationCollectionId)"
-                matTooltip="Update metadata of all publications in the collection from XML"
-                [disabled]="metadataUpdating"
-                >
-                <mat-icon>sync</mat-icon>
-                Update metadata from XML
-              </button>
-            </mat-menu>
-          </ng-content>
-        </custom-table>
+          </mat-menu>
+        </ng-content>
+      </custom-table>
+    </div>
+    @if (selectedPublication) {
+      <div class="selected-publication-col">
+        <!-- Selected publication -->
+        <mat-card appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>{{ selectedPublication.name }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="selected-publication-data">
+              <div>
+                <div><strong>ID:</strong> {{ selectedPublication.id }}</div>
+                <div><strong>Date of origin:</strong> {{ selectedPublication.original_publication_date }}</div>
+              </div>
+              <div>
+                <div><strong>Language:</strong> {{ selectedPublication.language }}</div>
+                <div><strong>Genre:</strong> {{ selectedPublication.genre }}</div>
+              </div>
+            </div>
+            <div class="reading-text-file-row">
+              <div>
+                <strong>Reading text file path:</strong>
+                {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}
+              </div>
+              <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <!-- Comments -->
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <custom-table
+              [data$]="comments$"
+              [columns]="commentsColumnData"
+              [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
+              (editRow)="editComment($event, selectedPublication.id)"
+              (deleteRow)="deleteComment($event, selectedPublication.id)">
+              <ng-content custom-table-title>Comments</ng-content>
+              <ng-content custom-table-actions>
+                <button [disabled]="!!selectedPublication.publication_comment_id" mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+              </ng-content>
+            </custom-table>
+          </mat-card-content>
+        </mat-card>
+        <!-- Facsimiles -->
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <custom-table
+              [data$]="facsimiles$"
+              [columns]="facsimileColumnData"
+              [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
+              (editRow)="editFacsimile($event, selectedPublication.id)"
+              (deleteRow)="deleteFacsimile($event)">
+              <ng-content custom-table-title>Facsimiles</ng-content>
+              <ng-content custom-table-actions>
+                <a mat-flat-button routerLink="facsimiles/new"><mat-icon>add</mat-icon>Add</a>
+              </ng-content>
+            </custom-table>
+          </mat-card-content>
+        </mat-card>
+        <!-- Manuscripts -->
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <custom-table
+              [data$]="manuscripts$"
+              [columns]="manuscriptColumnsData"
+              [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
+              (editRow)="editManuscript($event, selectedPublication.id)"
+              (deleteRow)="deleteManuscript($event)">
+              <ng-content custom-table-title>Manuscripts</ng-content>
+              <ng-content custom-table-actions>
+                <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+              </ng-content>
+            </custom-table>
+          </mat-card-content>
+        </mat-card>
+        <!-- Variants -->
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <custom-table
+              [data$]="versions$"
+              [columns]="versionColumnsData"
+              [paginationEnabled]="false"
+              [disableSortAndFilter]="true"
+              (editRow)="editVersion($event, selectedPublication.id)"
+              (deleteRow)="deleteVersion($event)">
+              <ng-content custom-table-title>Variants</ng-content>
+              <ng-content custom-table-actions>
+                <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
+              </ng-content>
+            </custom-table>
+          </mat-card-content>
+        </mat-card>
       </div>
     }
-    <div class="selected-publication-col">
-      @if (selectedPublication$ | async; as selectedPublication) {
-        <div class="cards">
-          <!-- Selected publication -->
-          <div class="title-card">
-            @if (isSmallScreen) {
-              <a mat-icon-button [routerLink]="['/publication-collections', publicationCollectionId]"><mat-icon>west</mat-icon></a>
-            }
-            <mat-card appearance="outlined">
-              <mat-card-header>
-                <mat-card-title>{{ selectedPublication.name }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="selected-publication-data">
-                  <div>
-                    <div><strong>ID:</strong> {{ selectedPublication.id }}</div>
-                    <div><strong>Date of origin:</strong> {{ selectedPublication.original_publication_date }}</div>
-                  </div>
-                  <div>
-                    <div><strong>Language:</strong> {{ selectedPublication.language }}</div>
-                    <div><strong>Genre:</strong> {{ selectedPublication.genre }}</div>
-                  </div>
-                </div>
-                <div class="reading-text-file-row">
-                  <div>
-                    <strong>Reading text file path:</strong>
-                    {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}
-                  </div>
-                  <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <!-- Comments -->
-          <mat-card appearance="outlined">
-            <mat-card-content>
-              <custom-table
-                [data$]="comments$"
-                [columns]="commentsColumnData"
-                [paginationEnabled]="false"
-                [disableSortAndFilter]="true"
-                (editRow)="editComment($event, selectedPublication.id)"
-                (deleteRow)="deleteComment($event, selectedPublication.id)">
-                <ng-content custom-table-title>Comments</ng-content>
-                <ng-content custom-table-actions>
-                  <button [disabled]="!!selectedPublication.publication_comment_id" mat-flat-button (click)="editComment(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                </ng-content>
-              </custom-table>
-            </mat-card-content>
-          </mat-card>
-          <!-- Facsimiles -->
-          <mat-card appearance="outlined">
-            <mat-card-content>
-              <custom-table
-                [data$]="facsimiles$"
-                [columns]="facsimileColumnData"
-                [paginationEnabled]="false"
-                [disableSortAndFilter]="true"
-                (editRow)="editFacsimile($event, selectedPublication.id)"
-                (deleteRow)="deleteFacsimile($event)">
-                <ng-content custom-table-title>Facsimiles</ng-content>
-                <ng-content custom-table-actions>
-                  <a mat-flat-button routerLink="facsimiles/new"><mat-icon>add</mat-icon>Add</a>
-                </ng-content>
-              </custom-table>
-            </mat-card-content>
-          </mat-card>
-          <!-- Manuscripts -->
-          <mat-card appearance="outlined">
-            <mat-card-content>
-              <custom-table
-                [data$]="manuscripts$"
-                [columns]="manuscriptColumnsData"
-                [paginationEnabled]="false"
-                [disableSortAndFilter]="true"
-                (editRow)="editManuscript($event, selectedPublication.id)"
-                (deleteRow)="deleteManuscript($event)">
-                <ng-content custom-table-title>Manuscripts</ng-content>
-                <ng-content custom-table-actions>
-                  <button mat-flat-button (click)="editManuscript(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                </ng-content>
-              </custom-table>
-            </mat-card-content>
-          </mat-card>
-          <!-- Variants -->
-          <mat-card appearance="outlined">
-            <mat-card-content>
-              <custom-table
-                [data$]="versions$"
-                [columns]="versionColumnsData"
-                [paginationEnabled]="false"
-                [disableSortAndFilter]="true"
-                (editRow)="editVersion($event, selectedPublication.id)"
-                (deleteRow)="deleteVersion($event)">
-                <ng-content custom-table-title>Variants</ng-content>
-                <ng-content custom-table-actions>
-                  <button mat-flat-button (click)="editVersion(null, selectedPublication.id)"><mat-icon>add</mat-icon>Add</button>
-                </ng-content>
-              </custom-table>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      }
-    </div>
   </div>
 }
