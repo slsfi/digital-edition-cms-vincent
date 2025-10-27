@@ -4,32 +4,27 @@
 
 <h1>Text collection management</h1>
 
+@if (project === null) {
+  <p>Please select a project</p>
+}
+
 @if (loading || gettingMetadata) {
   <loading-spinner [overlay]="true"></loading-spinner>
 }
 
-@if (collectionId) {
+@if (collectionId && project) {
   <div class="header">
     <a mat-icon-button [routerLink]="['/publication-collections', collectionId]"><mat-icon>west</mat-icon></a>
     @if (collection) {
-      <h2>Add multiple publications to {{ collection.name }}</h2>
+      <h2>Add publications to »{{ collection.name }}» from XML files</h2>
     }
   </div>
 
   @if (collection) {
 
     @if (files.length < 1) {
-      <h3>1. Select folder to add XML files from</h3>
-      @if (saveFailures.length) {
-        <div class="error-box">
-          <h3>Failed to save the following files:</h3>
-          <ul>
-            @for (filename of saveFailures; track filename) {
-              <li>{{ filename }}</li>
-            }
-          </ul>
-        </div>
-      }
+      <h3>1. Select folder to read XML files from</h3>
+      <p>XML files that have already been added as publications, will be skipped.</p>
       <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="selectedFiles($event)"></file-tree>
     } @else {
       <form [formGroup]="bundleForm" id="bundle-form" (ngSubmit)="savePublications(collectionId)">
@@ -46,7 +41,7 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <button type="button" mat-flat-button
+              <button type="button" matButton="filled"
                 (click)="getMetadataFromXMLAll()"
                 [disabled]="gettingMetadata"
               >Get metadata from XML</button>
@@ -58,8 +53,8 @@
               >Also add manuscripts</mat-slide-toggle>
             </div>
             <div class="submit-buttons">
-              <button mat-button type="button" class="clear-button" (click)="clearForm()">Clear</button>
-              <button mat-flat-button type="submit" form="bundle-form" [disabled]="!bundleForm.valid">Save</button>
+              <button matButton type="button" class="clear-button" (click)="clearForm()">Clear</button>
+              <button matButton="filled" type="submit" form="bundle-form" [disabled]="!bundleForm.valid">Save</button>
             </div>
           </div>
           <mat-divider></mat-divider>

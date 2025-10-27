@@ -1,5 +1,5 @@
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
          Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/s
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, combineLatest, finalize, from, map, mergeMap,
          Observable, of, switchMap, take, tap, toArray} from 'rxjs';
+
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { Published, PublishedOptions } from '../../models/common.model';
@@ -22,6 +23,7 @@ import { LinkTextToPublicationRequest, PublicationAddRequest, PublicationCollect
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
+
 
 interface BundleFormType {
   original_filename: FormControl<string>;
@@ -37,18 +39,29 @@ interface BundleFormType {
 @Component({
   selector: 'publication-bundle',
   imports: [
-    CommonModule, FormsModule, MatIconModule, RouterLink, ReactiveFormsModule, MatButtonModule, FileTreeComponent,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatDivider,
-    MatTooltipModule, LoadingSpinnerComponent
+    CommonModule, FormsModule, MatIconModule, RouterLink,
+    ReactiveFormsModule, MatButtonModule, FileTreeComponent,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatSlideToggleModule, MatDivider, MatTooltipModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './publication-bundle.component.html',
   styleUrl: './publication-bundle.component.scss'
 })
 export class PublicationBundleComponent implements OnInit {
+  private readonly publicationService = inject(PublicationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackbar = inject(MatSnackBar);
+  private readonly loadingService = inject(LoadingService);
+  private readonly router = inject(Router);
+
   gettingMetadata = false;
-  loading$;
-  selectedProject$;
-  publicationCollectionId$: Observable<string | null>;
+  loading$ = this.loadingService.loading$;
+  project: string | null = null;
+  publicationCollectionId$: Observable<string | null> = this.route.paramMap.pipe(
+    map(params => params.get('collectionId'))
+  );
   publicationCollections$: Observable<PublicationCollection[]> = of([]);
   selectedPublicationCollection$: Observable<PublicationCollection | undefined> = of(undefined);
   publishedOptions = PublishedOptions;
@@ -56,6 +69,7 @@ export class PublicationBundleComponent implements OnInit {
   saveFailures: string[] = [];
   metadataFailures: string[] = [];
   addMsBoolean = false;
+  existingFilePaths = new Set<string>();
 
   bundleForm = new FormGroup({
     published: new FormControl(Published.PublishedInternally, Validators.required),
@@ -71,35 +85,55 @@ export class PublicationBundleComponent implements OnInit {
     return this.publishedOptions.find(option => option.value === value)?.label;
   }
 
-  constructor(
-    private publicationService: PublicationService,
-    private projectService: ProjectService,
-    private route: ActivatedRoute,
-    private snackbar: MatSnackBar,
-    private loadingService: LoadingService,
-    private router: Router
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.publicationService.selectedProject$;
-    this.publicationCollectionId$ = this.route.paramMap.pipe(map(params => params.get('collectionId')));
-  }
-
   ngOnInit() {
-    this.publicationCollections$ = this.selectedProject$.pipe(
-      switchMap(project => {
-        if (!project) { return of([]); }
-        return this.publicationService.getPublicationCollections(project);
-      })
+    this.project = this.projectService.getCurrentProject();
+    if (!this.project) {
+      return;
+    }
+
+    this.publicationCollections$ = this.publicationService.getPublicationCollections(this.project);
+
+    this.selectedPublicationCollection$ = combineLatest([
+      this.publicationCollections$,
+      this.publicationCollectionId$
+    ]).pipe(
+      map(([collections, id]) => collections.find(
+        collection => collection.id === Number(id as string)
+      ))
     );
-    this.selectedPublicationCollection$ = combineLatest([this.publicationCollections$, this.publicationCollectionId$]).pipe(
-      map(([collections, id]) => collections.find(collection => collection.id === parseInt(id as string)))
-    );
+
+    // Get a list of all publications already in the collection, so we can filter
+    // them out and not add them again.
+    this.publicationCollectionId$.pipe(
+      switchMap((collectionId) => {
+        if (!collectionId) {
+          return of([]);
+        }
+        return this.publicationService.getPublications(collectionId, this.project);
+      }),
+      take(1)
+    ).subscribe((pubs) => {
+      this.existingFilePaths.clear();
+      pubs.forEach(p => {
+        if (p.original_filename) {
+          this.existingFilePaths.add(p.original_filename);
+        }
+      });
+    });
   }
 
   selectedFiles(filePaths: string[]) {
     this.saveFailures = [];
     this.files.clear();
+
+    const skipped: string[] = [];
+
     for (const filePath of filePaths) {
+      if (this.existingFilePaths.has(filePath)) {
+        skipped.push(filePath);
+        continue; // don’t add a row for already added publications
+      }
+
       this.files.push(new FormGroup<BundleFormType>({
         original_filename: new FormControl({ value: filePath, disabled: true }, { validators: Validators.required, nonNullable: true}),
         name: new FormControl('', { validators: Validators.required , nonNullable: true }),
@@ -110,6 +144,25 @@ export class PublicationBundleComponent implements OnInit {
         legacy_id: new FormControl(null),
         original_publication_date: new FormControl(null),
       }));
+    }
+
+    if (skipped.length) {
+      if (skipped.length === filePaths.length) {
+        this.snackbar.open(`All ${filePaths.length} XML files in the folder have already been added as publications to the collection. Unable to add them again.`, 'Close', {
+          panelClass: 'snackbar-error',
+          duration: undefined
+        });
+
+        // Clear local form state and navigate back to the collection page
+        this.clearForm();
+        this.router.navigate(['../'], { relativeTo: this.route });
+      } else {
+        this.snackbar.open(`Skipped ${skipped.length} / ${filePaths.length} XML files that have already been added as publications to the collection.`, 'Close', {
+          panelClass: 'snackbar-info',
+          duration: undefined
+        });
+        console.log('Skipped XML files: ', skipped);
+      }
     }
   }
 
@@ -132,7 +185,7 @@ export class PublicationBundleComponent implements OnInit {
 
     if (this.files.controls.length > 40) {
       progressSnackbarRef = this.snackbar.open(
-        'Fetching metadata from XML files ...', 'Close',
+        'Fetching metadata from XML files…', 'Close',
         { panelClass: 'snackbar-info', duration: undefined }
       );
     }
@@ -142,8 +195,7 @@ export class PublicationBundleComponent implements OnInit {
       mergeMap(({ row, index }) => {
         const originalFilename = row.get('original_filename')!.value;
 
-        const currentProject = this.projectService.getCurrentProject();
-        return this.publicationService.getMetadataFromXML(originalFilename, currentProject).pipe(
+        return this.publicationService.getMetadataFromXML(originalFilename, this.project).pipe(
           take(1),
           tap((metadata: XmlMetadata) => {
             for (const key in metadata) {
@@ -206,18 +258,23 @@ export class PublicationBundleComponent implements OnInit {
 
     throttledRequests$.subscribe({
       complete: () => {
-        if (this.saveFailures.length === 0) {
+        const total = this.files.controls.length;
+        const failed = this.saveFailures.length;
+
+        if (failed === 0) {
           this.snackbar.open('Successfully added all publications.', 'Close', {
             panelClass: 'snackbar-success'
           });
-          this.router.navigate(['../'], { relativeTo: this.route });
         } else {
-          this.snackbar.open(`Failed to add ${this.saveFailures.length} / ${this.files.controls.length} publications: ${this.saveFailures.join(', ')}`, 'Close', {
+          this.snackbar.open(`Failed to add ${failed} / ${total} publications from the following files:\n${this.saveFailures.join(', ')}`, 'Close', {
             panelClass: 'snackbar-error',
             duration: undefined
           });
         }
+
+        // Clear local form state and always navigate back to the collection page
         this.clearForm();
+        this.router.navigate(['../'], { relativeTo: this.route });
       },
     });
   }
@@ -238,11 +295,14 @@ export class PublicationBundleComponent implements OnInit {
    *          has been processed. Emits no data, but handles success or failure internally.
    */
   addPublication(row: FormGroup<BundleFormType>, collectionId: number): Observable<void> {
+    if (!this.project) {
+      return of(void 0);
+    }
+
     const data = row.getRawValue() as PublicationAddRequest;
     data.published = this.bundleForm.value.published as Published;
 
-    const currentProject = this.projectService.getCurrentProject();
-    return this.publicationService.addPublication(collectionId, data, currentProject).pipe(
+    return this.publicationService.addPublication(collectionId, data, this.project).pipe(
       take(1),
       switchMap((response: PublicationResponse) => {
         const pub = response.data;
@@ -262,7 +322,9 @@ export class PublicationBundleComponent implements OnInit {
         };
 
         // Also link a manuscript to the publication using the same data
-        return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, currentProject).pipe(take(1));
+        return this.publicationService.linkTextToPublication(
+          pub.id, manuscriptPayload, this.project
+        ).pipe(take(1));
       }),
       map(() => void 0),
       catchError((err) => {
