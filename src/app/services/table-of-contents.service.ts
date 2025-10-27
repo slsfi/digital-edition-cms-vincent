@@ -18,9 +18,6 @@ export class TableOfContentsService {
   private readonly apiService = inject(ApiService);
   private readonly projectService = inject(ProjectService);
 
-  private currentToc: TocRoot | null = null;
-  private _hasUnsavedChanges = false;
-
   /**
    * Load table of contents for a collection.
    */
@@ -35,8 +32,6 @@ export class TableOfContentsService {
     return this.apiService.get<TocResponseApi>(url, {}, true).pipe(
       map((response: TocResponseApi) => {
         const normalized = this.normalizeTocRoot(response.data);
-        this.currentToc = normalized;
-        this._hasUnsavedChanges = false;
         return normalized;
       })
     );
@@ -53,12 +48,7 @@ export class TableOfContentsService {
 
     const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
     
-    return this.apiService.put<SaveTocResponse>(url, toc).pipe(
-      tap(() => {
-        this.currentToc = toc;
-        this._hasUnsavedChanges = false;
-      })
-    );
+    return this.apiService.put<SaveTocResponse>(url, toc);
   }
 
   /**
@@ -79,8 +69,6 @@ export class TableOfContentsService {
     return this.apiService.post<TocResponseApi>(url, request).pipe(
       map((response: TocResponseApi) => {
         const normalizedTocRoot: TocRoot = this.normalizeTocRoot(response.data);
-        this.currentToc = normalizedTocRoot;
-        this._hasUnsavedChanges = true; // Mark as unsaved since we updated the data
         const normalizedResp: TocResponse = {
           success: response.success,
           data: normalizedTocRoot,
@@ -163,27 +151,6 @@ export class TableOfContentsService {
     }));
 
     return this.createNewTocRoot(collectionId, collectionTitle, children);
-  }
-
-  /**
-   * Get current table of contents
-   */
-  getCurrentToc(): TocRoot | null {
-    return this.currentToc;
-  }
-
-  /**
-   * Check if there are unsaved changes
-   */
-  hasUnsavedChanges(): boolean {
-    return this._hasUnsavedChanges;
-  }
-
-  /**
-   * Mark that changes have been made
-   */
-  markAsChanged(): void {
-    this._hasUnsavedChanges = true;
   }
 
   /**
