@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, Observable, shareReplay, switchMap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable, shareReplay } from 'rxjs';
 
+import { ApiService } from './api.service';
 import {
   EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
   LinkPublicationToFacsimileRequest, PublicationFacsimileResponse
@@ -14,18 +15,13 @@ import {
   PublicationResponse, PublicationsResponse, VersionEditRequest, VersionResponse,
   VersionsResponse, XmlMetadataResponse
 } from '../models/publication.model';
-import { ApiService } from './api.service';
-import { ProjectService } from './project.service';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class PublicationService {
-  selectedProject$: BehaviorSubject<string | null>;
-
-  constructor(private apiService: ApiService, private projectService: ProjectService) {
-    this.selectedProject$ = this.projectService.selectedProject$;
-  }
+  private readonly apiService = inject(ApiService);
 
   private validateProject(projectName: string | null | undefined): string | never {
     if (!projectName) {
@@ -161,13 +157,4 @@ export class PublicationService {
       map(response => response.data)
     );
   }
-
-  // Legacy method for reactive updates on home page
-  getPublicationCollectionsForCurrentProject() {
-    return this.selectedProject$.pipe(
-      filter(project => !!project),
-      switchMap(project => this.getPublicationCollections(project))
-    );
-  }
-
 }

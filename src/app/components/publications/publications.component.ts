@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -49,10 +49,19 @@ import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/u
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent implements OnInit {
-  loading$;
-  selectedProject$;
-  sortParams$;
-  filterParams$;
+  private readonly publicationService = inject(PublicationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
+  private readonly queryParamsService = inject(QueryParamsService);
+  private readonly snackbar = inject(MatSnackBar);
+  private readonly loadingService = inject(LoadingService);
+
+  loading$ = this.loadingService.loading$;
+  selectedProject: string | null = this.projectService.getCurrentProject();
+  sortParams$ = this.queryParamsService.sortParams$;
+  filterParams$ = this.queryParamsService.filterParams$;
+
   // PUBLICATIONS
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   publicationsLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
@@ -81,21 +90,6 @@ export class PublicationsComponent implements OnInit {
   metadataUpdateFailures: number[] = [];
   metadataUpdating = false;
 
-  constructor(
-    private publicationService: PublicationService,
-    private projectService: ProjectService,
-    private route: ActivatedRoute,
-    private dialog: MatDialog,
-    private queryParamsService: QueryParamsService,
-    private snackbar: MatSnackBar,
-    private loadingService: LoadingService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.publicationService.selectedProject$;
-    this.sortParams$ = this.queryParamsService.sortParams$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
-  }
-
   ngOnInit() {
     this.publicationCollectionId$ = this.route.paramMap.pipe(
       map(params => params.get('collectionId'))
@@ -103,11 +97,11 @@ export class PublicationsComponent implements OnInit {
     this.publicationId$ = this.route.paramMap.pipe(map(params => params.get('publicationId')));
 
     this.publications$ = this.publicationsLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$]).pipe(
-        distinctUntilChanged(([, prevCollectionId], [, nextCollectionId]) => prevCollectionId === nextCollectionId),
-        switchMap(([project, collectionId]) => {
-          if (!project) { return of([]); }
-          return this.publicationService.getPublications(collectionId as string, project);
+      switchMap(() => this.publicationCollectionId$.pipe(
+        distinctUntilChanged((prevCollectionId, nextCollectionId) => prevCollectionId === nextCollectionId),
+        switchMap((collectionId) => {
+          if (!this.selectedProject) { return of([]); }
+          return this.publicationService.getPublications(collectionId as string, this.selectedProject);
         })
       ))
     );
@@ -117,41 +111,41 @@ export class PublicationsComponent implements OnInit {
     );
 
     this.comments$ = this.commentLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(shallowArrayEqual),
-        switchMap(([project, collectionId, publicationId]) => {
-          if (!project) { return of([]); }
-          return this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string, project);
+        switchMap(([collectionId, publicationId]) => {
+          if (!this.selectedProject) { return of([]); }
+          return this.publicationService.getCommentsForPublication(collectionId as string, publicationId as string, this.selectedProject);
         })
       ))
     );
 
     this.versions$ = this.versionsLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(shallowArrayEqual),
-        switchMap(([project, , publicationId]) => {
-          if (!project) { return of([]); }
-          return this.publicationService.getVersionsForPublication(publicationId as string, project);
+        switchMap(([, publicationId]) => {
+          if (!this.selectedProject) { return of([]); }
+          return this.publicationService.getVersionsForPublication(publicationId as string, this.selectedProject);
         })
       ))
     );
 
     this.manuscripts$ = this.manuscriptsLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(shallowArrayEqual),
-        switchMap(([project, , publicationId]) => {
-          if (!project) { return of([]); }
-          return this.publicationService.getManuscriptsForPublication(publicationId as string, project);
+        switchMap(([, publicationId]) => {
+          if (!this.selectedProject) { return of([]); }
+          return this.publicationService.getManuscriptsForPublication(publicationId as string, this.selectedProject);
         })
       ))
     );
 
     this.facsimiles$ = this.facsimilesLoader$.asObservable().pipe(
-      switchMap(() => combineLatest([this.selectedProject$, this.publicationCollectionId$, this.publicationId$]).pipe(
+      switchMap(() => combineLatest([this.publicationCollectionId$, this.publicationId$]).pipe(
         distinctUntilChanged(shallowArrayEqual),
-        switchMap(([project, , publicationId]) => {
-          if (!project) { return of([]); }
-          return this.publicationService.getFacsimilesForPublication(publicationId as string, project);
+        switchMap(([, publicationId]) => {
+          if (!this.selectedProject) { return of([]); }
+          return this.publicationService.getFacsimilesForPublication(publicationId as string, this.selectedProject);
         })
       ))
     );
