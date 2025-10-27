@@ -1,21 +1,19 @@
-<div class="container">
-  <h1>Project management</h1>
+<h1>Project management</h1>
 
-  <custom-table
-    [data$]="projects$"
-    [columns]="columnsData"
-    (editRow)="editProject($event)"
-    (deleteRow)="deleteProject($event)">
-    <ng-content custom-table-title>Projects</ng-content>
-    <ng-content custom-table-actions>
-      @if (filterParams$ | async; as filterParams) {
-        <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
-      }
-      <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
-    </ng-content>
-  </custom-table>
+<custom-table
+  [data$]="projects$"
+  [columns]="columnsData"
+  (editRow)="editProject($event)"
+  (deleteRow)="deleteProject($event)">
+  <ng-content custom-table-title>Projects</ng-content>
+  <ng-content custom-table-actions>
+    @if (filterParams$ | async; as filterParams) {
+      <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterProjects()"><mat-icon>filter_list</mat-icon>Filter</button>
+    }
+    <button mat-flat-button (click)="editProject()"><mat-icon>add</mat-icon>Add</button>
+  </ng-content>
+</custom-table>
 
-  @if (loading$ | async) {
-    <loading-spinner [overlay]="true"></loading-spinner>
-  }
-</div>
+@if (loading$ | async) {
+  <loading-spinner [overlay]="true"></loading-spinner>
+}

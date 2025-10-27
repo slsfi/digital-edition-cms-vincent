@@ -1,156 +1,154 @@
-<div class="container">
-  <div class="header">
-    <a mat-icon-button routerLink="/facsimiles">
-      <mat-icon>west</mat-icon>
-    </a>
-    <h1>Create Facsimile Collections from Publications</h1>
-  </div>
+<div class="header">
+  <a mat-icon-button routerLink="/facsimiles">
+    <mat-icon>west</mat-icon>
+  </a>
+  <h1>Create Facsimile Collections from Publications</h1>
+</div>
 
-  <div class="content">
-    <p>Select a publication collection and configure the facsimile collection settings. A new facsimile collection will be created for each publication in the selected collection.</p>
+<div class="content">
+  <p>Select a publication collection and configure the facsimile collection settings. A new facsimile collection will be created for each publication in the selected collection.</p>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-      <div class="form-section">
-        <h2>Collection Selection</h2>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Publication Collection</mat-label>
-          <mat-select formControlName="publicationCollectionId" required>
-            @for (collection of (publicationCollections$ | async); track collection.id) {
-              <mat-option [value]="collection.id">
-                {{ collection.name }}
-              </mat-option>
-            }
-          </mat-select>
-          @if (form.get('publicationCollectionId')?.hasError('required')) {
-            <mat-error>Please select a publication collection</mat-error>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <div class="form-section">
+      <h2>Collection Selection</h2>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Publication Collection</mat-label>
+        <mat-select formControlName="publicationCollectionId" required>
+          @for (collection of (publicationCollections$ | async); track collection.id) {
+            <mat-option [value]="collection.id">
+              {{ collection.name }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (form.get('publicationCollectionId')?.hasError('required')) {
+          <mat-error>Please select a publication collection</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-section">
+      <h2>Facsimile Collection Settings</h2>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Number of pages</mat-label>
+          <input matInput type="number" formControlName="numberOfPages" min="1" required>
+          @if (form.get('numberOfPages')?.hasError('required')) {
+            <mat-error>Number of pages is required</mat-error>
+          }
+          @if (form.get('numberOfPages')?.hasError('min')) {
+            <mat-error>Number of pages must be at least 1</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start page number</mat-label>
+          <input matInput type="number" formControlName="startPageNumber" min="0" required>
+          @if (form.get('startPageNumber')?.hasError('required')) {
+            <mat-error>Start page number is required</mat-error>
+          }
+          @if (form.get('startPageNumber')?.hasError('min')) {
+            <mat-error>Start page number must be at least 0</mat-error>
           }
         </mat-form-field>
       </div>
 
-      <div class="form-section">
-        <h2>Facsimile Collection Settings</h2>
-        
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Number of pages</mat-label>
-            <input matInput type="number" formControlName="numberOfPages" min="1" required>
-            @if (form.get('numberOfPages')?.hasError('required')) {
-              <mat-error>Number of pages is required</mat-error>
-            }
-            @if (form.get('numberOfPages')?.hasError('min')) {
-              <mat-error>Number of pages must be at least 1</mat-error>
-            }
-          </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title source</mat-label>
+        <mat-select formControlName="titleSource" required>
+          <mat-option value="publication">Publication name</mat-option>
+          <mat-option value="manuscript">Publication manuscript name</mat-option>
+        </mat-select>
+        <mat-hint>Choose whether to use the publication name or the first manuscript name as the facsimile collection title</mat-hint>
+      </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Start page number</mat-label>
-            <input matInput type="number" formControlName="startPageNumber" min="0" required>
-            @if (form.get('startPageNumber')?.hasError('required')) {
-              <mat-error>Start page number is required</mat-error>
-            }
-            @if (form.get('startPageNumber')?.hasError('min')) {
-              <mat-error>Start page number must be at least 0</mat-error>
-            }
-          </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3" required></textarea>
+        @if (form.get('description')?.hasError('required')) {
+          <mat-error>Description is required</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button mat-button type="button" (click)="onCancel()" [disabled]="isProcessing">
+        Cancel
+      </button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="!form.valid || isProcessing">
+        <mat-icon>add</mat-icon>
+        Create Facsimile Collections
+      </button>
+    </div>
+  </form>
+
+  @if (isProcessing) {
+    <div class="processing-section">
+      <loading-spinner></loading-spinner>
+      <p>{{ progressMessage }}</p>
+    </div>
+  }
+
+  @if (creationSummary) {
+    <div class="results-section">
+      <h2>Creation Results</h2>
+      
+      <div class="results-summary">
+        <div class="result-item success">
+          <mat-icon>check_circle</mat-icon>
+          <span>Successfully created: {{ creationSummary.successful }}</span>
         </div>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Title source</mat-label>
-          <mat-select formControlName="titleSource" required>
-            <mat-option value="publication">Publication name</mat-option>
-            <mat-option value="manuscript">Publication manuscript name</mat-option>
-          </mat-select>
-          <mat-hint>Choose whether to use the publication name or the first manuscript name as the facsimile collection title</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" required></textarea>
-          @if (form.get('description')?.hasError('required')) {
-            <mat-error>Description is required</mat-error>
-          }
-        </mat-form-field>
-      </div>
-
-      <div class="form-actions">
-        <button mat-button type="button" (click)="onCancel()" [disabled]="isProcessing">
-          Cancel
-        </button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="!form.valid || isProcessing">
-          <mat-icon>add</mat-icon>
-          Create Facsimile Collections
-        </button>
-      </div>
-    </form>
-
-    @if (isProcessing) {
-      <div class="processing-section">
-        <loading-spinner></loading-spinner>
-        <p>{{ progressMessage }}</p>
-      </div>
-    }
-
-    @if (creationSummary) {
-      <div class="results-section">
-        <h2>Creation Results</h2>
-        
-        <div class="results-summary">
-          <div class="result-item success">
-            <mat-icon>check_circle</mat-icon>
-            <span>Successfully created: {{ creationSummary.successful }}</span>
-          </div>
-          @if (creationSummary.failed > 0) {
-            <div class="result-item error">
-              <mat-icon>error</mat-icon>
-              <span>Failed: {{ creationSummary.failed }}</span>
-            </div>
-          }
-          <div class="result-item total">
-            <mat-icon>list</mat-icon>
-            <span>Total processed: {{ creationSummary.total }}</span>
-          </div>
-        </div>
-
         @if (creationSummary.failed > 0) {
-          <div class="failed-items">
-            <h3>Failed Publications:</h3>
-            <ul>
-              @for (result of creationSummary.results; track result.publicationId) {
-                @if (!result.success) {
-                  <li>
-                    <strong>{{ result.publicationName }}</strong> (ID: {{ result.publicationId }})
-                    <br>
-                    <span class="error-message">{{ result.error }}</span>
-                  </li>
-                }
-              }
-            </ul>
+          <div class="result-item error">
+            <mat-icon>error</mat-icon>
+            <span>Failed: {{ creationSummary.failed }}</span>
           </div>
         }
-
-        @if (creationSummary.successful > 0) {
-          <div class="success-items">
-            <h3>Successfully Created:</h3>
-            <ul>
-              @for (result of creationSummary.results; track result.publicationId) {
-                @if (result.success) {
-                  <li>
-                    <strong>{{ result.publicationName }}</strong> → 
-                    <em>{{ result.facsimileTitle }}</em> (ID: {{ result.facsimileId }})
-                  </li>
-                }
-              }
-            </ul>
-          </div>
-        }
-
-        <div class="results-actions">
-          <button mat-flat-button color="primary" (click)="onBackToFacsimiles()">
-            <mat-icon>arrow_back</mat-icon>
-            Back to Facsimile Collections
-          </button>
+        <div class="result-item total">
+          <mat-icon>list</mat-icon>
+          <span>Total processed: {{ creationSummary.total }}</span>
         </div>
       </div>
-    }
-  </div>
+
+      @if (creationSummary.failed > 0) {
+        <div class="failed-items">
+          <h3>Failed Publications:</h3>
+          <ul>
+            @for (result of creationSummary.results; track result.publicationId) {
+              @if (!result.success) {
+                <li>
+                  <strong>{{ result.publicationName }}</strong> (ID: {{ result.publicationId }})
+                  <br>
+                  <span class="error-message">{{ result.error }}</span>
+                </li>
+              }
+            }
+          </ul>
+        </div>
+      }
+
+      @if (creationSummary.successful > 0) {
+        <div class="success-items">
+          <h3>Successfully Created:</h3>
+          <ul>
+            @for (result of creationSummary.results; track result.publicationId) {
+              @if (result.success) {
+                <li>
+                  <strong>{{ result.publicationName }}</strong> → 
+                  <em>{{ result.facsimileTitle }}</em> (ID: {{ result.facsimileId }})
+                </li>
+              }
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="results-actions">
+        <button mat-flat-button color="primary" (click)="onBackToFacsimiles()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Facsimile Collections
+        </button>
+      </div>
+    </div>
+  }
 </div>

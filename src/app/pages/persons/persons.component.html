@@ -1,26 +1,25 @@
 @let selectedProject = selectedProject$ | async;
-<div class="container">
-  <h1>Index of persons management</h1>
 
-  @if (selectedProject === null) {
-    <p>Please select a project</p>
-  } @else {
-    <custom-table
-      [data$]="persons$"
-      [columns]="columnsData"
-      (editRow)="edit($event)"
-      (deleteRow)="deleteRow($event)">
-      <ng-content custom-table-title>Persons</ng-content>
-      <ng-content custom-table-actions>
-        @if (filterParams$ | async; as filterParams) {
-          <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
-        }
-        <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
-      </ng-content>
-    </custom-table>
+<h1>Index of persons management</h1>
 
-    @if (loading$ | async) {
-      <loading-spinner [overlay]="true"></loading-spinner>
-    }
+@if (selectedProject === null) {
+  <p>Please select a project</p>
+} @else {
+  <custom-table
+    [data$]="persons$"
+    [columns]="columnsData"
+    (editRow)="edit($event)"
+    (deleteRow)="deleteRow($event)">
+    <ng-content custom-table-title>Persons</ng-content>
+    <ng-content custom-table-actions>
+      @if (filterParams$ | async; as filterParams) {
+        <button mat-flat-button [matBadge]="filterParams.length > 0 ? filterParams.length : null" (click)="filterPersons()"><mat-icon>filter_list</mat-icon>Filter</button>
+      }
+      <button mat-flat-button (click)="edit()"><mat-icon>add</mat-icon>Add</button>
+    </ng-content>
+  </custom-table>
+
+  @if (loading$ | async) {
+    <loading-spinner [overlay]="true"></loading-spinner>
   }
-</div>
+}
