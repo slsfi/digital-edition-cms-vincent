@@ -3,7 +3,7 @@
     <mat-card-title>Log in to Vincent</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit($event)">
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login($event)">
       <div class="row">
         <mat-form-field>
           <mat-label>Environment</mat-label>
@@ -49,6 +49,7 @@
 
 <div class="login-footer">
   <p><i>Vincent</i> is the content management system<br>for SLS digital editions.</p>
+  <p>App version: <a href="https://github.com/slsfi/digital-edition-cms-vincent/blob/main/CHANGELOG.md">{{ appVersion }}</a></p>
 </div>
 
 @if (loading$ | async) {
