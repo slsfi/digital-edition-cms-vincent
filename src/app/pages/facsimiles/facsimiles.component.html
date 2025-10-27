@@ -2,42 +2,39 @@
 @let sortParams = sortParams$ | async;
 @let filterParams = filterParams$ | async;
 
-<div class="container">
-  <h1>Facsimile collection management</h1>
+<h1>Facsimile collection management</h1>
 
-  @if (!selectedProject) {
-    <p>Please select a project</p>
-  } @else {
-    <custom-table
-      [data$]="facsimileCollections$"
-      [columns]="columnsData"
-      (editRow)="editCollection($event)"
-      (openRow)="open($event)"
-      (deleteRow)="deleteFacsimileCollection($event)">
-       <ng-content custom-table-title>Facsimiles collections</ng-content>
-       <ng-content custom-table-actions>
-        <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
-        <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
-        <button mat-flat-button [matMenuTriggerFor]="addFacsimileMenu">
+@if (!selectedProject) {
+  <p>Please select a project</p>
+} @else {
+  <custom-table
+    [data$]="facsimileCollections$"
+    [columns]="columnsData"
+    (editRow)="editCollection($event)"
+    (openRow)="open($event)"
+    (deleteRow)="deleteFacsimileCollection($event)">
+      <ng-content custom-table-title>Facsimiles collections</ng-content>
+      <ng-content custom-table-actions>
+      <button mat-flat-button [matBadge]="sortParams && sortParams?.length ? sortParams.length : null" (click)="sort()"><mat-icon>sort</mat-icon>Sort</button>
+      <button mat-flat-button [matBadge]="filterParams && filterParams?.length ? filterParams.length : null" (click)="filter()"><mat-icon>filter_list</mat-icon>Filter</button>
+      <button mat-flat-button [matMenuTriggerFor]="addFacsimileMenu">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+      <mat-menu #addFacsimileMenu="matMenu">
+        <button mat-menu-item (click)="editCollection()">
           <mat-icon>add</mat-icon>
-          Add
+          Add single
         </button>
-        <mat-menu #addFacsimileMenu="matMenu">
-          <button mat-menu-item (click)="editCollection()">
-            <mat-icon>add</mat-icon>
-            Add single
-          </button>
-          <button mat-menu-item (click)="addFromPublications()">
-            <mat-icon>library_add</mat-icon>
-            Add from publications
-          </button>
-        </mat-menu>
-       </ng-content>
-    </custom-table>
+        <button mat-menu-item (click)="addFromPublications()">
+          <mat-icon>library_add</mat-icon>
+          Add from publications
+        </button>
+      </mat-menu>
+      </ng-content>
+  </custom-table>
 
-    @if (loading$ | async) {
-      <loading-spinner [overlay]="true"></loading-spinner>
-    }
+  @if (loading$ | async) {
+    <loading-spinner [overlay]="true"></loading-spinner>
   }
-
-</div>
+}

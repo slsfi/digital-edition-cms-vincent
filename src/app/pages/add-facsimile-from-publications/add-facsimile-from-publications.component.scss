@@ -1,13 +1,13 @@
-.container {
-  max-width: 800px;
+:host {
+  display: block;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.5em;
   margin-bottom: 24px;
 
   h1 {
