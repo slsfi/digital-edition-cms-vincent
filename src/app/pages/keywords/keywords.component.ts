@@ -15,7 +15,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { BehaviorSubject, catchError, combineLatest, debounceTime,
          distinctUntilChanged, map, Observable, of, shareReplay,
-         startWith, switchMap, take } from 'rxjs';
+         startWith, switchMap, take, 
+         tap} from 'rxjs';
 
 import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword.model';
 import { KeywordService } from '../../services/keyword.service';
@@ -73,8 +74,8 @@ export class KeywordsComponent implements OnInit {
   // Search and filter controls
   // One FormGroup for both filters (non-nullable via control options)
   filters = this.fb.group<Filters>({
-    search: this.fb.control('', { nonNullable: true }),
-    category: this.fb.control('', { nonNullable: true })
+    search: this.fb.control({ value: '', disabled: true }, { nonNullable: true }),
+    category: this.fb.control({ value: '', disabled: true }, { nonNullable: true })
   });
 
   get searchCtrl() { return this.filters.controls.search; }
@@ -99,6 +100,13 @@ export class KeywordsComponent implements OnInit {
         ? this.keywordService.getKeywords(currentProject)
         : of([])
       ),
+      tap((keywords) => {
+        if (keywords.length) {
+          this.searchCtrl.enable();
+        } else {
+          this.searchCtrl.disable();
+        }
+      }),
       catchError(error => {
         console.error('Error loading keywords:', error);
         this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
@@ -110,6 +118,13 @@ export class KeywordsComponent implements OnInit {
     // Categories stream - extract from keywords to avoid separate API call
     this.categories$ = this.keywords$.pipe(
       map(ks => this.keywordService.extractCategoriesFromKeywords(ks)),
+      tap((categories) => {
+        if (categories.length) {
+          this.categoryCtrl.enable();
+        } else {
+          this.categoryCtrl.disable();
+        }
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
