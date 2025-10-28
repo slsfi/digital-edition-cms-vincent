@@ -12,7 +12,7 @@ import { Observable, of, startWith, map, debounceTime, switchMap, catchError } f
 
 import { Keyword, KeywordCreationRequest } from '../../models/keyword.model';
 import { KeywordService } from '../../services/keyword.service';
-import { KeywordDialogComponent } from '../keyword-dialog/keyword-dialog.component';
+import { KeywordDialogComponent } from '../edit-keyword-dialog/keyword-dialog.component';
 
 export interface KeywordSelectionDialogData {
   projectName: string;

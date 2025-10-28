@@ -21,7 +21,7 @@ import { KeywordService } from '../../services/keyword.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-dialog.component';
+import { EditKeywordDialogComponent } from '../../components/edit-keyword-dialog/edit-keyword-dialog.component';
 import { PublicationKeywordTableComponent } from '../../components/publication-keyword-table/publication-keyword-table.component';
 
 
@@ -401,7 +401,7 @@ export class KeywordLinkingComponent implements OnInit {
     };
 
     // Open the keyword creation dialog with the search term pre-filled
-    const keywordDialogRef = this.dialog.open(KeywordDialogComponent, {
+    const keywordDialogRef = this.dialog.open(EditKeywordDialogComponent, {
       data: {
         mode: 'add',
         keyword: tempKeyword, // Pre-fill with search term
