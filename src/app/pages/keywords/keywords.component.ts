@@ -157,7 +157,6 @@ export class KeywordsComponent implements OnInit {
       category$
     ]).pipe(
       map(([keywords, search, category]) => {
-        console.log('filtering');
         // Clear query params which might include the "page" param
         // for the table
         this.queryParamsService.clearQueryParams();
@@ -241,7 +240,7 @@ export class KeywordsComponent implements OnInit {
       return;
     }
     
-    this.keywordService.createKeyword(data, currentProject).pipe(take(1)).subscribe({
+    this.keywordService.createKeyword(data, currentProject).subscribe({
       next: () => {
         this.showSuccess('Keyword created successfully.');
         this.refreshData();
@@ -260,7 +259,7 @@ export class KeywordsComponent implements OnInit {
       return;
     }
     
-    this.keywordService.updateKeyword(data, currentProject).pipe(take(1)).subscribe({
+    this.keywordService.updateKeyword(data, currentProject).subscribe({
       next: () => {
         this.showSuccess('Keyword updated successfully.');
         this.refreshData();
@@ -279,7 +278,7 @@ export class KeywordsComponent implements OnInit {
       return;
     }
     
-    this.keywordService.deleteKeyword(keywordId, currentProject).pipe(take(1)).subscribe({
+    this.keywordService.deleteKeyword(keywordId, currentProject).subscribe({
       next: () => {
         this.showSuccess('Keyword deleted successfully.');
         this.refreshData();

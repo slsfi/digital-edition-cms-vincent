@@ -4,7 +4,8 @@ import { Observable, map, of, catchError } from 'rxjs';
 import { Keyword, KeywordCreationRequest, KeywordUpdateRequest,
          KeywordApiResponse, KeywordApiSingleResponse, KeywordApiData,
          KeywordTypesApiResponse, PublicationKeywordApiResponse,
-         PublicationKeywordApiData
+         PublicationKeywordApiData,
+         KeywordCreationApiRequest
 } from '../models/keyword.model';
 import { ApiService } from './api.service';
 
@@ -40,9 +41,9 @@ export class KeywordService {
   createKeyword(request: KeywordCreationRequest, projectName: string): Observable<Keyword> {
     const url = `${this.apiService.prefixedUrl}/${projectName}/keywords/new/`;
     
-    const apiRequest = {
+    const apiRequest: KeywordCreationApiRequest = {
       name: request.name,
-      type: request.category,
+      type: request.category || null,
       description: null, // Not in our model yet
       source: null, // Not in our model yet
       legacy_id: null // Not in our model yet
@@ -51,8 +52,7 @@ export class KeywordService {
     return this.apiService.post<KeywordApiSingleResponse>(url, apiRequest).pipe(
       map(response => {
         if (response.success && response.data) {
-          const keyword = this.mapKeywordApiData(response.data);
-          return keyword;
+          return this.mapKeywordApiData(response.data);
         }
         throw new Error('Failed to create keyword.');
       })
