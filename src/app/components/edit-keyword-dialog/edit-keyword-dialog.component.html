@@ -1,43 +1,35 @@
-<h2 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Keyword' : 'Edit Keyword' }}</h2>
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<h2 mat-dialog-title>{{ data.mode === 'add' ? 'Add new keyword' : 'Edit keyword' }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
   <mat-dialog-content>
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Keyword Text</mat-label>
-        <input matInput formControlName="text" required>
-        @if (form.get('text')?.hasError('required')) {
-          <mat-error>Keyword text is required</mat-error>
+    <mat-form-field [subscriptSizing]="'dynamic'">
+      <mat-label>Keyword name</mat-label>
+      <input matInput formControlName="name" required>
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Keyword name is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="category">
+        <mat-option value="">No category</mat-option>
+        @for (category of data.categories$ | async; track category) {
+          <mat-option [value]="category">{{ category }}</mat-option>
         }
-      </mat-form-field>
-    </div>
+      </mat-select>
+      <mat-hint>Select existing category or no category.</mat-hint>
+    </mat-form-field>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Category</mat-label>
-        <mat-select formControlName="category">
-          <mat-option value="">No category</mat-option>
-          @for (category of data.categories$ | async; track category) {
-            <mat-option [value]="category">
-              {{ category }}
-            </mat-option>
-          }
-        </mat-select>
-        <mat-hint>Select existing category or leave empty for no category</mat-hint>
-      </mat-form-field>
-    </div>
-
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>New Category (optional)</mat-label>
-        <input matInput formControlName="newCategory" placeholder="Type to add new category">
-        <mat-hint>Leave empty to use existing category above</mat-hint>
-      </mat-form-field>
-    </div>
+    <mat-form-field>
+      <mat-label>New category (optional)</mat-label>
+      <input matInput formControlName="newCategory" placeholder="Type to add new category">
+      <mat-hint>Typing here overrides the selection above.</mat-hint>
+    </mat-form-field>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-button type="button" (click)="onCancel()">Cancel</button>
-    <button mat-flat-button color="primary" type="submit" [disabled]="!form.valid || isSubmitting">
+  <mat-dialog-actions>
+    <button matButton type="button" [matDialogClose]="undefined">Cancel</button>
+    <button matButton="filled" type="submit" [disabled]="!form.valid || isSubmitting()">
       {{ data.mode === 'add' ? 'Add' : 'Update' }}
     </button>
   </mat-dialog-actions>

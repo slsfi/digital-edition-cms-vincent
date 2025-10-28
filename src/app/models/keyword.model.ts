@@ -20,7 +20,6 @@ export interface KeywordTranslation {
 export interface KeywordCreationRequest {
   name: string;
   category?: string | null;
-  projectId: number;
   translations?: KeywordTranslation[];
 }
 
@@ -29,6 +28,15 @@ export interface KeywordUpdateRequest {
   name?: string;
   category?: string | null;
   translations?: KeywordTranslation[];
+}
+
+
+export interface KeywordCreationApiRequest {
+  name: string;
+  type?: string | null;
+  description?: string | null;
+  source?: string | null;
+  legacy_id?: string | null;
 }
 
 export interface KeywordResponse extends ApiResponse {

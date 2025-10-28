@@ -1,11 +1,5 @@
-.form-row {
-  margin-bottom: 16px;
-}
-
-.full-width {
+.mat-mdc-form-field {
+  display: block;
   width: 100%;
-}
-
-mat-dialog-content {
-  min-width: 400px;
+  margin-bottom: 24px;
 }

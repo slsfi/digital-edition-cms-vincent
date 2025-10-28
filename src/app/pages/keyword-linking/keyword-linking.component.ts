@@ -245,7 +245,6 @@ export class KeywordLinkingComponent implements OnInit {
     const createRequest: KeywordCreationRequest = {
       name: keywordRequest.name,
       category: keywordRequest.category,
-      projectId: 0, // Will be set by the service
       translations: keywordRequest.translations || []
     };
 

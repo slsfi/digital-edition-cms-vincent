@@ -1,21 +1,29 @@
-import { Component, Inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Observable, take } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword.model';
+
 
 export interface EditKeywordDialogData {
   mode: 'add' | 'edit';
   keyword?: Keyword;
   categories$: Observable<string[]>;
 }
+
+type FormValue = {
+  name: FormControl<string>;
+  category: FormControl<string>;
+  newCategory: FormControl<string>;
+};
 
 @Component({
   selector: 'edit-keyword-dialog',
@@ -33,69 +41,71 @@ export interface EditKeywordDialogData {
   styleUrl: './edit-keyword-dialog.component.scss'
 })
 export class EditKeywordDialogComponent {
-  form!: FormGroup;
-  isSubmitting = false;
+  private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<EditKeywordDialogComponent>);
+  readonly data = inject<EditKeywordDialogData>(MAT_DIALOG_DATA);
 
-  constructor(
-    private fb: FormBuilder,
-    public dialogRef: MatDialogRef<EditKeywordDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: EditKeywordDialogData
-  ) {
-    // Always create form immediately to prevent template errors
-    let initialCategory = data.keyword?.category || '';
-    this.createForm(initialCategory);
-    
-    // For new keywords, update the category if we can get the first available one
-    if (data.mode === 'add' && !initialCategory) {
-      data.categories$.pipe(take(1)).subscribe(categories => {
-        if (categories && categories.length > 0) {
-          this.form.patchValue({ category: categories[0] });
-        }
-      });
+  readonly form = this.fb.group<FormValue>({
+    name: this.fb.control(this.data.keyword?.name ?? '', { nonNullable: true, validators: [Validators.required] }),
+    category: this.fb.control(this.data.keyword?.category ?? '', { nonNullable: true }),
+    newCategory: this.fb.control('', { nonNullable: true })
+  });
+
+  isSubmitting = signal(false);
+
+  private categoriesSig = toSignal(this.data.categories$, { initialValue: [] as string[] });
+
+  // Set first category as initially selected if available
+  private initCategoryOnce = effect(() => {
+    if (this.data.mode !== 'add') return;
+
+    const hasValue = !!this.form.controls.category.value?.trim();
+    const cats = this.categoriesSig();
+
+    if (!hasValue && cats.length) {
+      this.form.patchValue({ category: cats[0] });
     }
-  }
+  });
 
-  private createForm(initialCategory: string) {
-    this.form = this.fb.group({
-      text: [this.data.keyword?.name || '', Validators.required],
-      category: [initialCategory],
-      newCategory: ['']
-    });
+  save(): void {
+    if (this.form.invalid) return;
 
-    // Handle new category input
-    this.form.get('newCategory')?.valueChanges.subscribe(value => {
-      if (value && value.trim()) {
-        this.form.patchValue({ category: value.trim() });
-      }
-    });
-  }
+    this.isSubmitting.set(true);
 
-  onSubmit() {
-    if (this.form.valid) {
-      this.isSubmitting = true;
-      const formValue = this.form.value;
-      
-      if (this.data.mode === 'add') {
-        const request: KeywordCreationRequest = {
-          name: formValue.text,
-          category: formValue.category || null,
-          projectId: 1, // Mock project ID for now
-          translations: []
-        };
-        this.dialogRef.close(request);
-      } else {
-        const request: KeywordUpdateRequest = {
-          id: this.data.keyword!.id,
-          name: formValue.text,
-          category: formValue.category || null,
-          translations: []
-        };
-        this.dialogRef.close(request);
-      }
+    const { name: text, category, newCategory } = this.form.getRawValue();
+    const name = text.trim();
+    const normalizedCategory = this.normalizeCategory(category, newCategory);
+
+    if (this.data.mode === 'add') {
+      const request: KeywordCreationRequest = {
+        name,
+        category: normalizedCategory,
+        translations: []
+      };
+      this.dialogRef.close(request);
+      return;
     }
+
+    // edit
+    const request: KeywordUpdateRequest = {
+      id: this.data.keyword!.id,
+      name,
+      category: normalizedCategory,
+      translations: []
+    };
+    this.dialogRef.close(request);
   }
 
-  onCancel() {
-    this.dialogRef.close();
+  /**
+   * Prefer newCategory (trimmed) if provided; otherwise use existing category.
+   * Return null when the resulting value is empty.
+   */
+  private normalizeCategory(existingCategory: string, newCategory: string): string | null {
+    const trimmedNew = newCategory.trim();
+    if (trimmedNew) return trimmedNew;
+
+    const trimmedExisting = (existingCategory ?? '').trim();
+    return trimmedExisting ? trimmedExisting : null;
   }
+
 }
