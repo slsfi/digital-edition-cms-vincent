@@ -25,7 +25,7 @@ import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
-import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-dialog.component';
+import { EditKeywordDialogComponent } from '../../components/edit-keyword-dialog/edit-keyword-dialog.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
 import { Column } from '../../models/common.model';
@@ -194,7 +194,7 @@ export class KeywordsComponent implements OnInit {
   }
 
   addKeyword() {
-    const dialogRef = this.dialog.open(KeywordDialogComponent, {
+    const dialogRef = this.dialog.open(EditKeywordDialogComponent, {
       data: { mode: 'add', categories$: this.categories$ }
     });
 
@@ -206,7 +206,7 @@ export class KeywordsComponent implements OnInit {
   }
 
   editKeyword(keyword: Keyword) {
-    const dialogRef = this.dialog.open(KeywordDialogComponent, {
+    const dialogRef = this.dialog.open(EditKeywordDialogComponent, {
       data: { mode: 'edit', keyword, categories$: this.categories$ }
     });
 
@@ -220,6 +220,7 @@ export class KeywordsComponent implements OnInit {
   deleteKeyword(keyword: Keyword) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
+        title: 'Delete keyword',
         message: `Are you sure you want to delete the keyword »${keyword.name}»?`,
         cancelText: 'Cancel',
         confirmText: 'Delete'

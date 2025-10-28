@@ -11,15 +11,14 @@ import { Observable, take } from 'rxjs';
 
 import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword.model';
 
-export interface KeywordDialogData {
+export interface EditKeywordDialogData {
   mode: 'add' | 'edit';
   keyword?: Keyword;
   categories$: Observable<string[]>;
 }
 
 @Component({
-  selector: 'app-keyword-dialog',
-  standalone: true,
+  selector: 'edit-keyword-dialog',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -30,17 +29,17 @@ export interface KeywordDialogData {
     MatInputModule,
     MatSelectModule
   ],
-  templateUrl: './keyword-dialog.component.html',
-  styleUrl: './keyword-dialog.component.scss'
+  templateUrl: './edit-keyword-dialog.component.html',
+  styleUrl: './edit-keyword-dialog.component.scss'
 })
-export class KeywordDialogComponent {
+export class EditKeywordDialogComponent {
   form!: FormGroup;
   isSubmitting = false;
 
   constructor(
     private fb: FormBuilder,
-    public dialogRef: MatDialogRef<KeywordDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: KeywordDialogData
+    public dialogRef: MatDialogRef<EditKeywordDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: EditKeywordDialogData
   ) {
     // Always create form immediately to prevent template errors
     let initialCategory = data.keyword?.category || '';
