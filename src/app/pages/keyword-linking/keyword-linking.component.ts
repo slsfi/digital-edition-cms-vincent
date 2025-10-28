@@ -187,7 +187,7 @@ export class KeywordLinkingComponent implements OnInit {
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        message: `Are you sure you want to remove the keyword "${keyword.text}" from this publication?`,
+        message: `Are you sure you want to remove the keyword "${keyword.name}" from this publication?`,
         cancelText: 'Cancel',
         confirmText: 'Remove'
       }
@@ -209,10 +209,10 @@ export class KeywordLinkingComponent implements OnInit {
     this.keywordService.connectKeywordToPublication(keyword.id, this.selectedPublicationId, currentProject).subscribe({
       next: (success) => {
         if (success) {
-          this.snackBar.open(`Keyword "${keyword.text}" linked to publication`, 'Close', { duration: 3000 });
+          this.snackBar.open(`Keyword "${keyword.name}" linked to publication`, 'Close', { duration: 3000 });
           this.loadLinkedKeywords(this.selectedPublicationId!);
         } else {
-          this.snackBar.open(`Failed to link keyword "${keyword.text}" - please try again`, 'Close', { duration: 5000 });
+          this.snackBar.open(`Failed to link keyword "${keyword.name}" - please try again`, 'Close', { duration: 5000 });
         }
       },
       error: (error) => {
@@ -243,7 +243,7 @@ export class KeywordLinkingComponent implements OnInit {
 
     // First create the keyword
     const createRequest: KeywordCreationRequest = {
-      text: keywordRequest.text,
+      name: keywordRequest.name,
       category: keywordRequest.category,
       projectId: 0, // Will be set by the service
       translations: keywordRequest.translations || []
@@ -255,10 +255,10 @@ export class KeywordLinkingComponent implements OnInit {
         this.keywordService.connectKeywordToPublication(createdKeyword.id, this.selectedPublicationId!, currentProject).subscribe({
           next: (linkSuccess) => {
             if (linkSuccess) {
-              this.snackBar.open(`Keyword "${createdKeyword.text}" created and linked to publication`, 'Close', { duration: 3000 });
+              this.snackBar.open(`Keyword "${createdKeyword.name}" created and linked to publication`, 'Close', { duration: 3000 });
               this.loadLinkedKeywords(this.selectedPublicationId!);
             } else {
-              this.snackBar.open(`Keyword "${createdKeyword.text}" created but failed to link - please try linking manually`, 'Close', { duration: 5000 });
+              this.snackBar.open(`Keyword "${createdKeyword.name}" created but failed to link - please try linking manually`, 'Close', { duration: 5000 });
             }
           },
           error: (error) => {
@@ -363,7 +363,7 @@ export class KeywordLinkingComponent implements OnInit {
 
   // Keyword search methods
   displayKeyword(keyword: Keyword): string {
-    return keyword ? keyword.text : '';
+    return keyword ? keyword.name : '';
   }
 
   private clearSearchFields(): void {
@@ -394,7 +394,7 @@ export class KeywordLinkingComponent implements OnInit {
     // Create a temporary keyword object with the search term as the text
     const tempKeyword: Keyword = {
       id: 0, // Temporary ID
-      text: searchTerm,
+      name: searchTerm,
       category: null,
       projectId: 1, // Mock project ID
       translations: []

@@ -71,6 +71,16 @@ td.mat-column-published {
   }
 }
 
+td.mat-column-category {
+  span {
+    background-color: #eeeeee;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    font-size: 0.8125rem;
+    padding: 0.125em 0.25em;
+  }
+}
+
 .index {
   color: #9d9d9d;
 }
