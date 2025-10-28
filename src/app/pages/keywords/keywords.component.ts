@@ -105,6 +105,7 @@ export class KeywordsComponent implements OnInit {
           this.searchCtrl.enable();
         } else {
           this.searchCtrl.disable();
+          this.searchCtrl.setValue('');
         }
       }),
       catchError(error => {
@@ -123,6 +124,7 @@ export class KeywordsComponent implements OnInit {
           this.categoryCtrl.enable();
         } else {
           this.categoryCtrl.disable();
+          this.categoryCtrl.setValue('');
         }
       }),
       shareReplay({ bufferSize: 1, refCount: true })
