@@ -84,7 +84,7 @@ export class KeywordSelectionDialogComponent implements OnInit {
   }
 
   displayKeyword(keyword: Keyword): string {
-    return keyword ? keyword.text : '';
+    return keyword ? keyword.name : '';
   }
 
   onOptionSelected(event: any) {
@@ -112,7 +112,7 @@ export class KeywordSelectionDialogComponent implements OnInit {
     // Create a temporary keyword object with the search term as the text
     const tempKeyword: Keyword = {
       id: 0, // Temporary ID
-      text: searchTerm,
+      name: searchTerm,
       category: null,
       projectId: 1, // Mock project ID
       translations: []

@@ -1,76 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, map, of, catchError } from 'rxjs';
 
-import { 
-  Keyword, 
-  KeywordCreationRequest, 
-  KeywordUpdateRequest
+import { Keyword, KeywordCreationRequest, KeywordUpdateRequest,
+         KeywordApiResponse, KeywordApiSingleResponse, KeywordApiData,
+         KeywordTypesApiResponse, PublicationKeywordApiResponse,
+         PublicationKeywordApiData
 } from '../models/keyword.model';
 import { ApiService } from './api.service';
 
-// Backend API response interfaces
-interface KeywordApiResponse {
-  success: boolean;
-  message: string;
-  data: KeywordApiData[] | null;
-}
-
-interface KeywordApiSingleResponse {
-  success: boolean;
-  message: string;
-  data: KeywordApiData | null;
-}
-
-interface KeywordApiData {
-  id: number;
-  date_created: string | null;
-  date_modified: string | null;
-  deleted: number;
-  type: string | null;
-  name: string | null;
-  description: string | null;
-  legacy_id: string | null;
-  project_id: number;
-  source: string | null;
-  name_translation_id: number | null;
-}
-
-interface KeywordTypesApiResponse {
-  success: boolean;
-  message: string;
-  data: string[] | null;
-}
-
-interface PublicationKeywordApiResponse {
-  success: boolean;
-  message: string;
-  data: PublicationKeywordApiData[] | null;
-}
-
-interface PublicationKeywordApiData {
-  id: number;
-  date_created: string | null;
-  date_modified: string | null;
-  deleted: number;
-  type: string | null;
-  name: string | null;
-  description: string | null;
-  legacy_id: string | null;
-  project_id: number;
-  source: string | null;
-  name_translation_id: number | null;
-  event_occurrence_id: number;
-  event_id: number;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class KeywordService {
-
-  constructor(
-    private apiService: ApiService
-  ) {}
+  private readonly apiService = inject(ApiService);
 
   /**
    * Get all keywords in a project
@@ -90,7 +33,6 @@ export class KeywordService {
     );
   }
 
-
   /**
    * Create a new keyword in a project
    * Uses the backend endpoint: POST /<project>/keywords/new/
@@ -99,7 +41,7 @@ export class KeywordService {
     const url = `${this.apiService.prefixedUrl}/${projectName}/keywords/new/`;
     
     const apiRequest = {
-      name: request.text,
+      name: request.name,
       type: request.category,
       description: null, // Not in our model yet
       source: null, // Not in our model yet
@@ -112,10 +54,7 @@ export class KeywordService {
           const keyword = this.mapKeywordApiData(response.data);
           return keyword;
         }
-        throw new Error('Failed to create keyword');
-      }),
-      catchError(error => {
-        throw error;
+        throw new Error('Failed to create keyword.');
       })
     );
   }
@@ -128,7 +67,7 @@ export class KeywordService {
     const url = `${this.apiService.prefixedUrl}/${projectName}/keywords/${request.id}/edit/`;
     
     const apiRequest: { name?: string; type?: string | null } = {};
-    if (request.text !== undefined) apiRequest.name = request.text;
+    if (request.name !== undefined) apiRequest.name = request.name;
     if (request.category !== undefined) apiRequest.type = request.category;
 
     return this.apiService.post<KeywordApiSingleResponse>(url, apiRequest).pipe(
@@ -136,10 +75,7 @@ export class KeywordService {
         if (response.success && response.data) {
           return this.mapKeywordApiData(response.data);
         }
-        throw new Error('Failed to update keyword');
-      }),
-      catchError(error => {
-        throw error;
+        throw new Error('Failed to update keyword.');
       })
     );
   }
@@ -154,10 +90,7 @@ export class KeywordService {
     const apiRequest = { deleted: 1 };
 
     return this.apiService.post<KeywordApiSingleResponse>(url, apiRequest).pipe(
-      map(() => true),
-      catchError(error => {
-        throw error;
-      })
+      map(() => true)
     );
   }
 
@@ -177,14 +110,9 @@ export class KeywordService {
           const keywords: Keyword[] = response.data.map((tag: PublicationKeywordApiData) => 
             this.mapPublicationKeywordApiData(tag)
           );
-          
           return keywords;
         }
-        
         return [];
-      }),
-      catchError(error => {
-        return of([]);
       })
     );
   }
@@ -206,12 +134,7 @@ export class KeywordService {
     const url = `${this.apiService.prefixedUrl}/${projectName}/events/new/`;
     
     return this.apiService.post(url, request).pipe(
-      map(response => {
-        return true;
-      }),
-      catchError(error => {
-        return of(false);
-      })
+      map(() => true)
     );
   }
 
@@ -225,12 +148,7 @@ export class KeywordService {
     const url = `${this.apiService.prefixedUrl}/${projectName}/events/${eventId}/delete/`;
     
     return this.apiService.post(url, {}).pipe(
-      map(response => {
-        return true;
-      }),
-      catchError(error => {
-        return of(false);
-      })
+      map(() => true)
     );
   }
 
@@ -249,17 +167,12 @@ export class KeywordService {
         return [];
       }),
       catchError(error => {
-        console.error(error);
+        console.error('Error loading unique keyword categories: ', error);
         // Fallback to extracting from keywords
         return this.getKeywords(projectName).pipe(
-          map(keywords => {
-            const categories = keywords
-              .map(k => k.category)
-              .filter((cat): cat is string => cat !== null && cat !== undefined && cat.trim() !== '');
-            return [...new Set(categories)].sort();
-          }),
-          catchError(error => {
-            console.error(error);
+          map(ks => this.extractCategoriesFromKeywords(ks)),
+          catchError(innerErr => {
+            console.error('Error loading keywords for unique categories computation: ', innerErr);
             return of([]);
           })
         );
@@ -278,11 +191,21 @@ export class KeywordService {
         }
         const term = searchTerm.toLowerCase();
         return keywords.filter(keyword => 
-          keyword.text.toLowerCase().includes(term) ||
+          keyword.name.toLowerCase().includes(term) ||
           (keyword.category && keyword.category.toLowerCase().includes(term))
         );
       })
     );
+  }
+
+  /**
+   * Returns a list of unique keyword categories that occur in
+   * the given list of keywords.
+   */
+  extractCategoriesFromKeywords(keywords: Keyword[]): string[] {
+    return [...new Set(
+      keywords.map(k => (k.category ?? '').trim()).filter(Boolean)
+    )].sort();
   }
 
   /**
@@ -291,10 +214,10 @@ export class KeywordService {
   private mapKeywordApiData(apiData: KeywordApiData): Keyword {
     return {
       id: apiData.id,
-      text: apiData.name || '',
+      name: apiData.name || '',
       category: apiData.type,
       projectId: apiData.project_id,
-      translations: [], // TODO: Implement translations when backend supports it
+      translations: [], // TODO
       // No event data for general keywords
       eventId: undefined,
       eventOccurrenceId: undefined
@@ -307,10 +230,10 @@ export class KeywordService {
   private mapPublicationKeywordApiData(apiData: PublicationKeywordApiData): Keyword {
     return {
       id: apiData.id,
-      text: apiData.name || '',
+      name: apiData.name || '',
       category: apiData.type,
       projectId: apiData.project_id,
-      translations: [], // TODO: Implement translations when backend supports it
+      translations: [], // TODO
       // Include event data for linked keywords
       eventId: apiData.event_id,
       eventOccurrenceId: apiData.event_occurrence_id
@@ -325,7 +248,7 @@ export class KeywordService {
     return [
       {
         id: 1,
-        text: 'salt',
+        name: 'salt',
         category: 'ingredients',
         projectId: projectId,
         translations: [
@@ -335,7 +258,7 @@ export class KeywordService {
       },
       {
         id: 2,
-        text: 'pepper',
+        name: 'pepper',
         category: 'ingredients',
         projectId: projectId,
         translations: [
@@ -345,7 +268,7 @@ export class KeywordService {
       },
       {
         id: 3,
-        text: 'flour',
+        name: 'flour',
         category: 'ingredients',
         projectId: projectId,
         translations: [
@@ -355,7 +278,7 @@ export class KeywordService {
       },
       {
         id: 4,
-        text: 'cooking',
+        name: 'cooking',
         category: 'techniques',
         projectId: projectId,
         translations: [
@@ -365,7 +288,7 @@ export class KeywordService {
       },
       {
         id: 5,
-        text: 'baking',
+        name: 'baking',
         category: 'techniques',
         projectId: projectId,
         translations: [
@@ -375,7 +298,7 @@ export class KeywordService {
       },
       {
         id: 6,
-        text: 'historical',
+        name: 'historical',
         category: null, // Example of keyword without category
         projectId: projectId,
         translations: [

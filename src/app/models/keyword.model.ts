@@ -1,6 +1,8 @@
+import { ApiResponse } from "./common.model";
+
 export interface Keyword {
   id: number;
-  text: string;
+  name: string;
   category?: string | null;  // Can be null, string for now
   projectId: number;
   translations?: KeywordTranslation[];
@@ -16,7 +18,7 @@ export interface KeywordTranslation {
 }
 
 export interface KeywordCreationRequest {
-  text: string;
+  name: string;
   category?: string | null;
   projectId: number;
   translations?: KeywordTranslation[];
@@ -24,20 +26,62 @@ export interface KeywordCreationRequest {
 
 export interface KeywordUpdateRequest {
   id: number;
-  text?: string;
+  name?: string;
   category?: string | null;
   translations?: KeywordTranslation[];
 }
 
-export interface KeywordResponse {
+export interface KeywordResponse extends ApiResponse {
   data: Keyword;
-  success: boolean;
-  message?: string;
 }
 
-export interface KeywordsResponse {
+export interface KeywordsResponse extends ApiResponse {
   data: Keyword[];
-  success: boolean;
-  message?: string;
 }
 
+// Backend API response interfaces
+export interface KeywordApiResponse extends ApiResponse {
+  data: KeywordApiData[] | null;
+}
+
+export interface KeywordApiSingleResponse extends ApiResponse {
+  data: KeywordApiData | null;
+}
+
+export interface KeywordApiData {
+  id: number;
+  date_created: string | null;
+  date_modified: string | null;
+  deleted: number;
+  type: string | null;
+  name: string | null;
+  description: string | null;
+  legacy_id: string | null;
+  project_id: number;
+  source: string | null;
+  name_translation_id: number | null;
+}
+
+export interface KeywordTypesApiResponse extends ApiResponse {
+  data: string[] | null;
+}
+
+export interface PublicationKeywordApiResponse extends ApiResponse {
+  data: PublicationKeywordApiData[] | null;
+}
+
+export interface PublicationKeywordApiData {
+  id: number;
+  date_created: string | null;
+  date_modified: string | null;
+  deleted: number;
+  type: string | null;
+  name: string | null;
+  description: string | null;
+  legacy_id: string | null;
+  project_id: number;
+  source: string | null;
+  name_translation_id: number | null;
+  event_occurrence_id: number;
+  event_id: number;
+}

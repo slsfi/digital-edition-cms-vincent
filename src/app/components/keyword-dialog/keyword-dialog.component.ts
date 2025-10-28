@@ -58,7 +58,7 @@ export class KeywordDialogComponent {
 
   private createForm(initialCategory: string) {
     this.form = this.fb.group({
-      text: [this.data.keyword?.text || '', Validators.required],
+      text: [this.data.keyword?.name || '', Validators.required],
       category: [initialCategory],
       newCategory: ['']
     });
@@ -78,7 +78,7 @@ export class KeywordDialogComponent {
       
       if (this.data.mode === 'add') {
         const request: KeywordCreationRequest = {
-          text: formValue.text,
+          name: formValue.text,
           category: formValue.category || null,
           projectId: 1, // Mock project ID for now
           translations: []
@@ -87,7 +87,7 @@ export class KeywordDialogComponent {
       } else {
         const request: KeywordUpdateRequest = {
           id: this.data.keyword!.id,
-          text: formValue.text,
+          name: formValue.text,
           category: formValue.category || null,
           translations: []
         };

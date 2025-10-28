@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit,
+         signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -12,14 +13,24 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
-import { Observable, of, take, combineLatest, startWith, map, debounceTime, catchError, BehaviorSubject, switchMap, shareReplay } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, debounceTime,
+         distinctUntilChanged, map, Observable, of, shareReplay,
+         startWith, switchMap, take } from 'rxjs';
 
-import { Keyword, KeywordCreationRequest, KeywordUpdateRequest, KeywordTranslation } from '../../models/keyword.model';
+import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword.model';
 import { KeywordService } from '../../services/keyword.service';
+import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
+import { QueryParamsService } from '../../services/query-params.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
 import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-dialog.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
+import { Column } from '../../models/common.model';
 
+
+type Filters = { search: FormControl<string>; category: FormControl<string> };
 
 @Component({
   selector: 'keywords',
@@ -29,6 +40,7 @@ import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
@@ -37,137 +49,135 @@ import { KeywordDialogComponent } from '../../components/keyword-dialog/keyword-
     MatSelectModule,
     MatSnackBarModule,
     MatTableModule,
-    MatChipsModule
+    CustomTableComponent,
+    LoadingSpinnerComponent,
+    IsEmptyStringPipe
   ],
   templateUrl: './keywords.component.html',
   styleUrl: './keywords.component.scss'
 })
-export class KeywordsManagementComponent implements OnInit {
+export class KeywordsComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly keywordService = inject(KeywordService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly projectService = inject(ProjectService);
+  private readonly queryParamsService = inject(QueryParamsService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackbar = inject(MatSnackBar);
+
   keywords$: Observable<Keyword[]> = of([]);
   filteredKeywords$: Observable<Keyword[]> = of([]);
   categories$: Observable<string[]> = of([]);
-  isLoading = false;
-  displayedColumns: string[] = ['text', 'category', 'actions']; // 'translations' hidden for now
-  
+  loading$ = this.loadingService.loading$;
+
   // Search and filter controls
-  searchControl = new FormControl('');
-  categoryFilterControl = new FormControl('');
+  // One FormGroup for both filters (non-nullable via control options)
+  filters = this.fb.group<Filters>({
+    search: this.fb.control('', { nonNullable: true }),
+    category: this.fb.control('', { nonNullable: true })
+  });
+
+  get searchCtrl() { return this.filters.controls.search; }
+  get categoryCtrl() { return this.filters.controls.category; }
   
-  // Template optimization properties
-  hasFilters = false;
-  hasLoadedOnce = false;
-  
-  // Refresh trigger for reactive updates
+  hasFilters = signal(false);
+  projectName = signal<string | null>(this.projectService.getCurrentProject());
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
-  constructor(
-    private keywordService: KeywordService,
-    private projectService: ProjectService,
-    private dialog: MatDialog,
-    private snackbar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {}
+  keywordColumnsData: Column[] = [
+    { field: 'name', header: 'Keyword', type: 'string' },
+    { field: 'category', header: 'Category', type: 'category' },
+    { field: 'actions', header: 'Actions', type: 'action' }
+  ];
 
   ngOnInit() {
-    this.loadData();
-    this.setupFiltering();
-  }
+    const currentProject = this.projectName();
 
-  loadData() {
-    const currentProject = this.projectService.getCurrentProject();
-    
-    if (currentProject) {
-      // Load keywords with refresh trigger
-      this.keywords$ = this.refreshTrigger$.pipe(
-        switchMap(() => {
-          this.isLoading = true;
-          this.cdr.markForCheck();
-          return this.keywordService.getKeywords(currentProject).pipe(
-            map(keywords => {
-              this.isLoading = false;
-              this.hasLoadedOnce = true;
-              this.cdr.markForCheck();
-              return keywords;
-            }),
-            catchError(error => {
-              this.isLoading = false;
-              this.hasLoadedOnce = true;
-              this.cdr.markForCheck();
-              console.error('Error loading keywords:', error);
-              return of([]);
-            })
-          );
-        }),
-        shareReplay(1) // Share the result to prevent multiple API calls
-      );
-      
-      // Extract categories from keywords to avoid separate API call
-      this.categories$ = this.keywords$.pipe(
-        map(keywords => {
-          const categories = keywords
-            .map(k => k.category)
-            .filter((cat): cat is string => cat !== null && cat !== undefined && cat.trim() !== '');
-          return [...new Set(categories)].sort();
-        }),
-        shareReplay(1) // Share the result to prevent multiple subscriptions
-      );
-    }
+    // Keywords stream
+    this.keywords$ = this.refreshTrigger$.pipe(
+      switchMap(() => currentProject
+        ? this.keywordService.getKeywords(currentProject)
+        : of([])
+      ),
+      catchError(error => {
+        console.error('Error loading keywords:', error);
+        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
+        return of([]);
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }) // Share the same result to all subscribers
+    );
+
+    // Categories stream - extract from keywords to avoid separate API call
+    this.categories$ = this.keywords$.pipe(
+      map(ks => this.keywordService.extractCategoriesFromKeywords(ks)),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    this.setupFiltering();
   }
 
   refreshData() {
     this.refreshTrigger$.next();
   }
 
-
   setupFiltering() {
+    const search$ = this.searchCtrl.valueChanges.pipe(
+      startWith(this.searchCtrl.value),
+      map(v => (v ?? '').trim().toLowerCase()),
+      debounceTime(300),
+      distinctUntilChanged()
+    );
+
+    const category$ = this.categoryCtrl.valueChanges.pipe(
+      startWith(this.categoryCtrl.value),
+      map(v => (v ?? '').trim()),
+      distinctUntilChanged()
+    );
+
     this.filteredKeywords$ = combineLatest([
       this.keywords$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        // Debounce search input to avoid excessive filtering
-        debounceTime(300)
-      ),
-      this.categoryFilterControl.valueChanges.pipe(startWith(''))
+      search$,
+      category$
     ]).pipe(
-      map(([keywords, searchTerm, categoryFilter]) => {
-        // Update template optimization properties
-        this.hasFilters = !!(searchTerm?.trim() || categoryFilter);
-        
-        // Early return if no filters applied
-        if (!this.hasFilters) {
+      map(([keywords, search, category]) => {
+        console.log('filtering');
+        // Clear query params which might include the "page" param
+        // for the table
+        this.queryParamsService.clearQueryParams();
+
+        const hasFilters = !!(search || category);
+        this.hasFilters.set(hasFilters);
+
+        if (!hasFilters) {
           return keywords;
         }
 
-        let filtered = keywords;
-
         // Filter by category first (more efficient)
-        if (categoryFilter && categoryFilter !== '') {
-          filtered = filtered.filter(keyword => keyword.category === categoryFilter);
-        }
-
+        let filtered = category
+          ? keywords.filter(k => (k.category ?? '').trim() === category)
+          : keywords;
+        
         // Then filter by search term
-        if (searchTerm && searchTerm.trim()) {
-          const term = searchTerm.toLowerCase().trim();
-          filtered = filtered.filter(keyword =>
-            keyword.text.toLowerCase().includes(term) ||
-            (keyword.category && keyword.category.toLowerCase().includes(term))
-          );
+        if (search) {
+          filtered = filtered.filter(k => k.name.toLowerCase().includes(search));
         }
 
         return filtered;
       }),
-      shareReplay(1) // Share the result to prevent multiple subscriptions
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   }
 
   clearFilters() {
-    this.searchControl.setValue('');
-    this.categoryFilterControl.setValue('');
+    this.filters.setValue({ search: '', category: '' });
+  }
+
+  clearSearchControl() {
+    this.searchCtrl.setValue('');
   }
 
   addKeyword() {
     const dialogRef = this.dialog.open(KeywordDialogComponent, {
-      width: '600px',
       data: { mode: 'add', categories$: this.categories$ }
     });
 
@@ -180,7 +190,6 @@ export class KeywordsManagementComponent implements OnInit {
 
   editKeyword(keyword: Keyword) {
     const dialogRef = this.dialog.open(KeywordDialogComponent, {
-      width: '600px',
       data: { mode: 'edit', keyword, categories$: this.categories$ }
     });
 
@@ -194,7 +203,7 @@ export class KeywordsManagementComponent implements OnInit {
   deleteKeyword(keyword: Keyword) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        message: `Are you sure you want to delete the keyword "${keyword.text}"?`,
+        message: `Are you sure you want to delete the keyword »${keyword.name}»?`,
         cancelText: 'Cancel',
         confirmText: 'Delete'
       }
@@ -208,124 +217,72 @@ export class KeywordsManagementComponent implements OnInit {
   }
 
   private createKeyword(data: KeywordCreationRequest) {
-    const currentProject = this.projectService.getCurrentProject();
+    const currentProject = this.projectName();
     if (!currentProject) {
-      this.snackbar.open('No project selected', 'Close', { 
-        panelClass: ['snackbar-error'] 
-      });
+      this.showError('No project selected.');
       return;
     }
     
-    this.isLoading = true;
-    this.cdr.markForCheck();
     this.keywordService.createKeyword(data, currentProject).pipe(take(1)).subscribe({
       next: () => {
-        this.snackbar.open('Keyword created successfully', 'Close', { 
-          panelClass: ['snackbar-success'] 
-        });
+        this.showSuccess('Keyword created successfully.');
         this.refreshData();
       },
       error: (error) => {
         console.error('Failed to create keyword:', error);
-        this.snackbar.open('Failed to create keyword', 'Close', { 
-          panelClass: ['snackbar-error'] 
-        });
-      },
-      complete: () => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
       }
     });
   }
 
   private updateKeyword(data: KeywordUpdateRequest) {
-    const currentProject = this.projectService.getCurrentProject();
+    const currentProject = this.projectName();
     if (!currentProject) {
-      this.snackbar.open('No project selected', 'Close', { 
-        panelClass: ['snackbar-error'] 
-      });
+      this.showError('No project selected.');
       return;
     }
     
-    this.isLoading = true;
-    this.cdr.markForCheck();
     this.keywordService.updateKeyword(data, currentProject).pipe(take(1)).subscribe({
       next: () => {
-        this.snackbar.open('Keyword updated successfully', 'Close', { 
-          panelClass: ['snackbar-success'] 
-        });
+        this.showSuccess('Keyword updated successfully.');
         this.refreshData();
       },
       error: (error) => {
         console.error('Failed to update keyword:', error);
-        this.snackbar.open('Failed to update keyword', 'Close', { 
-          panelClass: ['snackbar-error'] 
-        });
-      },
-      complete: () => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
       }
     });
   }
 
   private performDelete(keywordId: number) {
-    const currentProject = this.projectService.getCurrentProject();
+    const currentProject = this.projectName();
     if (!currentProject) {
-      this.snackbar.open('No project selected', 'Close', { 
-        panelClass: ['snackbar-error'] 
-      });
+      this.showError('No project selected.');
       return;
     }
     
-    this.isLoading = true;
-    this.cdr.markForCheck();
     this.keywordService.deleteKeyword(keywordId, currentProject).pipe(take(1)).subscribe({
       next: () => {
-        this.snackbar.open('Keyword deleted successfully', 'Close', { 
-          panelClass: ['snackbar-success'] 
-        });
+        this.showSuccess('Keyword deleted successfully.');
         this.refreshData();
       },
       error: (error) => {
         console.error('Failed to delete keyword:', error);
-        this.snackbar.open('Failed to delete keyword', 'Close', { 
-          panelClass: ['snackbar-error'] 
-        });
-      },
-      complete: () => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
       }
     });
   }
 
-  getCategoryDisplay(category: string | null): string {
-    return category || 'No category';
+  private showSuccess(message: string): void {
+    this.snackbar.open(message, 'Close', {
+      panelClass: ['snackbar-success']
+    });
   }
 
-  getTranslationsDisplay(translations: KeywordTranslation[]): string {
-    if (!translations || translations.length === 0) {
-      return 'No translations';
-    }
-    return translations.map(t => `${t.language}: ${t.text}`).join(', ');
-  }
-
-  // Optimized methods for template performance
-  hasTranslations(translations: KeywordTranslation[]): boolean {
-    return translations && translations.length > 0;
-  }
-
-  getTranslationText(translation: KeywordTranslation): string {
-    return `${translation.language}: ${translation.text}`;
-  }
-
-  // TrackBy functions for performance optimization
-  trackByKeyword(index: number, keyword: Keyword): number {
-    return keyword.id;
-  }
-
-  trackByTranslation(index: number, translation: KeywordTranslation): string {
-    return `${translation.language}-${translation.text}`;
+  private showError(message: string): void {
+    this.snackbar.open(message, 'Close', {
+      duration: undefined,
+      panelClass: ['snackbar-error']
+    });
   }
 }
