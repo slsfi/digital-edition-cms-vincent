@@ -216,7 +216,6 @@ export class KeywordService {
       id: apiData.id,
       name: apiData.name || '',
       category: apiData.type,
-      projectId: apiData.project_id,
       translations: [], // TODO
       // No event data for general keywords
       eventId: undefined,
@@ -232,7 +231,6 @@ export class KeywordService {
       id: apiData.id,
       name: apiData.name || '',
       category: apiData.type,
-      projectId: apiData.project_id,
       translations: [], // TODO
       // Include event data for linked keywords
       eventId: apiData.event_id,
@@ -250,7 +248,6 @@ export class KeywordService {
         id: 1,
         name: 'salt',
         category: 'ingredients',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'salt' },
           { language: 'fi', text: 'suola' }
@@ -260,7 +257,6 @@ export class KeywordService {
         id: 2,
         name: 'pepper',
         category: 'ingredients',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'peppar' },
           { language: 'fi', text: 'pippuri' }
@@ -270,7 +266,6 @@ export class KeywordService {
         id: 3,
         name: 'flour',
         category: 'ingredients',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'mjöl' },
           { language: 'fi', text: 'jauho' }
@@ -280,7 +275,6 @@ export class KeywordService {
         id: 4,
         name: 'cooking',
         category: 'techniques',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'kokning' },
           { language: 'fi', text: 'kypsennys' }
@@ -290,7 +284,6 @@ export class KeywordService {
         id: 5,
         name: 'baking',
         category: 'techniques',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'bakning' },
           { language: 'fi', text: 'leivonta' }
@@ -300,7 +293,6 @@ export class KeywordService {
         id: 6,
         name: 'historical',
         category: null, // Example of keyword without category
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'historisk' },
           { language: 'fi', text: 'historiallinen' }

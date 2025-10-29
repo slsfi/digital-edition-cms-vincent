@@ -5,7 +5,7 @@
 } @else {
   <!-- Collection selection -->
   <div class="collection-selection">
-    <mat-form-field appearance="outline" [subscriptSizing]="'dynamic'">
+    <mat-form-field [subscriptSizing]="'dynamic'">
       <mat-label>Publication collection</mat-label>
       <mat-select [(value)]="selectedCollection" (selectionChange)="setSelectedCollection($event.value)">
         @for (collection of collections; track collection.id) {
