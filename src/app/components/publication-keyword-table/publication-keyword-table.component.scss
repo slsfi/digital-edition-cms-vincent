@@ -7,7 +7,7 @@
 table {
   width: 100%;
 
-  td {
+  td:not(.mat-no-data-cell) {
     cursor: pointer;
   }
 }
@@ -35,6 +35,14 @@ td.mat-column-name {
   width: 100%;
 }
 
+.center-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+
 .selected {
   background-color: #e1e1e1;
 
@@ -43,7 +51,7 @@ td.mat-column-name {
   }
 }
 
-tr.mat-mdc-row:hover td {
+tr.mat-mdc-row:not(.mat-mdc-no-data-row):hover td {
   background-color: #ebebef;
   transition: background-color 0.3s;
 }

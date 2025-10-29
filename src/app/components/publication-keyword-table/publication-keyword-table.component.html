@@ -1,17 +1,19 @@
 <h3>
-  Publications ({{ dataSource.filteredData.length || 0 }})
+  Publications {{ dataSource.filteredData.length < dataSource.data.length ? `(${dataSource.filteredData.length}/${dataSource.data.length})` : `(${dataSource.data.length})` }}
 </h3>
-@if (dataSource.filteredData.length === 0) {
-  <p>No publications found in this collection.</p>
-} @else {
-  
-}
 
 <mat-form-field class="search-field">
   <mat-label>Filter publications</mat-label>
-  <input matInput [formControl]="searchControl" placeholder="Name or ID" />
+  <input matInput
+        [formControl]="searchControl"
+        placeholder="Search by name or ID"
+  >
   @if (!(searchControl.value | isEmptyString)) {
-    <button matIconButton matSuffix (click)="searchControl.setValue('')">
+    <button matIconButton
+          matSuffix
+          (click)="searchControl.setValue('')"
+          aria-label="Clear publication search term"
+    >
       <mat-icon>close</mat-icon>
     </button>
   } @else {
@@ -20,6 +22,7 @@
 </mat-form-field>
 
 <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
+  <!-- index -->
   <ng-container matColumnDef="index">
     <th mat-header-cell *matHeaderCellDef>#</th>
     <td mat-cell *matCellDef="let row; let i = index">
@@ -27,26 +30,51 @@
     </td>
   </ng-container>
 
+  <!-- id -->
   <ng-container matColumnDef="id">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
     <td mat-cell *matCellDef="let row">
-      <button class="linklike" type="button" (click)="onRowClick(row)">{{ row.id }}</button>
+      <button class="linklike"
+            type="button"
+            (click)="onRowClick(row)"
+            [attr.aria-label]="`Select publication with ID ${row.id}`"
+      >
+        {{ row.id }}
+      </button>
     </td>
   </ng-container>
 
+  <!-- name -->
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
     <td mat-cell *matCellDef="let row">{{ row.name || 'Untitled' }}</td>
   </ng-container>
 
+  <!-- header + data rows -->
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="onRowClick(row)" [class.selected]="row.id === selectedId"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"
+        (click)="onRowClick(row)"
+        [class.selected]="row.id === selectedId"
+  ></tr>
 
+  <!-- no data row -->
   <tr class="mat-row" *matNoDataRow>
     <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-      <div class="center">No publications</div>
+      <div class="center-row">
+        @if (dataSource.data.length === 0) {
+          No publications in this collection.
+        } @else {
+          <div>No publications match your filter.</div>
+          <button matButton="outlined"
+                (click)="searchControl.setValue('')"
+          >Clear filter</button>
+        }
+      </div>
     </td>
   </tr>
 </table>
 
-<mat-paginator [hidePageSize]="true" [pageSizeOptions]="[10]" showFirstLastButtons></mat-paginator>
+<mat-paginator [hidePageSize]="true"
+      [pageSizeOptions]="[10]"
+      showFirstLastButtons
+></mat-paginator>
