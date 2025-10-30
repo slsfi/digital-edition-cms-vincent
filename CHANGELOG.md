@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps (dev): update `typescript-eslint` to 8.46.2.
+
 
 
 ## [1.4.1] – 2025-09-03
