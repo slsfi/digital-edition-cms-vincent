@@ -117,6 +117,7 @@ export class KeywordLinkingComponent implements OnInit {
   private readonly keywordsReload$ = new BehaviorSubject<void>(undefined);
   private readonly linkedKeywordsReload$ = new BehaviorSubject<void>(undefined);
 
+  selectedPublication = signal<Publication | null>(null);
   selectedPublicationId = signal<number | null>(null);
   selectedPublicationId$ = toObservable(this.selectedPublicationId).pipe(
     distinctUntilChanged()
@@ -164,6 +165,7 @@ export class KeywordLinkingComponent implements OnInit {
         // Set selected collection id and clear any publication selection
         this.selectedCollectionId = collectionId;
         this.selectedPublicationId.set(null);
+        this.selectedPublication.set(null);
       }),
       switchMap(collectionId => {
         if (!collectionId) return of([]);
@@ -249,6 +251,7 @@ export class KeywordLinkingComponent implements OnInit {
 
   selectPublication(publication: Publication) {
     this.selectedPublicationId.set(publication.id);
+    this.selectedPublication.set(publication);
   }
 
   removeKeywordFromPublication(keyword: Keyword) {

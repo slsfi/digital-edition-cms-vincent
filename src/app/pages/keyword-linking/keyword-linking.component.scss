@@ -21,10 +21,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-
-  h3 {
-    margin-top: 0;
-  }
 }
 
 .publications-panel,
@@ -36,6 +32,16 @@
 
   .search-field {
     width: 100%;
+  }
+}
+
+.keywords-panel {
+  h3 {
+    container-type: inline-size;
+    margin-top: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
