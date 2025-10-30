@@ -81,6 +81,9 @@
 }
 
 .keywords-table {
+  td.mat-column-name {
+    width: 50%;
+  }
   td.mat-column-category {
     span {
       background-color: #eeeeee;

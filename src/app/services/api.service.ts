@@ -51,7 +51,7 @@ export class ApiService {
     return this.http.get<T>(url, options)
       .pipe(
         map((response) => response),
-        catchError((error) => this.handleError(error, disableErrorMessage))
+        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
       )
   }
 

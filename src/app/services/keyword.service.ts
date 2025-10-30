@@ -25,7 +25,7 @@ export class KeywordService {
     
     return this.apiService.get<KeywordApiResponse>(url).pipe(
       map(response => {
-        if (response.success && response.data) {
+        if (Array.isArray(response.data)) {
           const keywords = response.data.map(this.mapKeywordApiData);
           return keywords;
         }
@@ -100,12 +100,11 @@ export class KeywordService {
    * Keywords are stored in the 'tag' table and connected via events
    */
   getKeywordsForPublication(publicationId: number, projectName: string): Observable<Keyword[]> {
-    // Use the correct endpoint from the backend API
     const url = `${this.apiService.prefixedUrl}/${projectName}/publication/${publicationId}/keywords/`;
     
     return this.apiService.get<PublicationKeywordApiResponse>(url).pipe(
       map(response => {
-        if (response.success && response.data && Array.isArray(response.data)) {
+        if (Array.isArray(response.data)) {
           // Map the tag data to Keyword objects using publication-specific mapping
           const keywords: Keyword[] = response.data.map((tag: PublicationKeywordApiData) => 
             this.mapPublicationKeywordApiData(tag)
@@ -132,7 +131,7 @@ export class KeywordService {
     
     const url = `${this.apiService.prefixedUrl}/${projectName}/events/new/`;
     
-    return this.apiService.post(url, request).pipe(
+    return this.apiService.post(url, request, {}, true).pipe(
       map(() => true)
     );
   }
@@ -157,14 +156,9 @@ export class KeywordService {
    */
   getUniqueCategories(projectName: string): Observable<string[]> {
     const url = `${this.apiService.prefixedUrl}/${projectName}/keywords/types/`;
-    
+
     return this.apiService.get<KeywordTypesApiResponse>(url).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          return response.data;
-        }
-        return [];
-      }),
+      map(response => response.data),
       catchError(error => {
         console.error('Error loading unique keyword categories: ', error);
         // Fallback to extracting from keywords

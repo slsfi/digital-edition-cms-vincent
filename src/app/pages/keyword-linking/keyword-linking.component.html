@@ -1,4 +1,5 @@
-@let selectedPublicationIdValue = selectedPublicationId();
+@let currentCollectionId = selectedCollectionId$ | async;
+@let currentPublicationId = selectedPublicationId();
 @let currentPublication = selectedPublication();
 @let publicationsList = publications$ | async;
 @let publicationsLoading = showLoadingPublications$ | async;
@@ -28,20 +29,20 @@
   </div>
 
   <!-- Main content area -->
-  @if (selectedCollectionId && !publicationsLoading) {
+  @if (currentCollectionId && !publicationsLoading) {
     <div class="panel-wrapper">
       <!-- Publications panel (left column) -->
       <div class="publications-panel">
         <publication-keyword-table
               [class.hide]="publicationsLoading"
               [publications]="publicationsList"
-              [selectedId]="selectedPublicationIdValue"
+              [selectedId]="currentPublicationId"
               (rowClick)="selectPublication($event)"
         ></publication-keyword-table>
       </div>
 
       <!-- Keywords panel (right column) -->
-      @if (selectedPublicationIdValue) {
+      @if (currentPublicationId) {
         <div class="keywords-panel">
           <h3>Linked keywords
             @if (!keywordsLoading && linkedKeywordsList !== null) {
@@ -165,7 +166,7 @@
         </div>
       }
     </div>
-  } @else if (selectedCollectionId && publicationsLoading) {
+  } @else if (currentCollectionId && publicationsLoading) {
     <loading-spinner [overlay]="true"/>
   }
 }

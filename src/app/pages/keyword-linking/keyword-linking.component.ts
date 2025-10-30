@@ -66,22 +66,35 @@ export class KeywordLinkingComponent implements OnInit {
   // starts typing.
   private static readonly MAX_INITIAL_OPTIONS = 50;
 
-  // Collections and publications
+  // Form controls
+  collectionControl = new FormControl<number | null>(
+    { value: null, disabled: true }
+  );
+  keywordSearchControl = new FormControl('');
+
+  // Data and filter streams
+  allKeywords$: Observable<Keyword[]> = of([]);
+  filteredKeywords$: Observable<Keyword[]> = of([]); // keyword search
+  linkedKeywords$: Observable<Keyword[] | null> = of(null);
   collections$: Observable<PublicationCollection[]> = of([]);
   publications$: Observable<Publication[]> = of([]);
+  
+  // UI state - primary
   selectedCollectionId$: Observable<number | null> = of(null);
-  selectedCollectionId: number | null = null;
-  
-  // Keywords
-  allKeywords$: Observable<Keyword[]> = of([]);
-  
-  // UI state
-  projectName = signal<string>(this.projectService.getCurrentProject() ?? '');
+  selectedPublication = signal<Publication | null>(null);
+  selectedPublicationId = signal<number | null>(null);
   isLoadingPublications = signal<boolean>(true);
   isLoadingKeywords = signal<boolean>(true);
 
-  private isLoadingPublications$ = toObservable(this.isLoadingPublications);
-  showLoadingPublications$: Observable<boolean> = this.isLoadingPublications$.pipe(
+  // UI state - derived
+  selectedPublicationId$ = toObservable(this.selectedPublicationId).pipe(
+    distinctUntilChanged()
+  );
+
+  showLoadingPublications$: Observable<boolean> = toObservable(
+    this.isLoadingPublications
+  ).pipe(
+    // Wait 120ms to show loading spinner only on slow connections
     switchMap(loading => loading
       ? timer(120).pipe(map(() => true))
       : of(false)
@@ -91,8 +104,10 @@ export class KeywordLinkingComponent implements OnInit {
     shareReplay(1)
   );
 
-  private isLoadingKeywords$ = toObservable(this.isLoadingKeywords);
-  showLoadingKeywords$: Observable<boolean> = this.isLoadingKeywords$.pipe(
+  showLoadingKeywords$: Observable<boolean> = toObservable(
+    this.isLoadingKeywords
+  ).pipe(
+    // Wait 120ms to show loading spinner only on slow connections
     switchMap(loading => loading
       ? timer(120).pipe(map(() => true))
       : of(false)
@@ -101,29 +116,16 @@ export class KeywordLinkingComponent implements OnInit {
     distinctUntilChanged(),
     shareReplay(1)
   );
-
-  // Form controls
-  collectionControl = new FormControl<number | null>({ value: null, disabled: true });
-  keywordSearchControl = new FormControl('');
-  
-  // Keyword search
-  filteredKeywords$: Observable<Keyword[]> = of([]);
-  private currentSearchTerm = ''; // Store the current search term
-
-  // Display columns
-  keywordColumns: string[] = ['name', 'category', 'actions'];
 
   // Reload triggers
   private readonly keywordsReload$ = new BehaviorSubject<void>(undefined);
   private readonly linkedKeywordsReload$ = new BehaviorSubject<void>(undefined);
 
-  selectedPublication = signal<Publication | null>(null);
-  selectedPublicationId = signal<number | null>(null);
-  selectedPublicationId$ = toObservable(this.selectedPublicationId).pipe(
-    distinctUntilChanged()
-  );
+  // Other variables
+  private currentKeywordSearchTerm = '';
+  keywordColumns: string[] = ['name', 'category', 'actions'];
+  projectName = signal<string>(this.projectService.getCurrentProject() ?? '');
 
-  linkedKeywords$: Observable<Keyword[] | null> = of(null);
 
   ngOnInit() {   
     this.setupDataStreams();
@@ -146,8 +148,7 @@ export class KeywordLinkingComponent implements OnInit {
       catchError(error => {
         console.error('Error loading collections:', error);
         return of([]);
-      }),
-      shareReplay(1)
+      })
     );
 
     // Selected collection
@@ -156,14 +157,13 @@ export class KeywordLinkingComponent implements OnInit {
       distinctUntilChanged()
     );
 
-    // Publications, based on selected collection
+    // Publications, dependent on selected collection
     this.publications$ = this.selectedCollectionId$.pipe(
       tap(collectionId => {
         if (collectionId !== null) {
           this.isLoadingPublications.set(true);
         }
-        // Set selected collection id and clear any publication selection
-        this.selectedCollectionId = collectionId;
+        // Clear any publication selection when collection changes
         this.selectedPublicationId.set(null);
         this.selectedPublication.set(null);
       }),
@@ -198,7 +198,7 @@ export class KeywordLinkingComponent implements OnInit {
     );
 
     // Keywords linked to selected publication, refetched whenever either
-    // selectedPublicationId$ or linkedKeywordsReload$ emit
+    // selectedPublicationId$ or linkedKeywordsReload$ emits
     this.linkedKeywords$ = combineLatest([
       this.selectedPublicationId$,
       this.linkedKeywordsReload$
@@ -206,7 +206,7 @@ export class KeywordLinkingComponent implements OnInit {
       tap(() => this.isLoadingKeywords.set(true)),
       switchMap(([pubId]) => {
         if (!pubId) {
-          // No selection: emit empty and stop loading
+          // No selection: emit null and stop loading
           this.isLoadingKeywords.set(false);
           return of(null);
         }
@@ -231,7 +231,7 @@ export class KeywordLinkingComponent implements OnInit {
     this.filteredKeywords$ = combineLatest([term$, this.allKeywords$]).pipe(
       map(([rawTerm, all]) => {
         const term = (rawTerm || '').trim();
-        this.currentSearchTerm = term;
+        this.currentKeywordSearchTerm = term;
 
         // If no search term and total number of keywords is max
         // MAX_INITIAL_OPTIONS, then show all keywords
@@ -273,107 +273,29 @@ export class KeywordLinkingComponent implements OnInit {
     });
   }
 
-  private linkExistingKeyword(keyword: Keyword) {
-    const currentProject = this.projectName();
-    const selectedPublicationId = this.selectedPublicationId();
-    if (!currentProject || !selectedPublicationId) return;
-
-    this.keywordService.connectKeywordToPublication(
-      keyword.id, selectedPublicationId, currentProject
-    ).subscribe({
-      next: (success) => {
-        if (success) {
-          this.snackBar.open(`Keyword »${keyword.name}» linked to publication.`, 'Close', { duration: 5000 });
-          this.reloadLinkedKeywords();
-        } else {
-          this.snackBar.open(`Failed to link keyword »${keyword.name}» - please try again.`, 'Close');
-        }
-      },
-      error: (error) => {
-        console.error('Error linking keyword:', error);
-        let errorMessage = 'Error linking keyword';
-        
-        // Check for specific error types
-        if (error.status === 0 || error.statusText === 'Unknown Error') {
-          errorMessage = 'Network error - please check your connection and try again';
-        } else if (error.status === 404) {
-          errorMessage = 'Keyword or publication not found';
-        } else if (error.status === 403) {
-          errorMessage = 'Permission denied - you may not have access to link keywords';
-        } else if (error.status >= 500) {
-          errorMessage = 'Server error - please try again later';
-        }
-        
-        this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
-      }
-    });
-  }
-
   private performRemoveKeyword(keyword: Keyword) {
     const currentProject = this.projectName();
     const selectedPublicationId = this.selectedPublicationId();
     if (!currentProject || !selectedPublicationId) return;
 
     if (!keyword.eventId) {
-      this.snackBar.open('Cannot remove keyword: missing event information.', 'Close', { 
-        panelClass: ['snackbar-error'] 
-      });
+      this.showError('Can’t remove keyword: missing event information.');
       return;
     }
 
+    this.isLoadingKeywords.set(true);
     this.keywordService.disconnectKeywordFromPublication(
       keyword.eventId, currentProject
-    ).pipe(
-      take(1)
     ).subscribe({
-      next: (success) => {
-        if (success) {
-          this.snackBar.open('Keyword removed successfully.', 'Close', { 
-            panelClass: ['snackbar-success'] 
-          });
-          this.reloadLinkedKeywords();
-        } else {
-          this.snackBar.open('Failed to remove keyword - please try again.', 'Close', { 
-            panelClass: ['snackbar-error'] 
-          });
-        }
+      next: () => {
+        this.showSuccess('Keyword removed successfully.');
+        this.reloadLinkedKeywords();
       },
       error: (error) => {
         console.error('Failed to remove keyword:', error);
-        let errorMessage = 'Failed to remove keyword.';
-        
-        if (error.status === 0 || error.statusText === 'Unknown Error') {
-          errorMessage = 'Network error removing keyword - please check your connection.';
-        } else if (error.status === 404) {
-          errorMessage = 'Keyword connection not found.';
-        } else if (error.status === 403) {
-          errorMessage = 'Permission denied - you may not have access to remove keywords.';
-        } else if (error.status >= 500) {
-          errorMessage = 'Server error removing keyword - please try again later.';
-        }
-        
-        this.snackBar.open(errorMessage, 'Close', { 
-          panelClass: ['snackbar-error'] 
-        });
+        this.isLoadingKeywords.set(false);
       }
     });
-  }
-
-  displayKeyword(keyword: Keyword): string {
-    return keyword ? keyword.name : '';
-  }
-
-  private clearSearchFields(): void {
-    this.keywordSearchControl.setValue('');
-    this.currentSearchTerm = '';
-  }
-
-  private reloadKeywords(): void {
-    this.keywordsReload$.next();
-  }
-
-  private reloadLinkedKeywords(): void {
-    this.linkedKeywordsReload$.next();
   }
 
   linkOrCreateKeyword(event: { option: MatOption & { value: Keyword | null } }): void {
@@ -382,7 +304,7 @@ export class KeywordLinkingComponent implements OnInit {
     if (value === null) {
       // This is the "create new keyword" option
       // Use the stored search term
-      this.createNewKeywordFromSearch(this.currentSearchTerm);
+      this.createNewKeywordFromSearch(this.currentKeywordSearchTerm);
     } else if (value && this.selectedPublicationId()) {
       // This is a regular keyword
       this.linkExistingKeyword(value);
@@ -395,7 +317,7 @@ export class KeywordLinkingComponent implements OnInit {
     event.option.deselect();
   }
 
-  createNewKeywordFromSearch(searchTerm: string): void {
+  private createNewKeywordFromSearch(searchTerm: string): void {
     if (!searchTerm) return;
 
     // Get categories for the dialog
@@ -421,24 +343,90 @@ export class KeywordLinkingComponent implements OnInit {
     keywordDialogRef.afterClosed().subscribe(result => {
       if (result && this.selectedPublicationId()) {
         // Create the keyword and then link it to the publication
-        this.keywordService.createKeyword(result, this.projectName()).pipe(
-          take(1)
+        this.isLoadingKeywords.set(true);
+
+        this.keywordService.createKeyword(
+          result, this.projectName()
         ).subscribe({
           next: (createdKeyword) => {
-            this.linkExistingKeyword(createdKeyword);
-            this.reloadKeywords();
-            this.snackBar.open('Keyword created and linked successfully.', 'Close', { 
-              panelClass: ['snackbar-success'] 
-            });
+            this.reloadKeywords(); // reload list with all keywords
+            this.linkExistingKeyword(createdKeyword, true);
           },
           error: (error) => {
             console.error('Failed to create keyword:', error);
-            this.snackBar.open('Failed to create keyword.', 'Close', { 
-              panelClass: ['snackbar-error'] 
-            });
+            this.isLoadingKeywords.set(false);
+            if (error.message === 'Failed to create keyword.') {
+              this.showError('Failed to create keyword.');
+              // if the error message is something else, the automatic
+              // error handling of post() will take care of showing it
+            }
           }
         });
       }
     });
   }
+
+  private linkExistingKeyword(keyword: Keyword, newlyCreated = false) {
+    const currentProject = this.projectName();
+    const selectedPublicationId = this.selectedPublicationId();
+    if (!currentProject || !selectedPublicationId) return;
+
+    this.isLoadingKeywords.set(true);
+
+    this.keywordService.connectKeywordToPublication(
+      keyword.id, selectedPublicationId, currentProject
+    ).subscribe({
+      next: () => {
+        const message = newlyCreated
+          ? `Keyword »${keyword.name}» created and linked to publication.`
+          : `Keyword »${keyword.name}» linked to publication.`;
+
+        this.showSuccess(message);
+        this.reloadLinkedKeywords();
+      },
+      error: (error) => {
+        console.error('Error linking keyword:', error);
+        this.isLoadingKeywords.set(false);
+
+        const errorMsg = error.error?.message || error.message || '';
+        let shownMsg = newlyCreated
+          ? `Keyword »${keyword.name}» created but failed to link it to the publication`
+          : 'Failed to link keyword to the publication';
+
+        shownMsg = errorMsg ? `${shownMsg}: ${errorMsg}` : `${shownMsg}.`;
+        this.showError(shownMsg);
+      }
+    });
+  }
+
+  displayKeyword(keyword: Keyword): string {
+    return keyword ? keyword.name : '';
+  }
+
+  private clearSearchFields(): void {
+    this.keywordSearchControl.setValue('');
+    this.currentKeywordSearchTerm = '';
+  }
+
+  private reloadKeywords(): void {
+    this.keywordsReload$.next();
+  }
+
+  private reloadLinkedKeywords(): void {
+    this.linkedKeywordsReload$.next();
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      panelClass: ['snackbar-success']
+    });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: undefined,
+      panelClass: ['snackbar-error']
+    });
+  }
+
 }

@@ -48,11 +48,11 @@ export interface KeywordsResponse extends ApiResponse {
 
 // Backend API response interfaces
 export interface KeywordApiResponse extends ApiResponse {
-  data: KeywordApiData[] | null;
+  data: KeywordApiData[];
 }
 
 export interface KeywordApiSingleResponse extends ApiResponse {
-  data: KeywordApiData | null;
+  data: KeywordApiData;
 }
 
 export interface KeywordApiData {
@@ -70,11 +70,11 @@ export interface KeywordApiData {
 }
 
 export interface KeywordTypesApiResponse extends ApiResponse {
-  data: string[] | null;
+  data: string[];
 }
 
 export interface PublicationKeywordApiResponse extends ApiResponse {
-  data: PublicationKeywordApiData[] | null;
+  data: PublicationKeywordApiData[];
 }
 
 export interface PublicationKeywordApiData {
