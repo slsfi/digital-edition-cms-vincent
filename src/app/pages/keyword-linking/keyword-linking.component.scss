@@ -1,81 +1,52 @@
-.container {
-  max-width: 1400px;
+:host {
+  display: block;
   margin: 0 auto;
-  padding: 24px;
+  max-width: 1200px;
 }
 
 .header {
   margin-bottom: 32px;
-  
-  h1 {
-    margin: 0 0 8px 0;
-    color: #333;
-    font-size: 2rem;
-    font-weight: 500;
-  }
-  
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
 .collection-selection {
-  .collection-field {
+  margin: 2em 0;
+  max-width: 800px;
+
+  mat-form-field {
     width: 100%;
-    max-width: 400px;
   }
 }
 
-.main-content {
+.panel-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  min-height: 600px;
 }
 
 .publications-panel,
 .keywords-panel {
-  background: #fafafa;
-  border-radius: 8px;
-  padding: 24px;
-  border: 1px solid #e0e0e0;
+  background-color: var(--mat-table-background-color, var(--mat-sys-surface));
+  border-radius: 4px;
+  padding: 20px;
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  .search-field {
+    width: 100%;
+  }
 }
 
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  
+.keywords-panel {
   h3 {
-    margin: 0;
-    color: #333;
-    font-size: 1.25rem;
-    font-weight: 500;
-  }
-  
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9rem;
+    container-type: inline-size;
+    margin-top: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
 .keyword-search-section {
-  margin-bottom: 20px;
-  
-  .search-field {
-    width: 100%;
-  }
+  margin-bottom: 8px;
 }
 
 .keyword-option {
@@ -83,16 +54,16 @@
   align-items: center;
   gap: 8px;
 
-  .action-icon {
+  mat-icon {
     color: #666;
     margin-right: 0;
   }
   
-  .keyword-text {
+  .k-name {
     font-weight: 500;
   }
-  
-  .keyword-category {
+
+  .k-category {
     color: #666;
     font-size: 0.9em;
   }
@@ -102,83 +73,52 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #166abe;
+  color: #005cbb;
 
   .mat-icon {
     margin-right: 0;
   }
 }
 
-.publications-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.publication-item {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
-  
-  &:hover {
-    border-color: #166abe;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:focus {
-    border-color: #166abe;
-    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
-  }
-  
-  &.selected {
-    border-color: #166abe;
-    background: #e3f2fd;
-    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
-  }
-}
-
-.publication-info {
-  h4 {
-    margin: 0 0 4px 0;
-    color: #333;
-    font-size: 1rem;
-    font-weight: 500;
-  }
-  
-  .publication-id {
-    margin: 0;
-    color: #666;
-    font-size: 0.85rem;
-  }
-}
-
 .keywords-table {
-  .mat-mdc-table {
-    background: white;
-    border-radius: 6px;
-    overflow: hidden;
+  td.mat-column-name {
+    width: 50%;
+  }
+  td.mat-column-category {
+    span {
+      background-color: #eeeeee;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      font-size: 0.8125rem;
+      padding: 0.125em 0.25em;
+    }
+  }
+
+  tr.mat-mdc-row:hover td {
+    background-color: #ebebef;
+    transition: background-color 0.3s;
   }
   
-  .no-category {
-    color: #999;
-    font-style: italic;
-  }
-  
-  .action-buttons {
+  .row-actions {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .center-row {
+    margin: 16px 0;
+    text-align: center;
   }
 }
 
-.no-keywords,
-.no-selection,
-.no-collection {
+.loading-keywords {
+  display: flex;
+  justify-content: center;
+  margin: 4rem auto;
+  width: 100%;
+}
+
+.no-selection {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -205,27 +145,8 @@
   }
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  color: #666;
-  
-  p {
-    margin: 16px 0 0 0;
-    font-size: 1rem;
-  }
-}
-
-// Responsive design
-@media (max-width: 768px) {
-  .container {
-    padding: 16px;
-  }
-  
-  .main-content {
+@media (max-width: 768px) {  
+  .panel-wrapper {
     grid-template-columns: 1fr;
     gap: 16px;
   }
@@ -233,11 +154,5 @@
   .publications-panel,
   .keywords-panel {
     padding: 16px;
-  }
-  
-  .panel-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
   }
 }

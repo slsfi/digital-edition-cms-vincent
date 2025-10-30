@@ -1,51 +1,82 @@
-<div class="pk-table">
-  <div class="toolbar">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Search publications</mat-label>
-      <input matInput [formControl]="searchControl" placeholder="Filter by name or id" />
-      @if ((searchControl.value || '').length) {
-        <button mat-icon-button matSuffix (click)="searchControl.setValue('')">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </mat-form-field>
-    <div class="spacer"></div>
-    @if (loading) {
-      <mat-spinner diameter="24"></mat-spinner>
-    }
-  </div>
+@let paginator = matPaginator();
 
-  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
-    <ng-container matColumnDef="index">
-      <th mat-header-cell *matHeaderCellDef>#</th>
-      <td mat-cell *matCellDef="let row; let i = index">
-        {{ paginator ? (i + 1 + (paginator.pageIndex * paginator.pageSize)) : (i + 1) }}
-      </td>
-    </ng-container>
+<h3>
+  Publications {{ dataSource.filteredData.length < dataSource.data.length ? `(${dataSource.filteredData.length}/${dataSource.data.length})` : `(${dataSource.data.length})` }}
+</h3>
 
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-      <td mat-cell *matCellDef="let row">{{ row.id }}</td>
-    </ng-container>
+<mat-form-field class="search-field">
+  <mat-label>Filter publications</mat-label>
+  <input matInput
+        [formControl]="searchControl"
+        placeholder="Search by name or ID"
+  >
+  @if (!(searchControl.value | isEmptyString)) {
+    <button matIconButton
+          matSuffix
+          (click)="searchControl.setValue('')"
+          aria-label="Clear publication search term"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  } @else {
+    <mat-icon matSuffix>filter_list</mat-icon>
+  }
+</mat-form-field>
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-      <td mat-cell *matCellDef="let row">
-        <button class="linklike" type="button" (click)="onRowClick(row)">{{ row.name || 'Untitled' }}</button>
-      </td>
-    </ng-container>
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
+  <!-- index -->
+  <ng-container matColumnDef="index">
+    <th mat-header-cell *matHeaderCellDef>#</th>
+    <td mat-cell *matCellDef="let row; let i = index">
+      {{ paginator ? (i + 1 + (paginator.pageIndex * paginator.pageSize)) : (i + 1) }}
+    </td>
+  </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="onRowClick(row)" [class.selected]="row.id === selectedId"></tr>
+  <!-- id -->
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+    <td mat-cell *matCellDef="let row">
+      <button class="linklike"
+            type="button"
+            (click)="onRowClick(row)"
+            [attr.aria-label]="`Select publication with ID ${row.id}`"
+      >
+        {{ row.id }}
+      </button>
+    </td>
+  </ng-container>
 
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-        <div class="center">No publications</div>
-      </td>
-    </tr>
-  </table>
+  <!-- name -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+    <td mat-cell *matCellDef="let row">{{ row.name || 'Untitled' }}</td>
+  </ng-container>
 
-  <mat-paginator [hidePageSize]="true" [pageSizeOptions]="[20]" showFirstLastButtons></mat-paginator>
-</div>
+  <!-- header + data rows -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"
+        (click)="onRowClick(row)"
+        [class.selected]="row.id === selectedId()"
+  ></tr>
 
+  <!-- no data row -->
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+      <div class="center-row">
+        @if (dataSource.data.length === 0) {
+          No publications in this collection.
+        } @else {
+          <div>No publications match your filter.</div>
+          <button matButton="outlined"
+                (click)="searchControl.setValue('')"
+          >Clear filter</button>
+        }
+      </div>
+    </td>
+  </tr>
+</table>
 
+<mat-paginator [hidePageSize]="true"
+      [pageSizeOptions]="[10]"
+      showFirstLastButtons
+></mat-paginator>

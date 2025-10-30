@@ -81,8 +81,12 @@
     @if (model[column.field] === 2) {
       <span class="published-2">Production</span>
     }
-  } @else if (column.type === 'category' && model[column.field]) {
-    <span>{{ model[column.field] }}</span>
+  } @else if (column.type === 'category') {
+    @if (model[column.field]) {
+      <span>{{ model[column.field] }}</span>
+    } @else {
+      –
+    }
   } @else if (column.type === 'action') {
     <div class="row-actions">
       <button mat-icon-button (click)="edit(model)"><mat-icon>edit</mat-icon></button>

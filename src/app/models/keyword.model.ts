@@ -4,7 +4,6 @@ export interface Keyword {
   id: number;
   name: string;
   category?: string | null;  // Can be null, string for now
-  projectId: number;
   translations?: KeywordTranslation[];
   // Event information for linked keywords (only present when keyword is linked to a publication)
   // These fields are populated when fetching keywords for a specific publication
@@ -49,11 +48,11 @@ export interface KeywordsResponse extends ApiResponse {
 
 // Backend API response interfaces
 export interface KeywordApiResponse extends ApiResponse {
-  data: KeywordApiData[] | null;
+  data: KeywordApiData[];
 }
 
 export interface KeywordApiSingleResponse extends ApiResponse {
-  data: KeywordApiData | null;
+  data: KeywordApiData;
 }
 
 export interface KeywordApiData {
@@ -71,11 +70,11 @@ export interface KeywordApiData {
 }
 
 export interface KeywordTypesApiResponse extends ApiResponse {
-  data: string[] | null;
+  data: string[];
 }
 
 export interface PublicationKeywordApiResponse extends ApiResponse {
-  data: PublicationKeywordApiData[] | null;
+  data: PublicationKeywordApiData[];
 }
 
 export interface PublicationKeywordApiData {

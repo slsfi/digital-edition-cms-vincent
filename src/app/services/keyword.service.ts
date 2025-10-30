@@ -25,7 +25,7 @@ export class KeywordService {
     
     return this.apiService.get<KeywordApiResponse>(url).pipe(
       map(response => {
-        if (response.success && response.data) {
+        if (Array.isArray(response.data)) {
           const keywords = response.data.map(this.mapKeywordApiData);
           return keywords;
         }
@@ -100,12 +100,11 @@ export class KeywordService {
    * Keywords are stored in the 'tag' table and connected via events
    */
   getKeywordsForPublication(publicationId: number, projectName: string): Observable<Keyword[]> {
-    // Use the correct endpoint from the backend API
     const url = `${this.apiService.prefixedUrl}/${projectName}/publication/${publicationId}/keywords/`;
     
     return this.apiService.get<PublicationKeywordApiResponse>(url).pipe(
       map(response => {
-        if (response.success && response.data && Array.isArray(response.data)) {
+        if (Array.isArray(response.data)) {
           // Map the tag data to Keyword objects using publication-specific mapping
           const keywords: Keyword[] = response.data.map((tag: PublicationKeywordApiData) => 
             this.mapPublicationKeywordApiData(tag)
@@ -116,7 +115,6 @@ export class KeywordService {
       })
     );
   }
-
 
   /**
    * Connect a keyword to a publication
@@ -133,7 +131,7 @@ export class KeywordService {
     
     const url = `${this.apiService.prefixedUrl}/${projectName}/events/new/`;
     
-    return this.apiService.post(url, request).pipe(
+    return this.apiService.post(url, request, {}, true).pipe(
       map(() => true)
     );
   }
@@ -158,14 +156,9 @@ export class KeywordService {
    */
   getUniqueCategories(projectName: string): Observable<string[]> {
     const url = `${this.apiService.prefixedUrl}/${projectName}/keywords/types/`;
-    
+
     return this.apiService.get<KeywordTypesApiResponse>(url).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          return response.data;
-        }
-        return [];
-      }),
+      map(response => response.data),
       catchError(error => {
         console.error('Error loading unique keyword categories: ', error);
         // Fallback to extracting from keywords
@@ -175,24 +168,6 @@ export class KeywordService {
             console.error('Error loading keywords for unique categories computation: ', innerErr);
             return of([]);
           })
-        );
-      })
-    );
-  }
-
-  /**
-   * Search keywords by text (for autocomplete)
-   */
-  searchKeywords(projectName: string, searchTerm: string): Observable<Keyword[]> {
-    return this.getKeywords(projectName).pipe(
-      map(keywords => {
-        if (!searchTerm || searchTerm.trim() === '') {
-          return keywords;
-        }
-        const term = searchTerm.toLowerCase();
-        return keywords.filter(keyword => 
-          keyword.name.toLowerCase().includes(term) ||
-          (keyword.category && keyword.category.toLowerCase().includes(term))
         );
       })
     );
@@ -216,7 +191,6 @@ export class KeywordService {
       id: apiData.id,
       name: apiData.name || '',
       category: apiData.type,
-      projectId: apiData.project_id,
       translations: [], // TODO
       // No event data for general keywords
       eventId: undefined,
@@ -232,7 +206,6 @@ export class KeywordService {
       id: apiData.id,
       name: apiData.name || '',
       category: apiData.type,
-      projectId: apiData.project_id,
       translations: [], // TODO
       // Include event data for linked keywords
       eventId: apiData.event_id,
@@ -250,7 +223,6 @@ export class KeywordService {
         id: 1,
         name: 'salt',
         category: 'ingredients',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'salt' },
           { language: 'fi', text: 'suola' }
@@ -260,7 +232,6 @@ export class KeywordService {
         id: 2,
         name: 'pepper',
         category: 'ingredients',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'peppar' },
           { language: 'fi', text: 'pippuri' }
@@ -270,7 +241,6 @@ export class KeywordService {
         id: 3,
         name: 'flour',
         category: 'ingredients',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'mjöl' },
           { language: 'fi', text: 'jauho' }
@@ -280,7 +250,6 @@ export class KeywordService {
         id: 4,
         name: 'cooking',
         category: 'techniques',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'kokning' },
           { language: 'fi', text: 'kypsennys' }
@@ -290,7 +259,6 @@ export class KeywordService {
         id: 5,
         name: 'baking',
         category: 'techniques',
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'bakning' },
           { language: 'fi', text: 'leivonta' }
@@ -300,7 +268,6 @@ export class KeywordService {
         id: 6,
         name: 'historical',
         category: null, // Example of keyword without category
-        projectId: projectId,
         translations: [
           { language: 'sv', text: 'historisk' },
           { language: 'fi', text: 'historiallinen' }

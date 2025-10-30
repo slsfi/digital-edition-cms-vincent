@@ -5,7 +5,7 @@
   <p>Manage keywords for the current project. Keywords can be organized into categories and used to tag publications.</p>
 </div>
 
-@if (projectName === null) {
+@if (!projectName()) {
   <p>Please select a project.</p>
 } @else {
   <div class="filters-section" [formGroup]="filters">

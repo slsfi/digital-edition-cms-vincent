@@ -49,7 +49,9 @@ export class ConfirmDialogComponent {
   selectedMetadataFields: { [key: string]: boolean } = {};
   selectedTocUpdateFields: { [key: string]: boolean } = {};
 
-  isDeleteAction = this.confirmText.toLowerCase() === 'delete';
+  isDeleteAction = (['delete', 'remove']).includes(
+    this.confirmText.trim().toLowerCase()
+  );
 
   constructor() {    
     // Initialize selected fields with defaults
