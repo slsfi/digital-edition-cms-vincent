@@ -8,14 +8,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.5.0] – 2025-10-30
+
+### Added
+
+- Feature: keywords management and linking to publications. ([db8925c](https://github.com/slsfi/digital-edition-cms-vincent/commit/db8925cebc86260ac9f8d83895399d8e2882b8d6), [8053801](https://github.com/slsfi/digital-edition-cms-vincent/commit/8053801e315619d1f11a1e52a5a37d8f4f25610b), [7db7b71](https://github.com/slsfi/digital-edition-cms-vincent/commit/7db7b7152637b706d0ce3b42353707c336707c45), [8a608fe](https://github.com/slsfi/digital-edition-cms-vincent/commit/8a608fee4b650bcc3857f9f7dd90ad099c8e8b6e), [aef758b](https://github.com/slsfi/digital-edition-cms-vincent/commit/aef758b61f5f01044dccfb3361e6b3ff08138c97), [56893c7](https://github.com/slsfi/digital-edition-cms-vincent/commit/56893c7957b0e05db33618fed621bffe076a4e1d), [93cc170](https://github.com/slsfi/digital-edition-cms-vincent/commit/93cc17014317f9b8b7bf15183200299d3910099c))
+- Feature: table of contents management. ([dcc1f91](https://github.com/slsfi/digital-edition-cms-vincent/commit/dcc1f9117f91f70a80737a6e6d71a415826b5608), [03eb788](https://github.com/slsfi/digital-edition-cms-vincent/commit/03eb7881b853dffc7e90dfe4386ed35a98f45c62), [a0b14f9](https://github.com/slsfi/digital-edition-cms-vincent/commit/a0b14f9a22a536b4a1ba9a652e367c917fb336d7), [d1d3250](https://github.com/slsfi/digital-edition-cms-vincent/commit/d1d325013b36fc04e7726d82f4bda03898339cef), [fb6184c](https://github.com/slsfi/digital-edition-cms-vincent/commit/fb6184c9e52c1d57b63edb1a6460efeb45660623), [847202c](https://github.com/slsfi/digital-edition-cms-vincent/commit/847202cd8bf7dba211f48710039f488df266e758), [deba26e](https://github.com/slsfi/digital-edition-cms-vincent/commit/deba26e752e582331c3a2d256a45e6947404213e), [b8eeb89](https://github.com/slsfi/digital-edition-cms-vincent/commit/b8eeb89887a70e235f9a232612c53a3c78a8b2fb), [5f498a4](https://github.com/slsfi/digital-edition-cms-vincent/commit/5f498a4c87c55b55b1ccdd37e74afbea107ad689), [8afd3b8](https://github.com/slsfi/digital-edition-cms-vincent/commit/8afd3b855f3fe6ddd73987e54b3b70475d311bf9))
+- Auto-selection of project if only one available. ([e851bd5](https://github.com/slsfi/digital-edition-cms-vincent/commit/e851bd5eb9baf10f79919b009c5464704f0cb4c1))
+- Sort and filter publications by date. ([e6c3370](https://github.com/slsfi/digital-edition-cms-vincent/commit/e6c3370e02b2805cd0c5aa9e0d54f086b871e568))
+- App version to login page. ([68153d8](https://github.com/slsfi/digital-edition-cms-vincent/commit/68153d806f274d67099262ffe5f2a1b43bf30cba))
+
 ### Changed
 
-- Deps (dev): update `@types/jasmine` to 5.1.12.
-- Deps (dev): update `angular-eslint` to 20.5.0.
-- Deps (dev): update `eslint` to 9.38.0.
-- Deps (dev): update `jasmine-core` to 5.12.1.
-- Deps (dev): update `typescript-eslint` to 8.46.2.
-- Deps: update transitive dependencies.
+- Refactor translation service. ([2af22b7](https://github.com/slsfi/digital-edition-cms-vincent/commit/2af22b7174437fd292b98b20e9589c96e44e24d2))
+- Refactor confirm dialog. ([43e3c53](https://github.com/slsfi/digital-edition-cms-vincent/commit/43e3c53a473628404b74fee16a91baf03a59574b), [dd477e0](https://github.com/slsfi/digital-edition-cms-vincent/commit/dd477e031c801584251221318a5f3ab349ac4d32))
+- Refactor model files. ([88a2c3d](https://github.com/slsfi/digital-edition-cms-vincent/commit/88a2c3d28b21acf1556db3e02943c097b5476c89))
+- Reorder navigation items. ([340a607](https://github.com/slsfi/digital-edition-cms-vincent/commit/340a60724b37cd4804fa095f0dfc447d98bc3b84))
+- Remove unnecessary HTML wrappers. ([5bc513c](https://github.com/slsfi/digital-edition-cms-vincent/commit/5bc513cc8a7491e47c0218c048893dc81f23165b))
+- Refactor add facsimiles from publications. ([42caefd](https://github.com/slsfi/digital-edition-cms-vincent/commit/42caefdb9b572c6a426eaff39f0bcfc144e4c289))
+- Adjust collections and publications list widths. ([4d83dee](https://github.com/slsfi/digital-edition-cms-vincent/commit/4d83dee4e9eebba0e45d919cb4dc39fbee8c052d))
+- Remove selected project definition from publication service. ([22229ad](https://github.com/slsfi/digital-edition-cms-vincent/commit/22229ad238922b56f60df92cad1034f0b3cff40e))
+- Title of persons management page. ([1112215](https://github.com/slsfi/digital-edition-cms-vincent/commit/1112215700a698ac1f4b68b58f3121a2dde6c228))
+- Deps: update `@angular/core` to 20.3.9, `@angular/cli` to 20.3.8, `@angular/cdk` and `@angular/material` to 20.2.10. ([f5ce1df](https://github.com/slsfi/digital-edition-cms-vincent/commit/f5ce1dfc3c47c434e89047d6906b82f62c3e4be5), [fc881c4](https://github.com/slsfi/digital-edition-cms-vincent/commit/fc881c4945041c8afde6d63b4409e8c7eb8dd6fb))
+- Deps (dev): update `@types/jasmine` to 5.1.12. ([3cca612](https://github.com/slsfi/digital-edition-cms-vincent/commit/3cca6127c75e1dab7ff4ba5c3b2ad969c047d8be))
+- Deps (dev): update `angular-eslint` to 20.5.0. ([ad1ca9c](https://github.com/slsfi/digital-edition-cms-vincent/commit/ad1ca9cda2af350a7974960781203fa16ae54eba), [89c9819](https://github.com/slsfi/digital-edition-cms-vincent/commit/89c981950c1d6e0deb5ad6e98cd2f6b4d737eea6))
+- Deps (dev): update `eslint` to 9.38.0. ([b42dee7](https://github.com/slsfi/digital-edition-cms-vincent/commit/b42dee70764e813ca8262cab9be7da931e977eb6), [4676bb4](https://github.com/slsfi/digital-edition-cms-vincent/commit/4676bb4a7653a48d425cfa57ed4e3fe3682d13ba))
+- Deps (dev): update `jasmine-core` to 5.12.1. ([d7496b8](https://github.com/slsfi/digital-edition-cms-vincent/commit/d7496b84bc3e8f6c1c33f234a4ec650545663443), [3abb74c](https://github.com/slsfi/digital-edition-cms-vincent/commit/3abb74c3450bf9c176a2ea73ea66a344ba68e14d))
+- Deps (dev): update `typescript` to 5.9.3. ([de1c6ef](https://github.com/slsfi/digital-edition-cms-vincent/commit/de1c6ef76ef72d72ac8e907efabeea7538f9ed35))
+- Deps (dev): update `typescript-eslint` to 8.46.2. ([4c04415](https://github.com/slsfi/digital-edition-cms-vincent/commit/4c04415ceebea46e01c7838c9d61176246123561), [6e108ab](https://github.com/slsfi/digital-edition-cms-vincent/commit/6e108ab4cd79b25f82d0d8a6762aac5548d90389))
+- Deps: update transitive dependencies. ([bbebdbc](https://github.com/slsfi/digital-edition-cms-vincent/commit/bbebdbcadce4b8c9a17d1c5de0ab973c1482441a), [98f8a5a](https://github.com/slsfi/digital-edition-cms-vincent/commit/98f8a5a70dacdf545759294ee9f7dfa134e085d1))
+
+### Fixed
+
+- Duplice data subscription in custom table component. ([b74a226](https://github.com/slsfi/digital-edition-cms-vincent/commit/b74a2268692f50a7b3ae7394045bc722ef6b5464))
+- Duplicate subscriptions to publication collections. ([aceac3e](https://github.com/slsfi/digital-edition-cms-vincent/commit/aceac3ee5a301a78055e0dfc71992d4f9eab0076))
+- Prevent adding already added publications when adding multiple. ([2a8cb4e](https://github.com/slsfi/digital-edition-cms-vincent/commit/2a8cb4e10e2e7894ce6dff8295c5163b729c0c65))
 
 
 
@@ -291,7 +320,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.0...HEAD
+[1.5.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.0...1.3.1
