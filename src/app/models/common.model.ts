@@ -51,7 +51,7 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Table of contents', route: '/table-of-contents', icon: 'list_alt' },
   { label: 'Keywords', route: '/keywords', icon: 'label' },
   { label: 'Keyword linking', route: '/keywords/linking', icon: 'flowchart' },
-  { label: 'Index of persons', route: '/persons', icon: 'groups' },
+  { label: 'Persons', route: '/persons', icon: 'groups' },
 ]
 
 export interface LabelledOption {
