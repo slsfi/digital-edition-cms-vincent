@@ -1,3 +1,5 @@
+@let paginator = matPaginator();
+
 <h3>
   Publications {{ dataSource.filteredData.length < dataSource.data.length ? `(${dataSource.filteredData.length}/${dataSource.data.length})` : `(${dataSource.data.length})` }}
 </h3>
@@ -54,7 +56,7 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns"
         (click)="onRowClick(row)"
-        [class.selected]="row.id === selectedId"
+        [class.selected]="row.id === selectedId()"
   ></tr>
 
   <!-- no data row -->

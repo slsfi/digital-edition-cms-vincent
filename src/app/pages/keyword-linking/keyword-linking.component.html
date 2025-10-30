@@ -1,3 +1,9 @@
+@let selectedPublicationIdValue = selectedPublicationId();
+@let publicationsList = publications$ | async;
+@let publicationsLoading = showLoadingPublications$ | async;
+@let linkedKeywordsList = linkedKeywords$ | async;
+@let keywordsLoading = showLoadingKeywords$ | async;
+
 <div class="header">
   <h1>Keyword linking to publications</h1>
   <p>Connect keywords to publications. Select a collection to view its publications and manage their keyword associations.</p>
@@ -21,26 +27,24 @@
   </div>
 
   <!-- Main content area -->
-  @if (selectedCollectionId) {
-    <div class="main-content">
+  @if (selectedCollectionId && !publicationsLoading) {
+    <div class="panel-wrapper">
       <!-- Publications panel (left column) -->
       <div class="publications-panel">
         <publication-keyword-table
-              [publications$]="publications$"
-              [selectedId]="selectedPublicationId"
+              [class.hide]="publicationsLoading"
+              [publications]="publicationsList"
+              [selectedId]="selectedPublicationIdValue"
               (rowClick)="selectPublication($event)"
         ></publication-keyword-table>
       </div>
 
       <!-- Keywords panel (right column) -->
-      @if (selectedPublicationId) {
-        @let linkedKeywordsList = (linkedKeywords$ | async) || [];
-
+      @if (selectedPublicationIdValue) {
         <div class="keywords-panel">
-          <h3>
-            Linked keywords
-            @if (linkedKeywordsList.length) {
-              ({{ linkedKeywordsList.length }})
+          <h3>Linked keywords
+            @if (!keywordsLoading && linkedKeywordsList !== null) {
+              ({{ linkedKeywordsList?.length }})
             }
           </h3>
 
@@ -48,10 +52,38 @@
           <div class="keyword-search-section">
             <mat-form-field class="search-field">
               <mat-label>Link a keyword</mat-label>
-              <input matInput
+              <input type="text"
+                    matInput
                     [formControl]="keywordSearchControl"
                     [matAutocomplete]="keywordAuto"
-                    placeholder="Search keywords by name or create a new one…">
+                    placeholder="Search keywords by name or create a new one…"
+              >
+              <!-- Keyword autocomplete -->
+              <mat-autocomplete #keywordAuto="matAutocomplete" 
+                    [displayWith]="displayKeyword"
+                    (optionSelected)="linkOrCreateKeyword($event)"
+              >
+                @for (keyword of filteredKeywords$ | async; track keyword.id) {
+                  <mat-option [value]="keyword">
+                    <div class="keyword-option">
+                      <mat-icon aria-hidden="true">label</mat-icon>
+                      <span class="k-name">{{ keyword.name }}</span>
+                      @if (keyword.category) {
+                        <span class="k-category">[{{ keyword.category }}]</span>
+                      }
+                    </div>
+                  </mat-option>
+                }
+                @if (keywordSearchControl.value) {
+                  <mat-option [value]="null">
+                    <div class="create-new-option">
+                      <mat-icon aria-hidden="true">add</mat-icon>
+                      Create new keyword: »{{ keywordSearchControl.value }}»
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+              <!-- Clear keyword search button -->
               @if (!(keywordSearchControl.value | isEmptyString)) {
                 <button matIconButton
                       matSuffix
@@ -64,86 +96,63 @@
                 <mat-icon matSuffix>flowchart</mat-icon>
               }
             </mat-form-field>
-            
-            <mat-autocomplete
-                  #keywordAuto="matAutocomplete" 
-                  [displayWith]="displayKeyword"
-                  (optionSelected)="onKeywordSelected($event)"
-            >
-              @for (keyword of filteredKeywords$ | async; track keyword.id) {
-                <mat-option [value]="keyword">
-                  <div class="keyword-option">
-                    <mat-icon aria-hidden="true">label</mat-icon>
-                    <span class="k-name">{{ keyword.name }}</span>
-                    @if (keyword.category) {
-                      <span class="k-category">[{{ keyword.category }}]</span>
-                    }
-                  </div>
-                </mat-option>
-              }
-              @if (keywordSearchControl.value) {
-                <mat-option [value]="null">
-                  <div class="create-new-option">
-                    <mat-icon aria-hidden="true">add</mat-icon>
-                    Create new keyword: »{{ keywordSearchControl.value }}»
-                  </div>
-                </mat-option>
-              }
-            </mat-autocomplete>
           </div>
 
-          <!-- Linked keywords table -->
-          @if (!isLoading) {
-            <div class="keywords-table">
-              <table mat-table [dataSource]="linkedKeywordsList" class="mat-elevation-z1">
-                <!-- Keyword name column -->
-                <ng-container matColumnDef="name">
-                  <th mat-header-cell *matHeaderCellDef>Keyword</th>
-                  <td mat-cell *matCellDef="let keyword">{{ keyword.name }}</td>
-                </ng-container>
+          @if (!keywordsLoading && linkedKeywordsList !== null) {
+            <!-- Linked keywords table -->
+            <table mat-table
+                  [dataSource]="linkedKeywordsList"
+                  class="mat-elevation-z1 keywords-table"
+            >
+              <!-- Keyword name column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Keyword</th>
+                <td mat-cell *matCellDef="let keyword">{{ keyword.name }}</td>
+              </ng-container>
 
-                <!-- Category column -->
-                <ng-container matColumnDef="category">
-                  <th mat-header-cell *matHeaderCellDef>Category</th>
-                  <td mat-cell *matCellDef="let keyword">
-                      @if (keyword.category) {
-                      <span>{{ keyword.category }}</span>
-                      }
-                  </td>
-                </ng-container>
+              <!-- Category column -->
+              <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef>Category</th>
+                <td mat-cell *matCellDef="let keyword">
+                    @if (keyword.category) {
+                    <span>{{ keyword.category }}</span>
+                    } @else {
+                      –
+                    }
+                </td>
+              </ng-container>
 
-                <!-- Actions column -->
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let keyword">
-                    <div class="row-actions">
-                      <button matIconButton
-                            (click)="removeKeywordFromPublication(keyword)"
-                            aria-label="Remove keyword from publication"
-                      >
-                        <mat-icon>label_off</mat-icon>
-                      </button>
-                    </div>
-                  </td>
-                </ng-container>
+              <!-- Actions column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let keyword">
+                  <div class="row-actions">
+                    <button matIconButton
+                          (click)="removeKeywordFromPublication(keyword)"
+                          aria-label="Remove keyword from publication"
+                    >
+                      <mat-icon>label_off</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="keywordColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: keywordColumns"></tr>
-              </table>
+              <!-- header + data rows -->
+              <tr mat-header-row *matHeaderRowDef="keywordColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: keywordColumns"></tr>
 
-              @if (!isLoading && hasLoadedOnce && linkedKeywordsList.length === 0) {
-                <div class="no-keywords">
-                  <mat-icon aria-hidden="true">label_off</mat-icon>
-                  <p>No keywords linked to this publication.</p>
-                  <p>Use the search field above to find existing keywords or create new ones.</p>
-                </div>
-              }
-            </div>
+              <!-- no data row -->
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" [attr.colspan]="keywordColumns.length">
+                  <div class="center-row">
+                    No keywords linked to publication.
+                  </div>
+                </td>
+              </tr>
+            </table>
           } @else {
-            <!-- Loading keywords -->
-            <div class="loading">
-              <mat-spinner diameter="40"></mat-spinner>
-              <p>Loading keywords…</p>
+            <div class="loading-keywords">
+              <loading-spinner/>
             </div>
           }
         </div>
@@ -155,5 +164,7 @@
         </div>
       }
     </div>
+  } @else if (selectedCollectionId && publicationsLoading) {
+    <loading-spinner [overlay]="true"/>
   }
 }

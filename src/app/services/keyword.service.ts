@@ -117,7 +117,6 @@ export class KeywordService {
     );
   }
 
-
   /**
    * Connect a keyword to a publication
    * Uses the backend endpoint: POST /{projectName}/events
@@ -175,24 +174,6 @@ export class KeywordService {
             console.error('Error loading keywords for unique categories computation: ', innerErr);
             return of([]);
           })
-        );
-      })
-    );
-  }
-
-  /**
-   * Search keywords by text (for autocomplete)
-   */
-  searchKeywords(projectName: string, searchTerm: string): Observable<Keyword[]> {
-    return this.getKeywords(projectName).pipe(
-      map(keywords => {
-        if (!searchTerm || searchTerm.trim() === '') {
-          return keywords;
-        }
-        const term = searchTerm.toLowerCase();
-        return keywords.filter(keyword => 
-          keyword.name.toLowerCase().includes(term) ||
-          (keyword.category && keyword.category.toLowerCase().includes(term))
         );
       })
     );
