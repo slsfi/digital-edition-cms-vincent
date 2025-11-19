@@ -544,8 +544,9 @@ export class PublicationsComponent implements OnInit {
     let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
 
     dialogRef.afterClosed().subscribe(result => {
+
       if (result?.value) {
-        const selectedFields = result.selectedFields || {};
+        const selectedFields = result.selectedMetadataFields || {};
         
         // Filter metadata to only include selected fields
         const filterMetadata = (metadata: XmlMetadata): Partial<PublicationEditRequest> => {
