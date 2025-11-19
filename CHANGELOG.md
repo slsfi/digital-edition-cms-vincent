@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Update metadata of all publications from XML not setting new values.
+
 
 
 ## [1.5.0] – 2025-10-30
