@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.5.1] – 2025-11-19
+
 ### Fixed
 
-- Update metadata of all publications from XML not setting new values.
+- Update metadata of all publications from XML not setting new values. ([594e800](https://github.com/slsfi/digital-edition-cms-vincent/commit/594e800a3a5d2b57dc14f0d3003a95890032bc9b))
 
 
 
@@ -324,7 +328,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.1...HEAD
+[1.5.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.3.1...1.4.0
