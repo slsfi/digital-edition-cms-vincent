@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Add English to list of table of content languages.
+
 
 
 ## [1.5.1] – 2025-11-19

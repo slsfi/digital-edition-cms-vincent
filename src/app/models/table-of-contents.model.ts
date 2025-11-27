@@ -130,6 +130,7 @@ export const tocLanguageOptions: LanguageObj[] = [
   { label: 'Czech', code: 'cs' },
   { label: 'Danish', code: 'da' },
   { label: 'Dutch', code: 'nl' },
+  { label: 'English', code: 'en' },
   { label: 'Estonian', code: 'et' },
   { label: 'Finnish', code: 'fi' },
   { label: 'French', code: 'fr' },
