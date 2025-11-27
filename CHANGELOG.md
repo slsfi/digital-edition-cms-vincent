@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core` to 20.3.14, `@angular/cli` to 20.3.12, `@angular/cdk` and `@angular/material` to 20.2.14.
 - Deps (dev): update `@types/jasmine` to 5.1.13.
 - Deps (dev): update `eslint` to 9.39.1.
-
+- Deps: update transitive dependencies.
 
 
 ## [1.5.1] – 2025-11-19
