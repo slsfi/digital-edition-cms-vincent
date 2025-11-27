@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Add English to list of table of content languages.
+- Stabilise custom-table component sorting when navigating table pages.
 
 
 
