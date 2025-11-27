@@ -142,28 +142,42 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
         }
         this.filteredCount = data.length;
 
-        // Sorting logic
+        // Sorting logic fixed
         if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
+          const sortKey = queryParams['sort'] as keyof T;
+          const direction = queryParams['direction'] === 'asc' ? 1 : -1;
+
           data = data.sort((a: T, b: T) => {
-            let aValue = this.getProperty<T, keyof T>(a, queryParams['sort']);
-            let bValue = this.getProperty<T, keyof T>(b, queryParams['sort']);
-            if (typeof aValue as string === 'string') {
-              aValue = (aValue as string).toLowerCase() as T[keyof T];
-            }
-            if (typeof bValue === 'string') {
-              bValue = (bValue as string).toLowerCase() as T[keyof T];
-            }
-            if (queryParams['direction'] === 'asc') {
-              return aValue > bValue ? 1 : -1;
-            } else {
-              return aValue < bValue ? 1 : -1;
-            }
+            let aValue = this.getProperty<T, keyof T>(a, sortKey) as unknown;
+            let bValue = this.getProperty<T, keyof T>(b, sortKey) as unknown;
+
+            // Normalize values: strings → lowercase, null/undefined → null
+            const normalize = (v: unknown) => {
+              if (v == null) return null;  // null and undefined treated the same
+              if (typeof v === 'string') return v.toLowerCase();
+              return v;
+            };
+
+            const av = normalize(aValue);
+            const bv = normalize(bValue);
+
+            // Equal values → stable (don't reorder among themselves)
+            if (av === bv) return 0;
+
+            // Consistent placement of "no value"
+            // If you want missing values LAST instead, just flip the signs here.
+            if (av === null) return -1 * direction;
+            if (bv === null) return  1 * direction;
+
+            // Normal comparison (numbers, strings, etc.)
+            return av > bv ? 1 * direction : -1 * direction;
           });
-          this.wasSortingActive = true; // Mark sorting as active
+
+          this.wasSortingActive = true;
         } else if (this.wasSortingActive && !queryParams['sort'] && !queryParams['direction']) {
           // Reset to original order if no sorting params are present anymore
           data = [...this.originalData];
-          this.wasSortingActive = false; // Reset the sorting state
+          this.wasSortingActive = false;  // Reset the sorting state
         }
 
         return data;
