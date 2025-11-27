@@ -8,17 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.5.2] – 2025-11-27
+
 ### Fixed
 
-- Add English to list of table of content languages.
-- Stabilise custom-table component sorting when navigating table pages.
+- Add English to list of table of content languages. ([350c335](https://github.com/slsfi/digital-edition-cms-vincent/commit/350c33593cc9a657cc645f53e7cbb6288e54ae70))
+- Stabilise custom-table component sorting when navigating table pages. ([36e0b96](https://github.com/slsfi/digital-edition-cms-vincent/commit/36e0b963a09c0e5c30eab2f0bd5820a3f8a99dcd))
 
 ### Changed
 
-- Deps: update `@angular/core` to 20.3.14, `@angular/cli` to 20.3.12, `@angular/cdk` and `@angular/material` to 20.2.14.
-- Deps (dev): update `@types/jasmine` to 5.1.13.
-- Deps (dev): update `eslint` to 9.39.1.
-- Deps: update transitive dependencies.
+- Deps: update `@angular/core` to 20.3.14, `@angular/cli` to 20.3.12, `@angular/cdk` and `@angular/material` to 20.2.14. ([913c4d5](https://github.com/slsfi/digital-edition-cms-vincent/commit/913c4d567ead55a33e1da26d1620ba9f5b99f990))
+- Deps (dev): update `@types/jasmine` to 5.1.13. ([07a3d87](https://github.com/slsfi/digital-edition-cms-vincent/commit/07a3d872664750e77b6cebab04fb9a44f2e05c3e))
+- Deps (dev): update `eslint` to 9.39.1. ([6292801](https://github.com/slsfi/digital-edition-cms-vincent/commit/629280105cbd92538eea79115e401f9a5cabcd38))
+- Deps: update transitive dependencies. ([bb2b356](https://github.com/slsfi/digital-edition-cms-vincent/commit/bb2b3565b3e566c6c038c26fdf66522ec9f434ac))
 
 
 ## [1.5.1] – 2025-11-19
@@ -339,7 +343,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.2...HEAD
+[1.5.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.0...1.4.1
