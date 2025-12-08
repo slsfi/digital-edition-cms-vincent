@@ -22,7 +22,6 @@ import { RangeArrayPipe } from '../../pipes/range-array.pipe';
   styleUrl: './facsimile-collection.component.scss'
 })
 export class FacsimileCollectionComponent implements OnInit {
-
   collectionId: number;
   facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
   missingFileNumbers: number[] = [];
@@ -43,7 +42,9 @@ export class FacsimileCollectionComponent implements OnInit {
 
   verifyFacsimileFiles() {
     const currentProject = this.projectService.getCurrentProject();
-    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all', currentProject).pipe(take(1)).subscribe({
+    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all', currentProject).pipe(
+      take(1)
+    ).subscribe({
       next: response => {
         this.missingFileNumbers = response.data?.missing_file_numbers || [];
       },

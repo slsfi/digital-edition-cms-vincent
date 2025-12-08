@@ -44,9 +44,9 @@ export class FacsimileService {
 
   getFacsimileCollection(collectionId: number, projectName: string | null | undefined) {
     const project = this.validateProject(projectName);
-    const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/collections/${collectionId}`;
-    return this.apiService.get<FacsimileCollection[]>(url).pipe(
-      map(response => response[0])
+    const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${collectionId}/data/`;
+    return this.apiService.get<FacsimileCollectionResponse>(url).pipe(
+      map(response => response.data)
     );
   }
 
