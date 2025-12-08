@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `@angular/core` to 20.3.15, `@angular/cli` to 20.3.13.
+
 ### BREAKING CHANGES
 
 - Change URL of backend endpoint for getting the data of a single facsimile collection from `/<project>/facsimiles/collections/<collectionId>` to `/<project>/facsimile_collection/<collectionId>/data/`.
