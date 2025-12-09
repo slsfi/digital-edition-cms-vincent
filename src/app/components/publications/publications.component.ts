@@ -7,7 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BehaviorSubject, catchError, combineLatest, concatMap,
@@ -29,6 +29,7 @@ import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
+import { SnackbarService } from '../../services/snackbar.service';
 import { Column, Deleted } from '../../models/common.model';
 import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile.model';
 import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript,
@@ -54,7 +55,7 @@ export class PublicationsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly queryParamsService = inject(QueryParamsService);
-  private readonly snackbar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
   private readonly loadingService = inject(LoadingService);
 
   loading$ = this.loadingService.loading$;
@@ -209,7 +210,7 @@ export class PublicationsComponent implements OnInit {
             } else if (formValue.link_manuscript === true) {
               this.manuscriptsLoader$.next(0);
             }
-            this.snackbar.open('Publication saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Publication saved.');
           },
           error: (err) => {
             console.error('Save failed:', err);
@@ -239,7 +240,7 @@ export class PublicationsComponent implements OnInit {
       this.publicationService.editPublication(publication.id, data, currentProject).pipe(take(1)).subscribe({
         next: () => {
           this.publicationsLoader$.next(0);
-          this.snackbar.open('File path saved', 'Close', { panelClass: ['snackbar-success'] });
+          this.snackbar.show('File path saved.');
         },
       });
     });
@@ -274,7 +275,7 @@ export class PublicationsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.versionsLoader$.next(0);
-            this.snackbar.open('Variant saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Variant saved.');
           }
         });
       }
@@ -310,7 +311,7 @@ export class PublicationsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.manuscriptsLoader$.next(0);
-            this.snackbar.open('Manuscript saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Manuscript saved.');
           }
         });
       }
@@ -345,7 +346,7 @@ export class PublicationsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.commentLoader$.next(0);
-            this.snackbar.open('Comment saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Comment saved.');
           }
         });
       }
@@ -379,7 +380,7 @@ export class PublicationsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.facsimilesLoader$.next(0);
-            this.snackbar.open('Facsimile saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Facsimile saved.');
           }
         });
       }
@@ -402,7 +403,7 @@ export class PublicationsComponent implements OnInit {
         this.publicationService.editFacsimileForPublication(payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.facsimilesLoader$.next(0);
-            this.snackbar.open('Facsimile deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Facsimile deleted.');
           }
         });
       }
@@ -425,7 +426,7 @@ export class PublicationsComponent implements OnInit {
         this.publicationService.editManuscript(manuscript.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.manuscriptsLoader$.next(0);
-            this.snackbar.open('Manuscript deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Manuscript deleted.');
           }
         });
       }
@@ -448,7 +449,7 @@ export class PublicationsComponent implements OnInit {
         this.publicationService.editVersion(version.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.versionsLoader$.next(0);
-            this.snackbar.open('Variant deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Variant deleted.');
           }
         });
       }
@@ -471,7 +472,7 @@ export class PublicationsComponent implements OnInit {
         this.publicationService.editComment(publicationId, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.commentLoader$.next(0);
-            this.snackbar.open('Comment deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Comment deleted.');
           }
         });
 
@@ -502,7 +503,7 @@ export class PublicationsComponent implements OnInit {
         this.publicationService.editPublication(publication.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.publicationsLoader$.next(0);
-            this.snackbar.open('Publication deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Publication deleted.');
           },
         });
       }
@@ -576,9 +577,8 @@ export class PublicationsComponent implements OnInit {
           take(1),
           tap((publications: Publication[]) => {
             if (publications.length > 40) {
-              progressSnackbarRef = this.snackbar.open(
-                'Updating metadata of all publications from XML…', 'Close',
-                { panelClass: 'snackbar-info', duration: undefined }
+              progressSnackbarRef = this.snackbar.show(
+                'Updating metadata of all publications from XML…', 'info'
               );
             }
           }),
@@ -620,33 +620,21 @@ export class PublicationsComponent implements OnInit {
         ).subscribe({
           next: (results) => {
             if (results.length === 0) {
-              this.snackbar.open('No publications found in this collection.', 'Close', {
-                panelClass: 'snackbar-info'
-              });
+              this.snackbar.show('No publications found in this collection.', 'info');
             } else if (this.metadataUpdateFailures.length === 0) {
-              this.snackbar.open(`Successfully updated metadata of all publications.`, 'Close', {
-                panelClass: 'snackbar-success'
-              });
+              this.snackbar.show('Successfully updated metadata of all publications.');
               this.publicationsLoader$.next(0); // Refresh the list
             } else if (this.metadataUpdateFailures.length < results.length) {
               // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
-              this.snackbar.open(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'Close', {
-                panelClass: 'snackbar-warning',
-                duration: undefined
-              });
+              this.snackbar.show(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'warning');
               this.publicationsLoader$.next(0); // Refresh the list
             } else {
-              this.snackbar.open('Failed to update metadata of any publication.', 'Close', {
-                panelClass: 'snackbar-error',
-                duration: undefined
-              });
+              this.snackbar.show('Failed to update metadata of any publication.', 'error');
             }
           },
           error: (err) => {
             console.error('Failed to fetch publications:', err);
-            this.snackbar.open('Error fetching publication list.', 'Close', {
-              panelClass: 'snackbar-error'
-            });
+            this.snackbar.show('Error fetching publication list.', 'error');
           }
         });
       }

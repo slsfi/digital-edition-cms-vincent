@@ -3,10 +3,8 @@ import { map, Observable, tap, throwError } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import {
-  SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse,
-  TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest
-} from '../models/table-of-contents.model';
+import { SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse,
+         TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest } from '../models/table-of-contents.model';
 import { Publication } from '../models/publication.model';
 import { getReadableDate } from '../utils/utility-functions';
 

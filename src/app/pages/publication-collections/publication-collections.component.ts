@@ -4,7 +4,6 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, filter, map, Observable, of, shareReplay, switchMap, take } from 'rxjs';
@@ -22,6 +21,7 @@ import { LoadingService } from './../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
   selector: 'publication-collections',
@@ -72,7 +72,7 @@ export class PublicationCollectionsComponent implements OnInit {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private queryParamsService: QueryParamsService,
-    private snackbar: MatSnackBar,
+    private snackbar: SnackbarService,
     private loadingService: LoadingService
   ) {
     this.loading$ = this.loadingService.loading$;
@@ -130,7 +130,7 @@ export class PublicationCollectionsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackbar.open('Publication collection saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Publication collection saved.');
           }
         });
       }
@@ -155,7 +155,7 @@ export class PublicationCollectionsComponent implements OnInit {
         this.publicationService.editPublicationCollection(collection.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackbar.open('Publication collection deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Publication collection deleted.');
           }
         });
       }

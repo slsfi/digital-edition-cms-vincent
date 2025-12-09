@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, finalize, map, Observable, of, switchMap, take,
          tap } from 'rxjs';
 
@@ -19,6 +18,7 @@ import { Project, RepoDetails } from '../../models/project.model';
 import { ApiService } from './../../services/api.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 
 @Component({
@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly loadingService = inject(LoadingService);
   private readonly projectService = inject(ProjectService);
-  private readonly snackbar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
 
   availableProjects$: Observable<Project[]> = of([]);
   environment$ = this.apiService.environment$;
@@ -87,10 +87,9 @@ export class HomeComponent implements OnInit {
       finalize(() => {
         this.syncingRepo = false;
       })
-    )
-    .subscribe({
+    ).subscribe({
       next: () => {
-        this.snackbar.open('Repository successfully updated', 'Close', { panelClass: 'snackbar-success' });
+        this.snackbar.show('Repository successfully updated.');
 
         // Clear the cached file tree by setting it to null
         this.projectService.fileTree$.next(null);

@@ -8,8 +8,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable } from 'rxjs';
 
-import { AuthService } from '../../services/auth.service';
 import { ApiService } from './../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
 
 @Component({

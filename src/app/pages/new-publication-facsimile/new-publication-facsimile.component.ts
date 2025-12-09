@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable, take } from 'rxjs';
@@ -23,6 +22,7 @@ import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
   selector: 'app-new-publication-facsimile',
@@ -57,7 +57,7 @@ export class NewPublicationFacsimileComponent implements OnInit {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router,
-    private snackbar: MatSnackBar,
+    private snackbar: SnackbarService,
     private loadingService: LoadingService
   ) {
     this.loading$ = this.loadingService.loading$;
@@ -110,7 +110,7 @@ export class NewPublicationFacsimileComponent implements OnInit {
     const currentProject = this.projectService.getCurrentProject();
     this.publicationService.linkFacsimileToPublication(payload.facsimile_collection_id, payload, currentProject).pipe(take(1)).subscribe({
       next: () => {
-        this.snackbar.open('Facsimile linked to publication', 'Close', { panelClass: 'snackbar-success' });
+        this.snackbar.show('Facsimile linked to publication.');
         this.router.navigate(this.publicationsPath);
       }
     });

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Consolidate language types.
+- Use service for showing snackbar messages.
 - Deps: update `@angular/core` to 20.3.15, `@angular/cli` to 20.3.13.
 - Deps (dev): update `angular-eslint` to 20.7.0.
 - Deps (dev): update `jasmine-core` to 5.13.0.

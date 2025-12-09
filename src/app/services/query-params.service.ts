@@ -1,14 +1,14 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { QueryParamType } from '../models/common.model';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { map, Observable } from 'rxjs';
+
+import { QueryParamType } from '../models/common.model';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class QueryParamsService {
-
   queryParams$: Observable<Params>;
   sortParams$: Observable<QueryParamType[]>;
   filterParams$: Observable<QueryParamType[]>;

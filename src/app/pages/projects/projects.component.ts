@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { BehaviorSubject, Observable, of, switchMap, take } from 'rxjs';
 
@@ -18,6 +17,7 @@ import { EditProjectData, Project, ProjectResponse } from '../../models/project.
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from './../../services/query-params.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
   selector: 'app-projects',
@@ -49,7 +49,7 @@ export class ProjectsComponent implements OnInit {
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
+    private snackbar: SnackbarService,
     private loadingService: LoadingService,
     private queryParamsService: QueryParamsService
   ) {
@@ -64,18 +64,22 @@ export class ProjectsComponent implements OnInit {
   }
 
   editProject(project: Project | null = null) {
-    const columns = this.columnsData.filter(column => column.field != 'action').map(column => {
-      let editable = column.editable;
-      if (column.field === 'name') {
-        editable = project == null;
+    const columns = this.columnsData.filter(column => column.field != 'action').map(
+      column => {
+        let editable = column.editable;
+        if (column.field === 'name') {
+          editable = project == null;
+        }
+        return { ...column, editable }
       }
-      return { ...column, editable }
-    })
+    );
+
     const data: EditDialogData<Project> = {
       model: project,
       columns: columns,
       title: 'project'
-    }
+    };
+
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -90,7 +94,7 @@ export class ProjectsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackBar.open('Project saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Project saved.');
           }
         });
       }
@@ -116,10 +120,12 @@ export class ProjectsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         const payload = { ...project, deleted: Deleted.Deleted };
-        this.projectService.editProject(project.id, payload).pipe(take(1)).subscribe({
+        this.projectService.editProject(project.id, payload).pipe(
+          take(1)
+        ).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackBar.open('Project deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Project deleted.');
           }
         });
       }

@@ -1,13 +1,13 @@
-import { QueryParamsService } from './../../services/query-params.service';
 import { Component, inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Column, QueryParamType } from '../../models/common.model';
-
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+
+import { Column, QueryParamType } from '../../models/common.model';
+import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
   selector: 'app-table-sorting',
@@ -23,12 +23,11 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './table-sorting.component.scss'
 })
 export class TableSortingComponent implements OnInit {
+  private readonly queryParamsService = inject(QueryParamsService);
 
-  constructor(private queryParamsService: QueryParamsService) { }
-
-  form!: FormGroup;
   readonly data = inject<Column[]>(MAT_DIALOG_DATA);
 
+  form!: FormGroup;
   columns: Column[] = [];
 
   ngOnInit() {

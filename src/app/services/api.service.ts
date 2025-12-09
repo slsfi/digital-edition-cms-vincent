@@ -1,15 +1,17 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, catchError, map, throwError } from 'rxjs';
+
+import { SnackbarService } from './snackbar.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
+  private readonly http = inject(HttpClient);
+  private readonly snackbar = inject(SnackbarService);
 
-  constructor(private http: HttpClient, private snackbar: MatSnackBar) {
+  constructor() {
     this.environment$.next(localStorage.getItem('environment') || null)
    }
 
@@ -34,33 +36,36 @@ export class ApiService {
   handleError(error: HttpErrorResponse, disableErrorMessage = false) {
     if (!disableErrorMessage) {
       const message = error.error.message || error.error.msg || error.message || 'An error occurred';
-      this.snackbar.open(message, 'Close', { panelClass: 'snackbar-error', duration: undefined });
+      this.snackbar.show(message, 'error');
     }
     return throwError(() => error);
   }
 
   post<T>(url: string, body?: object | null, options: object = {}, disableErrorMessage = false) {
-    return this.http.post<T>(url, body, options)
-      .pipe(
-        map((response) => response),
-        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
+    return this.http.post<T>(url, body, options).pipe(
+      map((response) => response),
+      catchError(
+        (error: HttpErrorResponse) => this.handleError(error, disableErrorMessage)
       )
+    )
   }
 
   get<T>(url: string, options: object = {}, disableErrorMessage = false) {
-    return this.http.get<T>(url, options)
-      .pipe(
-        map((response) => response),
-        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
+    return this.http.get<T>(url, options).pipe(
+      map((response) => response),
+      catchError(
+        (error: HttpErrorResponse) => this.handleError(error, disableErrorMessage)
       )
+    )
   }
 
   put<T>(url: string, body?: object | null, options: object = {}, disableErrorMessage = false) {
-    return this.http.put<T>(url, body, options)
-      .pipe(
-        map((response) => response),
-        catchError((error: HttpErrorResponse) => this.handleError(error, disableErrorMessage))
+    return this.http.put<T>(url, body, options).pipe(
+      map((response) => response),
+      catchError(
+        (error: HttpErrorResponse) => this.handleError(error, disableErrorMessage)
       )
+    )
   }
 
 }

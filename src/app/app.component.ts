@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { RouterOutlet } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { NavigationComponent } from './components/navigation/navigation.component';
@@ -16,7 +16,6 @@ import { AuthService } from './services/auth.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-
   isAuthenticated$: Observable<boolean> = new Observable<boolean>();
 
   constructor(

@@ -11,12 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatOptionModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged, map, Observable, of, startWith } from 'rxjs';
 
 import { PublicationLite } from '../../models/publication.model';
 import { EditableTocNode, EditNodeDialogData, TocNode, TocNodeType } from '../../models/table-of-contents.model';
 import { languageOptionsWithNone, LanguageCodeWithNone, LanguageObjWithNone, LanguageCode } from '../../models/language.model';
+import { SnackbarService } from '../../services/snackbar.service';
 
 /**
  * To modify the fields that can be edited in this dialog, you also have
@@ -38,7 +38,6 @@ import { languageOptionsWithNone, LanguageCodeWithNone, LanguageObjWithNone, Lan
     MatOptionModule,
     MatRadioModule,
     MatSelectModule,
-    MatSnackBarModule,
     ReactiveFormsModule,
     AsyncPipe
   ],
@@ -48,7 +47,7 @@ import { languageOptionsWithNone, LanguageCodeWithNone, LanguageObjWithNone, Lan
 export class EditNodeDialogComponent implements OnInit {
   readonly data: EditNodeDialogData = inject(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<EditNodeDialogComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
 
   nodeType: TocNodeType = 'section';
   text = '';
@@ -168,7 +167,7 @@ export class EditNodeDialogComponent implements OnInit {
     const textValue = this.trimmedStringOrNullish(this.text);
 
     if (!textValue) {
-      this.showError('Text is required.');
+      this.snackbar.show('Text is required.', 'error');
       return;
     }
 
@@ -176,7 +175,7 @@ export class EditNodeDialogComponent implements OnInit {
 
     if (this.nodeType === 'text') {
       if (!itemIdValue) {
-        this.showError('Item ID is required.');
+        this.snackbar.show('Item ID is required.', 'error');
         return;
       }
     }
@@ -228,10 +227,4 @@ export class EditNodeDialogComponent implements OnInit {
     return ((value ?? '') === '') ? value : String(value).trim();
   }
 
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: undefined,
-      panelClass: ['snackbar-error']
-    });
-  }
 }

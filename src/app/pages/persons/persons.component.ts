@@ -1,4 +1,3 @@
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -6,8 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { BehaviorSubject, Observable, of, switchMap, take } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
@@ -21,6 +20,7 @@ import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { SubjectService } from '../../services/subject.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
   selector: 'app-persons',
@@ -76,7 +76,7 @@ export class PersonsComponent implements OnInit {
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
     private loadingService: LoadingService,
-    private snackaBar: MatSnackBar
+    private snackbar: SnackbarService
   ) {
     this.loading$ = this.loadingService.loading$;
     this.selectedProject$ = this.subjectService.selectedProject$;
@@ -115,7 +115,7 @@ export class PersonsComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackaBar.open('Person saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Person saved.');
           }
         });
       }
@@ -138,7 +138,7 @@ export class PersonsComponent implements OnInit {
         this.subjectService.editSubject(person.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackaBar.open('Person deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Person deleted.');
           },
         });
       }

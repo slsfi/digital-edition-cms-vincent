@@ -2,19 +2,17 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable, shareReplay } from 'rxjs';
 
 import { ApiService } from './api.service';
-import {
-  EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
-  LinkPublicationToFacsimileRequest, PublicationFacsimileResponse
-} from '../models/facsimile.model';
-import {
-  LinkTextToPublicationRequest, LinkTextToPublicationResponse, ManuscriptEditRequest,
-  ManuscriptResponse, ManuscriptsResponse, Publication, PublicationAddRequest,
-  PublicationCollection, PublicationCollectionAddRequest, PublicationCollectionEditRequest,
-  PublicationCollectionResponse, PublicationCollectionsResponse, PublicationCommentRequest,
-  PublicationCommentResponse, PublicationCommentsResponse, PublicationEditRequest,
-  PublicationResponse, PublicationsResponse, VersionEditRequest, VersionResponse,
-  VersionsResponse, XmlMetadataResponse
-} from '../models/publication.model';
+import { EditPublicationFacsimileRequest, LinkFacsimileToPublicationResponse,
+         LinkPublicationToFacsimileRequest, PublicationFacsimileResponse } from '../models/facsimile.model';
+import { LinkTextToPublicationRequest, LinkTextToPublicationResponse,
+         ManuscriptEditRequest, ManuscriptResponse, ManuscriptsResponse,
+         Publication, PublicationAddRequest, PublicationCollection,
+         PublicationCollectionAddRequest, PublicationCollectionEditRequest,
+         PublicationCollectionResponse, PublicationCollectionsResponse,
+         PublicationCommentRequest, PublicationCommentResponse,
+         PublicationCommentsResponse, PublicationEditRequest,
+         PublicationResponse, PublicationsResponse, VersionEditRequest,
+         VersionResponse, VersionsResponse, XmlMetadataResponse } from '../models/publication.model';
 
 
 @Injectable({

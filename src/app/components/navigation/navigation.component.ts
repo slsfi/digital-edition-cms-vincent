@@ -1,9 +1,9 @@
 
 import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { navigationItems } from '../../models/common.model';
@@ -29,11 +29,11 @@ export class NavigationComponent implements OnDestroy {
     private authService: AuthService,
     private router: Router
   ) {
-    this.router.events
-    .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.currentUrl = this.router.url.split('?')[0]; // Remove query parameters
-      });
+    this.router.events.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.currentUrl = this.router.url.split('?')[0]; // Remove query parameters
+    });
   }
 
   ngOnDestroy() {
@@ -50,6 +50,5 @@ export class NavigationComponent implements OnDestroy {
   toggleMenu() {
     this.menuToggle.emit();
   }
-
 
 }
