@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `typescript-eslint` to 8.48.1.
 - Deps: update transitive dependencies.
 
+### Fixed
+
+- Translated field name not displayed.
+
 ### BREAKING CHANGES
 
 - Change URL of backend endpoint for getting the data of a single facsimile collection from `/<project>/facsimiles/collections/<collectionId>` to `/<project>/facsimile_collection/<collectionId>/data/`.

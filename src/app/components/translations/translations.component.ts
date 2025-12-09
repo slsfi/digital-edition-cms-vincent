@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, input, Output, signal } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { BehaviorSubject, filter, Observable, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, of, switchMap, take, tap } from 'rxjs';
 
 import { languageOptions, nameForLanguage, Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation.model';
 import { ProjectService } from '../../services/project.service';
@@ -22,7 +22,8 @@ import { TranslationService } from '../../services/translation.service';
   styleUrl: './translations.component.scss'
 })
 export class TranslationsComponent implements AfterViewInit {
-  @Output() panelClosed = new EventEmitter<void>();
+  private readonly translationService = inject(TranslationService);
+  private readonly projectService = inject(ProjectService);
 
   field = input.required<string>();
   translationIdd = input<number | undefined>();
@@ -31,9 +32,11 @@ export class TranslationsComponent implements AfterViewInit {
   tableName = input.required<string | undefined>();
   parentTranslationField = input<string>();
 
+  @Output() panelClosed = new EventEmitter<void>();
+
   mode = signal<'edit' | 'add' | ''>('');
 
-  fieldTranslations$: Observable<Translation[]> = new Observable<Translation[]>();
+  fieldTranslations$: Observable<Translation[]> = of([]);
   translationLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   languages = languageOptions;
@@ -43,11 +46,6 @@ export class TranslationsComponent implements AfterViewInit {
   translationId: number | undefined;
 
   form!: FormGroup;
-
-  constructor(
-    private translationService: TranslationService,
-    private projectService: ProjectService
-  ) { }
 
   ngAfterViewInit() {
     this.translationId = this.translationIdd();
@@ -88,7 +86,7 @@ export class TranslationsComponent implements AfterViewInit {
     return this.form.get('language') as FormControl;
   }
 
-  onSubmitTranslation(event: Event) {
+  saveTranslation(event: Event) {
     event.preventDefault();
     const data = this.form.getRawValue();
 

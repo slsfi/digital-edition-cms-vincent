@@ -89,8 +89,8 @@ export class EditDialogComponent<T> implements OnInit {
   }
 
   get originalText() {
-    if (this.model) {
-      return this.getProperty<T, keyof T>(this.model, 'original_text' as keyof T) as string;
+    if (this.model && this.fieldForTranslate) {
+      return this.getProperty<T, keyof T>(this.model, this.fieldForTranslate as keyof T) as string;
     }
     return;
   }
