@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, of, switchMap, take } from 'rxjs';
 
@@ -17,6 +16,7 @@ import { PublicationCollection } from '../../models/publication.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 
 @Component({
@@ -49,7 +49,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
     private facsimileService: FacsimileService,
     private projectService: ProjectService,
     private router: Router,
-    private snackbar: MatSnackBar
+    private readonly snackbar: SnackbarService
   ) {
     this.form = this.fb.group({
       publicationCollectionId: ['', Validators.required],
@@ -106,11 +106,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
         error: (error) => {
           this.isProcessing = false;
           console.error('Bulk creation failed:', error);
-          this.snackbar.open(
-            'Failed to create facsimile collections. Please try again.', 
-            'Close', 
-            { panelClass: ['snackbar-error'] }
-          );
+          this.snackbar.show('Failed to create facsimile collections. Please try again.', 'error');
         }
       });
     }

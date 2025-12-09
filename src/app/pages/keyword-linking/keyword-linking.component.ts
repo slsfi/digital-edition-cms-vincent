@@ -12,17 +12,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatOption } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { BehaviorSubject, catchError, combineLatest, debounceTime,
          distinctUntilChanged, finalize, map, Observable, of, shareReplay,
-         startWith, switchMap, take, tap, timer } from 'rxjs';
+         startWith, switchMap, tap, timer } from 'rxjs';
 
 import { Keyword } from '../../models/keyword.model';
 import { Publication, PublicationCollection } from '../../models/publication.model';
 import { KeywordService } from '../../services/keyword.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
+import { SnackbarService } from '../../services/snackbar.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EditKeywordDialogComponent } from '../../components/edit-keyword-dialog/edit-keyword-dialog.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -44,7 +44,6 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatSnackBarModule,
     MatTableModule,
     LoadingSpinnerComponent,
     PublicationKeywordTableComponent,
@@ -58,7 +57,7 @@ export class KeywordLinkingComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly publicationService = inject(PublicationService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
 
   // Max initial keyword options in the keyword autocomplete, if max
   // this number of keywords, they are immediately displayed in the
@@ -279,7 +278,7 @@ export class KeywordLinkingComponent implements OnInit {
     if (!currentProject || !selectedPublicationId) return;
 
     if (!keyword.eventId) {
-      this.showError('Can’t remove keyword: missing event information.');
+      this.snackbar.show('Can’t remove keyword: missing event information.', 'error');
       return;
     }
 
@@ -288,7 +287,7 @@ export class KeywordLinkingComponent implements OnInit {
       keyword.eventId, currentProject
     ).subscribe({
       next: () => {
-        this.showSuccess('Keyword removed successfully.');
+        this.snackbar.show('Keyword successfully removed.');
         this.reloadLinkedKeywords();
       },
       error: (error) => {
@@ -356,7 +355,7 @@ export class KeywordLinkingComponent implements OnInit {
             console.error('Failed to create keyword:', error);
             this.isLoadingKeywords.set(false);
             if (error.message === 'Failed to create keyword.') {
-              this.showError('Failed to create keyword.');
+              this.snackbar.show('Failed to create keyword.', 'error');
               // if the error message is something else, the automatic
               // error handling of post() will take care of showing it
             }
@@ -381,7 +380,7 @@ export class KeywordLinkingComponent implements OnInit {
           ? `Keyword »${keyword.name}» created and linked to publication.`
           : `Keyword »${keyword.name}» linked to publication.`;
 
-        this.showSuccess(message);
+        this.snackbar.show(message);
         this.reloadLinkedKeywords();
       },
       error: (error) => {
@@ -394,7 +393,7 @@ export class KeywordLinkingComponent implements OnInit {
           : 'Failed to link keyword to the publication';
 
         shownMsg = errorMsg ? `${shownMsg}: ${errorMsg}` : `${shownMsg}.`;
-        this.showError(shownMsg);
+        this.snackbar.show(shownMsg, 'error');
       }
     });
   }
@@ -414,19 +413,6 @@ export class KeywordLinkingComponent implements OnInit {
 
   private reloadLinkedKeywords(): void {
     this.linkedKeywordsReload$.next();
-  }
-
-  private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      panelClass: ['snackbar-success']
-    });
-  }
-
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: undefined,
-      panelClass: ['snackbar-error']
-    });
   }
 
 }

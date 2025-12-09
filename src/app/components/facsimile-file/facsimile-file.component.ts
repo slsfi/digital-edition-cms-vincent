@@ -4,8 +4,8 @@ import { HttpContext } from '@angular/common/http';
 import { BehaviorSubject, map } from 'rxjs';
 
 import { SkipLoading } from '../../interceptors/loading.interceptor';
-import { FacsimileService } from '../../services/facsimile.service';
 import { ApiService } from '../../services/api.service';
+import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 
 @Component({

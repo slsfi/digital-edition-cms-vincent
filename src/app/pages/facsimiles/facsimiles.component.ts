@@ -6,7 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, switchMap, take } from 'rxjs';
@@ -21,14 +20,22 @@ import { FacsimileService } from '../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
+import { SnackbarService } from '../../services/snackbar.service';
 import { Column, Deleted } from '../../models/common.model';
 import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/facsimile.model';
 
 @Component({
   selector: 'app-facsimiles',
   imports: [
-    CommonModule, LoadingSpinnerComponent, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule,
-    MatBadgeModule, CustomTableComponent, MatMenuModule
+    CommonModule,
+    MatBadgeModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTableModule,
+    ScrollingModule,
+    CustomTableComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './facsimiles.component.html',
   styleUrl: './facsimiles.component.scss'
@@ -66,7 +73,7 @@ export class FacsimilesComponent implements OnInit {
     private projectService: ProjectService,
     private dialog: MatDialog,
     private queryParamsService: QueryParamsService,
-    private snackbar: MatSnackBar,
+    private snackbar: SnackbarService,
     private loadingService: LoadingService,
     private router: Router,
   ) {
@@ -109,7 +116,7 @@ export class FacsimilesComponent implements OnInit {
         request$.pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackbar.open('Facsimile collection saved', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Facsimile collection saved.');
           }
         });
       }
@@ -150,7 +157,7 @@ export class FacsimilesComponent implements OnInit {
         this.facsimileService.editFacsimileCollection(collection.id, payload, currentProject).pipe(take(1)).subscribe({
           next: () => {
             this.loader$.next(0);
-            this.snackbar.open('Facsimile collection deleted', 'Close', { panelClass: ['snackbar-success'] });
+            this.snackbar.show('Facsimile collection deleted.');
           }
         });
       }

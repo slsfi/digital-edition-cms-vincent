@@ -10,19 +10,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { BehaviorSubject, catchError, combineLatest, debounceTime,
          distinctUntilChanged, map, Observable, of, shareReplay,
-         startWith, switchMap, take, 
-         tap} from 'rxjs';
+         startWith, switchMap, tap } from 'rxjs';
 
 import { Keyword, KeywordCreationRequest, KeywordUpdateRequest } from '../../models/keyword.model';
 import { KeywordService } from '../../services/keyword.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { QueryParamsService } from '../../services/query-params.service';
+import { SnackbarService } from '../../services/snackbar.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from '../../components/custom-table/custom-table.component';
 import { EditKeywordDialogComponent } from '../../components/edit-keyword-dialog/edit-keyword-dialog.component';
@@ -48,7 +47,6 @@ type Filters = { search: FormControl<string>; category: FormControl<string> };
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatSnackBarModule,
     MatTableModule,
     CustomTableComponent,
     LoadingSpinnerComponent,
@@ -64,7 +62,7 @@ export class KeywordsComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly queryParamsService = inject(QueryParamsService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackbar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
 
   keywords$: Observable<Keyword[]> = of([]);
   filteredKeywords$: Observable<Keyword[]> = of([]);
@@ -110,7 +108,7 @@ export class KeywordsComponent implements OnInit {
       }),
       catchError(error => {
         console.error('Error loading keywords:', error);
-        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
+        this.snackbar.show(error.error.message || error.message || 'Unexpected error loading keywords.', 'error');
         return of([]);
       }),
       shareReplay({ bufferSize: 1, refCount: true }) // Share the same result to all subscribers
@@ -236,18 +234,18 @@ export class KeywordsComponent implements OnInit {
   private createKeyword(data: KeywordCreationRequest) {
     const currentProject = this.projectName();
     if (!currentProject) {
-      this.showError('No project selected.');
+      this.snackbar.show('No project selected.', 'error');
       return;
     }
     
     this.keywordService.createKeyword(data, currentProject).subscribe({
       next: () => {
-        this.showSuccess('Keyword created successfully.');
+        this.snackbar.show('Keyword created successfully.');
         this.refreshData();
       },
       error: (error) => {
         console.error('Failed to create keyword:', error);
-        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
+        this.snackbar.show(error.error.message || error.message || 'Unexpected error loading keywords.', 'error');
       }
     });
   }
@@ -255,18 +253,18 @@ export class KeywordsComponent implements OnInit {
   private updateKeyword(data: KeywordUpdateRequest) {
     const currentProject = this.projectName();
     if (!currentProject) {
-      this.showError('No project selected.');
+      this.snackbar.show('No project selected.', 'error');
       return;
     }
     
     this.keywordService.updateKeyword(data, currentProject).subscribe({
       next: () => {
-        this.showSuccess('Keyword updated successfully.');
+        this.snackbar.show('Keyword updated successfully.');
         this.refreshData();
       },
       error: (error) => {
         console.error('Failed to update keyword:', error);
-        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
+        this.snackbar.show(error.error.message || error.message || 'Unexpected error loading keywords.', 'error');
       }
     });
   }
@@ -274,32 +272,20 @@ export class KeywordsComponent implements OnInit {
   private performDelete(keywordId: number) {
     const currentProject = this.projectName();
     if (!currentProject) {
-      this.showError('No project selected.');
+      this.snackbar.show('No project selected.', 'error');
       return;
     }
     
     this.keywordService.deleteKeyword(keywordId, currentProject).subscribe({
       next: () => {
-        this.showSuccess('Keyword deleted successfully.');
+        this.snackbar.show('Keyword deleted successfully.');
         this.refreshData();
       },
       error: (error) => {
         console.error('Failed to delete keyword:', error);
-        this.showError(error.error.message || error.message || 'Unexpected error loading keywords.');
+        this.snackbar.show(error.error.message || error.message || 'Unexpected error loading keywords.', 'error');
       }
     });
   }
 
-  private showSuccess(message: string): void {
-    this.snackbar.open(message, 'Close', {
-      panelClass: ['snackbar-success']
-    });
-  }
-
-  private showError(message: string): void {
-    this.snackbar.open(message, 'Close', {
-      duration: undefined,
-      panelClass: ['snackbar-error']
-    });
-  }
 }

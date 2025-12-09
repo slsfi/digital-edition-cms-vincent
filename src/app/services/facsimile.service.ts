@@ -1,13 +1,13 @@
 import { HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, switchMap, from, concatMap, toArray, catchError, of, take } from 'rxjs';
+import { BehaviorSubject, filter, map, switchMap, from, concatMap,
+         toArray, catchError, of, take } from 'rxjs';
 
 import { SkipLoading } from '../interceptors/loading.interceptor';
-import {
-  FacsimileCollection, FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest,
-  FacsimileCollectionResponse, FacsimileCollectionsResponse, VerifyFacsimileFileResponse,
-  FacsimileCreationConfig, FacsimileCreationResult, FacsimileCreationSummary
-} from '../models/facsimile.model';
+import { FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest,
+         FacsimileCollectionResponse, FacsimileCollectionsResponse,
+         VerifyFacsimileFileResponse, FacsimileCreationConfig,
+         FacsimileCreationResult, FacsimileCreationSummary } from '../models/facsimile.model';
 import { Publication, Manuscript } from '../models/publication.model';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';

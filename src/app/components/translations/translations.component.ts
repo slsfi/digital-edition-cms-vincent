@@ -30,8 +30,8 @@ import { TranslationService } from '../../services/translation.service';
   styleUrl: './translations.component.scss'
 })
 export class TranslationsComponent implements AfterViewInit {
-  private readonly translationService = inject(TranslationService);
   private readonly projectService = inject(ProjectService);
+  private readonly translationService = inject(TranslationService);
 
   field = input.required<string>();
   translationIdd = input<number | undefined>();

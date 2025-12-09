@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
+import { filter, map, Observable, switchMap } from 'rxjs';
+
+import { Person, PersonPayload, PersonResponse } from '../models/person.model';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
-import { filter, map, Observable, switchMap } from 'rxjs';
-import { Person, PersonPayload, PersonResponse } from '../models/person.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SubjectService {
-
   selectedProject$;
 
   constructor(private apiService: ApiService, private projectService: ProjectService) {

@@ -1,14 +1,14 @@
-import { QueryParamsService } from './../../services/query-params.service';
 import { Component, inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Column } from '../../models/common.model';
-
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+
+import { Column } from '../../models/common.model';
 import { personTypeOptions } from '../../models/person.model';
+import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
   selector: 'app-table-filters',
@@ -24,12 +24,11 @@ import { personTypeOptions } from '../../models/person.model';
   styleUrl: './table-filters.component.scss'
 })
 export class TableFiltersComponent implements OnInit {
+  private readonly queryParamsService = inject(QueryParamsService);
 
-  constructor(private queryParamsService: QueryParamsService) { }
-
-  form!: FormGroup;
   readonly data = inject<Column[]>(MAT_DIALOG_DATA);
 
+  form!: FormGroup;
   personTypes = personTypeOptions;
 
   ngOnInit() {

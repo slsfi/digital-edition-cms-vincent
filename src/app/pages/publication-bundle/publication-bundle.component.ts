@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, combineLatest, finalize, from, map, mergeMap,
          Observable, of, switchMap, take, tap, toArray} from 'rxjs';
@@ -23,6 +23,7 @@ import { LinkTextToPublicationRequest, PublicationAddRequest, PublicationCollect
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 
 interface BundleFormType {
@@ -52,7 +53,7 @@ export class PublicationBundleComponent implements OnInit {
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackbar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
   private readonly loadingService = inject(LoadingService);
   private readonly router = inject(Router);
 
@@ -148,19 +149,13 @@ export class PublicationBundleComponent implements OnInit {
 
     if (skipped.length) {
       if (skipped.length === filePaths.length) {
-        this.snackbar.open(`All ${filePaths.length} XML files in the folder have already been added as publications to the collection. Unable to add them again.`, 'Close', {
-          panelClass: 'snackbar-error',
-          duration: undefined
-        });
+        this.snackbar.show(`All ${filePaths.length} XML files in the folder have already been added as publications to the collection. Unable to add them again.`, 'error');
 
         // Clear local form state and navigate back to the collection page
         this.clearForm();
         this.router.navigate(['../'], { relativeTo: this.route });
       } else {
-        this.snackbar.open(`Skipped ${skipped.length} / ${filePaths.length} XML files that have already been added as publications to the collection.`, 'Close', {
-          panelClass: 'snackbar-info',
-          duration: undefined
-        });
+        this.snackbar.show(`Skipped ${skipped.length} / ${filePaths.length} XML files that have already been added as publications to the collection.`, 'info');
         console.log('Skipped XML files: ', skipped);
       }
     }
@@ -184,10 +179,7 @@ export class PublicationBundleComponent implements OnInit {
     let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
 
     if (this.files.controls.length > 40) {
-      progressSnackbarRef = this.snackbar.open(
-        'Fetching metadata from XML files…', 'Close',
-        { panelClass: 'snackbar-info', duration: undefined }
-      );
+      progressSnackbarRef = this.snackbar.show('Fetching metadata from XML files…', 'info');
     }
 
     const concurrentRequests = 1;
@@ -224,20 +216,13 @@ export class PublicationBundleComponent implements OnInit {
     ).subscribe({
       next: () => {
         if (this.metadataFailures.length === 0) {
-          this.snackbar.open('Successfully fetched metadata from all files.', 'Close', {
-            panelClass: 'snackbar-success'
-          });
+          this.snackbar.show('Successfully fetched metadata from all files.');
         } else if (this.metadataFailures.length < this.files.controls.length) {
-          this.snackbar.open(
+          this.snackbar.show(
             // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
-            `Failed to fetch metadata from ${this.metadataFailures.length} / ${this.files.controls.length} file(s):\n${this.metadataFailures.join('\n')}`,
-            'Close',
-            { panelClass: 'snackbar-warning', duration: undefined }
-          );
+            `Failed to fetch metadata from ${this.metadataFailures.length} / ${this.files.controls.length} file(s):\n${this.metadataFailures.join('\n')}`, 'warning');
         } else {
-          this.snackbar.open('Failed to fetch metadata from all files.', 'Close',
-            { panelClass: 'snackbar-error', duration: undefined }
-          );
+          this.snackbar.show('Failed to fetch metadata from all files.', 'error');
         }
       }
     });
@@ -262,14 +247,9 @@ export class PublicationBundleComponent implements OnInit {
         const failed = this.saveFailures.length;
 
         if (failed === 0) {
-          this.snackbar.open('Successfully added all publications.', 'Close', {
-            panelClass: 'snackbar-success'
-          });
+          this.snackbar.show('Successfully added all publications.');
         } else {
-          this.snackbar.open(`Failed to add ${failed} / ${total} publications from the following files:\n${this.saveFailures.join(', ')}`, 'Close', {
-            panelClass: 'snackbar-error',
-            duration: undefined
-          });
+          this.snackbar.show(`Failed to add ${failed} / ${total} publications from the following files:\n${this.saveFailures.join(', ')}`, 'error');
         }
 
         // Clear local form state and always navigate back to the collection page

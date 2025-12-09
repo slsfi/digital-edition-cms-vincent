@@ -9,25 +9,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { map, take } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
-import {
-  SaveTocResponse, TocNode, TocResponse, TocRoot, GENERATE_TOC_FIELDS,
-  UPDATE_TOC_FIELDS, PUBLICATION_SORT_OPTIONS
-} from '../../models/table-of-contents.model';
-import {
-  Publication, PublicationCollection, PublicationLite, toPublicationLite
-} from '../../models/publication.model';
+import { SnackbarService } from '../../services/snackbar.service';
+import { SaveTocResponse, TocNode, TocResponse, TocRoot, GENERATE_TOC_FIELDS,
+         UPDATE_TOC_FIELDS, PUBLICATION_SORT_OPTIONS } from '../../models/table-of-contents.model';
+import { Publication, PublicationCollection, PublicationLite,
+         toPublicationLite } from '../../models/publication.model';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import {
-  AutoGenerateTocDialogComponent, AutoGenerateTocDialogData,
-  AutoGenerateTocDialogResult
-} from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
+import { AutoGenerateTocDialogComponent, AutoGenerateTocDialogData,
+         AutoGenerateTocDialogResult } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
 
 
 @Component({
@@ -43,7 +38,6 @@ import {
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatSnackBarModule,
     TocTreeComponent
   ],
   templateUrl: './table-of-contents.component.html',
@@ -53,7 +47,7 @@ export class TableOfContentsComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly projectService = inject(ProjectService);
   private readonly publicationService = inject(PublicationService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly snackbar = inject(SnackbarService);
   private readonly tocService = inject(TableOfContentsService);
 
   projectName: string | null = null;
@@ -100,7 +94,7 @@ export class TableOfContentsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading collections:', error);
-        this.showError('Failed to load collections.');
+        this.snackbar.show('Failed to load collections.', 'error');
       }
     });
   }
@@ -150,7 +144,7 @@ export class TableOfContentsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading table of contents:', error);
-        this.showError(error.error.message);
+        this.snackbar.show(error.error.message, 'error');
         this.currentToc = null; // Clear previous TOC
         this.hasUnsavedChanges = false; // Reset unsaved changes
         this.isLoading = false;
@@ -173,13 +167,13 @@ export class TableOfContentsComponent implements OnInit {
       next: (response: SaveTocResponse) => {
         if (response.success) {
           this.hasUnsavedChanges = false;
-          this.showSuccess(response.message);
+          this.snackbar.show(response.message);
         }
         this.isSaving = false;
       },
       error: (error) => {
         console.error('Error saving table of contents:', error);
-        this.showError(error.error.message);
+        this.snackbar.show(error.error.message, 'error');
         this.isSaving = false;
       }
     });
@@ -335,11 +329,11 @@ export class TableOfContentsComponent implements OnInit {
         );
         this.hasUnsavedChanges = true;
         this.isGeneratingFlatToc = false;
-        this.showSuccess('Flat table of contents generated.');
+        this.snackbar.show('Flat table of contents generated.');
       },
       error: (error) => {
         console.error('Error loading publications:', error);
-        this.showError('Failed to load publications for table of contents generation.');
+        this.snackbar.show('Failed to load publications for table of contents generation.', 'error');
         this.isGeneratingFlatToc = false;
       }
     });
@@ -347,7 +341,7 @@ export class TableOfContentsComponent implements OnInit {
 
   openUpdateNodeFieldsDialog(): void {
     if (!this.selectedCollectionId || this.hasUnsavedChanges) {
-      this.showError('Please save your changes before updating item fields with publication data from the database.');
+      this.snackbar.show('Please save your changes before updating item fields with publication data from the database.', 'error');
       return;
     }
 
@@ -387,11 +381,11 @@ export class TableOfContentsComponent implements OnInit {
         this.currentToc = response.data;
         this.hasUnsavedChanges = true;
         this.isUpdatingFromDb = false;
-        this.showSuccess(response.message);
+        this.snackbar.show(response.message);
       },
       error: (error) => {
         console.error('Error updating from database:', error);
-        this.showError(error.error.message);
+        this.snackbar.show(error.error.message, 'error');
         this.isUpdatingFromDb = false;
       }
     });
@@ -435,16 +429,4 @@ export class TableOfContentsComponent implements OnInit {
     this.hasUnsavedChanges = true;
   }
 
-  private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      panelClass: ['snackbar-success']
-    });
-  }
-
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: undefined,
-      panelClass: ['snackbar-error']
-    });
-  }
 }

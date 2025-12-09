@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, Observable,
+         take, throwError } from 'rxjs';
 
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login.model';
 import { ApiService } from './api.service';
@@ -11,19 +11,17 @@ import { ProjectService } from './project.service';
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly apiService = inject(ApiService);
+  private readonly projectService = inject(ProjectService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private apiService: ApiService,
-    private router: Router,
-    private projectService: ProjectService
-  ) {
+  constructor() {
     if (this.getAccessToken()) {
       this.isAuthenticated$.next(true);
     } else {
       this.isAuthenticated$.next(false);
     }
   }
-  snackbar = inject(MatSnackBar);
 
   isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
@@ -89,4 +87,5 @@ export class AuthService {
   getRefreshToken(): string | null {
     return localStorage.getItem('refresh_token');
   }
+
 }

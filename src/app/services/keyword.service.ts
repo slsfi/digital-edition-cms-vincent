@@ -5,8 +5,7 @@ import { Keyword, KeywordCreationRequest, KeywordUpdateRequest,
          KeywordApiResponse, KeywordApiSingleResponse, KeywordApiData,
          KeywordTypesApiResponse, PublicationKeywordApiResponse,
          PublicationKeywordApiData,
-         KeywordCreationApiRequest
-} from '../models/keyword.model';
+         KeywordCreationApiRequest } from '../models/keyword.model';
 import { ApiService } from './api.service';
 
 

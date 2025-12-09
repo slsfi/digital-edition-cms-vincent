@@ -1,14 +1,15 @@
-import { Component, EventEmitter, input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { BehaviorSubject, from, mergeMap, Observable, Subscription } from 'rxjs';
-import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { BehaviorSubject, from, mergeMap, Observable, Subscription } from 'rxjs';
+
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 enum FileQueueStatus {
   Pending = 'pending',
@@ -40,18 +41,15 @@ class FileQueueObject {
   styleUrl: './file-upload.component.scss'
 })
 export class FileUploadComponent {
-
-  @Output() filesUploaded: EventEmitter<void> = new EventEmitter<void>();
+  private readonly facsimileService = inject(FacsimileService);
+  private readonly projectService = inject(ProjectService);
+  private readonly snackbar = inject(SnackbarService);
 
   collectionId = input.required<number>();
   numberOfPages = input.required<number>();
   missingFileNumbers = input.required<number[]>();
 
-  constructor(
-    private facsimileService: FacsimileService, 
-    private projectService: ProjectService,
-    private snackbar: MatSnackBar
-  ) { }
+  @Output() filesUploaded: EventEmitter<void> = new EventEmitter<void>();
 
   _queue: FileQueueObject[] = [];
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
@@ -64,7 +62,7 @@ export class FileUploadComponent {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length) {
         if (target.files.length !== this.missingFileNumbers().length) {
-          this.snackbar.open(`Number of files must match with missing images (${this.missingFileNumbers().length})`, 'Close', { panelClass: 'snackbar-warning' });
+          this.snackbar.show(`Number of files must match with missing images (${this.missingFileNumbers().length}).`, 'warning');
           return;
         }
         const files = target.files;
@@ -96,12 +94,12 @@ export class FileUploadComponent {
     this.uploadInProgress = true;
 
     throttledFiles$.subscribe({
-      error: () => this.snackbar.open('Error uploading file', 'Close', { panelClass: 'snackbar-error', duration: undefined }),
+      error: () => this.snackbar.show('Error uploading file.', 'error'),
       complete: () => {
         this.uploadInProgress = false;
         this.allUploaded = true;
         this.filesUploaded.emit();
-        this.snackbar.open('All files uploaded', 'Close', { panelClass: 'snackbar-success' });
+        this.snackbar.show('All files uploaded.');
       },
     });
   }
