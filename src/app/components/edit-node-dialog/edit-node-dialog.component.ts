@@ -15,8 +15,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged, map, Observable, of, startWith } from 'rxjs';
 
 import { PublicationLite } from '../../models/publication.model';
-import { EditableTocNode, EditNodeDialogData, TocNode, TocNodeType, tocLanguageOptions } from '../../models/table-of-contents.model';
-import { LanguageObj } from '../../models/translation.model';
+import { EditableTocNode, EditNodeDialogData, TocNode, TocNodeType } from '../../models/table-of-contents.model';
+import { languageOptionsWithNone, LanguageCodeWithNone, LanguageObjWithNone, LanguageCode } from '../../models/language.model';
 
 /**
  * To modify the fields that can be edited in this dialog, you also have
@@ -58,15 +58,14 @@ export class EditNodeDialogComponent implements OnInit {
   facsimileOnly = false;
   collapsed = true;
   itemId = '';
-  language: string | null = null;
+  language: LanguageCodeWithNone = null;
 
   publications: PublicationLite[] = [];
   filteredPublications$: Observable<PublicationLite[]> = of([]);
   selectedPublication: PublicationLite | null = null;
   searchControl = new FormControl<string | PublicationLite>('');
 
-  private readonly noneLanguageOption: LanguageObj[] = [{label: 'None', code: null}];
-  readonly languageOptions: LanguageObj[] = this.noneLanguageOption.concat(tocLanguageOptions);
+  readonly languageOptions: LanguageObjWithNone[] = languageOptionsWithNone;
 
   readonly MAX_FILTERED = 50;
 
@@ -217,9 +216,9 @@ export class EditNodeDialogComponent implements OnInit {
   private setLanguage(languageCode: string | null | undefined): void {
     if (languageCode) {
       const validLang = this.languageOptions.find(
-        (lang: LanguageObj) => lang.code === languageCode
+        (lang: LanguageObjWithNone) => lang.code === languageCode
       );
-      this.language = validLang ? languageCode : null;
+      this.language = validLang ? (languageCode as LanguageCode) : null;
     } else {
       this.language = null;
     }

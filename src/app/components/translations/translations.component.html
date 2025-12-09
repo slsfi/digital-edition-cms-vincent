@@ -9,8 +9,8 @@
       <mat-form-field>
         <mat-label>Language</mat-label>
         <mat-select formControlName="language">
-          @for (lang of activeLanguages; track lang.value) {
-            <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
+          @for (lang of activeLanguages; track lang.code) {
+            <mat-option [value]="lang.code">{{ lang.label }} ({{ lang.code }})</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -73,7 +73,7 @@
       <div class="edit-translations">
         @for (translation of translations; track translation.language) {
           <div class="header-row">
-            <h3>{{ languageNames[translation.language] }}</h3>
+            <h3>{{ translation.language | getLangLabel }} ({{ translation.language }})</h3>
             <button mat-flat-button (click)="editTranslation(translation)"><mat-icon>edit</mat-icon>Edit</button>
           </div>
           {{ translation.text }}

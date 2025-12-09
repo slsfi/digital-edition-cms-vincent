@@ -8,15 +8,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject, filter, Observable, of, switchMap, take, tap } from 'rxjs';
 
-import { languageOptions, nameForLanguage, Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation.model';
+import { languageOptions, LanguageObj } from '../../models/language.model';
+import { Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation.model';
+import { GetLangLabelPipe } from '../../pipes/get-lang-label.pipe';
 import { ProjectService } from '../../services/project.service';
 import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'field-translations',
   imports: [
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    CommonModule, MatButtonModule, MatIconModule
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    GetLangLabelPipe
   ],
   templateUrl: './translations.component.html',
   styleUrl: './translations.component.scss'
@@ -40,8 +48,7 @@ export class TranslationsComponent implements AfterViewInit {
   translationLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   languages = languageOptions;
-  filteredLanguages = languageOptions;
-  languageNames = nameForLanguage;
+  filteredLanguages: LanguageObj[] = [];
 
   translationId: number | undefined;
 
@@ -61,7 +68,7 @@ export class TranslationsComponent implements AfterViewInit {
       }),
       tap((translations) => {
         const activeLanguages = translations.map(t => t.language);
-        this.filteredLanguages = languageOptions.filter(l => !activeLanguages.includes(l.value));
+        this.filteredLanguages = languageOptions.filter(l => !activeLanguages.includes(l.code));
       })
     )
     this.form = new FormGroup({

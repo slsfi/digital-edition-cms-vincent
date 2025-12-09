@@ -1,6 +1,5 @@
 import { ApiResponse, LabelledOption, LabelledSelectOption } from "./common.model";
 import { PublicationLite } from "./publication.model";
-import { LanguageObj } from "./translation.model";
 
 export type TocNodeType = 'section' | 'text';
 
@@ -123,30 +122,4 @@ export const GENERATE_TOC_FIELDS: LabelledSelectOption[] = [
     defaultSelected: false },
   { key: 'facsimileOnly', label: 'Facsimile only set to true',
     defaultSelected: false }
-];
-
-export const tocLanguageOptions: LanguageObj[] = [
-  { label: 'Arabic', code: 'ar' },
-  { label: 'Czech', code: 'cs' },
-  { label: 'Danish', code: 'da' },
-  { label: 'Dutch', code: 'nl' },
-  { label: 'English', code: 'en' },
-  { label: 'Estonian', code: 'et' },
-  { label: 'Finnish', code: 'fi' },
-  { label: 'French', code: 'fr' },
-  { label: 'German', code: 'de' },
-  { label: 'Greek', code: 'el' },
-  { label: 'Hebrew', code: 'he' },
-  { label: 'Hungarian', code: 'hu' },
-  { label: 'Icelandic', code: 'is' },
-  { label: 'Italian', code: 'it' },
-  { label: 'Latin', code: 'la' },
-  { label: 'Latvian', code: 'lv' },
-  { label: 'Lithuanian', code: 'lt' },
-  { label: 'Norwegian', code: 'no' },
-  { label: 'Polish', code: 'pl' },
-  { label: 'Portuguese', code: 'pt' },
-  { label: 'Russian', code: 'ru' },
-  { label: 'Spanish', code: 'es' },
-  { label: 'Swedish', code: 'sv' },
 ];
