@@ -83,8 +83,8 @@
             </div>
             <div class="reading-text-file-row">
               <div>
-                <strong>Reading text file path:</strong>
-                {{ selectedPublication.original_filename?.split('/')?.join(' / ') }}
+                <strong>Reading text file path:</strong>&ngsp;
+                <span [innerHTML]="selectedPublication.original_filename | softWrapPath"></span>
               </div>
               <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
             </div>
