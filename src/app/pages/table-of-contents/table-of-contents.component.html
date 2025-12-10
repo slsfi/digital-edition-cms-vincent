@@ -15,6 +15,63 @@
         }
       </mat-select>
     </mat-form-field>
+
+    <!-- TOC language select (only if a collection is selected) -->
+    @if (selectedCollectionId) {
+      @let variants = tocVariantsByCollectionId[selectedCollectionId!] || emptyTocVariants;
+      @let existingLangs = availableLanguages | existingTocLanguages: variants;
+      @let nonExistingLangs = availableLanguages | nonExistingTocLanguages: variants;
+
+      <mat-form-field class="toc-language-select" [subscriptSizing]="'dynamic'">
+        <mat-label>Table of contents language</mat-label>
+        <mat-select
+              [(value)]="tocLanguageSelection"
+              (selectionChange)="changeTocLanguage($event.value)"
+              canSelectNullableOptions
+        >
+
+          <!-- shared reusable group template defined here -->
+          <ng-template #languagesWithoutTocGroup>
+            <mat-optgroup label="Languages without ToC">
+              @if (!variants.hasShared) {
+                <mat-option [value]="sharedTocLanguage.code">
+                  {{ sharedTocLanguage.label }}
+                </mat-option>
+              }
+
+              @for (opt of nonExistingLangs; track opt.code) {
+                <mat-option [value]="opt.code">
+                  {{ opt.label }} ({{ opt.code }})
+                </mat-option>
+              }
+            </mat-optgroup>
+          </ng-template>
+
+          <!-- CASE A: At least one existing version (shared or language-specific) -->
+          @if (existingLangs.length > 0) {
+
+            <!-- Available ToC versions -->
+            <mat-optgroup label="Available ToC versions">
+              @for (opt of existingLangs; track opt.code) {
+                <mat-option [value]="opt.code">
+                  {{ opt.label }}@if (opt.code) { ({{ opt.code }}) }
+                </mat-option>
+              }
+            </mat-optgroup>
+
+            <!-- Other languages (without ToC) -->
+            @if (nonExistingLangs.length > 0 || !variants.hasShared) {
+              <ng-container *ngTemplateOutlet="languagesWithoutTocGroup"/>
+            }
+
+          <!-- CASE B: No existing TOCs at all -->
+          } @else {
+            <ng-container *ngTemplateOutlet="languagesWithoutTocGroup"/>
+          }
+
+        </mat-select>
+      </mat-form-field>
+    }
   </div>
 
   <!-- Action buttons -->
@@ -107,8 +164,15 @@
     <div class="empty-state">
       <mat-icon>folder_open</mat-icon>
       <h3>No table of contents</h3>
-      <p>This collection doesn’t have a table of contents yet,<br>
+      @if (currentTocLanguage) {
+        <p>This collection doesn’t have a table of contents<br>
+        in {{ currentTocLanguage | getLangLabel }} ({{ currentTocLanguage }}) yet,<br>
         or an error prevented it from being loaded.</p>
+      } @else {
+        <p>This collection doesn’t have a shared table of contents<br>
+        for all languages yet,<br>
+        or an error prevented it from being loaded.</p>
+      }
     </div>
   }
 }

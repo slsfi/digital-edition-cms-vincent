@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Support for multilingual collection table of contents.
+
 ### Changed
 
 - Consolidate language types.

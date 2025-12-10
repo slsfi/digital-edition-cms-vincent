@@ -1,5 +1,6 @@
 import { ApiResponse, LabelledOption, LabelledSelectOption } from "./common.model";
 import { PublicationLite } from "./publication.model";
+import { GenericLanguageObj } from "./language.model";
 
 export type TocNodeType = 'section' | 'text';
 
@@ -123,3 +124,13 @@ export const GENERATE_TOC_FIELDS: LabelledSelectOption[] = [
   { key: 'facsimileOnly', label: 'Facsimile only set to true',
     defaultSelected: false }
 ];
+
+export interface TocLanguageVariants {
+  hasShared: boolean;
+  languages: string[];
+}
+
+export const SHARED_TOC_LANGUAGE: GenericLanguageObj = {
+  label: 'Shared (all languages)',
+  code: null
+} as const;
