@@ -9,22 +9,28 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { map, take } from 'rxjs';
+import { catchError, forkJoin, map, of, take } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
-import { languageOptions } from '../../models/language.model';
+import { languageOptions, LanguageObjWithNone } from '../../models/language.model';
 import { FileTree } from '../../models/project.model';
-import { SaveTocResponse, TocNode, TocResponse, TocRoot, GENERATE_TOC_FIELDS,
-         UPDATE_TOC_FIELDS, PUBLICATION_SORT_OPTIONS } from '../../models/table-of-contents.model';
+import { SaveTocResponse, TocLanguageVariants, TocNode, TocResponse,
+         TocRoot, GENERATE_TOC_FIELDS, UPDATE_TOC_FIELDS,
+         PUBLICATION_SORT_OPTIONS, SHARED_TOC_LANGUAGE
+        } from '../../models/table-of-contents.model';
 import { Publication, PublicationCollection, PublicationLite,
          toPublicationLite } from '../../models/publication.model';
 import { TocTreeComponent } from '../../components/toc-tree/toc-tree.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { AutoGenerateTocDialogComponent, AutoGenerateTocDialogData,
-         AutoGenerateTocDialogResult } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
+         AutoGenerateTocDialogResult
+        } from '../../components/auto-generate-toc-dialog/auto-generate-toc-dialog.component';
+import { ExistingTocLanguagesPipe } from '../../pipes/existing-toc-languages.pipe';
+import { GetLangLabelPipe } from '../../pipes/get-lang-label.pipe';
+import { NonExistingTocLanguagesPipe } from '../../pipes/non-existing-toc-languages.pipe';
 
 
 @Component({
@@ -40,7 +46,10 @@ import { AutoGenerateTocDialogComponent, AutoGenerateTocDialogData,
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    TocTreeComponent
+    TocTreeComponent,
+    ExistingTocLanguagesPipe,
+    GetLangLabelPipe,
+    NonExistingTocLanguagesPipe
   ],
   templateUrl: './table-of-contents.component.html',
   styleUrls: ['./table-of-contents.component.scss']
@@ -76,13 +85,13 @@ export class TableOfContentsComponent implements OnInit {
   publicationsForSelectedCollection: PublicationLite[] = [];
 
   // Table of contents language variants per collection
-  // Example: { 1: { hasGeneral: true, languages: ['fi', 'sv'] } }
-  tocVariantsByCollectionId: Record<number, { hasGeneral: boolean; languages: string[] }> = {};
+  // Example: { 1: { hasShared: true, languages: ['fi', 'sv'] } }
+  tocVariantsByCollectionId: Record<number, TocLanguageVariants> = {};
 
   // Default value used when a collection has no entry in
   // tocVariantsByCollectionId
   readonly emptyTocVariants = {
-    hasGeneral: false,
+    hasShared: false,
     languages: [] as string[]
   };
 
@@ -97,7 +106,10 @@ export class TableOfContentsComponent implements OnInit {
   tocLanguageSelection: string | null = null;
 
   // Languages the user can choose when creating/saving TOCs.
-  readonly availableLanguages = languageOptions;
+  readonly availableLanguages: readonly LanguageObjWithNone[] = languageOptions;
+
+  // Shared / language-independent ToC option (label + code)
+  readonly sharedTocLanguage = SHARED_TOC_LANGUAGE;
 
   ngOnInit(): void {
     // Get project name
@@ -107,54 +119,74 @@ export class TableOfContentsComponent implements OnInit {
     this.loadCollections(this.projectName);
   }
 
+  /**
+   * Load initial metadata for the TOC management view.
+   *
+   * - In parallel, fetch:
+   *   - publication collections for the current project (required)
+   *   - the list of existing TOC JSON files (optional metadata)
+   *
+   * - Using forkJoin so we only proceed once both calls have completed.
+   *   - If loading collections fails, the whole operation fails and an
+   *     error is shown (user cannot work without collections).
+   *   - If loading the TOC file list fails, the error is logged and we
+   *     fall back to an empty TOC variant map (user can still create new
+   *     TOCs).
+   *
+   * - After both responses arrive:
+   *   - this.collections is populated with the available collections.
+   *   - this.tocVariantsByCollectionId is built by parsing the TOC file
+   *     names to detect, per collection, whether a shared TOC and/or
+   *     language-specific TOCs already exist.
+   *
+   * This ensures that when the user selects a collection, the language
+   * selector and default TOC language are based on up-to-date backend
+   * data, without race conditions between the two API calls.
+   */
   private loadCollections(projectName: string | null): void {
     if (!projectName) {
       return;
     }
 
-    this.publicationService.getPublicationCollections(projectName).pipe(
-      take(1)
-    ).subscribe({
-      next: (collections) => {
-        this.collections = collections;
-      },
-      error: (error) => {
-        console.error('Error loading collections:', error);
-        this.snackbar.show('Failed to load collections.', 'error');
-      }
-    });
+    forkJoin({
+      collections:
+        this.publicationService.getPublicationCollections(projectName).pipe(
+          take(1)
+        ), // fatal on error
 
-    // Load existing TOC JSON files to detect per-collection language variants
-    this.tocService.getTocFilesList().pipe(take(1)).subscribe({
-      next: (filetree: FileTree) => {
-        const toc = filetree['toc'] ?? {};
-        const topLevelJsonFiles = Object.keys(toc).filter(key =>
-          key.endsWith('.json')
+      tocFiles:
+        this.tocService.getTocFilesList().pipe(
+          take(1),
+          catchError(err => {
+            console.error('Error loading TOC file list:', err);
+            return of({ toc: {} } as FileTree);
+          }) // Swallow errors and return a safe fallback
+        )
+    }).subscribe({
+      next: ({ collections, tocFiles }) => {
+        // Parse ToC variants
+        const toc = tocFiles['toc'] ?? {};
+        const topLevelJsonFiles = Object.keys(toc).filter(
+          key => key.endsWith('.json')
         );
 
-        const variants: Record<number, { hasGeneral: boolean; languages: string[] }> = {};
+        const variants: Record<number, TocLanguageVariants> = {};
 
         for (const filename of topLevelJsonFiles) {
-          // strip .json
           const base = filename.split('.json')[0];
-          const parts = base.split('_'); // e.g. "1", "1_sv"
+          const parts = base.split('_');
           const idPart = parts[0];
           const langPart = parts[1] ?? null;
 
           const collectionId = Number(idPart);
-          if (Number.isNaN(collectionId)) {
-            continue; // ignore unexpected filenames
-          }
+          if (Number.isNaN(collectionId)) continue;  // ignore unexpected filenames
 
           if (!variants[collectionId]) {
-            variants[collectionId] = {
-              hasGeneral: false,
-              languages: []
-            };
+            variants[collectionId] = { hasShared: false, languages: [] };
           }
 
           if (!langPart) {
-            variants[collectionId].hasGeneral = true;
+            variants[collectionId].hasShared = true;
           } else if (!variants[collectionId].languages.includes(langPart)) {
             variants[collectionId].languages.push(langPart);
           }
@@ -162,10 +194,14 @@ export class TableOfContentsComponent implements OnInit {
 
         this.tocVariantsByCollectionId = variants;
         // console.log('tocVariantsByCollectionId', this.tocVariantsByCollectionId);
+
+        // Set collections
+        this.collections = collections;
       },
-      error: (err) => {
-        console.error('Error loading TOC file list:', err);
-        // Non-fatal; just means we don't know which languages exist
+      error: err => {
+        // Only triggers if the *collections* call fails
+        console.error('Error loading collections:', err);
+        this.snackbar.show('Failed to load collections.', 'error');
       }
     });
   }
@@ -179,8 +215,8 @@ export class TableOfContentsComponent implements OnInit {
     let initialLanguage: string | null = null;
 
     if (variants) {
-      if (variants.hasGeneral) {
-        initialLanguage = null;      // general
+      if (variants.hasShared) {
+        initialLanguage = null;  // shared
       } else if (variants.languages.length > 0) {
         initialLanguage = variants.languages[0];  // first language-specific
       } else {
@@ -239,7 +275,9 @@ export class TableOfContentsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading table of contents:', error);
-        this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
+        if (error.status !== 404) {
+          this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
+        }
         this.currentToc = null; // Clear previous TOC
         this.hasUnsavedChanges = false; // Reset unsaved changes
         this.isLoading = false;
@@ -268,11 +306,11 @@ export class TableOfContentsComponent implements OnInit {
           const id = this.selectedCollectionId!;
           const lang = this.currentTocLanguage;
           if (!this.tocVariantsByCollectionId[id]) {
-            this.tocVariantsByCollectionId[id] = { hasGeneral: false, languages: [] };
+            this.tocVariantsByCollectionId[id] = { hasShared: false, languages: [] };
           }
           const entry = this.tocVariantsByCollectionId[id];
           if (!lang) {
-            entry.hasGeneral = true;
+            entry.hasShared = true;
           } else if (!entry.languages.includes(lang)) {
             entry.languages.push(lang);
           }

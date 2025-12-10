@@ -40,6 +40,11 @@ export const noneLanguageOption = {
 
 export type NoneLanguageObj = typeof noneLanguageOption;
 
+export interface GenericLanguageObj {
+  label: string,
+  code: string | null
+}
+
 // union for when “none” is allowed:
 export type LanguageObjWithNone = LanguageObj | NoneLanguageObj;
 
