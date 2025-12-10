@@ -22,7 +22,11 @@
 
       <mat-form-field class="toc-language-select" [subscriptSizing]="'dynamic'">
         <mat-label>Table of contents language</mat-label>
-        <mat-select [(value)]="currentTocLanguage" (selectionChange)="onTocLanguageChange($event.value)" canSelectNullableOptions>
+        <mat-select
+              [(value)]="tocLanguageSelection"
+              (selectionChange)="changeTocLanguage($event.value)"
+              canSelectNullableOptions
+        >
           <!-- General / no-language option -->
           <mat-option [value]="null">
             General

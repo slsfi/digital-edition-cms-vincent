@@ -91,6 +91,11 @@ export class TableOfContentsComponent implements OnInit {
   // null => general (no language; <id>.json)
   currentTocLanguage: string | null = null;
 
+  // The language currently selected in the UI language select.
+  // This can temporarily diverge from currentTocLanguage if the
+  // user cancels a language change.
+  tocLanguageSelection: string | null = null;
+
   // Languages the user can choose when creating/saving TOCs.
   readonly availableLanguages = languageOptions;
 
@@ -171,22 +176,23 @@ export class TableOfContentsComponent implements OnInit {
 
     // Pick a default TOC language variant for this collection:
     const variants = this.tocVariantsByCollectionId[collection.id];
+    let initialLanguage: string | null = null;
+
     if (variants) {
       if (variants.hasGeneral) {
-        // Prefer general if available
-        this.currentTocLanguage = null;
+        initialLanguage = null;      // general
       } else if (variants.languages.length > 0) {
-        // Select first available language
-        this.currentTocLanguage = variants.languages[0];
+        initialLanguage = variants.languages[0];  // first language-specific
       } else {
-        // Keep whatever was previously selected or fall back to null
-        this.currentTocLanguage ??= null;
+        initialLanguage = null;
       }
     } else {
-      // No saved TOC yet for this collection
-      // Let user pick; default = general
-      this.currentTocLanguage = null;
+      // No saved TOC yet
+      initialLanguage = null;
     }
+
+    this.currentTocLanguage = initialLanguage;
+    this.tocLanguageSelection = initialLanguage;
 
     this.loadPublicationsForSelectedCollection();
     this.loadTableOfContents();
@@ -233,7 +239,7 @@ export class TableOfContentsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading table of contents:', error);
-        // this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
+        this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
         this.currentToc = null; // Clear previous TOC
         this.hasUnsavedChanges = false; // Reset unsaved changes
         this.isLoading = false;
@@ -281,31 +287,36 @@ export class TableOfContentsComponent implements OnInit {
     });
   }
 
-  onTocLanguageChange(language: string | null): void {
-    // Prevent accidental loss of changes
-    if (this.hasUnsavedChanges) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: {
-          title: 'Change table of contents language',
-          message: 'You have unsaved changes. Switching language will discard them. Continue?',
-          confirmText: 'Change language',
-          cancelText: 'Cancel'
-        }
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result?.value) {
-          this.hasUnsavedChanges = false;
-          this.currentTocLanguage = language;
-          this.loadTableOfContents();
-        }
-      });
-
+  changeTocLanguage(newLanguage: string | null): void {
+    // If there are no unsaved changes, just commit immediately.
+    if (!this.hasUnsavedChanges) {
+      this.currentTocLanguage = newLanguage;
+      this.loadTableOfContents();
       return;
     }
 
-    this.currentTocLanguage = language;
-    this.loadTableOfContents();
+    const previousCommittedLanguage = this.currentTocLanguage;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Change table of contents language',
+        message: 'You have unsaved changes. Switching language will discard them. Continue?',
+        confirmText: 'Change language',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.value) {
+        // User confirmed: commit new selection
+        this.hasUnsavedChanges = false;
+        this.currentTocLanguage = newLanguage;
+        this.loadTableOfContents();
+      } else {
+        // User cancelled: revert the UI selection back to the committed language
+        this.tocLanguageSelection = previousCommittedLanguage;
+      }
+    });
   }
 
   private cleanTocForSaving(toc: TocRoot): TocRoot {
