@@ -126,11 +126,11 @@ export const GENERATE_TOC_FIELDS: LabelledSelectOption[] = [
 ];
 
 export interface TocLanguageVariants {
-  hasShared: boolean;
+  hasUniversal: boolean;
   languages: string[];
 }
 
-export const SHARED_TOC_LANGUAGE: GenericLanguageObj = {
-  label: 'Shared (all languages)',
+export const UNIVERSAL_TOC_LANGUAGE: GenericLanguageObj = {
+  label: 'Universal (all UI languages)',
   code: null
 } as const;
