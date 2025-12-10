@@ -17,7 +17,8 @@ import { BehaviorSubject, catchError, combineLatest, concatMap,
 import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData,
          allPublicationColumnsData, allVersionColumnsData, commentsColumnData,
          facsimileColumnData, manuscriptColumnsData, publicationColumnsData,
-         versionColumnsData } from './columns';
+         versionColumnsData
+        } from './columns';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CustomTableComponent } from "../custom-table/custom-table.component";
 import { EditDialogComponent, EditDialogData } from '../edit-dialog/edit-dialog.component';
@@ -33,17 +34,28 @@ import { SnackbarService } from '../../services/snackbar.service';
 import { Column, Deleted } from '../../models/common.model';
 import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile.model';
 import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript,
-         ManuscriptResponse, Publication, PublicationComment, PublicationCommentResponse,
-         PublicationEditRequest, PublicationResponse, Version, VersionResponse,
-         XmlMetadata, METADATA_FIELDS } from '../../models/publication.model';
+         ManuscriptResponse, Publication, PublicationComment,
+         PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
+         Version, VersionResponse, XmlMetadata, METADATA_FIELDS
+        } from '../../models/publication.model';
+import { SoftWrapPathPipe } from '../../pipes/soft-wrap-path.pipe';
 import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/utility-functions';
 
 @Component({
   selector: 'publications',
   imports: [
-    CommonModule, MatTableModule, MatIconModule, MatButtonModule, RouterLink,
-    LoadingSpinnerComponent, MatCardModule, MatBadgeModule, MatMenuModule,
-    MatTooltipModule, CustomTableComponent
+    CommonModule,
+    RouterLink,
+    MatBadgeModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTableModule,
+    MatTooltipModule,
+    CustomTableComponent,
+    LoadingSpinnerComponent,
+    SoftWrapPathPipe
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',

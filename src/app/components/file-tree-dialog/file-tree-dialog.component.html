@@ -1,15 +1,18 @@
+<h2 mat-dialog-title>Select file path</h2>
+<mat-dialog-content>
+  <file-tree [(value)]="filePath"></file-tree>
+</mat-dialog-content>
 
-  <mat-dialog-content>
-    <file-tree [(value)]="filePath"></file-tree>
-  </mat-dialog-content>
-
-  <mat-dialog-actions>
-    <div class="selected-text" ><span class="selected">selected:</span>{{ selectedNodes.join(' / ')}}</div>
-    <button mat-button mat-dialog-close>Cancel</button>
-    <button
-      mat-flat-button
-      [mat-dialog-close]="selectedNodes"
-      [disabled]="selectedNodes.length === 0">
-      Select
-    </button>
-  </mat-dialog-actions>
+<mat-dialog-actions>
+  <div class="selected-text">
+    <strong class="selected-text-label">Selected file path:</strong>&ngsp;
+    <span [innerHTML]="filePath | softWrapPath"></span>
+  </div>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-flat-button
+    [mat-dialog-close]="selectedNodes"
+    [disabled]="selectedNodes.length === 0">
+    Select
+  </button>
+</mat-dialog-actions>

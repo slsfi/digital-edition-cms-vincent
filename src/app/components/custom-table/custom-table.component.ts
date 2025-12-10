@@ -13,14 +13,24 @@ import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil, ta
 import { Column } from '../../models/common.model';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
 import { IdRoutePipe } from '../../pipes/id-route.pipe';
+import { SoftWrapPathPipe } from '../../pipes/soft-wrap-path.pipe';
 import { LoadingService } from '../../services/loading.service';
 import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
   selector: 'custom-table',
   imports: [
-    CommonModule, MatTableModule, RouterLink, MatIconModule, MatButtonModule, CustomDatePipe, IdRoutePipe,
-    ScrollingModule, MatPaginatorModule, MatCheckboxModule
+    CommonModule,
+    RouterLink,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatPaginatorModule,
+    MatTableModule,
+    ScrollingModule,
+    CustomDatePipe,
+    IdRoutePipe,
+    SoftWrapPathPipe
   ],
   providers: [DatePipe],
   templateUrl: './custom-table.component.html',

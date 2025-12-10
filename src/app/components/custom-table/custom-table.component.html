@@ -100,8 +100,8 @@
         <button mat-icon-button (click)="delete(model)"><mat-icon>delete</mat-icon></button>
       }
     </div>
-  } @else if (column.field === 'original_filename' && model[column.field]) {
-    {{ model[column.field].split('/').join(' / ') }}
+  } @else if ((column.field === 'original_filename' || column.field === 'external_url') && model[column.field]) {
+    <span [innerHTML]="model[column.field] | softWrapPath"></span>
   } @else {
     {{ model[column.field] ?? '' }}
   }
