@@ -50,4 +50,3 @@ export const languageOptionsWithNone: LanguageObjWithNone[] = [
   noneLanguageOption,
   ...languageOptions,
 ];
-

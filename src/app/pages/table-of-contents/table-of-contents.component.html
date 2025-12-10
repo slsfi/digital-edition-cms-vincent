@@ -15,6 +15,36 @@
         }
       </mat-select>
     </mat-form-field>
+
+    <!-- TOC language select (only if a collection is selected) -->
+    @if (selectedCollectionId) {
+      @let variants = tocVariantsByCollectionId[selectedCollectionId!] || emptyTocVariants;
+
+      <mat-form-field class="toc-language-select" [subscriptSizing]="'dynamic'">
+        <mat-label>Table of contents language</mat-label>
+        <mat-select [(value)]="currentTocLanguage" (selectionChange)="onTocLanguageChange($event.value)" canSelectNullableOptions>
+          <!-- General / no-language option -->
+          <mat-option [value]="null">
+            General
+            @if (variants.hasGeneral) {
+              <span> – existing</span>
+            }
+          </mat-option>
+
+          <!-- Language-specific options -->
+          @for (opt of availableLanguages; track opt.code) {
+            @if (opt.code !== null) {
+              <mat-option [value]="opt.code">
+                {{ opt.label }}
+                @if (variants.languages.includes(opt.code)) {
+                  <span> – existing</span>
+                }
+              </mat-option>
+            }
+          }
+        </mat-select>
+      </mat-form-field>
+    }
   </div>
 
   <!-- Action buttons -->

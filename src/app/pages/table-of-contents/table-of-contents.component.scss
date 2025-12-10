@@ -9,11 +9,21 @@ h2 {
 }
 
 .collection-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
   margin: 2em 0;
-  max-width: 800px;
+  max-width: 1080px;
 
   mat-form-field {
-    width: 100%;
+    flex-grow: 5;
+    max-width: 800px;
+    min-width: 360px;
+
+    &.toc-language-select {
+      flex-grow: 1;
+      min-width: 280px;
+    }
   }
 }
 

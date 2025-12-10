@@ -15,6 +15,8 @@ import { TableOfContentsService } from '../../services/table-of-contents.service
 import { PublicationService } from '../../services/publication.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
+import { languageOptions } from '../../models/language.model';
+import { FileTree } from '../../models/project.model';
 import { SaveTocResponse, TocNode, TocResponse, TocRoot, GENERATE_TOC_FIELDS,
          UPDATE_TOC_FIELDS, PUBLICATION_SORT_OPTIONS } from '../../models/table-of-contents.model';
 import { Publication, PublicationCollection, PublicationLite,
@@ -73,6 +75,25 @@ export class TableOfContentsComponent implements OnInit {
   // Publications cache for selected collection
   publicationsForSelectedCollection: PublicationLite[] = [];
 
+  // Table of contents language variants per collection
+  // Example: { 1: { hasGeneral: true, languages: ['fi', 'sv'] } }
+  tocVariantsByCollectionId: Record<number, { hasGeneral: boolean; languages: string[] }> = {};
+
+  // Default value used when a collection has no entry in
+  // tocVariantsByCollectionId
+  readonly emptyTocVariants = {
+    hasGeneral: false,
+    languages: [] as string[]
+  };
+
+  // Currently selected language variant for the TOC of the selected
+  // collection.
+  // null => general (no language; <id>.json)
+  currentTocLanguage: string | null = null;
+
+  // Languages the user can choose when creating/saving TOCs.
+  readonly availableLanguages = languageOptions;
+
   ngOnInit(): void {
     // Get project name
     this.projectName = this.projectService.getCurrentProject();
@@ -97,11 +118,76 @@ export class TableOfContentsComponent implements OnInit {
         this.snackbar.show('Failed to load collections.', 'error');
       }
     });
+
+    // Load existing TOC JSON files to detect per-collection language variants
+    this.tocService.getTocFilesList().pipe(take(1)).subscribe({
+      next: (filetree: FileTree) => {
+        const toc = filetree['toc'] ?? {};
+        const topLevelJsonFiles = Object.keys(toc).filter(key =>
+          key.endsWith('.json')
+        );
+
+        const variants: Record<number, { hasGeneral: boolean; languages: string[] }> = {};
+
+        for (const filename of topLevelJsonFiles) {
+          // strip .json
+          const base = filename.split('.json')[0];
+          const parts = base.split('_'); // e.g. "1", "1_sv"
+          const idPart = parts[0];
+          const langPart = parts[1] ?? null;
+
+          const collectionId = Number(idPart);
+          if (Number.isNaN(collectionId)) {
+            continue; // ignore unexpected filenames
+          }
+
+          if (!variants[collectionId]) {
+            variants[collectionId] = {
+              hasGeneral: false,
+              languages: []
+            };
+          }
+
+          if (!langPart) {
+            variants[collectionId].hasGeneral = true;
+          } else if (!variants[collectionId].languages.includes(langPart)) {
+            variants[collectionId].languages.push(langPart);
+          }
+        }
+
+        this.tocVariantsByCollectionId = variants;
+        // console.log('tocVariantsByCollectionId', this.tocVariantsByCollectionId);
+      },
+      error: (err) => {
+        console.error('Error loading TOC file list:', err);
+        // Non-fatal; just means we don't know which languages exist
+      }
+    });
   }
 
   setSelectedCollection(collection: PublicationCollection): void {
     this.selectedCollection = collection;
     this.selectedCollectionId = collection.id;
+
+    // Pick a default TOC language variant for this collection:
+    const variants = this.tocVariantsByCollectionId[collection.id];
+    if (variants) {
+      if (variants.hasGeneral) {
+        // Prefer general if available
+        this.currentTocLanguage = null;
+      } else if (variants.languages.length > 0) {
+        // Select first available language
+        this.currentTocLanguage = variants.languages[0];
+      } else {
+        // Keep whatever was previously selected or fall back to null
+        this.currentTocLanguage ??= null;
+      }
+    } else {
+      // No saved TOC yet for this collection
+      // Let user pick; default = general
+      this.currentTocLanguage = null;
+    }
+
     this.loadPublicationsForSelectedCollection();
     this.loadTableOfContents();
   }
@@ -134,7 +220,10 @@ export class TableOfContentsComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.tocService.loadToc(this.selectedCollectionId).pipe(
+    this.tocService.loadToc(
+      this.selectedCollectionId,
+      this.currentTocLanguage || undefined
+    ).pipe(
       take(1)
     ).subscribe({
       next: (toc: TocRoot) => {
@@ -144,7 +233,7 @@ export class TableOfContentsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading table of contents:', error);
-        this.snackbar.show(error.error.message, 'error');
+        // this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
         this.currentToc = null; // Clear previous TOC
         this.hasUnsavedChanges = false; // Reset unsaved changes
         this.isLoading = false;
@@ -161,22 +250,62 @@ export class TableOfContentsComponent implements OnInit {
     const cleanedToc = this.cleanTocForSaving(this.currentToc);
 
     this.isSaving = true;
-    this.tocService.saveToc(this.selectedCollectionId, cleanedToc).pipe(
+    this.tocService.saveToc(this.selectedCollectionId, cleanedToc, this.currentTocLanguage || undefined).pipe(
       take(1)
     ).subscribe({
       next: (response: SaveTocResponse) => {
         if (response.success) {
           this.hasUnsavedChanges = false;
           this.snackbar.show(response.message);
+
+          // refresh tocVariantsByCollectionId if new file just created
+          const id = this.selectedCollectionId!;
+          const lang = this.currentTocLanguage;
+          if (!this.tocVariantsByCollectionId[id]) {
+            this.tocVariantsByCollectionId[id] = { hasGeneral: false, languages: [] };
+          }
+          const entry = this.tocVariantsByCollectionId[id];
+          if (!lang) {
+            entry.hasGeneral = true;
+          } else if (!entry.languages.includes(lang)) {
+            entry.languages.push(lang);
+          }
         }
         this.isSaving = false;
       },
       error: (error) => {
         console.error('Error saving table of contents:', error);
-        this.snackbar.show(error.error.message, 'error');
+        this.snackbar.show(error.error?.message || 'Failed to save table of contents.', 'error');
         this.isSaving = false;
       }
     });
+  }
+
+  onTocLanguageChange(language: string | null): void {
+    // Prevent accidental loss of changes
+    if (this.hasUnsavedChanges) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Change table of contents language',
+          message: 'You have unsaved changes. Switching language will discard them. Continue?',
+          confirmText: 'Change language',
+          cancelText: 'Cancel'
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result?.value) {
+          this.hasUnsavedChanges = false;
+          this.currentTocLanguage = language;
+          this.loadTableOfContents();
+        }
+      });
+
+      return;
+    }
+
+    this.currentTocLanguage = language;
+    this.loadTableOfContents();
   }
 
   private cleanTocForSaving(toc: TocRoot): TocRoot {

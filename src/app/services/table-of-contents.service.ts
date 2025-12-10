@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, tap, throwError } from 'rxjs';
+import { map, Observable, throwError } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
+import { FileTree, FileTreeResponse } from '../models/project.model';
 import { SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse,
          TocResponseApi, TocRoot, TocRootApi, TocUpdateRequest } from '../models/table-of-contents.model';
 import { Publication } from '../models/publication.model';
@@ -16,16 +17,25 @@ export class TableOfContentsService {
   private readonly apiService = inject(ApiService);
   private readonly projectService = inject(ProjectService);
 
+  getTocFilesList(): Observable<FileTree> {
+    const projectName = this.projectService.getCurrentProject();
+    const url = `${this.apiService.prefixedUrl}/${projectName}/get_tree/toc`;
+    return this.apiService.get<FileTreeResponse>(url, {}, true).pipe(
+      map((response: FileTreeResponse) => response.data)
+    );
+  }
+
   /**
    * Load table of contents for a collection.
    */
-  loadToc(collectionId: number): Observable<TocRoot> {
+  loadToc(collectionId: number, language?: string | null): Observable<TocRoot> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
       return throwError(() => new Error('No project selected.'));
     }
 
-    const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
+    const langSeg = language ? `/${language}` : '';
+    const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}${langSeg}`;
     
     return this.apiService.get<TocResponseApi>(url, {}, true).pipe(
       map((response: TocResponseApi) => {
@@ -38,13 +48,14 @@ export class TableOfContentsService {
   /**
    * Save table of contents for a collection.
    */
-  saveToc(collectionId: number, toc: TocRoot): Observable<SaveTocResponse> {
+  saveToc(collectionId: number, toc: TocRoot, language?: string | null): Observable<SaveTocResponse> {
     const projectName = this.projectService.getCurrentProject();
     if (!projectName) {
       return throwError(() => new Error('No project selected.'));
     }
 
-    const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}`;
+    const langSeg = language ? `/${language}` : '';
+    const url = `${this.apiService.prefixedUrl}/${projectName}/collection-toc/${collectionId}${langSeg}`;
     
     return this.apiService.put<SaveTocResponse>(url, toc);
   }
