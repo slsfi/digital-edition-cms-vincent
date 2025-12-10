@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `jasmine-core` to 5.13.0.
 - Deps (dev): update `typescript-eslint` to 8.48.1.
 - Deps: update transitive dependencies.
+- Deps: unpin `angular-eslint` and `typescript-eslint`.
 
 ### Fixed
 
