@@ -19,7 +19,7 @@ import { languageOptions, LanguageObjWithNone } from '../../models/language.mode
 import { FileTree } from '../../models/project.model';
 import { SaveTocResponse, TocLanguageVariants, TocNode, TocResponse,
          TocRoot, GENERATE_TOC_FIELDS, UPDATE_TOC_FIELDS,
-         PUBLICATION_SORT_OPTIONS, SHARED_TOC_LANGUAGE
+         PUBLICATION_SORT_OPTIONS, UNIVERSAL_TOC_LANGUAGE
         } from '../../models/table-of-contents.model';
 import { Publication, PublicationCollection, PublicationLite,
          toPublicationLite } from '../../models/publication.model';
@@ -85,13 +85,13 @@ export class TableOfContentsComponent implements OnInit {
   publicationsForSelectedCollection: PublicationLite[] = [];
 
   // Table of contents language variants per collection
-  // Example: { 1: { hasShared: true, languages: ['fi', 'sv'] } }
+  // Example: { 1: { hasUniversal: true, languages: ['fi', 'sv'] } }
   tocVariantsByCollectionId: Record<number, TocLanguageVariants> = {};
 
   // Default value used when a collection has no entry in
   // tocVariantsByCollectionId
   readonly emptyTocVariants = {
-    hasShared: false,
+    hasUniversal: false,
     languages: [] as string[]
   };
 
@@ -108,8 +108,8 @@ export class TableOfContentsComponent implements OnInit {
   // Languages the user can choose when creating/saving TOCs.
   readonly availableLanguages: readonly LanguageObjWithNone[] = languageOptions;
 
-  // Shared / language-independent ToC option (label + code)
-  readonly sharedTocLanguage = SHARED_TOC_LANGUAGE;
+  // Universal / language-independent ToC option (label + code)
+  readonly universalTocLanguage = UNIVERSAL_TOC_LANGUAGE;
 
   ngOnInit(): void {
     // Get project name
@@ -136,7 +136,7 @@ export class TableOfContentsComponent implements OnInit {
    * - After both responses arrive:
    *   - this.collections is populated with the available collections.
    *   - this.tocVariantsByCollectionId is built by parsing the TOC file
-   *     names to detect, per collection, whether a shared TOC and/or
+   *     names to detect, per collection, whether a universal TOC and/or
    *     language-specific TOCs already exist.
    *
    * This ensures that when the user selects a collection, the language
@@ -182,11 +182,11 @@ export class TableOfContentsComponent implements OnInit {
           if (Number.isNaN(collectionId)) continue;  // ignore unexpected filenames
 
           if (!variants[collectionId]) {
-            variants[collectionId] = { hasShared: false, languages: [] };
+            variants[collectionId] = { hasUniversal: false, languages: [] };
           }
 
           if (!langPart) {
-            variants[collectionId].hasShared = true;
+            variants[collectionId].hasUniversal = true;
           } else if (!variants[collectionId].languages.includes(langPart)) {
             variants[collectionId].languages.push(langPart);
           }
@@ -215,8 +215,8 @@ export class TableOfContentsComponent implements OnInit {
     let initialLanguage: string | null = null;
 
     if (variants) {
-      if (variants.hasShared) {
-        initialLanguage = null;  // shared
+      if (variants.hasUniversal) {
+        initialLanguage = null;  // universal
       } else if (variants.languages.length > 0) {
         initialLanguage = variants.languages[0];  // first language-specific
       } else {
@@ -306,11 +306,11 @@ export class TableOfContentsComponent implements OnInit {
           const id = this.selectedCollectionId!;
           const lang = this.currentTocLanguage;
           if (!this.tocVariantsByCollectionId[id]) {
-            this.tocVariantsByCollectionId[id] = { hasShared: false, languages: [] };
+            this.tocVariantsByCollectionId[id] = { hasUniversal: false, languages: [] };
           }
           const entry = this.tocVariantsByCollectionId[id];
           if (!lang) {
-            entry.hasShared = true;
+            entry.hasUniversal = true;
           } else if (!entry.languages.includes(lang)) {
             entry.languages.push(lang);
           }

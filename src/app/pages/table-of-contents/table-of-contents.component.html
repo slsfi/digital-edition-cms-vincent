@@ -30,12 +30,12 @@
               canSelectNullableOptions
         >
 
-          <!-- shared reusable group template defined here -->
+          <!-- reusable group template -->
           <ng-template #languagesWithoutTocGroup>
             <mat-optgroup label="Languages without ToC">
-              @if (!variants.hasShared) {
-                <mat-option [value]="sharedTocLanguage.code">
-                  {{ sharedTocLanguage.label }}
+              @if (!variants.hasUniversal) {
+                <mat-option [value]="universalTocLanguage.code">
+                  {{ universalTocLanguage.label }}
                 </mat-option>
               }
 
@@ -47,7 +47,7 @@
             </mat-optgroup>
           </ng-template>
 
-          <!-- CASE A: At least one existing version (shared or language-specific) -->
+          <!-- CASE A: At least one existing version (universal or language-specific) -->
           @if (existingLangs.length > 0) {
 
             <!-- Available ToC versions -->
@@ -60,7 +60,7 @@
             </mat-optgroup>
 
             <!-- Other languages (without ToC) -->
-            @if (nonExistingLangs.length > 0 || !variants.hasShared) {
+            @if (nonExistingLangs.length > 0 || !variants.hasUniversal) {
               <ng-container *ngTemplateOutlet="languagesWithoutTocGroup"/>
             }
 
@@ -169,8 +169,8 @@
         in {{ currentTocLanguage | getLangLabel }} ({{ currentTocLanguage }}) yet,<br>
         or an error prevented it from being loaded.</p>
       } @else {
-        <p>This collection doesn’t have a shared table of contents<br>
-        for all languages yet,<br>
+        <p>This collection doesn’t have a universal table of contents<br>
+        for all UI languages yet,<br>
         or an error prevented it from being loaded.</p>
       }
     </div>

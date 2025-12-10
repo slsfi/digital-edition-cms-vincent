@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Rename term for universal collection table of contents.
+
 
 
 ## [2.0.0] – 2025-12-10

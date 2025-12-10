@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 import { GenericLanguageObj, LanguageObjWithNone } from '../models/language.model';
-import { TocLanguageVariants, SHARED_TOC_LANGUAGE } from '../models/table-of-contents.model';
+import { TocLanguageVariants, UNIVERSAL_TOC_LANGUAGE } from '../models/table-of-contents.model';
 
 
 @Pipe({
@@ -15,8 +15,8 @@ export class ExistingTocLanguagesPipe implements PipeTransform {
     const result: GenericLanguageObj[] = [];
 
     // Shared first, if it exists
-    if (variants.hasShared) {
-      result.push(SHARED_TOC_LANGUAGE);
+    if (variants.hasUniversal) {
+      result.push(UNIVERSAL_TOC_LANGUAGE);
     }
 
     // Then all language-specific TOCs, in declared order
