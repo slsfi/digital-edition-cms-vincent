@@ -8,30 +8,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.0.0] – 2025-12-10
+
+### Breaking changes
+
+- Change URL of backend endpoint for getting the data of a single facsimile collection from `/<project>/facsimiles/collections/<collectionId>` to `/<project>/facsimile_collection/<collectionId>/data/`. ([3ef51aa](https://github.com/slsfi/digital-edition-cms-vincent/commit/3ef51aa839fd52e30cf7e188611bd28bf90b1b63))
+
 ### Added
 
-- Support for multilingual collection table of contents.
+- Support for multilingual collection table of contents. ([2e058d3](https://github.com/slsfi/digital-edition-cms-vincent/commit/2e058d3019f90f3e47187a17d5edd919e4dfc60b))
 
 ### Changed
 
-- Consolidate language types.
-- Use service for showing snackbar messages.
-- Soft wrap paths.
-- Update README.
-- Deps: update `@angular/core` to 20.3.15, `@angular/cli` to 20.3.13.
-- Deps (dev): update `angular-eslint` to 20.7.0.
-- Deps (dev): update `jasmine-core` to 5.13.0.
-- Deps (dev): update `typescript-eslint` to 8.49.0.
-- Deps: update transitive dependencies.
-- Deps: unpin `angular-eslint` and `typescript-eslint`.
+- Consolidate language types. ([88d8dba](https://github.com/slsfi/digital-edition-cms-vincent/commit/88d8dba9fe358404d0b10db3012bf3a5c36c0236))
+- Use service for showing snackbar messages. ([5463e73](https://github.com/slsfi/digital-edition-cms-vincent/commit/5463e739a14cc4c3093bdcb026f5cb676db696dd))
+- Soft wrap paths. ([c36a88c](https://github.com/slsfi/digital-edition-cms-vincent/commit/c36a88cca9be1abd159ac20009a265f4628dcf78))
+- Update README. ([b414c88](https://github.com/slsfi/digital-edition-cms-vincent/commit/b414c88126aa3a1012894a2657e483165e531c61))
+- Deps: update `@angular/core` to 20.3.15, `@angular/cli` to 20.3.13. ([648d233](https://github.com/slsfi/digital-edition-cms-vincent/commit/648d23338c4ef01a557c3079ef6b48d0896a20d4))
+- Deps (dev): update `angular-eslint` to 20.7.0. ([05bbdd3](https://github.com/slsfi/digital-edition-cms-vincent/commit/05bbdd39b84778831e29e8cda389c7fdfa4fa22a))
+- Deps (dev): update `jasmine-core` to 5.13.0. ([0633dc9](https://github.com/slsfi/digital-edition-cms-vincent/commit/0633dc9c73cc195b95c5fa942da1ffc41147d0e8))
+- Deps (dev): update `typescript-eslint` to 8.49.0. ([f5e0932](https://github.com/slsfi/digital-edition-cms-vincent/commit/f5e09325f2053f516f3f6e99d8bdba3fac4c1dfd), [eb1da33](https://github.com/slsfi/digital-edition-cms-vincent/commit/eb1da33b429100067d6d439ead610b1547d094a4))
+- Deps: update transitive dependencies. ([a83cf50](https://github.com/slsfi/digital-edition-cms-vincent/commit/a83cf50a8d848beeddff846eedfd9a5ccec6d7de))
+- Deps: unpin `angular-eslint` and `typescript-eslint`. ([8949e70](https://github.com/slsfi/digital-edition-cms-vincent/commit/8949e7057bbdb2411cff95f4b0a222925d9c521f))
 
 ### Fixed
 
-- Translated field name not displayed.
-
-### BREAKING CHANGES
-
-- Change URL of backend endpoint for getting the data of a single facsimile collection from `/<project>/facsimiles/collections/<collectionId>` to `/<project>/facsimile_collection/<collectionId>/data/`.
+- Translated field name not displayed. ([d822682](https://github.com/slsfi/digital-edition-cms-vincent/commit/d82268295f30393f02e68bba3b1d75db7a7ea44a))
 
 
 
@@ -368,7 +372,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.2...2.0.0
 [1.5.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.4.1...1.5.0
