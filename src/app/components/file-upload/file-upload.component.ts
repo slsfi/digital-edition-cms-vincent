@@ -59,16 +59,17 @@ export class FileUploadComponent {
 
   onFileSelected(event: Event) {
     if (event.target) {
+      const missing = this.missingFileNumbers();
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length) {
-        if (target.files.length !== this.missingFileNumbers().length) {
-          this.snackbar.show(`Number of files must match with missing images (${this.missingFileNumbers().length}).`, 'warning');
+        if (target.files.length !== missing.length) {
+          this.snackbar.show(`Number of files must match with missing images (${missing.length}).`, 'warning');
           return;
         }
         const files = target.files;
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-          const number = this.missingFileNumbers()[i];
+          const number = missing[i];
           this.addToQueue(file, number);
         }
       }

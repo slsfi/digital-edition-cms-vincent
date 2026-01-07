@@ -4,8 +4,11 @@
   align-items: center;
 }
 
-.file-input {
-  display: none;
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 1.5rem 0;
 }
 
 .images {
@@ -25,14 +28,9 @@
     text-align: center;
     background-color: #ccc;
   }
-
 }
 
-facsimile-file {
-  height: 100px;
-}
-
-.img {
+.img-icon {
   width: 40px;
   height: 40px;
   font-size: 40px;

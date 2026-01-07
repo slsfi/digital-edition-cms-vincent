@@ -8,6 +8,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { PublicationCollectionsComponent } from './pages/publication-collections/publication-collections.component';
 import { NewPublicationFacsimileComponent } from './pages/new-publication-facsimile/new-publication-facsimile.component';
 import { FacsimileCollectionComponent } from './pages/facsimile-collection/facsimile-collection.component';
+import { FacsimileCollectionUploadBlockComponent } from './pages/facsimile-collection-upload-block/facsimile-collection-upload-block.component';
 import { PublicationBundleComponent } from './pages/publication-bundle/publication-bundle.component';
 import { AddFacsimileFromPublicationsComponent } from './pages/add-facsimile-from-publications/add-facsimile-from-publications.component';
 import { TableOfContentsComponent } from './pages/table-of-contents/table-of-contents.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'facsimiles', component: FacsimilesComponent, canActivate: [authGuard] },
   { path: 'facsimiles/add-from-publications', component: AddFacsimileFromPublicationsComponent, canActivate: [authGuard] },
   { path: 'facsimiles/:id', component: FacsimileCollectionComponent, canActivate: [authGuard] },
+  { path: 'facsimiles/:id/:mode', component: FacsimileCollectionUploadBlockComponent, canActivate: [authGuard] },
   { path: 'keywords', component: KeywordsComponent, canActivate: [authGuard] },
   { path: 'keywords/linking', component: KeywordLinkingComponent, canActivate: [authGuard] },
   { path: 'persons', component: PersonsComponent, canActivate: [authGuard] },

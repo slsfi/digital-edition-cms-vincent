@@ -1,6 +1,6 @@
 
 @if (closeInUse) {
-  <button mat-icon-button type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
+  <button matIconButton type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
 }
 
 @if (loading && showLoading) {
@@ -9,7 +9,7 @@
 <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
   <!-- Node template for leaf nodes -->
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
-    <button mat-icon-button disabled> </button>
+    <button matIconButton disabled> </button>
     <span [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable}"
           tabindex="0"
           (click)="node.isSelectable ? select(node, tree) : null"
@@ -25,7 +25,7 @@
         class="expandable"
         [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable }"
         [attr.aria-label]="'toggle ' + node.name" matTreeNodeToggle>
-      <button mat-icon-button>
+      <button matIconButton>
         <mat-icon class="mat-icon-rtl-mirror">
           {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
         </mat-icon>

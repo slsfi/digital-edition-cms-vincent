@@ -35,7 +35,7 @@
           <mat-label>Password</mat-label>
           <input matInput formControlName="password" autocomplete="current-password"
             [type]="hidePassword() ? 'password' : 'text'" />
-          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" type="button">
+          <button matIconButton matSuffix (click)="togglePasswordVisibility($event)" type="button">
             <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
           </button>
         </mat-form-field>

@@ -89,15 +89,15 @@
     }
   } @else if (column.type === 'action') {
     <div class="row-actions">
-      <button mat-icon-button (click)="edit(model)"><mat-icon>edit</mat-icon></button>
+      <button matIconButton (click)="edit(model)"><mat-icon>edit</mat-icon></button>
       @if (editSecondaryUsed) {
-        <button mat-icon-button (click)="editSecondary(model)"><mat-icon>folder</mat-icon></button>
+        <button matIconButton (click)="editSecondary(model)"><mat-icon>folder</mat-icon></button>
       }
       @if (openUsed) {
-        <button mat-icon-button (click)="open(model)"><mat-icon>photo_library</mat-icon></button>
+        <button matIconButton (click)="open(model)"><mat-icon>photo_library</mat-icon></button>
       }
       @if (deleteUsed) {
-        <button mat-icon-button (click)="delete(model)"><mat-icon>delete</mat-icon></button>
+        <button matIconButton (click)="delete(model)"><mat-icon>delete</mat-icon></button>
       }
     </div>
   } @else if ((column.field === 'original_filename' || column.field === 'external_url') && model[column.field]) {

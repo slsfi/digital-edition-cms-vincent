@@ -7,12 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable, take } from 'rxjs';
 
-import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { ReplaceFacsimileImagesDialogComponent } from '../../components/replace-facsimile-images-dialog/replace-facsimile-images-dialog.component';
 import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
-import { RangeArrayPipe } from '../../pipes/range-array.pipe';
 
 @Component({
   selector: 'facsimile-collection',
@@ -20,9 +18,7 @@ import { RangeArrayPipe } from '../../pipes/range-array.pipe';
     CommonModule,
     RouterLink,
     MatButtonModule,
-    MatIconModule,
-    FileUploadComponent,
-    RangeArrayPipe
+    MatIconModule
   ],
   templateUrl: './facsimile-collection.component.html',
   styleUrl: './facsimile-collection.component.scss'

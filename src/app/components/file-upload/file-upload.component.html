@@ -68,8 +68,9 @@
     #fileUpload>
 
   <div class="file-upload">
-    <button mat-flat-button (click)="fileUpload.click()">
-      <mat-icon>attach_file</mat-icon>Add files
+    <button matButton="filled" (click)="fileUpload.click()">
+      <mat-icon>attach_file</mat-icon>
+      Select {{ missingFileNumbers().length }} files
     </button>
   </div>
   <p>No files selected yet.</p>

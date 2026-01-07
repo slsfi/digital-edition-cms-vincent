@@ -43,7 +43,7 @@
               Add multiple
             </a>
           </mat-menu>
-          <button mat-icon-button
+          <button matIconButton
             [matMenuTriggerFor]="moreActionsMenu"
             aria-label="More actions"
             matTooltip="More actions"
@@ -86,7 +86,7 @@
                 <strong>Reading text file path:</strong>&ngsp;
                 <span [innerHTML]="selectedPublication.original_filename | softWrapPath"></span>
               </div>
-              <button mat-icon-button (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
+              <button matIconButton (click)="editSelectedText(selectedPublication)"><mat-icon>edit</mat-icon></button>
             </div>
           </mat-card-content>
         </mat-card>
