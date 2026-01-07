@@ -47,6 +47,7 @@
   } @else {
     <p>All images are uploaded.</p>
   }
+
   @if (facsimile.number_of_pages && (missingFileNumbers.length < facsimile.number_of_pages)) {
     <h3>Replace all images in the collection ({{facsimile.number_of_pages}})</h3>
     <file-upload
@@ -55,5 +56,12 @@
       [missingFileNumbers]="facsimile.number_of_pages | rangeArray"
       (filesUploaded)="verifyFacsimileFiles()">
     </file-upload>
+
+    <h3>Replace some images in the collection</h3>
+    <button matButton="filled" (click)="openReplaceSelectedDialog(facsimile.number_of_pages)">
+      <mat-icon>replace_image</mat-icon>
+      Open replace images dialog
+    </button>
   }
+
 }

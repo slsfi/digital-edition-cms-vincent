@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Replace selected images in facsimile collections.
+
 ### Changed
 
 - Rename term for universal collection table of contents.

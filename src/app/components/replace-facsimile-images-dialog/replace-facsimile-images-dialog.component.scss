@@ -1,0 +1,80 @@
+mat-dialog-content.mat-mdc-dialog-content.mat-mdc-dialog-content {
+  font-size: 1rem;
+
+  p {
+    line-height: 1.5;
+  }
+}
+
+.file-input {
+  display: none;
+}
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 2rem 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 140px auto 1fr 40px;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+}
+
+.remove-row {
+  margin-left: auto;
+}
+
+.filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.warning {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 1rem 0;
+  border: 1px solid #b11919;
+  border-radius: 4px;
+  padding: 0.5em;
+  background-color: #f1e2e2;
+  color: #222;
+}
+
+mat-icon {
+  &.pending {
+    color: #7d7d7d;
+  }
+  &.success {
+    color: #337a35;
+  }
+  &.error {
+    color: #c42929;
+  }
+  &.progress {
+    color: #1a2edf;
+  }
+}
+
+mat-progress-bar {
+  &.success {
+    --mat-progress-bar-active-indicator-color: #337a35;
+  }
+  &.error {
+    --mat-progress-bar-active-indicator-color: #c42929;
+  }
+}
