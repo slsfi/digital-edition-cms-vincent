@@ -2,7 +2,7 @@
 @let activeLanguages = mode() === 'edit' ? languages : filteredLanguages;
 
 <div class="translations">
-  <button mat-icon-button type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
+  <button matIconButton type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
   @if (mode() !== '') {
     <form [formGroup]="form" id="translation-form" (ngSubmit)="saveTranslation($event)">
       <h4>{{mode() === 'edit' ? 'Edit' : 'Add'}} Translation for {{ field() }}</h4>

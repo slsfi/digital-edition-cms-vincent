@@ -14,7 +14,7 @@
 
 @if (collectionId && project) {
   <div class="header">
-    <a mat-icon-button [routerLink]="['/publication-collections', collectionId]"><mat-icon>west</mat-icon></a>
+    <a matIconButton [routerLink]="['/publication-collections', collectionId]"><mat-icon>west</mat-icon></a>
     @if (collection) {
       <h2>Add publications to »{{ collection.name }}» from XML files</h2>
     }
@@ -62,7 +62,7 @@
             @for (bundleRow of files.controls; track bundleRow; let i = $index) {
               <div class="bundle-row" [formGroup]="bundleRow">
                 <span>{{ i + 1 }}</span>
-                <button mat-icon-button type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)">
+                <button matIconButton type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)">
                   <mat-icon>cancel</mat-icon>
                 </button>
                 <mat-form-field class="path">

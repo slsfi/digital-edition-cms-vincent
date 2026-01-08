@@ -29,14 +29,14 @@
       }
     </div>
     <div class="root-actions">
-      <button mat-icon-button 
+      <button matIconButton 
               (click)="editTocRootProperties()"
               matTooltip="Edit base properties"
               [attr.aria-label]="'Edit base properties'"
       >
         <mat-icon>edit</mat-icon>
       </button>
-      <button mat-icon-button 
+      <button matIconButton 
               (click)="collapseAll()"
               matTooltip="Collapse all items"
               [attr.aria-label]="'Collapse all items'"
@@ -44,7 +44,7 @@
       >
         <mat-icon>collapse_all</mat-icon>
       </button>
-      <button mat-icon-button 
+      <button matIconButton 
               (click)="expandAll()"
               matTooltip="Expand all items"
               [attr.aria-label]="'Expand all items'"
@@ -154,7 +154,7 @@
       
       <div class="node-actions">
         <!-- Edit button (most used) -->
-        <button mat-icon-button 
+        <button matIconButton 
                 (click)="editNode(node)"
                 matTooltip="Edit item properties"
                 [attr.aria-label]="'Edit item properties'"
@@ -163,7 +163,7 @@
         </button>
         
         <!-- Up/Down movement buttons -->
-        <button mat-icon-button 
+        <button matIconButton 
                 (click)="moveNodeUp(node)"
                 [disabled]="!(node.path | canMoveNodeUp)"
                 matTooltip="Move item up"
@@ -172,7 +172,7 @@
           <mat-icon>arrow_upward_alt</mat-icon>
         </button>
         
-        <button mat-icon-button 
+        <button matIconButton 
                 (click)="moveNodeDown(node)"
                 [disabled]="!(toc | canMoveNodeDown: node.path)"
                 matTooltip="Move item down"
@@ -182,7 +182,7 @@
         </button>
         
         <!-- Three-dot menu for other actions -->
-        <button mat-icon-button 
+        <button matIconButton 
                 [matMenuTriggerFor]="nodeMenu"
                 class="menu-trigger"
                 matTooltip="Additional item actions"
