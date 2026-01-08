@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Replace selected images in facsimile collections.
+- Replace selected images in facsimile collections and split facsimile upload component.
 
 ### Changed
 
