@@ -77,3 +77,12 @@ mat-progress-bar {
     --mat-progress-bar-active-indicator-color: #c42929;
   }
 }
+
+.table-wrap {
+  max-width: 1400px;
+}
+
+.completed-back-nav {
+  display: block;
+  margin: 3rem auto;
+}

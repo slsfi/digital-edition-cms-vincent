@@ -1,4 +1,6 @@
 @let facsimile = facsimile$ | async;
+@let missingFileNumbersValue = missingFileNumbers();
+@let missingFileSetValue = missingFileSet();
 
 <h1>Facsimile collection management</h1>
 <div class="selected-facsimile-collection">
@@ -15,14 +17,14 @@
     <h3>Images in the facsimile collection ({{ facsimile.number_of_pages }})</h3>
 
     <div class="actions-row">
-      @if (missingFileNumbers.length) {
+      @if (missingFileNumbersValue.length) {
         <a
           matButton="filled"
           [routerLink]="['/facsimiles', facsimile?.id, 'upload-missing']"
-        >Add missing ({{ missingFileNumbers.length }})</a>
+        >Add missing ({{ missingFileNumbersValue.length }})</a>
       }
 
-      @if (missingFileNumbers.length !== facsimile.number_of_pages) {
+      @if (missingFileNumbersValue.length !== facsimile.number_of_pages) {
         <a
           matButton="filled"
           [routerLink]="['/facsimiles', facsimile?.id, 'upload-all']"
@@ -38,16 +40,16 @@
     </div>
 
     <div class="images">
-      @for (page of [].constructor(facsimile.number_of_pages); track i; let i = $index) {
+      @for (page of pageNumbers(); track page) {
         <div class="image">
-          <div>{{ i + 1 }}</div>
-          @if (missingFileNumbers.includes(i + 1)) {
+          <div>{{ page }}</div>
+          @if (missingFileSetValue.has(page)) {
             <mat-icon class="img-icon error">block</mat-icon>
           } @else {
             <mat-icon class="img-icon success">check_circle</mat-icon>
           }
         </div>
-        } @empty {
+      } @empty {
         <p>No images.</p>
       }
     </div>

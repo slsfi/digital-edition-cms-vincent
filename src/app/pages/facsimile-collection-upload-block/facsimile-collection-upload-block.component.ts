@@ -13,6 +13,8 @@ import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { RangeArrayPipe } from '../../pipes/range-array.pipe';
 
+type UploadMode = 'missing' | 'all';
+
 @Component({
   selector: 'facsimile-collection-upload-block',
   imports: [
@@ -37,7 +39,7 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   loadingFacsData = signal<boolean>(true);
   missingFileNumbers = signal<number[]>([]);
   missingFileNumbersOrig = signal<number[]>([]);
-  mode: string = this.route.snapshot.params['mode'];
+  mode: UploadMode = 'missing';
   project: string | null = this.projectService.getCurrentProject();
   uploadCompleted = signal<boolean>(false);
 
@@ -48,9 +50,15 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
     ).pipe(
       finalize(() => this.loadingFacsData.set(false))
     );
-    if (this.mode === 'upload-missing') {
-      this.verifyFacsimileFiles(true);
-    }
+
+    this.route.data.subscribe(data => {
+      const m = data['mode'] as UploadMode | undefined;
+      this.mode = m ?? 'missing';
+
+      if (this.mode === 'missing') {
+        this.verifyFacsimileFiles(true);
+      }
+    });
   }
 
   verifyFacsimileFiles(setOrig = false) {
@@ -82,7 +90,7 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   }
 
   uploadComplete(): void {
-    if (this.mode === 'upload-missing') {
+    if (this.mode === 'missing') {
       this.verifyFacsimileFiles();
     }
     this.uploadCompleted.set(true);

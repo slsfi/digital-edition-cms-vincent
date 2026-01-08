@@ -13,7 +13,7 @@
 @if (loadingFacsData()) {
   <loading-spinner></loading-spinner>
 } @else if (facsimile) {
-  @if (mode === 'upload-all') {
+  @if (mode === 'all') {
     @if (facsimile.number_of_pages) {
       <h3>Upload images to all pages in the facsimile collection ({{facsimile.number_of_pages}})</h3>
       <p>Any existing images in the facsimile collection will be replaced.</p>
@@ -27,7 +27,7 @@
       <p>No pages in the selected facsimile collection.</p>
     }
 
-  } @else if (mode === 'upload-missing') {
+  } @else if (mode === 'missing') {
     @if (facsimile.number_of_pages && missingOrig.length) {
       <h3>Upload missing images to the facsimile collection ({{ missing.length }} / {{ facsimile.number_of_pages }})</h3>
       <p>

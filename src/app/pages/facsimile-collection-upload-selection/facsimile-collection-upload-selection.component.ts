@@ -59,8 +59,8 @@ type ReplaceRowForm = FormGroup<{
     MatProgressBarModule,
     LoadingSpinnerComponent,
   ],
-  templateUrl: './facsimile-collection-upload-selected.component.html',
-  styleUrl: './facsimile-collection-upload-selected.component.scss'
+  templateUrl: './facsimile-collection-upload-selection.component.html',
+  styleUrl: './facsimile-collection-upload-selection.component.scss'
 })
 export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -85,6 +85,7 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   loadingFacsData = signal<boolean>(true);
   numberOfPages = signal<number>(1);
   project: string | null = this.projectService.getCurrentProject();
+  uploadCompleted = signal<boolean>(false);
 
   get rows(): FormArray<ReplaceRowForm> {
     return this.form.controls.rows;
@@ -126,20 +127,20 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   selectFile(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.rows.at(index).get('file')!.setValue(file);
+    this.rows.at(index).controls.file.setValue(file);
     // allow re-selecting the same file later
     input.value = '';
   }
 
   fileNameAt(index: number): string {
-    const f = this.rows.at(index).get('file')!.value as File | null;
+    const f = this.rows.at(index).controls.file.value;
     return f?.name ?? '';
   }
 
   // Validation helpers
   get hasDuplicateSlots(): boolean {
     const slots = this.rows.controls
-      .map(c => c.get('slot')!.value)
+      .map(c => c.controls.slot.value)
       .filter((v): v is number => typeof v === 'number');
 
     return new Set(slots).size !== slots.length;
@@ -147,7 +148,7 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
 
   get hasOutOfRangeSlots(): boolean {
     const slots = this.rows.controls
-      .map(c => c.get('slot')!.value)
+      .map(c => c.controls.slot.value)
       .filter((v): v is number => typeof v === 'number');
 
     return slots.some(s => s < 1 || s > this.numberOfPages());
@@ -160,9 +161,11 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   buildReplacements(): Replacement[] {
     const reps: Replacement[] = [];
     for (const c of this.rows.controls) {
-      const slot = c.get('slot')!.value as number | null;
-      const file = c.get('file')!.value as File | null;
-      if (slot && file) reps.push({ slot, file });
+      const slot = c.controls.slot.value;
+      const file = c.controls.file.value;
+      if (slot && file) {
+        reps.push({ slot, file });
+      }
     }
     return reps;
   }
@@ -193,8 +196,11 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       return;
     }
 
-    // Build queue from current form
-    this.prepareQueue();
+    // Only build the queue from the form if we don't already have one.
+    // This preserves success/error states for Retry.
+    if (!this._queue.length) {
+      this.prepareQueue();
+    }
 
     const files = this._queue.filter(q => q.isUploadable());
     if (!files.length) {
@@ -214,12 +220,13 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       complete: () => {
         this.uploadInProgress = false;
         this.allUploaded = true;
-        
+
         const hasErrors = this._queue.some(q => q.status === FileQueueStatus.Error);
         if (hasErrors) {
           this.snackbar.show('Upload finished with errors. You can retry failed files.', 'warning');
         } else {
           this.snackbar.show('Upload finished.');
+          this.uploadCompleted.set(true);
         }
       }
     });
