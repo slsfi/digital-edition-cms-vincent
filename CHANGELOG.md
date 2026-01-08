@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.1.0] – 2026-01-08
+
 ### Added
 
-- Replace selected images in facsimile collections and split facsimile upload component.
+- Replace selected images in facsimile collections and split facsimile upload component. ([49f2673](https://github.com/slsfi/digital-edition-cms-vincent/commit/49f267363d67b149479b66e0d34dcbfb2af5433d))
 
 ### Changed
 
-- Rename term for universal collection table of contents.
-- Deps: update `@angular/core` to 20.3.16 and `@angular/cli` to 20.3.14.
+- Rename term for universal collection table of contents. ([2d640e9](https://github.com/slsfi/digital-edition-cms-vincent/commit/2d640e96affb42a02f60adced42d44e3e3cf955b))
+- Deps: update `@angular/core` to 20.3.16 and `@angular/cli` to 20.3.14. ([49278eb](https://github.com/slsfi/digital-edition-cms-vincent/commit/49278ebfe61db84bdf10abc1eeb35de36d6cd5ed))
 
 
 
@@ -381,7 +385,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.0.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.2...2.0.0
 [1.5.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.0...1.5.1
