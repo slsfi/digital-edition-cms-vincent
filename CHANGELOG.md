@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Rename term for universal collection table of contents.
+- Deps: update `@angular/core` to 20.3.16 and `@angular/cli` to 20.3.14.
 
 
 
