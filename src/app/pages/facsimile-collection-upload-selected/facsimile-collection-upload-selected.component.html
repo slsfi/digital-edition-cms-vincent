@@ -1,0 +1,148 @@
+@let facsimile = facsimile$ | async;
+@let queue = uploadQueue$ | async;
+@let pageCount = numberOfPages();
+
+<h1>Facsimile collection management</h1>
+<div class="selected-facsimile-collection">
+  <button matIconButton (click)="returnNav(facsimile?.id)">
+    <mat-icon>west</mat-icon>
+  </button>
+  <h2>{{ facsimile?.title || '' }} (ID {{ facsimile?.id }}{{ facsimile?.description ? '; ' + facsimile?.description : '' }})</h2>
+</div>
+
+<h3>Replace images of selected pages in the collection</h3>
+
+<p>Add as many replacements as you need. Each row needs a page number and a file.</p>
+
+@if (hasDuplicateSlots) {
+  <p class="warning">
+    <mat-icon>warning</mat-icon>
+    Duplicate page numbers detected — each page can only be used once.
+  </p>
+}
+
+@if (loadingFacsData()) {
+  <loading-spinner></loading-spinner>
+}
+
+@if (!queue?.length) {
+  <div class="rows">
+    @for (ctrl of rows.controls; track $index) {
+      <div class="row" [formGroup]="ctrl">
+        <mat-form-field [subscriptSizing]="'dynamic'">
+          <mat-label>Page</mat-label>
+          <input matInput type="number" formControlName="slot" min="1" [max]="pageCount" [placeholder]="`1–${pageCount}`" />
+        </mat-form-field>
+
+        <input
+          type="file"
+          accept="image/*"
+          class="file-input"
+          (change)="selectFile($index, $event)"
+          #filePicker>
+
+        <button matButton="filled" (click)="filePicker.click()" [disabled]="uploadInProgress">
+          <mat-icon>attach_file</mat-icon>
+          Choose file
+        </button>
+
+        <div class="filename" title="{{ fileNameAt($index) }}">
+          {{ fileNameAt($index) || 'No file selected' }}
+        </div>
+
+        <button
+          matIconButton
+          (click)="removeRow($index)"
+          [disabled]="uploadInProgress || rows.length === 1"
+          class="remove-row"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+    <button
+      matButton="outlined"
+      (click)="addRow()"
+      [disabled]="uploadInProgress"
+    >
+      <mat-icon>add</mat-icon>
+      Add replacement
+    </button>
+  </div>  
+
+  <div class="actions-row">
+    <button
+      matButton="filled"
+      (click)="upload()"
+      [disabled]="uploadInProgress || form.invalid || hasDuplicateSlots">
+      <mat-icon>cloud_upload</mat-icon>
+      Upload replacements
+    </button>
+  </div>
+} @else {
+  <h3>Upload progress</h3>
+  <div class="actions-row">
+    <button
+      matButton="filled"
+      (click)="cancelUploads()"
+      [disabled]="!uploadInProgress"
+    >
+      <mat-icon>cancel</mat-icon>
+      Cancel uploads
+    </button>
+
+    @if (allUploaded && hasErrors) {
+      <button matButton="filled" (click)="upload()">
+        <mat-icon>replay</mat-icon>
+        Retry
+      </button>
+    }
+  </div>
+
+  <table mat-table [dataSource]="queue ?? []">
+    <ng-container matColumnDef="order">
+      <th mat-header-cell *matHeaderCellDef>Page</th>
+      <td mat-cell *matCellDef="let item">{{ item.order }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let item">{{ item.file.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="size">
+      <th mat-header-cell *matHeaderCellDef>Size</th>
+      <td mat-cell *matCellDef="let item"> {{item.file.size / 1000 / 1000 | number : '1.0-2'}} MB</td>
+    </ng-container>
+
+    <ng-container matColumnDef="progress">
+      <th mat-header-cell *matHeaderCellDef>Progress</th>
+      <td mat-cell *matCellDef="let item">
+        <mat-progress-bar
+          [ngClass]="item.status"
+          mode="determinate"
+          [value]="item.progress">
+        </mat-progress-bar>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let item">
+        @if (item.status === 'pending') {
+          <mat-icon [ngClass]="item.status">circle</mat-icon>
+        } @else if (item.status === 'progress') {
+          <mat-icon [ngClass]="item.status">arrow_upload_progress</mat-icon>
+        } @else if (item.status === 'success') {
+          <mat-icon [ngClass]="item.status">check_circle</mat-icon>
+        } @else {
+          <mat-icon [ngClass]="item.status">error</mat-icon>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['order', 'name', 'size', 'progress', 'status']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['order', 'name', 'size', 'progress', 'status'];"></tr>
+  </table>
+}
+

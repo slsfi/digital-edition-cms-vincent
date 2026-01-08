@@ -1,24 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, from, mergeMap, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, finalize, from, mergeMap, Observable, Subscription, tap } from 'rxjs';
 
+import { FacsimileCollection } from '../../models/facsimile.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
-
-export interface ReplaceFacsimileImagesDialogData {
-  collectionId: number;
-  numberOfPages: number;
-}
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 type Replacement = { slot: number; file: File };
 
@@ -50,29 +47,28 @@ type ReplaceRowForm = FormGroup<{
 }>;
 
 @Component({
-  selector: 'replace-facsimile-images-dialog',
+  selector: 'facsimile-collection-upload-selected',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
     MatProgressBarModule,
+    LoadingSpinnerComponent,
   ],
-  templateUrl: './replace-facsimile-images-dialog.component.html',
-  styleUrl: './replace-facsimile-images-dialog.component.scss'
+  templateUrl: './facsimile-collection-upload-selected.component.html',
+  styleUrl: './facsimile-collection-upload-selected.component.scss'
 })
-export class ReplaceFacsimileImagesDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<ReplaceFacsimileImagesDialogComponent>);
-  private readonly data = inject<ReplaceFacsimileImagesDialogData>(MAT_DIALOG_DATA);
-
+export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly facsimileService = inject(FacsimileService);
   private readonly projectService = inject(ProjectService);
   private readonly snackbar = inject(SnackbarService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly form = this.fb.group({
     rows: this.fb.array<ReplaceRowForm>([])
@@ -84,17 +80,28 @@ export class ReplaceFacsimileImagesDialogComponent {
   uploadInProgress = false;
   allUploaded = false;
 
+  collectionId: number = this.route.snapshot.params['id'];
+  facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
+  loadingFacsData = signal<boolean>(true);
+  numberOfPages = signal<number>(1);
+  project: string | null = this.projectService.getCurrentProject();
+
   get rows(): FormArray<ReplaceRowForm> {
     return this.form.controls.rows;
   }
 
-  get numberOfPages(): number {
-    return this.data.numberOfPages;
-  }
-
-  constructor() {
-    // start with one row
-    this.addRow();
+  ngOnInit() {
+    this.facsimile$ = this.facsimileService.getFacsimileCollection(
+      this.collectionId,
+      this.project
+    ).pipe(
+      tap((facsColl) => {
+        this.numberOfPages.set(facsColl.number_of_pages ?? 1);
+        // start with one row
+        this.addRow();
+      }),
+      finalize(() => this.loadingFacsData.set(false))
+    );
   }
 
   addRow(): void {
@@ -103,7 +110,7 @@ export class ReplaceFacsimileImagesDialogComponent {
         validators: [
           Validators.required,
           Validators.min(1),
-          Validators.max(this.data.numberOfPages),
+          Validators.max(this.numberOfPages()),
         ],
       }),
       file: this.fb.control<File | null>(null, { validators: [Validators.required] }),
@@ -143,7 +150,7 @@ export class ReplaceFacsimileImagesDialogComponent {
       .map(c => c.get('slot')!.value)
       .filter((v): v is number => typeof v === 'number');
 
-    return slots.some(s => s < 1 || s > this.data.numberOfPages);
+    return slots.some(s => s < 1 || s > this.numberOfPages());
   }
 
   get hasErrors(): boolean {
@@ -182,7 +189,7 @@ export class ReplaceFacsimileImagesDialogComponent {
       return;
     }
     if (this.hasOutOfRangeSlots) {
-      this.snackbar.show(`Page numbers must be between 1 and ${this.data.numberOfPages}.`, 'warning');
+      this.snackbar.show(`Page numbers must be between 1 and ${this.numberOfPages()}.`, 'warning');
       return;
     }
 
@@ -223,9 +230,8 @@ export class ReplaceFacsimileImagesDialogComponent {
       const formData = new FormData();
       formData.append('facsimile', queueObject.file, queueObject.file.name);
 
-      const currentProject = this.projectService.getCurrentProject();
       queueObject.request = this.facsimileService
-        .uploadFacsimileFile(this.data.collectionId, queueObject.order, formData, currentProject)
+        .uploadFacsimileFile(this.collectionId, queueObject.order, formData, this.project)
         .subscribe({
           next: (event: any) => { // eslint-disable-line
             if (event.type === HttpEventType.UploadProgress) {
@@ -270,8 +276,12 @@ export class ReplaceFacsimileImagesDialogComponent {
     this.uploadInProgress = false;
   }
 
-  closeAndRefresh(): void {
-    this.dialogRef.close({ uploaded: true });
+  returnNav(facsCollId?: number | null): void {
+    const routeSegments = facsCollId ? ['/facsimiles', facsCollId] : ['/facsimiles'];
+    this.router.navigate(
+      routeSegments,
+      { queryParamsHandling: 'preserve' }
+    );
   }
 
 }

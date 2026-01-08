@@ -4,34 +4,37 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, take } from 'rxjs';
+import { Observable, finalize, take } from 'rxjs';
 
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { FacsimileCollection, VerifyFacsimileFileResponse } from '../../models/facsimile.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { RangeArrayPipe } from '../../pipes/range-array.pipe';
 
 @Component({
-  selector: 'facsimile-collection-upload-all',
+  selector: 'facsimile-collection-upload-block',
   imports: [
     CommonModule,
     MatButtonModule,
     MatIconModule,
     FileUploadComponent,
+    LoadingSpinnerComponent,
     RangeArrayPipe
   ],
   templateUrl: './facsimile-collection-upload-block.component.html',
   styleUrl: './facsimile-collection-upload-block.component.scss'
 })
 export class FacsimileCollectionUploadBlockComponent implements OnInit {
-  private readonly fascimileService = inject(FacsimileService);
+  private readonly facsimileService = inject(FacsimileService);
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   collectionId: number = this.route.snapshot.params['id'];
   facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
+  loadingFacsData = signal<boolean>(true);
   missingFileNumbers = signal<number[]>([]);
   missingFileNumbersOrig = signal<number[]>([]);
   mode: string = this.route.snapshot.params['mode'];
@@ -39,14 +42,19 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   uploadCompleted = signal<boolean>(false);
 
   ngOnInit() {
-    this.facsimile$ = this.fascimileService.getFacsimileCollection(this.collectionId, this.project);
+    this.facsimile$ = this.facsimileService.getFacsimileCollection(
+      this.collectionId,
+      this.project
+    ).pipe(
+      finalize(() => this.loadingFacsData.set(false))
+    );
     if (this.mode === 'upload-missing') {
       this.verifyFacsimileFiles(true);
     }
   }
 
   verifyFacsimileFiles(setOrig = false) {
-    this.fascimileService.verifyFacsimileFile(this.collectionId, 'all', this.project).pipe(
+    this.facsimileService.verifyFacsimileFile(this.collectionId, 'all', this.project).pipe(
       take(1)
     ).subscribe({
       next: response => {

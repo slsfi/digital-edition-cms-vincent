@@ -10,52 +10,52 @@
   <h2>{{ facsimile?.title || '' }} (ID {{ facsimile?.id }}{{ facsimile?.description ? '; ' + facsimile?.description : '' }})</h2>
 </div>
 
-@if (mode === 'upload-all') {
-  @if (facsimile && facsimile.number_of_pages) {
-    <h3>Upload images to all pages in the facsimile collection ({{facsimile.number_of_pages}})</h3>
-    <p>Any existing images in the facsimile collection will be replaced.</p>
-    <file-upload
-      [collectionId]="facsimile.id"
-      [numberOfPages]="facsimile.number_of_pages"
-      [missingFileNumbers]="facsimile.number_of_pages | rangeArray">
-    </file-upload>
+@if (loadingFacsData()) {
+  <loading-spinner></loading-spinner>
+} @else if (facsimile) {
+  @if (mode === 'upload-all') {
+    @if (facsimile.number_of_pages) {
+      <h3>Upload images to all pages in the facsimile collection ({{facsimile.number_of_pages}})</h3>
+      <p>Any existing images in the facsimile collection will be replaced.</p>
+      <file-upload
+        [collectionId]="facsimile.id"
+        [numberOfPages]="facsimile.number_of_pages"
+        [missingFileNumbers]="facsimile.number_of_pages | rangeArray">
+      </file-upload>
 
-  } @else if (facsimile) {
-    <p>No pages in the selected facsimile collection.</p>
+    } @else {
+      <p>No pages in the selected facsimile collection.</p>
+    }
+
+  } @else if (mode === 'upload-missing') {
+    @if (facsimile.number_of_pages && missingOrig.length) {
+      <h3>Upload missing images to the facsimile collection ({{ missing.length }} / {{ facsimile.number_of_pages }})</h3>
+      <p>
+        Page numbers that are missing images:&ngsp;
+        @if (missing.length === 1) {
+          {{ missing[0] }}.
+        } @else if (missing.length) {
+          {{ missing[0] }}–{{ missing[missing.length -1] }}.
+        } @else {
+          none.
+        }
+      </p>
+      <file-upload
+        [collectionId]="facsimile.id"
+        [numberOfPages]="facsimile.number_of_pages"
+        [missingFileNumbers]="missingOrig"
+        (filesUploaded)="uploadComplete()">
+      </file-upload>
+
+    } @else if (missingOrig.length) {
+      <p>No pages in the selected facsimile collection.</p>
+    } @else {
+      <p>The selected facsimile collection does not have missing facsimile images, i.e. all pages have an uploaded image.</p>
+    }
+
   } @else {
-    <p>No facsimile collection selected, or invalid facsimile collection ID.</p>
+    <p>Incorrect route.</p>
   }
-
-} @else if (mode === 'upload-missing') {
-  @if (facsimile && facsimile.number_of_pages && missingOrig.length) {
-    <h3>Upload missing images to the facsimile collection ({{ missing.length }} / {{ facsimile.number_of_pages }})</h3>
-    <p>
-      Page numbers that are missing images:&ngsp;
-      @if (missing.length === 1) {
-        {{ missing[0] }}.
-      } @else if (missing.length) {
-        {{ missing[0] }}–{{ missing[missing.length -1] }}.
-      } @else {
-        none.
-      }
-    </p>
-    <file-upload
-      [collectionId]="facsimile.id"
-      [numberOfPages]="facsimile.number_of_pages"
-      [missingFileNumbers]="missingOrig"
-      (filesUploaded)="uploadComplete()">
-    </file-upload>
-
-  } @else if (facsimile && missingOrig.length) {
-    <p>No pages in the selected facsimile collection.</p>
-  } @else if (facsimile) {
-    <p>The selected facsimile collection does not have missing facsimile images, i.e. all pages have an uploaded image.</p>
-  } @else {
-    <p>No facsimile collection selected, or invalid facsimile collection ID.</p>
-  }
-
-} @else {
-  <p>Incorrect route.</p>
 }
 
 @if (uploadCompleted()) {
