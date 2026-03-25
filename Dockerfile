@@ -2,10 +2,6 @@
 # only necessary build artifacts and resources are
 # included in the final image.
 
-# Define Angular major version used by the app, used to install
-# corresponding Angular CLI globally.
-ARG ANGULAR_MAJOR_VERSION=20
-
 # Enable passing the tag of the Node.js image as a build argument,
 # and define a default tag in case the build argument is not passed.
 # The Node.js image is used as the build image of the app,
@@ -16,20 +12,18 @@ ARG NODE_IMAGE_TAG=22-alpine
 # and define a default tag in case the build argument is not passed.
 # The nginx image is used as the final image of the app,
 # https://hub.docker.com/_/nginx.
-ARG NGINX_IMAGE_TAG=1.28.0-alpine
+ARG NGINX_IMAGE_TAG=1.28.2-alpine
 
 # 1. Create intermediate build image from official Node.js image.
 FROM node:${NODE_IMAGE_TAG} AS build
-# Redeclare ARG-variable to make it available in this stage.
-ARG ANGULAR_MAJOR_VERSION
 # Change working directory.
 WORKDIR /digital-edition-cms-vincent
-# Copy all files to the working directory.
+# Copy dependency manifests first to maximize layer cache reuse.
+COPY package.json package-lock.json ./
+# Install app dependencies deterministically.
+RUN npm ci
+# Copy all remaining files to the working directory.
 COPY . .
-# Install the Angular CLI globally.
-RUN npm install -g @angular/cli@${ANGULAR_MAJOR_VERSION}
-# Install app dependencies.
-RUN npm install
 # Build the Angular app.
 RUN npm run build
 
