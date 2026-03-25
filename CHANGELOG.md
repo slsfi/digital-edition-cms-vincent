@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- CI: harden Docker image build pipeline, update `nginx` to 1.28.2, and update actions.
+
 
 
 ## [2.1.0] – 2026-01-08
