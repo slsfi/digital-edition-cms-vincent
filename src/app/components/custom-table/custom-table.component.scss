@@ -39,6 +39,17 @@ tr.mat-mdc-row:hover td {
   width: 1%;
 }
 
+td a {
+  padding: 0.75em 1em;
+  border: 1px transparent;
+  border-radius: 1.5em;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
 td.mat-column-external_url {
   min-width: 120px;
 }
