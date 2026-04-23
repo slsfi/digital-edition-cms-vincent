@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { EditDialogComponent } from './edit-dialog.component';
+import { getCommonTestingProviders } from '../../../testing/test-providers';
 
 // Simple interface for testing
 interface TestData {
@@ -14,7 +16,18 @@ describe('EditDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditDialogComponent]
+      imports: [EditDialogComponent],
+      providers: [
+        ...getCommonTestingProviders(),
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            model: null,
+            columns: [],
+            title: 'Test'
+          }
+        }
+      ]
     })
     .compileComponents();
 

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { TableSortingComponent } from './table-sorting.component';
+import { getCommonTestingProviders } from '../../../testing/test-providers';
 
 describe('TableSortingComponent', () => {
   let component: TableSortingComponent;
@@ -8,7 +10,11 @@ describe('TableSortingComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableSortingComponent]
+      imports: [TableSortingComponent],
+      providers: [
+        ...getCommonTestingProviders(),
+        { provide: MAT_DIALOG_DATA, useValue: [] }
+      ]
     })
     .compileComponents();
 

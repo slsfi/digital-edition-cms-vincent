@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { of } from 'rxjs';
 
 import { NewPublicationFacsimileComponent } from './new-publication-facsimile.component';
+import { getCommonTestingProviders } from '../../../testing/test-providers';
+import { FacsimileService } from '../../services/facsimile.service';
+import { ProjectService } from '../../services/project.service';
+import { PublicationService } from '../../services/publication.service';
 
 describe('NewPublicationFacsimileComponent', () => {
   let component: NewPublicationFacsimileComponent;
@@ -8,7 +14,49 @@ describe('NewPublicationFacsimileComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NewPublicationFacsimileComponent]
+      imports: [NewPublicationFacsimileComponent],
+      providers: [
+        ...getCommonTestingProviders(),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {},
+              queryParams: {},
+              paramMap: convertToParamMap({
+                collectionId: '1',
+                publicationId: '2'
+              }),
+              queryParamMap: convertToParamMap({})
+            },
+            params: of({}),
+            queryParams: of({}),
+            paramMap: of(convertToParamMap({
+              collectionId: '1',
+              publicationId: '2'
+            })),
+            queryParamMap: of(convertToParamMap({}))
+          }
+        },
+        {
+          provide: ProjectService,
+          useValue: {
+            getCurrentProject: () => 'test-project'
+          }
+        },
+        {
+          provide: FacsimileService,
+          useValue: {
+            getFacsimileCollections: () => of([])
+          }
+        },
+        {
+          provide: PublicationService,
+          useValue: {
+            getPublication: () => of({})
+          }
+        }
+      ]
     })
     .compileComponents();
 

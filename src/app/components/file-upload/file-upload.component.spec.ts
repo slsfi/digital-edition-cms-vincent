@@ -13,6 +13,9 @@ describe('FileUploadComponent', () => {
     .compileComponents();
 
     fixture = TestBed.createComponent(FileUploadComponent);
+    fixture.componentRef.setInput('collectionId', 1);
+    fixture.componentRef.setInput('numberOfPages', 10);
+    fixture.componentRef.setInput('missingFileNumbers', []);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
