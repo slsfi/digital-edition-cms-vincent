@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
 - Deps: update `zone.js` to 0.16.1.
 - Deps (dev): update `angular/eslint` to 21.3.1.
+- Deps (dev): update `eslint` to 10.2.1, and `typescript-eslint` to 8.59.0, and transitive dependencies.
 
 ### Fixed
 
