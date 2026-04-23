@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PublicationBundleComponent } from './publication-bundle.component';
+import { getCommonTestingProviders } from '../../../testing/test-providers';
 
 describe('PublicationBundleComponent', () => {
   let component: PublicationBundleComponent;
@@ -8,7 +9,8 @@ describe('PublicationBundleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PublicationBundleComponent]
+      imports: [PublicationBundleComponent],
+      providers: getCommonTestingProviders()
     })
     .compileComponents();
 

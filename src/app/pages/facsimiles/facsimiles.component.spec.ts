@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FacsimilesComponent } from './facsimiles.component';
+import { getCommonTestingProviders } from '../../../testing/test-providers';
 
 describe('FacsimilesComponent', () => {
   let component: FacsimilesComponent;
@@ -8,7 +9,8 @@ describe('FacsimilesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FacsimilesComponent]
+      imports: [FacsimilesComponent],
+      providers: getCommonTestingProviders()
     })
     .compileComponents();
 
