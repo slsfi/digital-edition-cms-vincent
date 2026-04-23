@@ -6,12 +6,17 @@ import { of, throwError } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 import { authInterceptor } from './auth.interceptor';
+import { AUTH_REDIRECT_MARKER_QUERY_PARAM, AUTH_REDIRECT_MARKER_VALUE } from '../services/auth-redirect-storage.service';
 
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let authService: jasmine.SpyObj<
-    Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout' | 'isRequestToConfiguredBackend' | 'isRequestToAuthEndpoint'>
+    Pick<
+      AuthService,
+      'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'expireSession' |
+      'preserveReturnUrlForReauthentication' | 'isRequestToConfiguredBackend' | 'isRequestToAuthEndpoint'
+    >
   >;
   let router: jasmine.SpyObj<Pick<Router, 'navigate'>>;
   const backendBaseURL = 'https://api.sls.fi/';
@@ -21,14 +26,30 @@ describe('authInterceptor', () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj<
-      Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout' | 'isRequestToConfiguredBackend' | 'isRequestToAuthEndpoint'>
+      Pick<
+        AuthService,
+        'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'expireSession' |
+        'preserveReturnUrlForReauthentication' | 'isRequestToConfiguredBackend' | 'isRequestToAuthEndpoint'
+      >
     >(
       'AuthService',
-      ['getAccessToken', 'getRefreshToken', 'refreshToken', 'logout', 'isRequestToConfiguredBackend', 'isRequestToAuthEndpoint']
+      [
+        'getAccessToken',
+        'getRefreshToken',
+        'refreshToken',
+        'expireSession',
+        'preserveReturnUrlForReauthentication',
+        'isRequestToConfiguredBackend',
+        'isRequestToAuthEndpoint'
+      ]
     );
     router = jasmine.createSpyObj<Pick<Router, 'navigate'>>('Router', ['navigate']);
     router.navigate.and.resolveTo(true);
+    Object.defineProperty(router, 'url', { value: '/projects/42?tab=images', writable: true });
     authService.getRefreshToken.and.returnValue('refresh-token');
+    authService.preserveReturnUrlForReauthentication.and.returnValue({
+      [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+    });
     authService.isRequestToConfiguredBackend.and.callFake((url: string) => url.startsWith(backendBaseURL));
     authService.isRequestToAuthEndpoint.and.callFake((url: string) => url.startsWith(`${backendBaseURL}auth/`));
 
@@ -98,7 +119,7 @@ describe('authInterceptor', () => {
     req.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.refreshToken).not.toHaveBeenCalled();
-    expect(authService.logout).not.toHaveBeenCalled();
+    expect(authService.expireSession).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
     expect(receivedError?.status).toBe(401);
   });
@@ -144,7 +165,7 @@ describe('authInterceptor', () => {
     loginReq.flush({ message: 'invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.refreshToken).not.toHaveBeenCalled();
-    expect(authService.logout).not.toHaveBeenCalled();
+    expect(authService.expireSession).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
     expect(receivedError?.status).toBe(401);
   });
@@ -163,8 +184,14 @@ describe('authInterceptor', () => {
     const firstReq = httpMock.expectOne(backendProtectedURL);
     firstReq.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
-    expect(authService.logout).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    expect(authService.expireSession).toHaveBeenCalledTimes(1);
+    expect(authService.preserveReturnUrlForReauthentication).toHaveBeenCalledWith('/projects/42?tab=images');
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      replaceUrl: true,
+      queryParams: {
+        [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+      }
+    });
     expect(receivedError?.status).toBe(401);
   });
 
@@ -182,8 +209,14 @@ describe('authInterceptor', () => {
     const firstReq = httpMock.expectOne(backendProtectedURL);
     firstReq.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
-    expect(authService.logout).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    expect(authService.expireSession).toHaveBeenCalledTimes(1);
+    expect(authService.preserveReturnUrlForReauthentication).toHaveBeenCalledWith('/projects/42?tab=images');
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      replaceUrl: true,
+      queryParams: {
+        [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+      }
+    });
     expect(receivedError?.status).toBe(500);
   });
 
@@ -202,8 +235,14 @@ describe('authInterceptor', () => {
     req.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.refreshToken).not.toHaveBeenCalled();
-    expect(authService.logout).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    expect(authService.expireSession).toHaveBeenCalledTimes(1);
+    expect(authService.preserveReturnUrlForReauthentication).toHaveBeenCalledWith('/projects/42?tab=images');
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      replaceUrl: true,
+      queryParams: {
+        [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+      }
+    });
     expect(receivedError?.status).toBe(401);
   });
 
@@ -221,8 +260,26 @@ describe('authInterceptor', () => {
     req.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.refreshToken).not.toHaveBeenCalled();
-    expect(authService.logout).not.toHaveBeenCalled();
+    expect(authService.expireSession).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
     expect(receivedError?.status).toBe(401);
+  });
+
+  it('falls back to returnUrl query params when session-expiry redirect storage is unavailable', () => {
+    authService.getAccessToken.and.returnValue('expired-token');
+    authService.getRefreshToken.and.returnValue(null);
+    authService.preserveReturnUrlForReauthentication.and.returnValue({ returnUrl: '/projects/42?tab=images' });
+
+    http.get(backendProtectedURL).subscribe({
+      error: () => undefined
+    });
+
+    const req = httpMock.expectOne(backendProtectedURL);
+    req.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      replaceUrl: true,
+      queryParams: { returnUrl: '/projects/42?tab=images' }
+    });
   });
 });

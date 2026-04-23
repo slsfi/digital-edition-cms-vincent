@@ -7,7 +7,7 @@ import { BehaviorSubject, catchError, filter, finalize, map, Observable,
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login.model';
 import { SkipLoading } from '../interceptors/loading.interceptor';
 import { AuthRedirectStorageService } from './auth-redirect-storage.service';
-import { resolveRedirectFromMarker, resolveReturnUrlFromQuery } from './auth-redirect-url.utils';
+import { createLoginRedirectQueryParams, resolveRedirectFromMarker, resolveReturnUrlFromQuery } from './auth-redirect-url.utils';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 
@@ -175,8 +175,8 @@ export class AuthService {
    * Requests a new access token using the stored refresh token.
    *
    * Concurrent callers share the same refresh request and wait for the same
-   * emitted token. Missing refresh tokens fail fast and trigger logout instead
-   * of issuing a backend request.
+   * emitted token. Missing refresh tokens fail fast and expire the current
+   * session instead of issuing a backend request.
    */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
@@ -189,7 +189,7 @@ export class AuthService {
     const environment = this.getConfiguredEnvironment();
     const refreshToken = this.getRefreshToken();
     if (!environment || !refreshToken) {
-      this.logout();
+      this.expireSession();
       return throwError(() => new Error('Refresh token is missing.'));
     }
 
@@ -212,7 +212,7 @@ export class AuthService {
         refreshCompleted = true;
         this.refreshTokenSubject.error(error);
         this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
-        this.logout();
+        this.expireSession();
         return throwError(() => error);
       }),
       finalize(() => {
@@ -230,9 +230,31 @@ export class AuthService {
   /**
    * Clears the authenticated CMS session, including tokens, selected project,
    * chosen environment, and stored redirect target.
+   *
+   * Use this for explicit user-initiated logout, not for forced session expiry.
    */
   logout(): void {
     this.clearAuthState(true, true);
+  }
+
+  /**
+   * Clears the authenticated CMS session after a terminal auth failure while
+   * preserving the selected backend environment and any freshly stored
+   * re-authentication redirect target.
+   */
+  expireSession(): void {
+    this.clearAuthState(false, false);
+  }
+
+  /**
+   * Stores the current CMS route for one-time post-login restoration after a
+   * forced re-authentication flow.
+   *
+   * Returns the query params to use for `/login`, using one-time marker storage
+   * when possible and falling back to the legacy `returnUrl` query parameter.
+   */
+  preserveReturnUrlForReauthentication(currentUrl: string): Record<string, unknown> | undefined {
+    return createLoginRedirectQueryParams(this.router, this.redirectStorage, currentUrl);
   }
 
   /**

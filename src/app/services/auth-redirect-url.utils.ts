@@ -113,6 +113,31 @@ export function resolveLoginRouteRedirectURL(
 }
 
 /**
+ * Builds query parameters for redirecting an unauthenticated user to `/login`.
+ *
+ * The target URL is stored in one-time redirect storage when possible, falling
+ * back to the legacy `returnUrl` query parameter if storage is unavailable.
+ * Any previously stored redirect target is cleared first so stale values cannot
+ * leak into later re-authentication flows.
+ */
+export function createLoginRedirectQueryParams(
+  router: Router,
+  authRedirectStorage: Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'clearReturnUrl'>,
+  targetUrl: string
+): QueryParams | undefined {
+  const safeTargetURL = getSafeInternalRedirectURL(router, targetUrl);
+  authRedirectStorage.clearReturnUrl();
+
+  if (safeTargetURL && authRedirectStorage.storeReturnUrl(safeTargetURL)) {
+    return {
+      [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+    };
+  }
+
+  return safeTargetURL ? { returnUrl: safeTargetURL } : undefined;
+}
+
+/**
  * Parses query parameters from the provided URL with Angular router parsing.
  *
  * Returns null when the current URL itself is malformed.

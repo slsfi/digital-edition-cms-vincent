@@ -11,7 +11,9 @@ import { AuthService } from '../services/auth.service';
  * It only injects CMS bearer tokens into requests targeting the currently
  * selected backend, skips `/auth/*` endpoints, preserves caller-supplied
  * Authorization headers, and retries backend 401s through the refresh-token
- * flow before redirecting to `/login` on terminal auth failure.
+ * flow before redirecting to `/login` on terminal auth failure. Forced
+ * re-authentication preserves the current safe internal route so a successful
+ * login can resume the interrupted CMS page.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -48,15 +50,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               return next(newAuthReq);
             }),
             catchError((refreshError) => {
-              router.navigate(['/login'], { replaceUrl: true });
+              redirectToLoginForReauthentication(router, authService);
               return throwError(() => refreshError);
             })
           );
         }
 
         if (shouldParticipateInRefreshFlow) {
-          authService.logout();
-          router.navigate(['/login'], { replaceUrl: true });
+          redirectToLoginForReauthentication(router, authService);
         }
       }
 
@@ -64,3 +65,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
+
+/**
+ * Ends the current authenticated CMS session and redirects to `/login` while
+ * preserving the current route for one-time post-login restoration when safe.
+ */
+function redirectToLoginForReauthentication(router: Router, authService: AuthService): void {
+  const queryParams = authService.preserveReturnUrlForReauthentication(router.url);
+  authService.expireSession();
+  router.navigate(['/login'], {
+    replaceUrl: true,
+    queryParams
+  });
+}

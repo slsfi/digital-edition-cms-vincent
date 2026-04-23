@@ -10,7 +10,7 @@ import { LoginResponse, RefreshTokenResponse } from '../models/login.model';
 
 describe('AuthService', () => {
   let router: jasmine.SpyObj<Pick<Router, 'navigateByUrl' | 'parseUrl'>>;
-  let redirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl'>>;
+  let redirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl' | 'storeReturnUrl'>>;
   let apiService: jasmine.SpyObj<Pick<ApiService, 'get' | 'post' | 'setEnvironment'>> & { environment: string | null };
   let projectService: jasmine.SpyObj<Pick<ProjectService, 'setSelectedProject'>>;
   let environment: string | null;
@@ -31,9 +31,10 @@ describe('AuthService', () => {
     Object.defineProperty(router, 'url', { value: '/login', writable: true });
 
     redirectStorage = jasmine.createSpyObj<
-      Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl'>
-    >('AuthRedirectStorageService', ['consumeReturnUrl', 'clearReturnUrl']);
+      Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl' | 'storeReturnUrl'>
+    >('AuthRedirectStorageService', ['consumeReturnUrl', 'clearReturnUrl', 'storeReturnUrl']);
     redirectStorage.consumeReturnUrl.and.returnValue(null);
+    redirectStorage.storeReturnUrl.and.returnValue(true);
 
     apiService = jasmine.createSpyObj<Pick<ApiService, 'get' | 'post' | 'setEnvironment'>>(
       'ApiService',
@@ -182,8 +183,9 @@ describe('AuthService', () => {
 
     expect(receivedError).toEqual(jasmine.any(Error));
     expect(apiService.post).not.toHaveBeenCalled();
-    expect(apiService.setEnvironment).toHaveBeenCalledWith(null);
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
     expect(service.isAuthenticated()).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
   it('uses a single refresh request for concurrent callers and resolves both', () => {
@@ -244,7 +246,52 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('preserves forced re-authentication targets through marker-based redirect storage', () => {
+    const service = createService();
+
+    const queryParams = service.preserveReturnUrlForReauthentication('/projects/42?tab=images');
+
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(redirectStorage.storeReturnUrl).toHaveBeenCalledWith('/projects/42?tab=images');
+    expect(queryParams).toEqual({ rt: '1' });
+  });
+
+  it('falls back to returnUrl when redirect storage is unavailable during forced re-authentication', () => {
+    redirectStorage.storeReturnUrl.and.returnValue(false);
+    const service = createService();
+
+    const queryParams = service.preserveReturnUrlForReauthentication('/projects/42?tab=images');
+
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(queryParams).toEqual({ returnUrl: '/projects/42?tab=images' });
+  });
+
+  it('explicit logout clears the chosen environment and any stored redirect target', () => {
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    const service = createService();
+
+    service.logout();
+
     expect(apiService.setEnvironment).toHaveBeenCalledWith(null);
     expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it('session expiry clears auth state while preserving the chosen environment and redirect target', () => {
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    const service = createService();
+
+    service.expireSession();
+
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(localStorage.getItem('refresh_token')).toBeNull();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 });

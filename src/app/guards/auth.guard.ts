@@ -2,12 +2,8 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 
-import {
-  AUTH_REDIRECT_MARKER_QUERY_PARAM,
-  AUTH_REDIRECT_MARKER_VALUE,
-  AuthRedirectStorageService
-} from '../services/auth-redirect-storage.service';
-import { getSafeInternalRedirectURL, isLoginRouteURL,
+import { AuthRedirectStorageService } from '../services/auth-redirect-storage.service';
+import { createLoginRedirectQueryParams, isLoginRouteURL,
          resolveLoginRouteRedirectURL } from '../services/auth-redirect-url.utils';
 import { AuthService } from '../services/auth.service';
 
@@ -64,16 +60,7 @@ function createLoginRedirectUrlTree(
   authRedirectStorage: AuthRedirectStorageService,
   targetUrl: string
 ): UrlTree {
-  const safeTargetURL = getSafeInternalRedirectURL(router, targetUrl);
-  if (safeTargetURL && authRedirectStorage.storeReturnUrl(safeTargetURL)) {
-    return router.createUrlTree(['/login'], {
-      queryParams: {
-        [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
-      }
-    });
-  }
-
   return router.createUrlTree(['/login'], {
-    queryParams: safeTargetURL ? { returnUrl: safeTargetURL } : undefined
+    queryParams: createLoginRedirectQueryParams(router, authRedirectStorage, targetUrl)
   });
 }
