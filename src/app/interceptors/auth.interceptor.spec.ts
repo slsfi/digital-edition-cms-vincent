@@ -81,6 +81,28 @@ describe('authInterceptor', () => {
     req.flush({ ok: true });
   });
 
+  it('does not enter the CMS refresh flow for requests with a caller-supplied Authorization header', () => {
+    authService.getAccessToken.and.returnValue('abc-token');
+    let receivedError: { status?: number } | undefined;
+
+    http.get(backendProtectedURL, {
+      headers: new HttpHeaders({ Authorization: 'Bearer existing-token' })
+    }).subscribe({
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const req = httpMock.expectOne(backendProtectedURL);
+    expect(req.request.headers.get('Authorization')).toBe('Bearer existing-token');
+    req.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authService.refreshToken).not.toHaveBeenCalled();
+    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(receivedError?.status).toBe(401);
+  });
+
   it('does not add a bearer token to non-backend requests', () => {
     authService.getAccessToken.and.returnValue('abc-token');
 
@@ -141,9 +163,28 @@ describe('authInterceptor', () => {
     const firstReq = httpMock.expectOne(backendProtectedURL);
     firstReq.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
-    expect(authService.logout).toHaveBeenCalledTimes(1);
+    expect(authService.logout).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
     expect(receivedError?.status).toBe(401);
+  });
+
+  it('redirects to /login when refresh fails with a non-401 error', () => {
+    authService.getAccessToken.and.returnValue('expired-token');
+    authService.refreshToken.and.returnValue(throwError(() => ({ status: 500 })));
+    let receivedError: { status?: number } | undefined;
+
+    http.get(backendProtectedURL).subscribe({
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const firstReq = httpMock.expectOne(backendProtectedURL);
+    firstReq.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    expect(receivedError?.status).toBe(500);
   });
 
   it('logs out and redirects when the backend returns 401 and no refresh token is available', () => {

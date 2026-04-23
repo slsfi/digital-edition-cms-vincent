@@ -155,7 +155,7 @@ function normalizeEnvironmentURL(value: string | null | undefined): string | nul
 
   try {
     const parsed = new URL(trimmedValue);
-    if ((parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || parsed.username || parsed.password) {
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
       return null;
     }
 

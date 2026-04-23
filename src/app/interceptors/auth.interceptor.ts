@@ -21,6 +21,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthEndpoint = isBackendRequest && authService.isRequestToAuthEndpoint(req.url);
   const hasAuthorizationHeader = req.headers.has('Authorization');
   const shouldAttachAccessToken = !!authToken && isBackendRequest && !isAuthEndpoint && !hasAuthorizationHeader;
+  const shouldParticipateInRefreshFlow = shouldAttachAccessToken;
   let authReq = req;
 
   if (shouldAttachAccessToken) {
@@ -36,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       const isBackendUnauthorized = err.status === 401 && isBackendRequest && !isAuthEndpoint;
       if (isBackendUnauthorized) {
         const hasRefreshToken = !!authService.getRefreshToken();
-        if (hasRefreshToken) {
+        if (hasRefreshToken && shouldParticipateInRefreshFlow) {
           return authService.refreshToken().pipe(
             switchMap((access_token) => {
               const newAuthReq = req.clone({
@@ -47,16 +48,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               return next(newAuthReq);
             }),
             catchError((refreshError) => {
-              if (refreshError.status === 401) {
-                authService.logout();
-                router.navigate(['/login'], { replaceUrl: true });
-              }
+              router.navigate(['/login'], { replaceUrl: true });
               return throwError(() => refreshError);
             })
           );
         }
 
-        if (shouldAttachAccessToken) {
+        if (shouldParticipateInRefreshFlow) {
           authService.logout();
           router.navigate(['/login'], { replaceUrl: true });
         }

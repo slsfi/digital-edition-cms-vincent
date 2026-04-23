@@ -63,6 +63,21 @@ describe('LoginComponent', () => {
     expect(authService.login).not.toHaveBeenCalled();
   });
 
+  it('does not submit when the custom environment URL uses http', () => {
+    component.loginForm.setValue({
+      email: 'user@example.com',
+      password: 'secret',
+      environment: ' ',
+      customEnvironment: 'http://example.com/custom'
+    });
+
+    component.login();
+
+    expect(component.customEnvironment.hasError('invalidEnvironment')).toBeTrue();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(authService.login).not.toHaveBeenCalled();
+  });
+
   it('normalizes custom environment URLs and trims the login email before submitting', () => {
     component.loginForm.setValue({
       email: ' user@example.com ',
