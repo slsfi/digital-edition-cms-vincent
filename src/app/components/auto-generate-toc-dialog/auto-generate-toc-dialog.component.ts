@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -26,7 +26,6 @@ export interface AutoGenerateTocDialogResult {
 @Component({
   selector: 'auto-generate-toc-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     MatButtonModule,
     MatDialogModule,

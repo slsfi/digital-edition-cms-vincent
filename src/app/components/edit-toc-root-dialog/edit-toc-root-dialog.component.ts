@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -20,7 +20,6 @@ export interface EditTocRootDialogData {
 @Component({
   selector: 'edit-toc-root-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     MatButtonModule,
     MatDialogModule,
