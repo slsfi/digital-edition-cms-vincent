@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- CI: harden Docker image build pipeline, update `nginx` to 1.28.2, and update actions.
+- CI: harden Docker image build pipeline, update `nginx` to 1.30.0, and update actions.
 - Custom table: increase surface area of links in cells.
 - Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
 - Deps: update `zone.js` to 0.16.1.
