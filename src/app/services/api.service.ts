@@ -22,7 +22,10 @@ export class ApiService {
     this.environment$.next(env);
     if (env != null) {
       localStorage.setItem('environment', env);
+      return;
     }
+
+    localStorage.removeItem('environment');
   }
 
   get environment() {
