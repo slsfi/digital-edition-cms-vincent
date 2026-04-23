@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, DestroyRef, effect, inject, input, OnInit, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -18,7 +18,6 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
 @Component({
   selector: 'publication-keyword-table',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
