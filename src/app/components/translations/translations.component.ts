@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { BehaviorSubject, filter, Observable, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, switchMap, take, tap } from 'rxjs';
 
 import { languageOptions, LanguageObj } from '../../models/language.model';
 import { Translation, TranslationRequestPost, TranslationResponse } from '../../models/translation.model';
@@ -34,7 +34,7 @@ export class TranslationsComponent implements AfterViewInit {
   private readonly translationService = inject(TranslationService);
 
   field = input.required<string>();
-  translationIdd = input<number | undefined>();
+  translationIdd = input<number | string | undefined>();
   parentId = input<number>();
   originalText = input<string>();
   tableName = input.required<string | undefined>();
@@ -48,21 +48,24 @@ export class TranslationsComponent implements AfterViewInit {
   translationLoader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   languages = languageOptions;
-  filteredLanguages: LanguageObj[] = [];
+  filteredLanguages: LanguageObj[] = [...languageOptions];
 
   translationId: number | undefined;
 
   form!: FormGroup;
 
   ngAfterViewInit() {
-    this.translationId = this.translationIdd();
+    this.translationId = this.parseTranslationId(this.translationIdd());
     const requestData: TranslationRequestPost = {
       table_name: this.tableName() ?? '',
       field_name: this.field(),
     }
     this.fieldTranslations$ = this.translationLoader$.asObservable().pipe(
-      filter(() => this.translationId != null),
       switchMap(() => {
+        if (this.translationId == null) {
+          this.filteredLanguages = [...languageOptions];
+          return of([]);
+        }
         const currentProject = this.projectService.getCurrentProject();
         return this.translationService.getTranslations(this.translationId as number, requestData, currentProject);
       }),
@@ -144,6 +147,15 @@ export class TranslationsComponent implements AfterViewInit {
     } else {
       this.panelClosed.emit();
     }
+  }
+
+  private parseTranslationId(translationId: number | string | undefined): number | undefined {
+    if (translationId == null || translationId === '') {
+      return undefined;
+    }
+
+    const parsedId = Number(translationId);
+    return Number.isFinite(parsedId) ? parsedId : undefined;
   }
 
 }
