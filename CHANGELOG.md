@@ -28,6 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Test: Angular specs after jasmine-core upgrade.
 - Auth: harden CMS login/session handling by requiring complete stored sessions, validating stale sessions against the backend, scoping bearer-token injection and refresh flow to the selected backend, preserving safe return routes and environment-scoped project selection through login and forced re-authentication, and tightening custom backend URL handling.
 
+### Removed
+
+- Deprecated `provideAnimationsAsync()` from app config providers.
+
 
 
 ## [2.1.0] – 2026-01-08
