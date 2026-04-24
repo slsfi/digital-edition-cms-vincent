@@ -11,9 +11,11 @@ import { AuthService } from '../services/auth.service';
  * It only injects CMS bearer tokens into requests targeting the currently
  * selected backend, skips `/auth/*` endpoints, preserves caller-supplied
  * Authorization headers, and retries backend 401s through the refresh-token
- * flow before redirecting to `/login` on terminal auth failure. Forced
- * re-authentication preserves the current safe internal route so a successful
- * login can resume the interrupted CMS page.
+ * flow before redirecting to `/login` on terminal auth failure. In the CMS,
+ * any refresh-endpoint failure is treated as terminal, including malformed or
+ * stale-token responses such as `422`. Forced re-authentication preserves the
+ * current safe internal route so a successful login can resume the interrupted
+ * CMS page.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);

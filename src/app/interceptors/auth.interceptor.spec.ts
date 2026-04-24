@@ -195,6 +195,31 @@ describe('authInterceptor', () => {
     expect(receivedError?.status).toBe(401);
   });
 
+  it('logs out and redirects to /login when refresh returns 422', () => {
+    authService.getAccessToken.and.returnValue('expired-token');
+    authService.refreshToken.and.returnValue(throwError(() => ({ status: 422 })));
+    let receivedError: { status?: number } | undefined;
+
+    http.get(backendProtectedURL).subscribe({
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const firstReq = httpMock.expectOne(backendProtectedURL);
+    firstReq.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authService.expireSession).toHaveBeenCalledTimes(1);
+    expect(authService.preserveReturnUrlForReauthentication).toHaveBeenCalledWith('/projects/42?tab=images');
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      replaceUrl: true,
+      queryParams: {
+        [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+      }
+    });
+    expect(receivedError?.status).toBe(422);
+  });
+
   it('redirects to /login when refresh fails with a non-401 error', () => {
     authService.getAccessToken.and.returnValue('expired-token');
     authService.refreshToken.and.returnValue(throwError(() => ({ status: 500 })));

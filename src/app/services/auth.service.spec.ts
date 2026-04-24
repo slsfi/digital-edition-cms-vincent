@@ -250,6 +250,28 @@ describe('AuthService', () => {
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
+  it('treats refresh 422 responses as terminal auth failures and clears auth state', () => {
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    apiService.post.and.returnValue(throwError(() => ({ status: 422 })));
+    const service = createService();
+    let receivedError: { status?: number } | undefined;
+
+    service.refreshToken().subscribe({
+      next: () => fail('expected refreshToken() to error'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    expect(receivedError?.status).toBe(422);
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(localStorage.getItem('refresh_token')).toBeNull();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
   it('preserves forced re-authentication targets through marker-based redirect storage', () => {
     const service = createService();
 

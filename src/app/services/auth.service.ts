@@ -176,7 +176,9 @@ export class AuthService {
    *
    * Concurrent callers share the same refresh request and wait for the same
    * emitted token. Missing refresh tokens fail fast and expire the current
-   * session instead of issuing a backend request.
+   * session instead of issuing a backend request. Any refresh-endpoint failure,
+   * including auth-state failures such as `401` or `422`, is treated as
+   * terminal in the CMS and expires the current session.
    */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
