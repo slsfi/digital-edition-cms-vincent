@@ -11,8 +11,6 @@ import { createLoginRedirectQueryParams, resolveRedirectFromMarker, resolveRetur
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 
-const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;
-
 type BackendAuthErrorCode = 'NO_CREDENTIALS' | 'EMAIL_NOT_VERIFIED' | 'INCORRECT_CREDENTIALS';
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
 
@@ -43,8 +41,6 @@ export class AuthService {
   private readonly _loginInProgress = signal<boolean>(false);
   readonly loginInProgress = this._loginInProgress.asReadonly();
   readonly isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private readonly sessionValidationTTLms = DEFAULT_SESSION_VALIDATION_TTL_MS;
-  private lastSessionValidationAt: number | null = null;
   private sessionValidationInFlight$: Observable<boolean> | null = null;
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -94,7 +90,6 @@ export class AuthService {
           environment,
           Array.isArray(user_projects) ? user_projects : []
         );
-        this.markSessionValidatedNow();
         this.isAuthenticated$.next(true);
         this.router.navigateByUrl(this.resolvePostLoginRedirectURL());
       },
@@ -120,14 +115,13 @@ export class AuthService {
   }
 
   /**
-   * Validates the current backend session when the cached validation result is
-   * stale or missing.
+   * Explicitly validates the current backend session.
    *
-   * Validation requests are deduplicated while one is already in flight.
-   * Backend 401 responses clear auth state and are rethrown so callers can
-   * redirect to `/login`. Other failures are propagated unchanged.
+   * Validation requests are deduplicated while one is already in flight. Any
+   * validation failure expires the CMS session because this application requires
+   * strict write-session validity.
    */
-  validateSessionIfStale(ttlMs: number = this.sessionValidationTTLms): Observable<boolean> {
+  validateSession(): Observable<boolean> {
     if (!this.isAuthenticated()) {
       return of(false);
     }
@@ -136,12 +130,6 @@ export class AuthService {
     if (!environment) {
       this.clearAuthState(true, true);
       return throwError(() => ({ status: 401 }));
-    }
-
-    const normalizedTtlMs = Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 0;
-    const now = Date.now();
-    if (normalizedTtlMs > 0 && this.lastSessionValidationAt !== null && now - this.lastSessionValidationAt < normalizedTtlMs) {
-      return of(true);
     }
 
     if (this.sessionValidationInFlight$) {
@@ -154,15 +142,16 @@ export class AuthService {
       { context: new HttpContext().set(SkipLoading, true) },
       true
     ).pipe(
-      map(() => {
-        this.markSessionValidatedNow();
+      map((response) => {
+        if (response.authenticated === false) {
+          throw this.createSessionInvalidError();
+        }
+
         this.isAuthenticated$.next(true);
         return true;
       }),
       catchError((error) => {
-        if ((error as { status?: unknown } | null)?.status === 401) {
-          this.clearAuthState(true, false);
-        }
+        this.clearAuthState(true, false);
         return throwError(() => error);
       }),
       finalize(() => {
@@ -209,7 +198,6 @@ export class AuthService {
         refreshCompleted = true;
         const { access_token } = response;
         localStorage.setItem('access_token', access_token);
-        this.markSessionValidatedNow();
         this.refreshTokenSubject.next(access_token);
         this.isAuthenticated$.next(true);
         return access_token;
@@ -409,18 +397,13 @@ export class AuthService {
   }
 
   /**
-   * Records that backend session validity was confirmed at the current time.
+   * Creates an auth-shaped error for successful validation responses that deny
+   * authentication.
    */
-  private markSessionValidatedNow(): void {
-    this.lastSessionValidationAt = Date.now();
-  }
-
-  /**
-   * Clears cached stale-session validation state.
-   */
-  private resetSessionValidationState(): void {
-    this.lastSessionValidationAt = null;
-    this.sessionValidationInFlight$ = null;
+  private createSessionInvalidError(): Error & { status: number } {
+    const error = new Error('Session is not authenticated.') as Error & { status: number };
+    error.status = 401;
+    return error;
   }
 
   /**
@@ -431,7 +414,7 @@ export class AuthService {
    * is also forgotten.
    */
   private clearAuthState(clearRedirectTarget: boolean, clearEnvironment: boolean): void {
-    this.resetSessionValidationState();
+    this.sessionValidationInFlight$ = null;
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     this.projectService.setSelectedProject(null, { persist: clearEnvironment });

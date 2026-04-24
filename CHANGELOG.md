@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Publication bundle: block adding publications when existing publication checks fail, and trim file paths for duplicate detection.
 - Test: Angular specs after jasmine-core upgrade.
 - Auth: harden CMS login/session handling by requiring complete stored sessions, validating stale sessions against the backend, scoping bearer-token injection and refresh flow to the selected backend, preserving safe return routes and environment-scoped project selection through login and forced re-authentication, and tightening custom backend URL handling.
+- Auth: remove route-guard session polling and treat any `/session/validate` error as a terminal auth failure that logs the user out.
 
 ### Removed
 

@@ -154,7 +154,7 @@ describe('AuthService', () => {
     expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: false });
   });
 
-  it('deduplicates in-flight session validation and reuses the fresh result within the TTL', () => {
+  it('deduplicates in-flight session validation requests', () => {
     localStorage.setItem('access_token', 'access-token-1');
     localStorage.setItem('refresh_token', 'refresh-token-1');
     const validationSubject = new Subject<{ authenticated?: boolean }>();
@@ -162,12 +162,11 @@ describe('AuthService', () => {
     const service = createService();
     let firstResult: boolean | undefined;
     let secondResult: boolean | undefined;
-    let cachedResult: boolean | undefined;
 
-    service.validateSessionIfStale(0).subscribe((result) => {
+    service.validateSession().subscribe((result) => {
       firstResult = result;
     });
-    service.validateSessionIfStale(0).subscribe((result) => {
+    service.validateSession().subscribe((result) => {
       secondResult = result;
     });
 
@@ -180,22 +179,45 @@ describe('AuthService', () => {
     expect(secondResult).toBeTrue();
 
     apiService.get.calls.reset();
-    service.validateSessionIfStale().subscribe((result) => {
-      cachedResult = result;
+    apiService.get.and.returnValue(of({ authenticated: true }));
+    service.validateSession().subscribe((result) => {
+      firstResult = result;
     });
 
-    expect(cachedResult).toBeTrue();
-    expect(apiService.get).not.toHaveBeenCalled();
+    expect(firstResult).toBeTrue();
+    expect(apiService.get).toHaveBeenCalledTimes(1);
   });
 
-  it('clears auth state on session validation 401 without clearing the chosen environment', () => {
+  it('clears auth state on any session validation error without clearing the chosen environment', () => {
     localStorage.setItem('access_token', 'access-token-1');
     localStorage.setItem('refresh_token', 'refresh-token-1');
-    apiService.get.and.returnValue(throwError(() => ({ status: 401 })));
+    apiService.get.and.returnValue(throwError(() => ({ status: 404 })));
     const service = createService();
     let receivedError: { status?: number } | undefined;
 
-    service.validateSessionIfStale(0).subscribe({
+    service.validateSession().subscribe({
+      next: () => fail('expected validation to fail'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    expect(receivedError?.status).toBe(404);
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(localStorage.getItem('refresh_token')).toBeNull();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears auth state when session validation reports an unauthenticated session', () => {
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    apiService.get.and.returnValue(of({ authenticated: false }));
+    const service = createService();
+    let receivedError: { status?: number } | undefined;
+
+    service.validateSession().subscribe({
       next: () => fail('expected validation to fail'),
       error: (error) => {
         receivedError = error;
@@ -207,7 +229,6 @@ describe('AuthService', () => {
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(apiService.setEnvironment).not.toHaveBeenCalled();
-    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
   });
 
   it('fails fast when the refresh token is missing and logs out', () => {
