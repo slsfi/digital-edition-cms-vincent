@@ -71,6 +71,8 @@ export class PublicationBundleComponent implements OnInit {
   metadataFailures: string[] = [];
   addMsBoolean = false;
   existingFilePaths = new Set<string>();
+  existingFilePathsLoaded = false;
+  existingFilePathsLoadFailed = false;
 
   bundleForm = new FormGroup({
     published: new FormControl(Published.PublishedInternally, Validators.required),
@@ -110,27 +112,50 @@ export class PublicationBundleComponent implements OnInit {
         if (!collectionId) {
           return of([]);
         }
-        return this.publicationService.getPublications(collectionId, this.project);
+        return this.publicationService.getPublications(collectionId, this.project, true);
       }),
       take(1)
-    ).subscribe((pubs) => {
-      this.existingFilePaths.clear();
-      pubs.forEach(p => {
-        if (p.original_filename) {
-          this.existingFilePaths.add(p.original_filename);
-        }
-      });
+    ).subscribe({
+      next: (pubs) => {
+        this.existingFilePaths.clear();
+        pubs.forEach(p => {
+          const filePath = this.normalizeFilePath(p.original_filename);
+          if (filePath) {
+            this.existingFilePaths.add(filePath);
+          }
+        });
+        this.existingFilePathsLoaded = true;
+        this.existingFilePathsLoadFailed = false;
+      },
+      error: (err) => {
+        console.error('Failed to load existing publications:', err);
+        this.existingFilePaths.clear();
+        this.existingFilePathsLoaded = false;
+        this.existingFilePathsLoadFailed = true;
+        this.snackbar.show(
+          'Failed to load existing publications. Please reload before adding publications.',
+          'error'
+        );
+      }
     });
   }
 
   selectedFiles(filePaths: string[]) {
+    if (!this.existingFilePathsLoaded) {
+      const message = this.existingFilePathsLoadFailed
+        ? 'Failed to load existing publications. Please reload before adding publications.'
+        : 'Existing publications are still loading. Please try again in a moment.';
+      this.snackbar.show(message, 'error');
+      return;
+    }
+
     this.saveFailures = [];
     this.files.clear();
 
     const skipped: string[] = [];
 
     for (const filePath of filePaths) {
-      if (this.existingFilePaths.has(filePath)) {
+      if (this.existingFilePaths.has(this.normalizeFilePath(filePath))) {
         skipped.push(filePath);
         continue; // don’t add a row for already added publications
       }
@@ -233,6 +258,14 @@ export class PublicationBundleComponent implements OnInit {
   }
 
   savePublications(collectionId: string) {
+    if (!this.existingFilePathsLoaded) {
+      const message = this.existingFilePathsLoadFailed
+        ? 'Failed to load existing publications. Please reload before adding publications.'
+        : 'Existing publications are still loading. Please try again in a moment.';
+      this.snackbar.show(message, 'error');
+      return;
+    }
+
     this.saveFailures = [];
     // concurrentRequests = 1 ensures that the publications are added sequentially in
     // the order they appear in the UI
@@ -313,6 +346,10 @@ export class PublicationBundleComponent implements OnInit {
         return of(void 0); // Allow continuation of the stream
       })
     );
+  }
+
+  private normalizeFilePath(filePath: string | null | undefined): string {
+    return filePath?.trim() ?? '';
   }
 
 }
