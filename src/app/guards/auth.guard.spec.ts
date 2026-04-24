@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn, UrlTree, provideRouter } from '@angular/router';
+import { firstValueFrom, Observable, of } from 'rxjs';
 
 import {
   AUTH_REDIRECT_MARKER_QUERY_PARAM,
@@ -16,6 +17,8 @@ describe('authGuard', () => {
   let authRedirectStorage: jasmine.SpyObj<
     Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
   >;
+  let initialSessionValidationPending = false;
+  let initialSessionValidation$: Observable<boolean> = of(false);
 
   function asUrl(value: unknown): string | null {
     return value instanceof UrlTree ? value.toString() : null;
@@ -27,6 +30,8 @@ describe('authGuard', () => {
 
   beforeEach(() => {
     isAuthenticated = false;
+    initialSessionValidationPending = false;
+    initialSessionValidation$ = of(false);
     authRedirectStorage = jasmine.createSpyObj<
       Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
     >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl', 'clearReturnUrl']);
@@ -39,7 +44,9 @@ describe('authGuard', () => {
         {
           provide: AuthService,
           useValue: {
-            isAuthenticated: () => isAuthenticated
+            isAuthenticated: () => isAuthenticated,
+            isInitialSessionValidationPending: () => initialSessionValidationPending,
+            validateInitialSession: () => initialSessionValidation$
           }
         },
         { provide: AuthRedirectStorageService, useValue: authRedirectStorage }
@@ -102,5 +109,25 @@ describe('authGuard', () => {
 
     expect(result).toBe(true);
     expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('waits for a successful initial session validation before allowing a protected route', async () => {
+    initialSessionValidationPending = true;
+    initialSessionValidation$ = of(true);
+
+    const result = await firstValueFrom(runGuard('/projects') as Observable<unknown>);
+
+    expect(result).toBe(true);
+    expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('redirects to login when initial session validation fails for a protected route', async () => {
+    initialSessionValidationPending = true;
+    initialSessionValidation$ = of(false);
+
+    const result = await firstValueFrom(runGuard('/projects') as Observable<unknown>);
+
+    expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/projects');
+    expect(asUrl(result)).toBe(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
   });
 });

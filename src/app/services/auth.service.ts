@@ -51,6 +51,7 @@ export class AuthService {
   private readonly _loginInProgress = signal<boolean>(false);
   readonly loginInProgress = this._loginInProgress.asReadonly();
   readonly isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private initialSessionValidation$: Observable<boolean> | null = null;
   private sessionValidationInFlight$: Observable<boolean> | null = null;
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -58,7 +59,7 @@ export class AuthService {
   constructor() {
     const hasCompleteStoredSession = this.getAccessToken() !== null && this.getRefreshToken() !== null;
     if (hasCompleteStoredSession) {
-      this.isAuthenticated$.next(true);
+      this.initialSessionValidation$ = this.createInitialSessionValidation();
     } else {
       this.clearAuthState(false, false);
     }
@@ -90,7 +91,7 @@ export class AuthService {
     const url = `${environment}auth/login`;
     const body: LoginRequest = { email: normalizedEmail, password };
     this.apiService.post<LoginResponse>(url, body, {}, true).pipe(
-      switchMap((response) => this.validateCmsAccessAfterLogin(response.access_token).pipe(
+      switchMap((response) => this.validateCmsAccessWithToken(response.access_token).pipe(
         map(() => response)
       )),
       finalize(() => {
@@ -134,6 +135,22 @@ export class AuthService {
   }
 
   /**
+   * Returns true while the CMS is validating persisted startup tokens.
+   */
+  isInitialSessionValidationPending(): boolean {
+    return this.initialSessionValidation$ !== null;
+  }
+
+  /**
+   * Resolves the one-time persisted-session validation, if one is pending.
+   *
+   * Route guards use this before trusting stored tokens on initial app load.
+   */
+  validateInitialSession(): Observable<boolean> {
+    return this.initialSessionValidation$ ?? of(this.isAuthenticated());
+  }
+
+  /**
    * Explicitly validates the current backend session.
    *
    * Validation requests are deduplicated while one is already in flight. Any
@@ -141,6 +158,10 @@ export class AuthService {
    * strict write-session validity.
    */
   validateSession(): Observable<boolean> {
+    if (this.initialSessionValidation$) {
+      return this.initialSessionValidation$;
+    }
+
     if (!this.isAuthenticated()) {
       return of(false);
     }
@@ -333,7 +354,7 @@ export class AuthService {
    * Authorization header. That keeps a CMS-access denial from entering the
    * interceptor refresh flow before the frontend has accepted the login.
    */
-  private validateCmsAccessAfterLogin(accessToken: string): Observable<boolean> {
+  private validateCmsAccessWithToken(accessToken: string): Observable<boolean> {
     const environment = this.getConfiguredEnvironment();
     if (!environment) {
       return throwError(() => this.createCmsAccessValidationError());
@@ -357,6 +378,60 @@ export class AuthService {
       }),
       catchError((error) => throwError(() => this.createCmsAccessValidationError(error)))
     );
+  }
+
+  /**
+   * Validates a complete token pair found at app startup before trusting it.
+   *
+   * A stale access token gets one refresh attempt. The refreshed token must also
+   * pass CMS-user validation before the session is accepted.
+   */
+  private createInitialSessionValidation(): Observable<boolean> {
+    const accessToken = this.getAccessToken();
+    if (!accessToken) {
+      this.clearAuthState(true, false);
+      return of(false);
+    }
+
+    return this.validateCmsAccessWithToken(accessToken).pipe(
+      map(() => this.acceptInitialSession()),
+      catchError((error) => {
+        if (!this.shouldRetryCmsValidationWithRefresh(error)) {
+          this.clearAuthState(true, false);
+          return of(false);
+        }
+
+        return this.refreshToken().pipe(
+          switchMap((refreshedAccessToken) => this.validateCmsAccessWithToken(refreshedAccessToken)),
+          map(() => this.acceptInitialSession()),
+          catchError(() => {
+            this.clearAuthState(true, false);
+            return of(false);
+          })
+        );
+      }),
+      finalize(() => {
+        this.initialSessionValidation$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+  }
+
+  /**
+   * Marks a startup token pair as trusted after CMS-user validation succeeds.
+   */
+  private acceptInitialSession(): boolean {
+    this.isAuthenticated$.next(true);
+    return true;
+  }
+
+  /**
+   * Returns true for validation failures where refreshing the access token may
+   * recover a persisted startup session.
+   */
+  private shouldRetryCmsValidationWithRefresh(error: unknown): boolean {
+    const status = (error as { status?: unknown } | null)?.status;
+    return status === 401 || status === 422;
   }
 
   /**
@@ -488,6 +563,7 @@ export class AuthService {
    * is also forgotten.
    */
   private clearAuthState(clearRedirectTarget: boolean, clearEnvironment: boolean): void {
+    this.initialSessionValidation$ = null;
     this.sessionValidationInFlight$ = null;
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
