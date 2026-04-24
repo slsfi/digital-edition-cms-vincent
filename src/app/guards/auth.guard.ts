@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { map } from 'rxjs';
 
 import { AuthRedirectStorageService } from '../services/auth-redirect-storage.service';
 import { createLoginRedirectQueryParams, isLoginRouteURL,
@@ -17,26 +18,53 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const authRedirectStorage = inject(AuthRedirectStorageService);
-  const isAuthenticated = authService.isAuthenticated();
   const isLoginRoute = isLoginRouteURL(state.url);
 
+  if (authService.isInitialSessionValidationPending()) {
+    return authService.validateInitialSession().pipe(
+      map((isAuthenticated) => resolveAuthGuardResult(
+        router,
+        authRedirectStorage,
+        isAuthenticated,
+        isLoginRoute,
+        state.url
+      ))
+    );
+  }
+
+  return resolveAuthGuardResult(
+    router,
+    authRedirectStorage,
+    authService.isAuthenticated(),
+    isLoginRoute,
+    state.url
+  );
+};
+
+function resolveAuthGuardResult(
+  router: Router,
+  authRedirectStorage: AuthRedirectStorageService,
+  isAuthenticated: boolean,
+  isLoginRoute: boolean,
+  targetUrl: string
+): boolean | UrlTree {
   if (isLoginRoute) {
     if (!isAuthenticated) {
       return true;
     }
 
-    const loginRouteRedirectURL = resolveLoginRouteRedirectURL(router, authRedirectStorage, state.url);
+    const loginRouteRedirectURL = resolveLoginRouteRedirectURL(router, authRedirectStorage, targetUrl);
     return loginRouteRedirectURL
       ? router.parseUrl(loginRouteRedirectURL)
       : router.createUrlTree(['/']);
   }
 
   if (!isAuthenticated) {
-    return createLoginRedirectUrlTree(router, authRedirectStorage, state.url);
+    return createLoginRedirectUrlTree(router, authRedirectStorage, targetUrl);
   }
 
   return true;
-};
+}
 
 /**
  * Builds the redirect target for unauthenticated access to a protected route.

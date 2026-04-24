@@ -19,6 +19,14 @@ describe('AuthService', () => {
     return TestBed.inject(AuthService);
   }
 
+  function createAuthenticatedService(): AuthService {
+    const service = createService();
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    service.isAuthenticated$.next(true);
+    return service;
+  }
+
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -78,6 +86,84 @@ describe('AuthService', () => {
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(apiService.setEnvironment).not.toHaveBeenCalled();
+  });
+
+  it('validates complete stored sessions before trusting them on app start', () => {
+    localStorage.setItem('access_token', 'stored-access-token');
+    localStorage.setItem('refresh_token', 'stored-refresh-token');
+    const validationSubject = new Subject<{ authenticated?: boolean }>();
+    apiService.get.and.returnValue(validationSubject.asObservable());
+    const service = createService();
+    let result: boolean | undefined;
+
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.isInitialSessionValidationPending()).toBeTrue();
+
+    service.validateInitialSession().subscribe((validated) => {
+      result = validated;
+    });
+
+    expect(apiService.get).toHaveBeenCalledWith(
+      'https://api.sls.fi/session/validate_cms',
+      jasmine.objectContaining({
+        headers: { Authorization: 'Bearer stored-access-token' }
+      }),
+      true
+    );
+    expect(result).toBeUndefined();
+
+    validationSubject.next({ authenticated: true });
+    validationSubject.complete();
+
+    expect(result).toBeTrue();
+    expect(service.isAuthenticated()).toBeTrue();
+    expect(service.isInitialSessionValidationPending()).toBeFalse();
+  });
+
+  it('refreshes a stale stored access token before accepting an initial session', () => {
+    localStorage.setItem('access_token', 'stale-access-token');
+    localStorage.setItem('refresh_token', 'stored-refresh-token');
+    apiService.get.and.returnValues(
+      throwError(() => ({ status: 401 })),
+      of({ authenticated: true })
+    );
+    apiService.post.and.returnValue(of<RefreshTokenResponse>({
+      msg: 'ok',
+      access_token: 'refreshed-access-token'
+    }));
+    const service = createService();
+    let result: boolean | undefined;
+
+    service.validateInitialSession().subscribe((validated) => {
+      result = validated;
+    });
+
+    expect(result).toBeTrue();
+    expect(localStorage.getItem('access_token')).toBe('refreshed-access-token');
+    expect(service.isAuthenticated()).toBeTrue();
+    expect(apiService.get.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({
+      headers: { Authorization: 'Bearer refreshed-access-token' }
+    }));
+  });
+
+  it('clears complete stored sessions when initial CMS validation fails', () => {
+    localStorage.setItem('access_token', 'stored-access-token');
+    localStorage.setItem('refresh_token', 'stored-refresh-token');
+    apiService.get.and.returnValue(throwError(() => ({ status: 500 })));
+    const service = createService();
+    let result: boolean | undefined;
+
+    service.validateInitialSession().subscribe((validated) => {
+      result = validated;
+    });
+
+    expect(result).toBeFalse();
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(localStorage.getItem('refresh_token')).toBeNull();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(service.isInitialSessionValidationPending()).toBeFalse();
   });
 
   it('stores tokens and redirects to stored marker URL after successful login', () => {
@@ -195,11 +281,9 @@ describe('AuthService', () => {
   });
 
   it('deduplicates in-flight session validation requests', () => {
-    localStorage.setItem('access_token', 'access-token-1');
-    localStorage.setItem('refresh_token', 'refresh-token-1');
     const validationSubject = new Subject<{ authenticated?: boolean }>();
     apiService.get.and.returnValue(validationSubject.asObservable());
-    const service = createService();
+    const service = createAuthenticatedService();
     let firstResult: boolean | undefined;
     let secondResult: boolean | undefined;
 
@@ -230,10 +314,8 @@ describe('AuthService', () => {
   });
 
   it('clears auth state on any session validation error without clearing the chosen environment', () => {
-    localStorage.setItem('access_token', 'access-token-1');
-    localStorage.setItem('refresh_token', 'refresh-token-1');
     apiService.get.and.returnValue(throwError(() => ({ status: 404 })));
-    const service = createService();
+    const service = createAuthenticatedService();
     let receivedError: { status?: number } | undefined;
 
     service.validateSession().subscribe({
@@ -252,10 +334,8 @@ describe('AuthService', () => {
   });
 
   it('clears auth state when session validation reports an unauthenticated session', () => {
-    localStorage.setItem('access_token', 'access-token-1');
-    localStorage.setItem('refresh_token', 'refresh-token-1');
     apiService.get.and.returnValue(of({ authenticated: false }));
-    const service = createService();
+    const service = createAuthenticatedService();
     let receivedError: { status?: number } | undefined;
 
     service.validateSession().subscribe({

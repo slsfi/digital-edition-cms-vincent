@@ -48,7 +48,15 @@ If the target is unsafe, no return target is preserved and login falls back to t
 
 When `AuthService` is created, it checks persisted tokens.
 
-If both access and refresh tokens exist, the in-memory authentication state is set to authenticated. The route guard can then allow protected routes. Active server-side session validity is still enforced by backend API calls, the auth interceptor, and any explicit session validation.
+If both access and refresh tokens exist, the CMS creates a one-time startup validation for `/session/validate_cms`. The user is not treated as authenticated until that validation succeeds.
+
+If the stored access token is stale, startup validation may refresh the access token once. The refreshed access token must also pass `/session/validate_cms` before the session is accepted.
+
+While startup validation is pending, the route guard waits for it before deciding whether to allow a protected route or redirect to `/login`. This is a bootstrap check, not route-guard polling on every navigation.
+
+If startup validation succeeds, the in-memory authentication state is set to authenticated and protected routes can activate.
+
+If startup validation fails, auth state is cleared. The selected backend environment is preserved so the login page can reopen with the same environment selected.
 
 If either token is missing, auth state is cleared. This removes any partial token state and marks the user unauthenticated.
 
@@ -275,6 +283,7 @@ On any validation failure:
 
 | Situation | Tokens | Auth state | Environment | Project | Redirect target |
 | --- | --- | --- | --- | --- | --- |
+| Failed startup CMS-user validation | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Cleared before any new route redirect is stored |
 | Failed login | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved |
 | Failed post-login CMS-user validation | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved |
 | Refresh failure | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved for re-authentication |
@@ -288,6 +297,7 @@ On any validation failure:
 Use these questions when changing auth behavior:
 
 - What happens when an unauthenticated user opens a protected route?
+- What happens when the app starts with persisted access and refresh tokens?
 - What happens when an authenticated user opens `/login`?
 - What happens after successful login with a marker redirect?
 - What happens after successful login with only `returnUrl`?
