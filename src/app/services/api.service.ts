@@ -38,10 +38,36 @@ export class ApiService {
 
   handleError(error: HttpErrorResponse, disableErrorMessage = false) {
     if (!disableErrorMessage) {
-      const message = error.error.message || error.error.msg || error.message || 'An error occurred';
+      const message = this.getErrorMessage(error);
       this.snackbar.show(message, 'error');
     }
     return throwError(() => error);
+  }
+
+  private getErrorMessage(error: HttpErrorResponse): string {
+    const backendMessage = this.getBackendErrorMessage(error.error);
+    return backendMessage || error.message || 'An error occurred';
+  }
+
+  private getBackendErrorMessage(errorBody: unknown): string | null {
+    if (typeof errorBody === 'string') {
+      return errorBody.trim() || null;
+    }
+
+    if (typeof errorBody !== 'object' || errorBody === null) {
+      return null;
+    }
+
+    const { message, msg } = errorBody as { message?: unknown; msg?: unknown };
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+
+    if (typeof msg === 'string' && msg.trim()) {
+      return msg;
+    }
+
+    return null;
   }
 
   post<T>(url: string, body?: object | null, options: object = {}, disableErrorMessage = false) {
