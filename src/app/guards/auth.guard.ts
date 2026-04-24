@@ -1,6 +1,5 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 
 import { AuthRedirectStorageService } from '../services/auth-redirect-storage.service';
 import { createLoginRedirectQueryParams, isLoginRouteURL,
@@ -12,7 +11,7 @@ import { AuthService } from '../services/auth.service';
  *
  * It keeps unauthenticated users out of protected routes, preserves safe
  * post-login redirect targets, redirects authenticated users away from the
- * login page, and validates stale authenticated sessions against the backend.
+ * login page, and lets backend API requests enforce active session validity.
  */
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -36,16 +35,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return createLoginRedirectUrlTree(router, authRedirectStorage, state.url);
   }
 
-  return authService.validateSessionIfStale().pipe(
-    map(() => true),
-    catchError((error) => {
-      if ((error as { status?: unknown } | null)?.status === 401) {
-        return of(createLoginRedirectUrlTree(router, authRedirectStorage, state.url));
-      }
-
-      return of(true);
-    })
-  );
+  return true;
 };
 
 /**
