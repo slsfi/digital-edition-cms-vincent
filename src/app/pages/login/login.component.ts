@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule,
          ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 
 import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, LoginErrorCode } from '../../services/auth.service';
 import { LoadingService } from './../../services/loading.service';
 import { ApiService } from './../../services/api.service';
 
@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
 
-  readonly loginError = this.authService.loginError;
+  readonly loginErrorMessage = computed(() => getLoginErrorMessage(this.authService.loginError()));
   readonly loginInProgress = this.authService.loginInProgress;
   appVersion = APP_VERSION;
   loading$ = this.loadingService.loading$;
@@ -158,6 +158,23 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.environment.setValue(CUSTOM_ENVIRONMENT_VALUE, { emitEvent: false });
     this.customEnvironment.setValue(storedEnvironment, { emitEvent: false });
     this.customEnvironment.updateValueAndValidity({ emitEvent: false });
+  }
+}
+
+function getLoginErrorMessage(error: LoginErrorCode | null): string | null {
+  switch (error) {
+    case 'no_credentials':
+      return 'Enter your email address and password.';
+    case 'email_not_verified':
+      return 'Verify your email address before logging in.';
+    case 'invalid_credentials':
+      return 'Check your email address and password.';
+    case 'cms_access_denied':
+      return 'CMS access could not be verified for this account.';
+    case 'request_failed':
+      return 'Login failed. Try again.';
+    default:
+      return null;
   }
 }
 

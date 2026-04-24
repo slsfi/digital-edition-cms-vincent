@@ -46,6 +46,7 @@ describe('AuthService', () => {
     apiService.setEnvironment.and.callFake((env: string | null) => {
       environment = env;
     });
+    apiService.get.and.returnValue(of({ authenticated: true }));
 
     projectService = jasmine.createSpyObj<
       Pick<ProjectService, 'setSelectedProject' | 'restoreSelectedProjectForEnvironment' | 'getCurrentProject'>
@@ -97,8 +98,47 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
     expect(service.loginError()).toBeNull();
     expect(service.loginInProgress()).toBeFalse();
+    expect(apiService.get).toHaveBeenCalledWith(
+      'https://api.sls.fi/session/validate_cms',
+      jasmine.objectContaining({
+        headers: { Authorization: 'Bearer access-token-1' }
+      }),
+      true
+    );
     expect(projectService.restoreSelectedProjectForEnvironment).toHaveBeenCalledWith('https://api.sls.fi/', []);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/projects');
+  });
+
+  [401, 422].forEach((status) => {
+    it(`keeps the user unauthenticated when post-login CMS validation returns ${status}`, () => {
+      localStorage.setItem('access_token', 'stale-access-token');
+      localStorage.setItem('refresh_token', 'stale-refresh-token');
+      apiService.post.and.returnValue(of<LoginResponse>({
+        access_token: 'access-token-1',
+        refresh_token: 'refresh-token-1',
+        msg: 'ok',
+        user_projects: ['project-a']
+      }));
+      apiService.get.and.returnValue(throwError(() => ({ status })));
+      const service = createService();
+
+      service.login('user@example.com', 'secret');
+
+      expect(apiService.get).toHaveBeenCalledWith(
+        'https://api.sls.fi/session/validate_cms',
+        jasmine.objectContaining({
+          headers: { Authorization: 'Bearer access-token-1' }
+        }),
+        true
+      );
+      expect(service.isAuthenticated()).toBeFalse();
+      expect(service.loginError()).toBe('cms_access_denied');
+      expect(localStorage.getItem('access_token')).toBeNull();
+      expect(localStorage.getItem('refresh_token')).toBeNull();
+      expect(apiService.setEnvironment).not.toHaveBeenCalled();
+      expect(projectService.restoreSelectedProjectForEnvironment).not.toHaveBeenCalled();
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
   });
 
   it('restores an environment-matched project before redirecting to a project route', () => {
@@ -171,6 +211,7 @@ describe('AuthService', () => {
     });
 
     expect(apiService.get).toHaveBeenCalledTimes(1);
+    expect(apiService.get.calls.mostRecent().args[0]).toBe('https://api.sls.fi/session/validate_cms');
 
     validationSubject.next({ authenticated: true });
     validationSubject.complete();
