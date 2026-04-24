@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added
 
 - `AGENTS.md` to guide AI coding agents.
+- Docs: `auth-flow.md` describing the expected authentication behavior of the CMS in human-readable terms.
 
 ### Changed
 
