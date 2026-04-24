@@ -1,91 +1,446 @@
-import { inject, Injectable } from '@angular/core';
+import { HttpContext } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, map, Observable,
-         take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, finalize, map, Observable,
+         of, shareReplay, take, throwError } from 'rxjs';
 
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login.model';
+import { SkipLoading } from '../interceptors/loading.interceptor';
+import { AuthRedirectStorageService } from './auth-redirect-storage.service';
+import { createLoginRedirectQueryParams, resolveRedirectFromMarker, resolveReturnUrlFromQuery } from './auth-redirect-url.utils';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 
+const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;
+
+type BackendAuthErrorCode = 'NO_CREDENTIALS' | 'EMAIL_NOT_VERIFIED' | 'INCORRECT_CREDENTIALS';
+export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
+
+/**
+ * Authentication state and token lifecycle service for the CMS.
+ *
+ * Responsibilities:
+ * - Maintain in-memory auth state from persisted CMS tokens.
+ * - Perform login, refresh-token, and stale-session validation requests.
+ * - Classify requests against the currently selected backend environment.
+ * - Preserve safe post-login redirect intent across the login boundary.
+ *
+ * CMS-specific note:
+ * The backend base URL is chosen by the user at login time, so auth behavior
+ * must be derived from the current environment rather than from build-time
+ * configuration.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly apiService = inject(ApiService);
   private readonly projectService = inject(ProjectService);
+  private readonly redirectStorage = inject(AuthRedirectStorageService);
   private readonly router = inject(Router);
-
-  constructor() {
-    if (this.getAccessToken()) {
-      this.isAuthenticated$.next(true);
-    } else {
-      this.isAuthenticated$.next(false);
-    }
-  }
-
-  isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
+  private readonly _loginError = signal<LoginErrorCode | null>(null);
+  readonly loginError = this._loginError.asReadonly();
+  private readonly _loginInProgress = signal<boolean>(false);
+  readonly loginInProgress = this._loginInProgress.asReadonly();
+  readonly isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private readonly sessionValidationTTLms = DEFAULT_SESSION_VALIDATION_TTL_MS;
+  private lastSessionValidationAt: number | null = null;
+  private sessionValidationInFlight$: Observable<boolean> | null = null;
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-  login(email: string, password: string): void {
-    const url = `${this.apiService.environment}auth/login`;
-    const body: LoginRequest = { email, password };
-    this.apiService.post<LoginResponse>(url, body)
-      .subscribe({
-        next: (response) => {
-          const { access_token, refresh_token } = response;
-          localStorage.setItem('access_token', access_token);
-          localStorage.setItem('refresh_token', refresh_token);
-          this.router.navigate(['/']);
-          this.isAuthenticated$.next(true);
-        },
-        error: () => {
-          this.logout();
-        }
-      });
-  }
-
-  refreshToken(): Observable<string> {
-    if (this.refreshTokenInProgress) {
-      return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
-        take(1)
-      );
+  constructor() {
+    const hasCompleteStoredSession = this.getAccessToken() !== null && this.getRefreshToken() !== null;
+    if (hasCompleteStoredSession) {
+      this.isAuthenticated$.next(true);
     } else {
-      this.refreshTokenInProgress = true;
-      const url = `${this.apiService.environment}auth/refresh`;
-      const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
-      return this.apiService.post<RefreshTokenResponse>(url, null, { headers }).pipe(
-        map((response) => {
-          const { access_token } = response;
-          localStorage.setItem('access_token', access_token);
-          this.refreshTokenInProgress = false;
-          this.refreshTokenSubject.next(access_token);
-          return access_token;
-        }),
-        catchError((error) => {
-          this.refreshTokenInProgress = false;
-          this.logout();
-          return throwError(() => error);
-        })
-      );
+      this.clearAuthState(false, false);
     }
   }
 
+  /**
+   * Attempts login against the currently selected backend environment.
+   *
+   * On success, tokens are stored, auth state is updated, and navigation
+   * continues to the safest available post-login target. On failure, auth state
+   * is cleared while keeping the chosen environment intact so the user can retry.
+   */
+  login(email: string, password: string): void {
+    if (this._loginInProgress()) {
+      return;
+    }
+
+    const environment = this.getConfiguredEnvironment();
+    if (!environment) {
+      this._loginError.set('request_failed');
+      return;
+    }
+
+    this._loginError.set(null);
+    this._loginInProgress.set(true);
+    const normalizedEmail = email.trim();
+    const url = `${environment}auth/login`;
+    const body: LoginRequest = { email: normalizedEmail, password };
+    this.apiService.post<LoginResponse>(url, body, {}, true).pipe(
+      finalize(() => {
+        this._loginInProgress.set(false);
+      })
+    ).subscribe({
+      next: (response) => {
+        const { access_token, refresh_token, user_projects } = response;
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('refresh_token', refresh_token);
+        this.projectService.restoreSelectedProjectForEnvironment(
+          environment,
+          Array.isArray(user_projects) ? user_projects : []
+        );
+        this.markSessionValidatedNow();
+        this.isAuthenticated$.next(true);
+        this.router.navigateByUrl(this.resolvePostLoginRedirectURL());
+      },
+      error: (error) => {
+        this.clearAuthState(false, false);
+        this._loginError.set(this.resolveLoginErrorCode(error));
+      }
+    });
+  }
+
+  /**
+   * Clears the current login error state exposed to the login UI.
+   */
+  clearLoginError(): void {
+    this._loginError.set(null);
+  }
+
+  /**
+   * Returns the current in-memory authentication state synchronously.
+   */
+  isAuthenticated(): boolean {
+    return this.isAuthenticated$.value;
+  }
+
+  /**
+   * Validates the current backend session when the cached validation result is
+   * stale or missing.
+   *
+   * Validation requests are deduplicated while one is already in flight.
+   * Backend 401 responses clear auth state and are rethrown so callers can
+   * redirect to `/login`. Other failures are propagated unchanged.
+   */
+  validateSessionIfStale(ttlMs: number = this.sessionValidationTTLms): Observable<boolean> {
+    if (!this.isAuthenticated()) {
+      return of(false);
+    }
+
+    const environment = this.getConfiguredEnvironment();
+    if (!environment) {
+      this.clearAuthState(true, true);
+      return throwError(() => ({ status: 401 }));
+    }
+
+    const normalizedTtlMs = Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 0;
+    const now = Date.now();
+    if (normalizedTtlMs > 0 && this.lastSessionValidationAt !== null && now - this.lastSessionValidationAt < normalizedTtlMs) {
+      return of(true);
+    }
+
+    if (this.sessionValidationInFlight$) {
+      return this.sessionValidationInFlight$;
+    }
+
+    const url = `${environment}session/validate`;
+    const validationRequest$ = this.apiService.get<{ authenticated?: boolean }>(
+      url,
+      { context: new HttpContext().set(SkipLoading, true) },
+      true
+    ).pipe(
+      map(() => {
+        this.markSessionValidatedNow();
+        this.isAuthenticated$.next(true);
+        return true;
+      }),
+      catchError((error) => {
+        if ((error as { status?: unknown } | null)?.status === 401) {
+          this.clearAuthState(true, false);
+        }
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.sessionValidationInFlight$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    this.sessionValidationInFlight$ = validationRequest$;
+    return validationRequest$;
+  }
+
+  /**
+   * Requests a new access token using the stored refresh token.
+   *
+   * Concurrent callers share the same refresh request and wait for the same
+   * emitted token. Missing refresh tokens fail fast and expire the current
+   * session instead of issuing a backend request. Any refresh-endpoint failure,
+   * including auth-state failures such as `401` or `422`, is treated as
+   * terminal in the CMS and expires the current session.
+   */
+  refreshToken(): Observable<string> {
+    if (this.refreshTokenInProgress) {
+      return this.refreshTokenSubject.pipe(
+        filter((token): token is string => token !== null),
+        take(1)
+      );
+    }
+
+    const environment = this.getConfiguredEnvironment();
+    const refreshToken = this.getRefreshToken();
+    if (!environment || !refreshToken) {
+      this.expireSession();
+      return throwError(() => new Error('Refresh token is missing.'));
+    }
+
+    this.refreshTokenInProgress = true;
+    this.refreshTokenSubject.next(null);
+    let refreshCompleted = false;
+    const url = `${environment}auth/refresh`;
+    const headers = { Authorization: `Bearer ${refreshToken}` };
+    return this.apiService.post<RefreshTokenResponse>(url, null, { headers }, true).pipe(
+      map((response) => {
+        refreshCompleted = true;
+        const { access_token } = response;
+        localStorage.setItem('access_token', access_token);
+        this.markSessionValidatedNow();
+        this.refreshTokenSubject.next(access_token);
+        this.isAuthenticated$.next(true);
+        return access_token;
+      }),
+      catchError((error) => {
+        refreshCompleted = true;
+        this.refreshTokenSubject.error(error);
+        this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
+        this.expireSession();
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.refreshTokenInProgress = false;
+        if (!refreshCompleted) {
+          this.refreshTokenSubject.error(
+            new Error('Refresh token request was canceled before completion.')
+          );
+          this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
+        }
+      })
+    );
+  }
+
+  /**
+   * Clears the authenticated CMS session, including tokens, selected project,
+   * chosen environment, and stored redirect target.
+   *
+   * Use this for explicit user-initiated logout, not for forced session expiry.
+   */
   logout(): void {
-    localStorage.clear();
-    this.apiService.setEnvironment(null);
-    this.projectService.selectedProject$.next(null);
-    this.isAuthenticated$.next(false);
+    this.clearAuthState(true, true);
   }
 
+  /**
+   * Clears the authenticated CMS session after a terminal auth failure while
+   * preserving the selected backend environment and any freshly stored
+   * re-authentication redirect target. The persisted environment/project pair
+   * is also preserved so login can restore it before returning to the target
+   * route.
+   */
+  expireSession(): void {
+    this.clearAuthState(false, false);
+  }
+
+  /**
+   * Stores the current CMS route for one-time post-login restoration after a
+   * forced re-authentication flow.
+   *
+   * Returns the query params to use for `/login`, using one-time marker storage
+   * when possible and falling back to the legacy `returnUrl` query parameter.
+   */
+  preserveReturnUrlForReauthentication(currentUrl: string): Record<string, unknown> | undefined {
+    return createLoginRedirectQueryParams(this.router, this.redirectStorage, currentUrl);
+  }
+
+  /**
+   * Returns the stored access token, if any.
+   */
   getAccessToken(): string | null {
-    return localStorage.getItem('access_token')
+    return localStorage.getItem('access_token');
   }
 
+  /**
+   * Returns the stored refresh token, if any.
+   */
   getRefreshToken(): string | null {
     return localStorage.getItem('refresh_token');
   }
 
+  /**
+   * Returns true when the URL targets the currently selected backend base URL.
+   */
+  isRequestToConfiguredBackend(url: string): boolean {
+    const environment = this.getConfiguredEnvironment();
+    return !!environment && url.startsWith(environment);
+  }
+
+  /**
+   * Returns true when the URL targets an auth endpoint under the currently
+   * selected backend.
+   */
+  isRequestToAuthEndpoint(url: string): boolean {
+    const environment = this.getConfiguredEnvironment();
+    if (!environment) {
+      return false;
+    }
+
+    const authEndpointPrefix = `${environment}auth`;
+    if (!url.startsWith(authEndpointPrefix)) {
+      return false;
+    }
+
+    const boundary = url.charAt(authEndpointPrefix.length);
+    return boundary === '' || boundary === '/' || boundary === '?' || boundary === '#';
+  }
+
+  /**
+   * Returns the currently selected backend environment normalized with a
+   * trailing slash, or null when no environment is configured.
+   */
+  private getConfiguredEnvironment(): string | null {
+    const environment = this.apiService.environment?.trim();
+    if (!environment) {
+      return null;
+    }
+
+    return environment.endsWith('/') ? environment : `${environment}/`;
+  }
+
+  /**
+   * Resolves the route to visit after a successful login.
+   *
+   * Marker-based redirect storage has priority over the legacy `returnUrl`
+   * query parameter. The default fallback is the CMS home route.
+   */
+  private resolvePostLoginRedirectURL(): string {
+    const currentRouteURL = this.router.url;
+    const returnURLFromMarker = resolveRedirectFromMarker(this.router, this.redirectStorage, currentRouteURL);
+    if (returnURLFromMarker) {
+      return this.resolveProjectAwarePostLoginRedirectURL(returnURLFromMarker);
+    }
+
+    const returnURLFromQuery = resolveReturnUrlFromQuery(this.router, currentRouteURL);
+    if (returnURLFromQuery) {
+      return this.resolveProjectAwarePostLoginRedirectURL(returnURLFromQuery);
+    }
+
+    return '/';
+  }
+
+  /**
+   * Project-scoped routes cannot be resumed unless login restored a project.
+   * In that case, send the user through the landing page to choose one.
+   */
+  private resolveProjectAwarePostLoginRedirectURL(returnURL: string): string {
+    if (this.projectService.getCurrentProject() || this.isRouteAvailableWithoutSelectedProject(returnURL)) {
+      return returnURL;
+    }
+
+    return '/';
+  }
+
+  /**
+   * Routes that can be used before a project has been selected.
+   */
+  private isRouteAvailableWithoutSelectedProject(url: string): boolean {
+    try {
+      const primaryRoute = this.router.parseUrl(url).root.children['primary'];
+      const path = primaryRoute?.segments.map((segment) => segment.path).join('/') ?? '';
+      return path === '' || path === 'projects';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Maps backend/login transport errors into UI-facing login error codes.
+   */
+  private resolveLoginErrorCode(error: unknown): LoginErrorCode {
+    const backendErrorCode = this.getBackendAuthErrorCode(error);
+    if (backendErrorCode === 'NO_CREDENTIALS') {
+      return 'no_credentials';
+    }
+
+    if (backendErrorCode === 'EMAIL_NOT_VERIFIED') {
+      return 'email_not_verified';
+    }
+
+    if (backendErrorCode === 'INCORRECT_CREDENTIALS') {
+      return 'invalid_credentials';
+    }
+
+    if ((error as { status?: unknown } | null)?.status === 401) {
+      return 'invalid_credentials';
+    }
+
+    return 'request_failed';
+  }
+
+  /**
+   * Extracts a recognized backend auth error code from a backend error payload.
+   */
+  private getBackendAuthErrorCode(error: unknown): BackendAuthErrorCode | null {
+    const err = (error as { error?: { err?: unknown } } | null)?.error?.err;
+    return this.isBackendAuthErrorCode(err) ? err : null;
+  }
+
+  /**
+   * Type guard for backend auth error codes used by the login flow.
+   */
+  private isBackendAuthErrorCode(value: unknown): value is BackendAuthErrorCode {
+    return (
+      value === 'NO_CREDENTIALS' ||
+      value === 'EMAIL_NOT_VERIFIED' ||
+      value === 'INCORRECT_CREDENTIALS'
+    );
+  }
+
+  /**
+   * Records that backend session validity was confirmed at the current time.
+   */
+  private markSessionValidatedNow(): void {
+    this.lastSessionValidationAt = Date.now();
+  }
+
+  /**
+   * Clears cached stale-session validation state.
+   */
+  private resetSessionValidationState(): void {
+    this.lastSessionValidationAt = null;
+    this.sessionValidationInFlight$ = null;
+  }
+
+  /**
+   * Clears stored auth state and resets related in-memory state.
+   *
+   * `clearRedirectTarget` controls whether one-time post-login redirect state is
+   * removed. `clearEnvironment` controls whether the chosen backend environment
+   * is also forgotten.
+   */
+  private clearAuthState(clearRedirectTarget: boolean, clearEnvironment: boolean): void {
+    this.resetSessionValidationState();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    this.projectService.setSelectedProject(null, { persist: clearEnvironment });
+    if (clearEnvironment) {
+      this.apiService.setEnvironment(null);
+    }
+    this.isAuthenticated$.next(false);
+    if (clearRedirectTarget) {
+      this.redirectStorage.clearReturnUrl();
+    }
+  }
 }

@@ -43,8 +43,7 @@ export class TopbarComponent {
 
   logout() {
     this.projectService.setSelectedProject(null);
-    this.authService.logout();    
-    localStorage.clear();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

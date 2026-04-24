@@ -44,7 +44,6 @@ export class NavigationComponent implements OnDestroy {
   logout() {
     this.authService.logout();
     this.projectService.setSelectedProject(null);
-    localStorage.clear();
   }
 
   toggleMenu() {

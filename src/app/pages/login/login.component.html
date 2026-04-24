@@ -3,7 +3,7 @@
     <mat-card-title>Log in to Vincent</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login($event)">
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
       <div class="row">
         <mat-form-field>
           <mat-label>Environment</mat-label>
@@ -21,6 +21,12 @@
           <mat-form-field>
             <mat-label>Custom environment</mat-label>
             <input matInput formControlName="customEnvironment" placeholder="https://..." />
+            @if (customEnvironment.hasError('required') && customEnvironment.touched) {
+              <mat-error>Custom environment is required.</mat-error>
+            }
+            @if (customEnvironment.hasError('invalidEnvironment') && customEnvironment.touched) {
+              <mat-error>Enter a valid HTTPS base URL.</mat-error>
+            }
           </mat-form-field>
         </div>
       }
@@ -41,7 +47,7 @@
         </mat-form-field>
       </div>
       <div class="actions">
-        <button mat-flat-button color="primary" [disabled]="!loginForm.valid" type="submit">Log in</button>
+        <button mat-flat-button color="primary" [disabled]="!loginForm.valid || loginInProgress()" type="submit">Log in</button>
       </div>
     </form>
   </mat-card-content>
