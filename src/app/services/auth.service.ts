@@ -87,9 +87,13 @@ export class AuthService {
       })
     ).subscribe({
       next: (response) => {
-        const { access_token, refresh_token } = response;
+        const { access_token, refresh_token, user_projects } = response;
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
+        this.projectService.restoreSelectedProjectForEnvironment(
+          environment,
+          Array.isArray(user_projects) ? user_projects : []
+        );
         this.markSessionValidatedNow();
         this.isAuthenticated$.next(true);
         this.router.navigateByUrl(this.resolvePostLoginRedirectURL());
@@ -242,7 +246,9 @@ export class AuthService {
   /**
    * Clears the authenticated CMS session after a terminal auth failure while
    * preserving the selected backend environment and any freshly stored
-   * re-authentication redirect target.
+   * re-authentication redirect target. The persisted environment/project pair
+   * is also preserved so login can restore it before returning to the target
+   * route.
    */
   expireSession(): void {
     this.clearAuthState(false, false);
@@ -323,15 +329,40 @@ export class AuthService {
     const currentRouteURL = this.router.url;
     const returnURLFromMarker = resolveRedirectFromMarker(this.router, this.redirectStorage, currentRouteURL);
     if (returnURLFromMarker) {
-      return returnURLFromMarker;
+      return this.resolveProjectAwarePostLoginRedirectURL(returnURLFromMarker);
     }
 
     const returnURLFromQuery = resolveReturnUrlFromQuery(this.router, currentRouteURL);
     if (returnURLFromQuery) {
-      return returnURLFromQuery;
+      return this.resolveProjectAwarePostLoginRedirectURL(returnURLFromQuery);
     }
 
     return '/';
+  }
+
+  /**
+   * Project-scoped routes cannot be resumed unless login restored a project.
+   * In that case, send the user through the landing page to choose one.
+   */
+  private resolveProjectAwarePostLoginRedirectURL(returnURL: string): string {
+    if (this.projectService.getCurrentProject() || this.isRouteAvailableWithoutSelectedProject(returnURL)) {
+      return returnURL;
+    }
+
+    return '/';
+  }
+
+  /**
+   * Routes that can be used before a project has been selected.
+   */
+  private isRouteAvailableWithoutSelectedProject(url: string): boolean {
+    try {
+      const primaryRoute = this.router.parseUrl(url).root.children['primary'];
+      const path = primaryRoute?.segments.map((segment) => segment.path).join('/') ?? '';
+      return path === '' || path === 'projects';
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -403,7 +434,7 @@ export class AuthService {
     this.resetSessionValidationState();
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    this.projectService.setSelectedProject(null);
+    this.projectService.setSelectedProject(null, { persist: clearEnvironment });
     if (clearEnvironment) {
       this.apiService.setEnvironment(null);
     }

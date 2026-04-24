@@ -12,7 +12,7 @@ describe('AuthService', () => {
   let router: jasmine.SpyObj<Pick<Router, 'navigateByUrl' | 'parseUrl'>>;
   let redirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl' | 'storeReturnUrl'>>;
   let apiService: jasmine.SpyObj<Pick<ApiService, 'get' | 'post' | 'setEnvironment'>> & { environment: string | null };
-  let projectService: jasmine.SpyObj<Pick<ProjectService, 'setSelectedProject'>>;
+  let projectService: jasmine.SpyObj<Pick<ProjectService, 'setSelectedProject' | 'restoreSelectedProjectForEnvironment' | 'getCurrentProject'>>;
   let environment: string | null;
 
   function createService(): AuthService {
@@ -47,7 +47,11 @@ describe('AuthService', () => {
       environment = env;
     });
 
-    projectService = jasmine.createSpyObj<Pick<ProjectService, 'setSelectedProject'>>('ProjectService', ['setSelectedProject']);
+    projectService = jasmine.createSpyObj<
+      Pick<ProjectService, 'setSelectedProject' | 'restoreSelectedProjectForEnvironment' | 'getCurrentProject'>
+    >('ProjectService', ['setSelectedProject', 'restoreSelectedProjectForEnvironment', 'getCurrentProject']);
+    projectService.restoreSelectedProjectForEnvironment.and.returnValue(null);
+    projectService.getCurrentProject.and.returnValue(null);
 
     TestBed.configureTestingModule({
       providers: [
@@ -93,7 +97,45 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
     expect(service.loginError()).toBeNull();
     expect(service.loginInProgress()).toBeFalse();
+    expect(projectService.restoreSelectedProjectForEnvironment).toHaveBeenCalledWith('https://api.sls.fi/', []);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/projects');
+  });
+
+  it('restores an environment-matched project before redirecting to a project route', () => {
+    (router as unknown as { url: string }).url = '/login?rt=1';
+    redirectStorage.consumeReturnUrl.and.returnValue('/facsimiles');
+    projectService.restoreSelectedProjectForEnvironment.and.callFake(() => {
+      projectService.getCurrentProject.and.returnValue('project-a');
+      return 'project-a';
+    });
+    apiService.post.and.returnValue(of<LoginResponse>({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: ['project-a']
+    }));
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    expect(projectService.restoreSelectedProjectForEnvironment).toHaveBeenCalledWith('https://api.sls.fi/', ['project-a']);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/facsimiles');
+  });
+
+  it('sends users to the landing page when the return target needs a project but none was restored', () => {
+    (router as unknown as { url: string }).url = '/login?rt=1';
+    redirectStorage.consumeReturnUrl.and.returnValue('/facsimiles');
+    apiService.post.and.returnValue(of<LoginResponse>({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    }));
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
   it('clears auth state and maps login failures without clearing the chosen environment', () => {
@@ -109,6 +151,7 @@ describe('AuthService', () => {
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: false });
   });
 
   it('deduplicates in-flight session validation and reuses the fresh result within the TTL', () => {
@@ -247,6 +290,7 @@ describe('AuthService', () => {
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: false });
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
@@ -269,6 +313,7 @@ describe('AuthService', () => {
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: false });
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
@@ -300,6 +345,7 @@ describe('AuthService', () => {
     service.logout();
 
     expect(apiService.setEnvironment).toHaveBeenCalledWith(null);
+    expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: true });
     expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
   });
 
@@ -314,6 +360,7 @@ describe('AuthService', () => {
     expect(localStorage.getItem('access_token')).toBeNull();
     expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: false });
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 });

@@ -96,6 +96,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.restoreStoredEnvironment();
     this.valueChanges = this.loginForm.valueChanges.subscribe(() => {
       this.customEnvironment.updateValueAndValidity({ emitEvent: false });
       this.authService.clearLoginError();
@@ -140,6 +141,23 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.apiService.setEnvironment(env);
     this.authService.login(normalizedEmail, password);
+  }
+
+  private restoreStoredEnvironment(): void {
+    const storedEnvironment = normalizeEnvironmentURL(this.apiService.environment);
+    if (!storedEnvironment) {
+      return;
+    }
+
+    const predefinedEnvironment = this.environments.find((environment) => environment.value === storedEnvironment);
+    if (predefinedEnvironment) {
+      this.environment.setValue(predefinedEnvironment.value, { emitEvent: false });
+      return;
+    }
+
+    this.environment.setValue(CUSTOM_ENVIRONMENT_VALUE, { emitEvent: false });
+    this.customEnvironment.setValue(storedEnvironment, { emitEvent: false });
+    this.customEnvironment.updateValueAndValidity({ emitEvent: false });
   }
 }
 

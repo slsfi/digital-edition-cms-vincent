@@ -11,12 +11,20 @@ import { LoginComponent } from './login.component';
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let apiService: jasmine.SpyObj<Pick<ApiService, 'setEnvironment'>>;
+  let apiService: jasmine.SpyObj<Pick<ApiService, 'setEnvironment'>> & { environment: string };
   let authService: jasmine.SpyObj<Pick<AuthService, 'login' | 'clearLoginError'>> &
     Pick<AuthService, 'loginError' | 'loginInProgress'>;
+  let environment: string;
 
   beforeEach(async () => {
-    apiService = jasmine.createSpyObj<Pick<ApiService, 'setEnvironment'>>('ApiService', ['setEnvironment']);
+    environment = '';
+    apiService = jasmine.createSpyObj<Pick<ApiService, 'setEnvironment'>>(
+      'ApiService',
+      ['setEnvironment']
+    ) as jasmine.SpyObj<Pick<ApiService, 'setEnvironment'>> & { environment: string };
+    Object.defineProperty(apiService, 'environment', {
+      get: () => environment
+    });
     authService = jasmine.createSpyObj<Pick<AuthService, 'login' | 'clearLoginError'>>(
       'AuthService',
       ['login', 'clearLoginError']
@@ -46,6 +54,27 @@ describe('LoginComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('preselects a stored predefined environment', () => {
+    environment = 'https://testa-api.sls.fi/';
+
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.environment.value).toBe('https://testa-api.sls.fi/');
+  });
+
+  it('preselects a stored custom environment', () => {
+    environment = 'https://custom-api.example.com/';
+
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.environment.value).toBe(' ');
+    expect(component.customEnvironment.value).toBe('https://custom-api.example.com/');
   });
 
   it('does not submit when the custom environment URL is invalid', () => {
