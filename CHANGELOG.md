@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- `AGENTS.md` to guide AI coding agents.
+
 ### Changed
 
 - CI: harden Docker image build pipeline, update `nginx` to 1.30.0, and update actions.
