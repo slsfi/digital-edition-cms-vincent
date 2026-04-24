@@ -7,6 +7,7 @@ Any change to login, logout, refresh, session validation, redirect handling, tok
 ## Main rules
 
 - The CMS only treats the user as authenticated when both an access token and a refresh token are present.
+- A backend-authenticated user is not enough for this app. The session must also validate as a CMS-user session.
 - Tokens are stored in `localStorage` as `access_token` and `refresh_token`.
 - The selected backend environment is stored separately by `ApiService`.
 - The selected project is stored with the backend environment it belongs to, so a project from one environment is not restored in another.
@@ -92,10 +93,15 @@ If the form changes after a login error, the visible login error is cleared.
 On successful login:
 
 1. The backend returns a new access token, refresh token, and the user's project list.
-2. The access and refresh tokens are stored in `localStorage`.
-3. `ProjectService` tries to restore the previously selected project for the current environment, but only if that project appears in the login response.
-4. The in-memory auth state is set to authenticated.
-5. The user is redirected to the safest available post-login route.
+2. Before the CMS accepts the login, it calls `/session/validate_cms` with the returned access token.
+3. If CMS-user validation succeeds, the access and refresh tokens are stored in `localStorage`.
+4. `ProjectService` tries to restore the previously selected project for the current environment, but only if that project appears in the login response.
+5. The in-memory auth state is set to authenticated.
+6. The user is redirected to the safest available post-login route.
+
+The post-login CMS-user validation request uses the just-returned access token directly. A failed validation is not treated as a refreshable API `401`, because the frontend has not accepted the login yet.
+
+Any non-200 response from `/session/validate_cms` during this post-login check fails the login attempt. This includes `401`, `422`, server errors, and network failures. The CMS denies access by default when it cannot verify CMS-user access.
 
 Post-login redirect resolution uses this order:
 
@@ -125,6 +131,22 @@ Backend auth error codes are mapped as follows:
 - all other login failures become `request_failed`.
 
 Duplicate login submissions are ignored while a login request is already in progress.
+
+## Failed post-login CMS-user validation
+
+If `/auth/login` succeeds but `/session/validate_cms` fails immediately afterwards, the login attempt is rejected.
+
+In that case:
+
+- no authenticated CMS session is accepted by the frontend;
+- access and refresh tokens are cleared;
+- the in-memory selected project is cleared;
+- the chosen environment is preserved so the user can retry without selecting it again;
+- the stored redirect target is preserved so a later successful retry can still return to the original page;
+- auth state is set to unauthenticated;
+- the login page shows a CMS-access validation error.
+
+This prevents a non-CMS backend user from reaching the CMS home page in a half-valid state where route guards allow access but CMS-only API calls fail.
 
 ## Authenticated user opens a protected route
 
@@ -229,7 +251,7 @@ Use explicit logout for user-initiated logout. Do not use it for token expiry or
 
 ## Session validation
 
-`AuthService.validateSession()` is available for explicit backend session validation. It is not called by the route guard.
+`AuthService.validateSession()` is available for explicit CMS-user session validation. It calls `/session/validate_cms`, not `/session/validate`, because this app needs to verify CMS-user access and not only general backend authentication. It is not called by the route guard.
 
 When the user is not authenticated in memory, validation returns `false` without calling the backend.
 
@@ -254,6 +276,7 @@ On any validation failure:
 | Situation | Tokens | Auth state | Environment | Project | Redirect target |
 | --- | --- | --- | --- | --- | --- |
 | Failed login | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved |
+| Failed post-login CMS-user validation | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved |
 | Refresh failure | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved for re-authentication |
 | Protected backend `401` without refresh token | Cleared | Unauthenticated | Preserved | Active project cleared, persisted project preserved | Preserved for re-authentication |
 | Explicit logout | Cleared | Unauthenticated | Cleared | Active and persisted project cleared | Cleared |
@@ -268,6 +291,7 @@ Use these questions when changing auth behavior:
 - What happens when an authenticated user opens `/login`?
 - What happens after successful login with a marker redirect?
 - What happens after successful login with only `returnUrl`?
+- What happens when `/auth/login` succeeds but `/session/validate_cms` fails?
 - What happens after successful login when the return route needs a project but no project was restored?
 - What happens when login fails?
 - What happens when the backend returns `401` for a protected API request?

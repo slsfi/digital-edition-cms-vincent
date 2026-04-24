@@ -27,6 +27,14 @@ mat-card-header {
   justify-content: center;
 }
 
+.login-error {
+  color: #b00020;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
 .api-url {
   font-size: 0.875em;
 }

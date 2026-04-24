@@ -2,7 +2,7 @@ import { HttpContext } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, finalize, map, Observable,
-         of, shareReplay, take, throwError } from 'rxjs';
+         of, shareReplay, switchMap, take, throwError } from 'rxjs';
 
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '../models/login.model';
 import { SkipLoading } from '../interceptors/loading.interceptor';
@@ -12,14 +12,24 @@ import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 
 type BackendAuthErrorCode = 'NO_CREDENTIALS' | 'EMAIL_NOT_VERIFIED' | 'INCORRECT_CREDENTIALS';
-export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
+export type LoginErrorCode =
+  'no_credentials' |
+  'email_not_verified' |
+  'invalid_credentials' |
+  'cms_access_denied' |
+  'request_failed';
+
+interface CmsAccessValidationError extends Error {
+  cmsAccessValidationFailed: true;
+  status?: number;
+}
 
 /**
  * Authentication state and token lifecycle service for the CMS.
  *
  * Responsibilities:
  * - Maintain in-memory auth state from persisted CMS tokens.
- * - Perform login, refresh-token, and stale-session validation requests.
+ * - Perform login, CMS-user validation, refresh-token, and stale-session validation requests.
  * - Classify requests against the currently selected backend environment.
  * - Preserve safe post-login redirect intent across the login boundary.
  *
@@ -57,9 +67,11 @@ export class AuthService {
   /**
    * Attempts login against the currently selected backend environment.
    *
-   * On success, tokens are stored, auth state is updated, and navigation
-   * continues to the safest available post-login target. On failure, auth state
-   * is cleared while keeping the chosen environment intact so the user can retry.
+   * On success, the returned access token is first used to validate that the
+   * session belongs to a CMS user. Only then are tokens stored, auth state is
+   * updated, and navigation continues to the safest available post-login target.
+   * On failure, auth state is cleared while keeping the chosen environment
+   * intact so the user can retry.
    */
   login(email: string, password: string): void {
     if (this._loginInProgress()) {
@@ -78,6 +90,9 @@ export class AuthService {
     const url = `${environment}auth/login`;
     const body: LoginRequest = { email: normalizedEmail, password };
     this.apiService.post<LoginResponse>(url, body, {}, true).pipe(
+      switchMap((response) => this.validateCmsAccessAfterLogin(response.access_token).pipe(
+        map(() => response)
+      )),
       finalize(() => {
         this._loginInProgress.set(false);
       })
@@ -95,7 +110,11 @@ export class AuthService {
       },
       error: (error) => {
         this.clearAuthState(false, false);
-        this._loginError.set(this.resolveLoginErrorCode(error));
+        this._loginError.set(
+          this.isCmsAccessValidationError(error)
+            ? 'cms_access_denied'
+            : this.resolveLoginErrorCode(error)
+        );
       }
     });
   }
@@ -136,7 +155,7 @@ export class AuthService {
       return this.sessionValidationInFlight$;
     }
 
-    const url = `${environment}session/validate`;
+    const url = `${environment}session/validate_cms`;
     const validationRequest$ = this.apiService.get<{ authenticated?: boolean }>(
       url,
       { context: new HttpContext().set(SkipLoading, true) },
@@ -308,6 +327,39 @@ export class AuthService {
   }
 
   /**
+   * Validates that a freshly logged-in backend session belongs to a CMS user.
+   *
+   * The request uses the just-returned access token as a caller-supplied
+   * Authorization header. That keeps a CMS-access denial from entering the
+   * interceptor refresh flow before the frontend has accepted the login.
+   */
+  private validateCmsAccessAfterLogin(accessToken: string): Observable<boolean> {
+    const environment = this.getConfiguredEnvironment();
+    if (!environment) {
+      return throwError(() => this.createCmsAccessValidationError());
+    }
+
+    const url = `${environment}session/validate_cms`;
+    return this.apiService.get<{ authenticated?: boolean }>(
+      url,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        context: new HttpContext().set(SkipLoading, true)
+      },
+      true
+    ).pipe(
+      map((response) => {
+        if (response.authenticated === false) {
+          throw this.createCmsAccessValidationError();
+        }
+
+        return true;
+      }),
+      catchError((error) => throwError(() => this.createCmsAccessValidationError(error)))
+    );
+  }
+
+  /**
    * Resolves the route to visit after a successful login.
    *
    * Marker-based redirect storage has priority over the legacy `returnUrl`
@@ -404,6 +456,28 @@ export class AuthService {
     const error = new Error('Session is not authenticated.') as Error & { status: number };
     error.status = 401;
     return error;
+  }
+
+  /**
+   * Creates an error marker for failed post-login CMS-user validation.
+   */
+  private createCmsAccessValidationError(error?: unknown): CmsAccessValidationError {
+    const cmsAccessError = new Error('CMS access could not be validated.') as CmsAccessValidationError;
+    cmsAccessError.cmsAccessValidationFailed = true;
+
+    const status = (error as { status?: unknown } | null)?.status;
+    if (typeof status === 'number') {
+      cmsAccessError.status = status;
+    }
+
+    return cmsAccessError;
+  }
+
+  /**
+   * Returns true when the error came from post-login CMS-user validation.
+   */
+  private isCmsAccessValidationError(error: unknown): error is CmsAccessValidationError {
+    return (error as { cmsAccessValidationFailed?: unknown } | null)?.cmsAccessValidationFailed === true;
   }
 
   /**

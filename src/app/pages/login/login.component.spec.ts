@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
@@ -15,6 +15,7 @@ describe('LoginComponent', () => {
   let authService: jasmine.SpyObj<Pick<AuthService, 'login' | 'clearLoginError'>> &
     Pick<AuthService, 'loginError' | 'loginInProgress'>;
   let environment: string;
+  let loginError: WritableSignal<LoginErrorCode | null>;
 
   beforeEach(async () => {
     environment = '';
@@ -30,8 +31,9 @@ describe('LoginComponent', () => {
       ['login', 'clearLoginError']
     ) as jasmine.SpyObj<Pick<AuthService, 'login' | 'clearLoginError'>> &
       Pick<AuthService, 'loginError' | 'loginInProgress'>;
+    loginError = signal<LoginErrorCode | null>(null);
     Object.defineProperty(authService, 'loginError', {
-      value: signal<LoginErrorCode | null>(null).asReadonly()
+      value: loginError.asReadonly()
     });
     Object.defineProperty(authService, 'loginInProgress', {
       value: signal(false).asReadonly()
@@ -126,5 +128,11 @@ describe('LoginComponent', () => {
     component.email.setValue('user@example.com');
 
     expect(authService.clearLoginError).toHaveBeenCalled();
+  });
+
+  it('shows a specific message when CMS access cannot be verified', () => {
+    loginError.set('cms_access_denied');
+
+    expect(component.loginErrorMessage()).toBe('CMS access could not be verified for this account.');
   });
 });

@@ -46,6 +46,9 @@
           </button>
         </mat-form-field>
       </div>
+      @if (loginErrorMessage(); as message) {
+        <div class="login-error" role="alert">{{ message }}</div>
+      }
       <div class="actions">
         <button mat-flat-button color="primary" [disabled]="!loginForm.valid || loginInProgress()" type="submit">Log in</button>
       </div>
