@@ -27,19 +27,28 @@ import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.comp
 import { TableFiltersComponent } from '../table-filters/table-filters.component';
 import { TableSortingComponent } from '../table-sorting/table-sorting.component';
 import { LoadingService } from '../../services/loading.service';
+import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { QueryParamsService } from '../../services/query-params.service';
 import { SnackbarService } from '../../services/snackbar.service';
 import { Column, Deleted } from '../../models/common.model';
-import { LinkFacsimileToPublicationResponse, PublicationFacsimile } from '../../models/facsimile.model';
+import { FacsimileCollectionCreateRequest, LinkFacsimileToPublicationResponse,
+         LinkPublicationToFacsimileRequest, PublicationFacsimile } from '../../models/facsimile.model';
 import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript,
-         ManuscriptResponse, Publication, PublicationComment,
+         ManuscriptResponse, Publication, PublicationAddRequest, PublicationComment,
          PublicationCommentResponse, PublicationEditRequest, PublicationResponse,
          Version, VersionResponse, XmlMetadata, METADATA_FIELDS
         } from '../../models/publication.model';
 import { SoftWrapPathPipe } from '../../pipes/soft-wrap-path.pipe';
 import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/utility-functions';
+
+
+type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest & {
+  cascade_published?: boolean;
+  link_facsimile?: boolean;
+  link_manuscript?: boolean;
+};
 
 @Component({
   selector: 'publications',
@@ -62,6 +71,7 @@ import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/u
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent implements OnInit {
+  private readonly facsimileService = inject(FacsimileService);
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
@@ -182,34 +192,15 @@ export class PublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         let request$: Observable<PublicationResponse>;
-        const formValue = result.form.value;
+        const formValue = result.form.value as PublicationDialogFormValue;
 
         const currentProject = this.projectService.getCurrentProject();
         if (publication?.id) {
           request$ = this.publicationService.editPublication(publication.id, formValue, currentProject);
         } else {
           request$ = this.publicationService.addPublication(parseInt(collectionId), formValue, currentProject).pipe(
-            switchMap((response: PublicationResponse) => {
-              const pub = response.data;
-
-              if (!formValue.link_manuscript || !pub.original_filename) {
-                return of(response);
-              }
-
-              const manuscriptPayload: LinkTextToPublicationRequest = {
-                text_type: 'manuscript',
-                original_filename: pub.original_filename,
-                name: pub.name,
-                published: pub.published,
-                language: pub.language,
-                sort_order: 1
-              };
-
-              return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, currentProject).pipe(
-                take(1),
-                map(() => response)  // preserve the original response
-              );
-            })
+            switchMap((response: PublicationResponse) => this.linkManuscriptForPublication(response, formValue, currentProject)),
+            switchMap((response: PublicationResponse) => this.linkFacsimileForPublication(response, formValue, currentProject))
           );
         }
         request$.pipe(take(1)).subscribe({
@@ -222,6 +213,9 @@ export class PublicationsComponent implements OnInit {
             } else if (formValue.link_manuscript === true) {
               this.manuscriptsLoader$.next(0);
             }
+            if (formValue.link_facsimile === true) {
+              this.facsimilesLoader$.next(0);
+            }
             this.snackbar.show('Publication saved.');
           },
           error: (err) => {
@@ -230,6 +224,7 @@ export class PublicationsComponent implements OnInit {
             this.manuscriptsLoader$.next(0);
             this.versionsLoader$.next(0);
             this.commentLoader$.next(0);
+            this.facsimilesLoader$.next(0);
           }
         });
       }
@@ -650,6 +645,71 @@ export class PublicationsComponent implements OnInit {
         });
       }
     });
+  }
+
+  private linkManuscriptForPublication(
+    response: PublicationResponse,
+    formValue: PublicationDialogFormValue,
+    currentProject: string | null
+  ): Observable<PublicationResponse> {
+    const pub = response.data;
+
+    if (!formValue.link_manuscript || !pub.original_filename) {
+      return of(response);
+    }
+
+    const manuscriptPayload: LinkTextToPublicationRequest = {
+      text_type: 'manuscript',
+      original_filename: pub.original_filename,
+      name: pub.name,
+      published: pub.published,
+      language: pub.language,
+      sort_order: 1
+    };
+
+    return this.publicationService.linkTextToPublication(pub.id, manuscriptPayload, currentProject).pipe(
+      map(() => response)
+    );
+  }
+
+  private linkFacsimileForPublication(
+    response: PublicationResponse,
+    formValue: PublicationDialogFormValue,
+    currentProject: string | null
+  ): Observable<PublicationResponse> {
+    if (formValue.link_facsimile !== true) {
+      return of(response);
+    }
+
+    const pub = response.data;
+    const facsimilePayload: FacsimileCollectionCreateRequest = {
+      title: pub.name ?? formValue.name ?? '',
+      description: null,
+      folder_path: null,
+      external_url: null,
+      number_of_pages: 4,
+      start_page_number: 0
+    };
+
+    return this.facsimileService.addFacsimileCollection(facsimilePayload, currentProject).pipe(
+      switchMap(facsimileResponse => {
+        const linkPayload: LinkPublicationToFacsimileRequest = {
+          publication_id: pub.id,
+          page_nr: 1,
+          section_id: 0,
+          priority: 1,
+          type: 0
+        };
+
+        return this.publicationService.linkFacsimileToPublication(
+          facsimileResponse.data.id,
+          linkPayload,
+          currentProject
+        ).pipe(
+          map(() => response)
+        );
+      })
+    );
   }
 
 }

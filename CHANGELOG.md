@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - `AGENTS.md` to guide AI coding agents.
 - Docs: `auth-flow.md` describing the expected authentication behavior of the CMS in human-readable terms.
+- Publications: option to also create and link a facsimile collection when adding a single publication.
 
 ### Changed
 

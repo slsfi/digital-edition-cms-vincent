@@ -29,10 +29,10 @@
                     <mat-slide-toggle formControlName="cascade_published">{{ column.header }}</mat-slide-toggle>
                   </div>
                 }
-              } @else if (column.field === 'link_manuscript') {
+              } @else if (column.field === 'link_manuscript' || column.field === 'link_facsimile') {
                 @if (!modelId) {
                   <div class="form-toggle-wrapper">
-                    <mat-slide-toggle formControlName="link_manuscript" [matTooltip]="column.tooltip">{{ column.header }}</mat-slide-toggle>
+                    <mat-slide-toggle [formControlName]="column.field" [matTooltip]="column.tooltip">{{ column.header }}</mat-slide-toggle>
                   </div>
                 }
               } @else {
