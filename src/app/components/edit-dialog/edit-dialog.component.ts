@@ -134,8 +134,8 @@ export class EditDialogComponent<T> implements OnInit {
         value = ((value === '' ? null : new Date(value as string)) as T[keyof T]);
       }
 
-      // set link_manuscript to false by default
-      if (column.field === 'link_manuscript') {
+      // set link_manuscript and link_facsimile to false by default
+      if (column.field === 'link_manuscript' || column.field === 'link_facsimile') {
         value = false as T[keyof T];
       }
 

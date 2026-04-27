@@ -17,6 +17,14 @@ export const allPublicationColumnsData: Column[] = [
     tooltip: 'Toggle this to also link a manuscript to the publication using the same XML-file. Apply only when the same XML-file should be used for both the reading-text and manuscript view.'
   },
   {
+    field: 'link_facsimile',
+    header: 'Also add facsimile.',
+    type: 'boolean',
+    editable: true,
+    editOrder: 2,
+    tooltip: 'Toggle this to also create a new facsimile collection and link it to the publication. The title of the facsimile collection will be the publication’s title.'
+  },
+  {
     field: 'cascade_published',
     header: 'Also apply selected published status to any comments, manuscripts or variants linked to the publication.',
     type: 'boolean',
