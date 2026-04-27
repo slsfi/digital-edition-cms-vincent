@@ -38,7 +38,7 @@ export class SoftWrapPathPipe implements PipeTransform {
     }
 
     // Insert <wbr> after "/" and before "."
-    return value.replace(/[/\.]/g, (match) => {
+    return value.replace(/[/.]/g, (match) => {
       if (match === '/') {
         return '/<wbr>';        // break after slash
       } else {

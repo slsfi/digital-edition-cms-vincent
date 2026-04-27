@@ -17,7 +17,10 @@ import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
-type Replacement = { slot: number; file: File };
+interface Replacement {
+  slot: number;
+  file: File
+};
 
 enum FileQueueStatus {
   Pending = 'pending',

@@ -18,6 +18,9 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { CanMoveNodeDownPipe } from '../../pipes/can-move-node-down.pipe';
 import { CanMoveNodeUpPipe } from '../../pipes/can-move-node-up.pipe';
 
+type EditableTocNodeAssignmentTarget = Partial<
+  Record<EditableTocNodeKey, EditableTocNode[EditableTocNodeKey]>
+>;
 
 @Component({
   selector: 'toc-tree',
@@ -322,7 +325,8 @@ export class TocTreeComponent implements OnChanges {
     this.clearDragInfo();
     if (!this.currentDropAction) return;
 
-    let { targetId, action } = this.currentDropAction;
+    const { targetId } = this.currentDropAction;
+    let { action } = this.currentDropAction;
     if (action === 'inside' && !this.canDropInside(targetId)) {
       // defensive fallback for visuals, it is not possible to
       // drop nodes 'inside' any other nodes than section nodes
@@ -722,6 +726,8 @@ export class TocTreeComponent implements OnChanges {
    * - Adds/overwrites keys from 'source'
    */
   private syncTocNode(target: TocNode, source: EditableTocNode): void {
+    const writableTarget = target as EditableTocNodeAssignmentTarget;
+
     // 1. DELETE missing keys from target (if they are editable)
     for (const key of Object.keys(target)) {
       // Inside this block, 'key' is EditableTocNodeKey.
@@ -749,15 +755,10 @@ export class TocTreeComponent implements OnChanges {
 
       const val = source[key];
 
-      // Assigning to target[key] is also safe.
       if (val !== undefined) {
-        // TypeScript incorrectly computes the intersection of property
-        // types when indexing 'target' with a union key
-        // ('EditableTocNodeKey'), resulting in 'never'. We use an
-        // 'as any' cast on the target object for the assignment, which
-        // is safe because the type guard 'this.isEditableKey(key)'
-        // ensures 'key' is valid.
-        (target as any)[key] = val;
+        // TypeScript cannot correlate this dynamic key with its value
+        // type, so write through a mapped view of editable properties.
+        writableTarget[key] = val;
       }
     }
   }

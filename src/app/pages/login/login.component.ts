@@ -124,7 +124,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const { email, password, environment, customEnvironment } = this.loginForm.getRawValue();
+    const { password, environment, customEnvironment } = this.loginForm.getRawValue();
     const env = environment === CUSTOM_ENVIRONMENT_VALUE
       ? normalizeEnvironmentURL(customEnvironment)
       : environment;

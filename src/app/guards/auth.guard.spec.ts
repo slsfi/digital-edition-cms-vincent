@@ -10,6 +10,9 @@ import {
 import { AuthService } from '../services/auth.service';
 import { authGuard } from './auth.guard';
 
+type AuthGuardRoute = Parameters<CanActivateFn>[0];
+type AuthGuardState = Parameters<CanActivateFn>[1];
+
 describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => authGuard(...guardParameters));
@@ -25,7 +28,7 @@ describe('authGuard', () => {
   }
 
   function runGuard(url: string): unknown {
-    return executeGuard({} as any, { url } as any);
+    return executeGuard({} as AuthGuardRoute, { url } as AuthGuardState);
   }
 
   beforeEach(() => {

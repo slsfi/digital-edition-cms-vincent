@@ -30,7 +30,10 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
 import { Column } from '../../models/common.model';
 
 
-type Filters = { search: FormControl<string>; category: FormControl<string> };
+interface Filters {
+  search: FormControl<string>;
+  category: FormControl<string>
+};
 
 @Component({
   selector: 'keywords',

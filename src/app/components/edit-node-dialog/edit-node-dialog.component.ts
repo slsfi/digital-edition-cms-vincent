@@ -223,8 +223,12 @@ export class EditNodeDialogComponent implements OnInit {
     }
   }
 
-  private trimmedStringOrNullish(value: any): string | null | undefined {
-    return ((value ?? '') === '') ? value : String(value).trim();
+  private trimmedStringOrNullish(value: unknown): string | null | undefined {
+    if (value === null || value === undefined || value === '') {
+      return value;
+    }
+
+    return String(value).trim();
   }
 
 }

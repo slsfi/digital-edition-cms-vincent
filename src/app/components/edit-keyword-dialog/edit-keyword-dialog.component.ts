@@ -19,7 +19,7 @@ export interface EditKeywordDialogData {
   categories$: Observable<string[]>;
 }
 
-type FormValue = {
+interface FormValue {
   name: FormControl<string>;
   category: FormControl<string>;
   newCategory: FormControl<string>;

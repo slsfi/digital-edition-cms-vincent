@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: remove route-guard session polling and treat any `/session/validate` error as a terminal auth failure that logs the user out.
 - API: handle error responses without a JSON body when showing snackbar messages.
 - Lint config due to updated linting dependencies.
+- Lint errors.
 
 ### Removed
 

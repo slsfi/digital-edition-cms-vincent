@@ -152,8 +152,8 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
           const direction = queryParams['direction'] === 'asc' ? 1 : -1;
 
           data = data.sort((a: T, b: T) => {
-            let aValue = this.getProperty<T, keyof T>(a, sortKey) as unknown;
-            let bValue = this.getProperty<T, keyof T>(b, sortKey) as unknown;
+            const aValue = this.getProperty<T, keyof T>(a, sortKey) as unknown;
+            const bValue = this.getProperty<T, keyof T>(b, sortKey) as unknown;
 
             // Normalize values: strings → lowercase, null/undefined → null
             const normalize = (v: unknown) => {

@@ -46,8 +46,8 @@ export class ConfirmDialogComponent {
   metadataFields: LabelledSelectOption[] = this.data.metadataFields || [];
   tocUpdateFields: LabelledSelectOption[] = this.data.tocUpdateFields || [];
   cascadeBoolean = false;
-  selectedMetadataFields: { [key: string]: boolean } = {};
-  selectedTocUpdateFields: { [key: string]: boolean } = {};
+  selectedMetadataFields: Record<string, boolean> = {};
+  selectedTocUpdateFields: Record<string, boolean> = {};
 
   isDeleteAction = (['delete', 'remove']).includes(
     this.confirmText.trim().toLowerCase()

@@ -93,7 +93,7 @@ export class TableOfContentsService {
    */
   createNewTocRoot(
     collectionId: number,
-    collectionTitle: string = 'Table of contents',
+    collectionTitle = 'Table of contents',
     children: TocNode[] = []
   ): TocRoot {
     return {
@@ -198,13 +198,11 @@ export class TableOfContentsService {
       ? false
       : true;
 
-    const {
-      type: _ignoredType,
-      collapsed: _ignoredCollapsed,
-      children: _ignoredChildren,
-      url: _ignoredUrl, // Legacy property which is ignored
-      ...rest
-    } = node;
+    const rest = { ...node };
+    delete rest.type;
+    delete rest.collapsed;
+    delete rest.children;
+    delete rest.url; // Legacy property which is ignored
 
     return {
       ...rest,

@@ -4,8 +4,8 @@ import { CustomTableComponent } from './custom-table.component';
 import { getCommonTestingProviders } from '../../../testing/test-providers';
 
 describe('CustomTableComponent', () => {
-  let component: CustomTableComponent<any>;
-  let fixture: ComponentFixture<CustomTableComponent<any>>;
+  let component: CustomTableComponent<unknown>;
+  let fixture: ComponentFixture<CustomTableComponent<unknown>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -14,7 +14,7 @@ describe('CustomTableComponent', () => {
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CustomTableComponent<any>);
+    fixture = TestBed.createComponent(CustomTableComponent<unknown>);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -637,7 +637,6 @@ export class PublicationsComponent implements OnInit {
               this.snackbar.show('Successfully updated metadata of all publications.');
               this.publicationsLoader$.next(0); // Refresh the list
             } else if (this.metadataUpdateFailures.length < results.length) {
-              // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
               this.snackbar.show(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'warning');
               this.publicationsLoader$.next(0); // Refresh the list
             } else {

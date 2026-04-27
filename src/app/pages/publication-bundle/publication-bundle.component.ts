@@ -227,7 +227,6 @@ export class PublicationBundleComponent implements OnInit {
           }),
           catchError(err => {
             console.error(`Failed to fetch metadata from ${originalFilename}:`, err);
-            // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
             this.metadataFailures.push(`# ${index + 1}. ${originalFilename}`);
             return of(null); // Continue the stream
           })
@@ -243,9 +242,7 @@ export class PublicationBundleComponent implements OnInit {
         if (this.metadataFailures.length === 0) {
           this.snackbar.show('Successfully fetched metadata from all files.');
         } else if (this.metadataFailures.length < this.files.controls.length) {
-          this.snackbar.show(
-            // eslint-disable-next-line no-irregular-whitespace -- allow NBSP and newline for visual alignment in snackbar
-            `Failed to fetch metadata from ${this.metadataFailures.length} / ${this.files.controls.length} file(s):\n${this.metadataFailures.join('\n')}`, 'warning');
+          this.snackbar.show(`Failed to fetch metadata from ${this.metadataFailures.length} / ${this.files.controls.length} file(s):\n${this.metadataFailures.join('\n')}`, 'warning');
         } else {
           this.snackbar.show('Failed to fetch metadata from all files.', 'error');
         }
