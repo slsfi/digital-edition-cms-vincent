@@ -9,6 +9,7 @@ import { SaveTocResponse, TocNode, TocNodeApi, TocNodeType, TocResponse,
 import { Publication } from '../models/publication.model';
 import { getReadableDate } from '../utils/utility-functions';
 
+type NormalizedTocNodeRest = Omit<TocNodeApi, 'type' | 'collapsed' | 'children' | 'url'>;
 
 @Injectable({
   providedIn: 'root'
@@ -203,9 +204,10 @@ export class TableOfContentsService {
     delete rest.collapsed;
     delete rest.children;
     delete rest.url; // Legacy property which is ignored
+    const normalizedRest = rest as NormalizedTocNodeRest;
 
     return {
-      ...rest,
+      ...normalizedRest,
       type,
       ...(type === 'section' // add 'collapsed' only if section node
         ? { collapsed }
