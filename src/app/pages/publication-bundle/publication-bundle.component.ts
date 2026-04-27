@@ -18,8 +18,10 @@ import { catchError, combineLatest, finalize, from, map, mergeMap,
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { Published, PublishedOptions } from '../../models/common.model';
+import { FacsimileCollectionCreateRequest, LinkPublicationToFacsimileRequest } from '../../models/facsimile.model';
 import { LinkTextToPublicationRequest, PublicationAddRequest, PublicationCollection,
          PublicationResponse, XmlMetadata } from '../../models/publication.model';
+import { FacsimileService } from '../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
@@ -50,6 +52,7 @@ interface BundleFormType {
   styleUrl: './publication-bundle.component.scss'
 })
 export class PublicationBundleComponent implements OnInit {
+  private readonly facsimileService = inject(FacsimileService);
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
@@ -70,6 +73,7 @@ export class PublicationBundleComponent implements OnInit {
   saveFailures: string[] = [];
   metadataFailures: string[] = [];
   addMsBoolean = false;
+  addFacsBoolean = false;
   existingFilePaths = new Set<string>();
   existingFilePathsLoaded = false;
   existingFilePathsLoadFailed = false;
@@ -295,14 +299,17 @@ export class PublicationBundleComponent implements OnInit {
    * If the `addMsBoolean` flag is enabled and the added publication includes a valid
    * `original_filename`, a manuscript text will also be linked to the newly created
    * publication via a secondary API call.
+   *
+   * If the `addFacsBoolean` flag is enabled, a facsimile collection will also be
+   * created and linked to the newly created publication.
    * 
    * All operations are handled reactively using RxJS, and errors are caught to allow
    * the overall publication process to continue even if individual inserts fail.
    * 
    * @param row - A FormGroup containing the publication metadata to be submitted.
    * @param collectionId - The ID of the publication collection to add the publication to.
-   * @returns An Observable that completes when the publication (and optionally the manuscript link)
-   *          has been processed. Emits no data, but handles success or failure internally.
+   * @returns An Observable that completes when the publication and optional linked data
+   *          have been processed. Emits no data, but handles success or failure internally.
    */
   addPublication(row: FormGroup<BundleFormType>, collectionId: number): Observable<void> {
     if (!this.project) {
@@ -314,33 +321,80 @@ export class PublicationBundleComponent implements OnInit {
 
     return this.publicationService.addPublication(collectionId, data, this.project).pipe(
       take(1),
-      switchMap((response: PublicationResponse) => {
-        const pub = response.data;
-
-        // Skip linking if addMsBoolean is false or original_filename is missing
-        if (!this.addMsBoolean || !pub.original_filename) {
-          return of(void 0);
-        }
-
-        const manuscriptPayload: LinkTextToPublicationRequest = {
-          text_type: 'manuscript',
-          original_filename: pub.original_filename!,
-          name: pub.name,
-          published: pub.published,
-          language: pub.language,
-          sort_order: 1
-        };
-
-        // Also link a manuscript to the publication using the same data
-        return this.publicationService.linkTextToPublication(
-          pub.id, manuscriptPayload, this.project
-        ).pipe(take(1));
-      }),
+      switchMap((response: PublicationResponse) => this.linkManuscriptForPublication(response)),
+      switchMap((response: PublicationResponse) => this.linkFacsimileForPublication(response, data)),
       map(() => void 0),
       catchError((err) => {
-        console.error(`Publication or manuscript linking failed for file ${data.original_filename}:`, err);
+        console.error(`Publication, manuscript, or facsimile linking failed for file ${data.original_filename}:`, err);
         this.saveFailures.push(data.original_filename as string);
         return of(void 0); // Allow continuation of the stream
+      })
+    );
+  }
+
+  private linkManuscriptForPublication(response: PublicationResponse): Observable<PublicationResponse> {
+    const pub = response.data;
+
+    // Skip linking if addMsBoolean is false or original_filename is missing
+    if (!this.addMsBoolean || !pub.original_filename) {
+      return of(response);
+    }
+
+    const manuscriptPayload: LinkTextToPublicationRequest = {
+      text_type: 'manuscript',
+      original_filename: pub.original_filename,
+      name: pub.name,
+      published: pub.published,
+      language: pub.language,
+      sort_order: 1
+    };
+
+    // Also link a manuscript to the publication using the same data
+    return this.publicationService.linkTextToPublication(
+      pub.id, manuscriptPayload, this.project
+    ).pipe(
+      take(1),
+      map(() => response)
+    );
+  }
+
+  private linkFacsimileForPublication(
+    response: PublicationResponse,
+    data: PublicationAddRequest
+  ): Observable<PublicationResponse> {
+    if (!this.addFacsBoolean) {
+      return of(response);
+    }
+
+    const pub = response.data;
+    const facsimilePayload: FacsimileCollectionCreateRequest = {
+      title: pub.name ?? data.name ?? '',
+      description: null,
+      folder_path: null,
+      external_url: null,
+      number_of_pages: 4,
+      start_page_number: 0
+    };
+
+    return this.facsimileService.addFacsimileCollection(facsimilePayload, this.project).pipe(
+      take(1),
+      switchMap(facsimileResponse => {
+        const linkPayload: LinkPublicationToFacsimileRequest = {
+          publication_id: pub.id,
+          page_nr: 1,
+          section_id: 0,
+          priority: 1,
+          type: 0
+        };
+
+        return this.publicationService.linkFacsimileToPublication(
+          facsimileResponse.data.id,
+          linkPayload,
+          this.project
+        ).pipe(
+          take(1),
+          map(() => response)
+        );
       })
     );
   }
