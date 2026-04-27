@@ -184,17 +184,18 @@ When a configured-backend, non-auth request fails with `401`, the interceptor en
 If a refresh token exists:
 
 1. `AuthService` sends the refresh token to the backend refresh endpoint as a bearer token.
-2. If refresh succeeds, the new access token replaces the old access token in `localStorage`.
-3. The original request is retried with the new access token.
-4. The retried response is returned to the original caller.
+2. If refresh returns a new access token, the CMS validates that token with `/session/validate_cms`.
+3. If CMS-user validation succeeds, the new access token replaces the old access token in `localStorage`.
+4. The original request is retried with the new access token.
+5. The retried response is returned to the original caller.
 
-Concurrent refresh callers share one refresh request. They all receive the same new access token if refresh succeeds, or the same error if refresh fails.
+Concurrent refresh callers share one refresh request. They all receive the same new access token if refresh and CMS-user validation both succeed, or the same error if either step fails.
 
 If no refresh token exists, the CMS does not call the refresh endpoint. The session is expired and the user is sent to `/login`.
 
 ## Refresh failure
 
-Any refresh endpoint failure is treated as a terminal auth failure for the CMS. This includes `401`, `422`, and non-auth-looking failures such as `500`.
+Any refresh endpoint failure or post-refresh CMS-user validation failure is treated as a terminal auth failure for the CMS. This includes `401`, `422`, and non-auth-looking failures such as `500`.
 
 On refresh failure:
 
@@ -206,6 +207,8 @@ On refresh failure:
 - the current safe route is preserved as a one-time post-login return target;
 - the user is redirected to `/login` with `replaceUrl: true`;
 - the original caller receives the refresh error.
+
+The refreshed access token is not stored or emitted to waiting callers until `/session/validate_cms` succeeds. If CMS-user validation fails after refresh, the old access token and refresh token are cleared.
 
 In the current interceptor chain, an error from the refresh-and-retry sequence is handled as forced re-authentication. That means an error emitted by the retried request after refresh also uses this terminal path.
 
@@ -306,6 +309,7 @@ Use these questions when changing auth behavior:
 - What happens when login fails?
 - What happens when the backend returns `401` for a protected API request?
 - What happens when refresh succeeds?
+- What happens when refresh returns a new token but `/session/validate_cms` rejects it?
 - What happens when refresh fails with `401`, `422`, or another error?
 - What happens when the access token exists but the refresh token is missing?
 - What happens when a request already has an `Authorization` header?

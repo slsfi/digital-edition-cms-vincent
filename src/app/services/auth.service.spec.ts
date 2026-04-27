@@ -400,6 +400,66 @@ describe('AuthService', () => {
     expect(firstResult).toBe('access-token-2');
     expect(secondResult).toBe('access-token-2');
     expect(localStorage.getItem('access_token')).toBe('access-token-2');
+    expect(apiService.get).toHaveBeenCalledWith(
+      'https://api.sls.fi/session/validate_cms',
+      jasmine.objectContaining({
+        headers: { Authorization: 'Bearer access-token-2' }
+      }),
+      true
+    );
+  });
+
+  it('does not emit or store a refreshed access token until CMS validation succeeds', () => {
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    const validationSubject = new Subject<{ authenticated?: boolean }>();
+    apiService.post.and.returnValue(of<RefreshTokenResponse>({
+      msg: 'ok',
+      access_token: 'access-token-2'
+    }));
+    apiService.get.and.returnValue(validationSubject.asObservable());
+    const service = createService();
+    let result: string | undefined;
+
+    service.refreshToken().subscribe((token) => {
+      result = token;
+    });
+
+    expect(result).toBeUndefined();
+    expect(localStorage.getItem('access_token')).toBe('access-token-1');
+
+    validationSubject.next({ authenticated: true });
+    validationSubject.complete();
+
+    expect(result).toBe('access-token-2');
+    expect(localStorage.getItem('access_token')).toBe('access-token-2');
+  });
+
+  it('expires the session when CMS validation fails after refresh', () => {
+    localStorage.setItem('access_token', 'access-token-1');
+    localStorage.setItem('refresh_token', 'refresh-token-1');
+    apiService.post.and.returnValue(of<RefreshTokenResponse>({
+      msg: 'ok',
+      access_token: 'access-token-2'
+    }));
+    apiService.get.and.returnValue(throwError(() => ({ status: 401 })));
+    const service = createService();
+    let receivedError: { status?: number } | undefined;
+
+    service.refreshToken().subscribe({
+      next: () => fail('expected refreshToken() to error'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    expect(receivedError?.status).toBe(401);
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(localStorage.getItem('refresh_token')).toBeNull();
+    expect(apiService.setEnvironment).not.toHaveBeenCalled();
+    expect(projectService.setSelectedProject).toHaveBeenCalledWith(null, { persist: false });
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
   it('propagates refresh failures to concurrent waiters and clears auth state', () => {
