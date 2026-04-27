@@ -51,7 +51,7 @@ export class FacsimilesComponent implements OnInit {
 
 
   columnsData: Column[] = [
-    { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false, filterType: 'equals' },
+    { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
     { field: 'title', header: 'Title', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true, filterType: 'contains' },
     { field: 'number_of_pages', header: 'Number of pages', filterable: false, type: 'number', editable: true },
