@@ -212,20 +212,13 @@ export class TableOfContentsComponent implements OnInit {
 
     // Pick a default TOC language variant for this collection:
     const variants = this.tocVariantsByCollectionId[collection.id];
-    let initialLanguage: string | null = null;
-
-    if (variants) {
-      if (variants.hasUniversal) {
-        initialLanguage = null;  // universal
-      } else if (variants.languages.length > 0) {
-        initialLanguage = variants.languages[0];  // first language-specific
-      } else {
-        initialLanguage = null;
-      }
-    } else {
-      // No saved TOC yet
-      initialLanguage = null;
-    }
+    // Initial TOC language:
+    // - universal TOC exists -> null
+    // - no universal, but language variants exist -> first language
+    // - no variants or empty variants -> null
+    const initialLanguage = variants?.hasUniversal
+      ? null
+      : variants?.languages[0] ?? null;
 
     this.currentTocLanguage = initialLanguage;
     this.tocLanguageSelection = initialLanguage;
@@ -474,7 +467,7 @@ export class TableOfContentsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result?: AutoGenerateTocDialogResult) => {
       if (result?.value && result.selectedSortOption) {
-        const selectedFields: { [key: string]: boolean } = result.selectedFields || {};
+        const selectedFields: Record<string, boolean> = result.selectedFields || {};
         const enabledFields: string[] = Object.keys(selectedFields).filter(key => selectedFields[key]);
         this.generateFlatToc(result.selectedSortOption, enabledFields);
       }
@@ -537,7 +530,7 @@ export class TableOfContentsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
-        const selectedFields: { [key: string]: boolean } = result.selectedTocUpdateFields || {};
+        const selectedFields: Record<string, boolean> = result.selectedTocUpdateFields || {};
         const enabledFields: string[] = Object.keys(selectedFields).filter(key => selectedFields[key]);
         this.updateFromDatabase(enabledFields);
       }

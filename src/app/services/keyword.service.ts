@@ -217,6 +217,7 @@ export class KeywordService {
    * Mock data for development fallback
    */
   private getMockKeywords(projectId: number): Keyword[] {
+    console.log('Mock keywords for project ', projectId);
     return [
       {
         id: 1,

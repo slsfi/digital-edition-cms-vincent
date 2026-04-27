@@ -19,7 +19,7 @@ module.exports = defineConfig([
         "error",
         {
           type: "attribute",
-          prefix: "app",
+          prefix: [],
           style: "camelCase",
         },
       ],
@@ -27,7 +27,7 @@ module.exports = defineConfig([
         "error",
         {
           type: "element",
-          prefix: "app",
+          prefix: [],
           style: "kebab-case",
         },
       ],
@@ -48,6 +48,12 @@ module.exports = defineConfig([
             "methods"
           ]
         }
+      ],
+      "no-irregular-whitespace": [
+        "error",
+        {
+          "skipTemplates": true,
+        },
       ],
     },
   },

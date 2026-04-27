@@ -49,11 +49,11 @@ export const EDITABLE_TOC_NODE_KEYS = [
   'language',
   'text',
   'type',
-] as const satisfies ReadonlyArray<keyof TocNode>;
+] as const satisfies readonly (keyof TocNode)[];
 
 export type EditableTocNodeKey = typeof EDITABLE_TOC_NODE_KEYS[number];
 export type EditableTocNode = Pick<TocNode, EditableTocNodeKey>;
-export const EDITABLE_TOC_NODE_KEYS_SET = new Set<string>(EDITABLE_TOC_NODE_KEYS as ReadonlyArray<string>);
+export const EDITABLE_TOC_NODE_KEYS_SET = new Set<string>(EDITABLE_TOC_NODE_KEYS as readonly string[]);
 
 export interface TocRootApi extends Omit<TocRoot, 'children'> {
   children: TocNodeApi[];

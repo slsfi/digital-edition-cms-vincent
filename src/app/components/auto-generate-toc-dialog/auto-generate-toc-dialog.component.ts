@@ -20,7 +20,7 @@ export interface AutoGenerateTocDialogData {
 export interface AutoGenerateTocDialogResult {
   value: boolean;
   selectedSortOption?: string;
-  selectedFields?: { [key: string]: boolean }
+  selectedFields?: Record<string, boolean>;
 }
 
 @Component({
@@ -43,7 +43,7 @@ export class AutoGenerateTocDialogComponent {
   sortOptions: LabelledOption[] = this.data.sortOptions;
 
   fields: LabelledSelectOption[] = this.data.includedFields || [];
-  selectedFields: { [key: string]: boolean } = {};
+  selectedFields: Record<string, boolean> = {};
 
   constructor() {
     this.fields.forEach(field => {
