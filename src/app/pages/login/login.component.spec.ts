@@ -1,5 +1,7 @@
+import { CdkAutofill } from '@angular/cdk/text-field';
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
@@ -122,6 +124,35 @@ describe('LoginComponent', () => {
     expect(apiService.setEnvironment).toHaveBeenCalledWith('https://example.com/custom/');
     expect(authService.login).toHaveBeenCalledWith('user@example.com', 'secret');
     expect(component.customEnvironment.value).toBe('https://example.com/custom/');
+  });
+
+  it('updates controls from cdk autofill events', () => {
+    expect(fixture.debugElement.queryAll(By.directive(CdkAutofill)).length).toBe(2);
+
+    const emailInput = fixture.nativeElement.querySelector(
+      'input[autocomplete="email"]'
+    ) as HTMLInputElement;
+    const passwordInput = fixture.nativeElement.querySelector(
+      'input[autocomplete="current-password"]'
+    ) as HTMLInputElement;
+    const loginButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    component.environment.setValue('https://api.sls.fi/');
+    fixture.detectChanges();
+
+    expect(loginButton.disabled).toBeTrue();
+
+    emailInput.value = 'user@example.com';
+    passwordInput.value = 'secret';
+
+    component.syncAutofilledInput('email', { target: emailInput, isAutofilled: true });
+    component.syncAutofilledInput('password', { target: passwordInput, isAutofilled: true });
+    fixture.detectChanges();
+
+    expect(component.email.value).toBe('user@example.com');
+    expect(component.password.value).toBe('secret');
+    expect(component.loginForm.valid).toBeTrue();
+    expect(loginButton.disabled).toBeFalse();
   });
 
   it('clears the login error when the form value changes', () => {

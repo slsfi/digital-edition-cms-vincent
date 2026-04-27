@@ -1,3 +1,4 @@
+import { TextFieldModule, type AutofillEvent } from '@angular/cdk/text-field';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule,
@@ -40,7 +41,7 @@ const validIfEnvironmentIsCustom = function(control: AbstractControl): Validatio
   selector: 'login',
   imports: [
     MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatSelectModule,
-    ReactiveFormsModule, CommonModule, MatIconModule, LoadingSpinnerComponent
+    ReactiveFormsModule, CommonModule, MatIconModule, TextFieldModule, LoadingSpinnerComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -141,6 +142,24 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.apiService.setEnvironment(env);
     this.authService.login(normalizedEmail, password);
+  }
+
+  /**
+   * Handles Angular CDK autofill notifications for credential inputs, because
+   * browser autofill can update the native input value without notifying
+   * Angular's reactive form controls.
+   *
+   * The `CdkAutofill` directive uses `[cdkAutofill]` as its selector and exposes
+   * an output with the same name. Angular includes output bindings when matching
+   * directive selectors, so `(cdkAutofill)` in the template is enough to attach
+   * the directive and receive autofill state changes.
+   */
+  syncAutofilledInput(controlName: 'email' | 'password', event: AutofillEvent): void {
+    const control = this.loginForm.get(controlName) as FormControl;
+    const input = event.target as HTMLInputElement;
+    if (input.value !== control.value) {
+      control.setValue(input.value);
+    }
   }
 
   private restoreStoredEnvironment(): void {

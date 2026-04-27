@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: harden CMS login/session handling by requiring complete stored sessions, validating stale sessions against the backend, scoping bearer-token injection and refresh flow to the selected backend, preserving safe return routes and environment-scoped project selection through login and forced re-authentication, and tightening custom backend URL handling.
 - Auth: remove route-guard session polling and treat any `/session/validate` error as a terminal auth failure that logs the user out.
 - API: handle error responses without a JSON body when showing snackbar messages.
+- Login: enable form submission when browser autofill populates stored email and password fields.
 - Lint config due to updated linting dependencies.
 - Lint errors.
 

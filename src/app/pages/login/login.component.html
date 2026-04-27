@@ -33,13 +33,15 @@
       <div class="row">
         <mat-form-field>
           <mat-label>Email</mat-label>
-          <input matInput formControlName="email" autocomplete="email" />
+          <input matInput formControlName="email" autocomplete="email"
+            (cdkAutofill)="syncAutofilledInput('email', $event)" />
         </mat-form-field>
       </div>
       <div class="row">
         <mat-form-field>
           <mat-label>Password</mat-label>
           <input matInput formControlName="password" autocomplete="current-password"
+            (cdkAutofill)="syncAutofilledInput('password', $event)"
             [type]="hidePassword() ? 'password' : 'text'" />
           <button matIconButton matSuffix (click)="togglePasswordVisibility($event)" type="button">
             <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
