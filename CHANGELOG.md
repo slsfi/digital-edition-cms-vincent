@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - CI: harden Docker image build pipeline, update `nginx` to 1.30.0, and update actions.
 - Custom table: increase surface area of links in cells.
-- Auth: require successful CMS-user validation via `/session/validate_cms` before accepting login, persisted startup sessions, or refreshed access tokens, and use CMS-user session validation for explicit session checks.
+- Auth: require successful CMS-user validation via `/session/validate_cms` before accepting login or persisted startup sessions, and use CMS-user session validation for explicit session checks.
 - Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
 - Deps: update `zone.js` to 0.16.1.
 - Deps (dev): update `angular/eslint` to 21.3.1.
