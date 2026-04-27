@@ -80,3 +80,10 @@ simple-snack-bar .mat-mdc-snack-bar-label {
 publication-bundle .bundle-row .mat-mdc-form-field {
   --mat-form-field-outlined-disabled-input-text-color: rgba(26, 27, 31, 0.55);
 }
+
+html {
+  /* Increase contrast of Material disabled text in form fields. */
+  --mat-form-field-outlined-disabled-label-text-color: #757575;
+  --mat-form-field-outlined-disabled-input-text-color: #757575;
+  --mat-select-disabled-trigger-text-color: #757575;
+}
