@@ -28,11 +28,16 @@ mat-card-header {
 }
 
 .login-error {
-  color: #b00020;
+  background-color: #A82424;
+  color: #fff;
   font-size: 0.875rem;
+  font-weight: 500;
   line-height: 1.4;
   margin: 0 0 1rem;
+  padding: 0.75em 0.75em;
+  border-radius: 4px;
   text-align: center;
+  width: calc(100% - 1.5em);
 }
 
 .api-url {
