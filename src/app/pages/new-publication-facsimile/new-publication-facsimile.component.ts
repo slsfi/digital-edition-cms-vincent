@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,11 +34,21 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrl: './new-publication-facsimile.component.scss'
 })
 export class NewPublicationFacsimileComponent implements OnInit {
+  private publicationService = inject(PublicationService);
+  private facsimileService = inject(FacsimileService);
+  private projectService = inject(ProjectService);
+  private queryParamsService = inject(QueryParamsService);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private snackbar = inject(SnackbarService);
+  private loadingService = inject(LoadingService);
+
 
   facsimileCollections$: Observable<FacsimileCollection[]> = new Observable<FacsimileCollection[]>();
-  filterParams$;
+  filterParams$ = this.queryParamsService.filterParams$;
   publication$: Observable<Publication> = new Observable<Publication>();
-  loading$;
+  loading$: Observable<boolean> = this.loadingService.loading$;
 
   form!: FormGroup;
 
@@ -48,21 +58,6 @@ export class NewPublicationFacsimileComponent implements OnInit {
     { field: 'description', header: 'Description', type: 'string', filterable: true },
     { field: 'external_url', header: 'External URL', type: 'string', filterable: true },
   ]
-
-  constructor(
-    private publicationService: PublicationService,
-    private facsimileService: FacsimileService,
-    private projectService: ProjectService,
-    private queryParamsService: QueryParamsService,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackbar: SnackbarService,
-    private loadingService: LoadingService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.filterParams$ = this.queryParamsService.filterParams$
-  }
 
   get publicationsPath() {
     const publicationCollectionId = this.route.snapshot.paramMap.get('collectionId');

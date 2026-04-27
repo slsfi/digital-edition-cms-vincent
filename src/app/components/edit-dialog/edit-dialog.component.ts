@@ -49,11 +49,9 @@ export interface EditDialogData<T> {
   styleUrl: './edit-dialog.component.scss'
 })
 export class EditDialogComponent<T> implements OnInit {
+  private publicationService = inject(PublicationService);
+  private projectService = inject(ProjectService);
 
-  constructor(
-    private publicationService: PublicationService,
-    private projectService: ProjectService
-  ) { }
 
   readonly data = inject<EditDialogData<T>>(MAT_DIALOG_DATA);
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -41,6 +41,14 @@ import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/f
   styleUrl: './facsimiles.component.scss'
 })
 export class FacsimilesComponent implements OnInit {
+  private facsimileService = inject(FacsimileService);
+  private projectService = inject(ProjectService);
+  private dialog = inject(MatDialog);
+  private queryParamsService = inject(QueryParamsService);
+  private snackbar = inject(SnackbarService);
+  private loadingService = inject(LoadingService);
+  private router = inject(Router);
+
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', filterable: true, type: 'number', editable: false, filterType: 'equals' },
@@ -59,29 +67,14 @@ export class FacsimilesComponent implements OnInit {
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  selectedProject$;
+  selectedProject$: BehaviorSubject<string | null> = this.facsimileService.selectedProject$;
   facsimileCollections$: Observable<FacsimileCollection[]> = of([]);
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  sortParams$;
-  filterParams$;
+  sortParams$ = this.queryParamsService.sortParams$;
+  filterParams$ = this.queryParamsService.filterParams$;
 
-  loading$;
+  loading$: Observable<boolean> = this.loadingService.loading$;
   loadingData = true;
-
-  constructor(
-    private facsimileService: FacsimileService,
-    private projectService: ProjectService,
-    private dialog: MatDialog,
-    private queryParamsService: QueryParamsService,
-    private snackbar: SnackbarService,
-    private loadingService: LoadingService,
-    private router: Router,
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.facsimileService.selectedProject$;
-    this.sortParams$ = this.queryParamsService.sortParams$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
-  }
 
   ngOnInit() {
     this.facsimileCollections$ = this.loader$.asObservable().pipe(

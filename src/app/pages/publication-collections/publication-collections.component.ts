@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -34,6 +34,14 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrl: './publication-collections.component.scss'
 })
 export class PublicationCollectionsComponent implements OnInit {
+  private publicationService = inject(PublicationService);
+  private projectService = inject(ProjectService);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private queryParamsService = inject(QueryParamsService);
+  private snackbar = inject(SnackbarService);
+  private loadingService = inject(LoadingService);
+
   publicationCollectionColumnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
     { field: 'name', header: 'Name', type: 'string', filterType: 'contains', editable: true, filterable: true, translations: true, parentTranslationField: 'name_translation_id' },
@@ -61,25 +69,10 @@ export class PublicationCollectionsComponent implements OnInit {
   publicationCollectionId$: Observable<string | null> = new Observable<string | null>();
   selectedPublicationCollection$: Observable<PublicationCollection | null> = new Observable<PublicationCollection | null>();
 
-  selectedProject$: Observable<string | null>;
-  sortParams$;
-  filterParams$;
-  loading$;
-
-  constructor(
-    private publicationService: PublicationService,
-    private projectService: ProjectService,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private queryParamsService: QueryParamsService,
-    private snackbar: SnackbarService,
-    private loadingService: LoadingService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.projectService.selectedProject$;
-    this.sortParams$ = this.queryParamsService.sortParams$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
-   }
+  selectedProject$: Observable<string | null> = this.projectService.selectedProject$;
+  sortParams$ = this.queryParamsService.sortParams$;
+  filterParams$ = this.queryParamsService.filterParams$;
+  loading$: Observable<boolean> = this.loadingService.loading$;
 
   ngOnInit() {
     this.publicationCollectionId$ = this.route.paramMap.pipe(

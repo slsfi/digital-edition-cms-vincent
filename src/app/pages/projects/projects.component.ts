@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,9 +30,15 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrl: './projects.component.scss'
 })
 export class ProjectsComponent implements OnInit {
+  private projectService = inject(ProjectService);
+  private dialog = inject(MatDialog);
+  private snackbar = inject(SnackbarService);
+  private loadingService = inject(LoadingService);
+  private queryParamsService = inject(QueryParamsService);
+
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   projects$: Observable<Project[]> = of([]);
-  filterParams$;
+  filterParams$ = this.queryParamsService.filterParams$;
 
   columnsData: Column[] = [
     { field: 'id', header: 'ID', type: 'number', filterable: true, editable: false, filterType: 'equals' },
@@ -44,18 +50,7 @@ export class ProjectsComponent implements OnInit {
   ]
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
-  loading$;
-
-  constructor(
-    private projectService: ProjectService,
-    private dialog: MatDialog,
-    private snackbar: SnackbarService,
-    private loadingService: LoadingService,
-    private queryParamsService: QueryParamsService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.filterParams$ = this.queryParamsService.filterParams$
-   }
+  loading$: Observable<boolean> = this.loadingService.loading$;
 
   ngOnInit() {
     this.projects$ = this.loader$.asObservable().pipe(

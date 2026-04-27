@@ -1,12 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 
 @Pipe({
   name: 'customDate'
 })
 export class CustomDatePipe implements PipeTransform {
+  private datePipe = inject(DatePipe);
 
-  constructor(private datePipe: DatePipe) {}
 
   transform(value: string | null, format = 'd.M.yyyy HH:mm'): string {
     if (!value) {

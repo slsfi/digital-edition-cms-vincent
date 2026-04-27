@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -37,6 +37,9 @@ import { QueryParamsService } from './../../services/query-params.service';
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
+  private queryParamsService = inject(QueryParamsService);
+  private loadingService = inject(LoadingService);
+
   @Input() columns: Column[] = [];
   @Input() data$: Observable<T[]> = new BehaviorSubject<T[]>([]);
   @Input() idRouteParams: string[] = [];
@@ -69,23 +72,14 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   tableDataSource = new MatTableDataSource<T>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  queryParams$;
-  pageParams$;
-  loading$;
+  queryParams$ = this.queryParamsService.queryParams$;
+  pageParams$ = this.queryParamsService.pageParams$;
+  loading$ = this.loadingService.loading$;
 
   originalData: T[] = [];
   originalCount = 0;
   filteredCount = 0;
   selection: SelectionModel<T> = new SelectionModel<T>(false, []);
-
-  constructor(
-    private queryParamsService: QueryParamsService,
-    private loadingService: LoadingService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.queryParams$ = this.queryParamsService.queryParams$;
-    this.pageParams$ = this.queryParamsService.pageParams$;
-  }
 
   ngOnInit() {
     this.editSecondaryUsed = this.editRowSecondary.observed;

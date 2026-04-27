@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,20 +37,20 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrl: './add-facsimile-from-publications.component.scss'
 })
 export class AddFacsimileFromPublicationsComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private publicationService = inject(PublicationService);
+  private facsimileService = inject(FacsimileService);
+  private projectService = inject(ProjectService);
+  private router = inject(Router);
+  private readonly snackbar = inject(SnackbarService);
+
   form: FormGroup;
   publicationCollections$: Observable<PublicationCollection[]> = of([]);
   isProcessing = false;
   progressMessage = '';
   creationSummary: FacsimileCreationSummary | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private publicationService: PublicationService,
-    private facsimileService: FacsimileService,
-    private projectService: ProjectService,
-    private router: Router,
-    private readonly snackbar: SnackbarService
-  ) {
+  constructor() {
     this.form = this.fb.group({
       publicationCollectionId: ['', Validators.required],
       numberOfPages: [4, [Validators.required, Validators.min(1)]],
