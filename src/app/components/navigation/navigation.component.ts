@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,10 @@ import { ProjectService } from '../../services/project.service';
   styleUrl: './navigation.component.scss'
 })
 export class NavigationComponent implements OnDestroy {
+  private projectService = inject(ProjectService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   @Output() menuToggle: EventEmitter<void> = new EventEmitter<void>();
 
   navItems = navigationItems;
@@ -24,11 +28,7 @@ export class NavigationComponent implements OnDestroy {
   currentUrl = '';
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private projectService: ProjectService,
-    private authService: AuthService,
-    private router: Router
-  ) {
+  constructor() {
     this.router.events.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {

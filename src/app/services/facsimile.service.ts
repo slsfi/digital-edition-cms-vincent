@@ -1,5 +1,5 @@
 import { HttpContext } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, filter, map, switchMap, from, concatMap,
          toArray, catchError, of, take } from 'rxjs';
 
@@ -17,15 +17,11 @@ import { PublicationService } from './publication.service';
   providedIn: 'root'
 })
 export class FacsimileService {
-  selectedProject$: BehaviorSubject<string | null>;
+  private apiService = inject(ApiService);
+  private projectService = inject(ProjectService);
+  private publicationService = inject(PublicationService);
 
-  constructor(
-    private apiService: ApiService,
-    private projectService: ProjectService,
-    private publicationService: PublicationService
-  ) {
-    this.selectedProject$ = this.projectService.selectedProject$;
-  }
+  selectedProject$: BehaviorSubject<string | null> = this.projectService.selectedProject$;
 
   private validateProject(projectName: string | null | undefined): string | never {
     if (!projectName) {

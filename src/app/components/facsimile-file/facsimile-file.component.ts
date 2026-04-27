@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpContext } from '@angular/common/http';
 import { BehaviorSubject, map } from 'rxjs';
@@ -15,6 +15,10 @@ import { ProjectService } from '../../services/project.service';
   styleUrl: './facsimile-file.component.scss'
 })
 export class FacsimileFileComponent implements AfterViewInit {
+  private facsimileService = inject(FacsimileService);
+  private apiService = inject(ApiService);
+  private projectService = inject(ProjectService);
+
   @Input({ required: true }) collectionId!: number;
   @Input({ required: true }) pageNumber!: number;
   @Input() zoom: 1 | 2 | 3 | 4 = 1;
@@ -23,14 +27,6 @@ export class FacsimileFileComponent implements AfterViewInit {
 
   private imageUrlSubject = new BehaviorSubject<string>('');
   imageUrl$ = this.imageUrlSubject.asObservable();
-
-  constructor(
-    private facsimileService: FacsimileService, 
-    private apiService: ApiService,
-    private projectService: ProjectService
-  ) {
-
-  }
 
   ngAfterViewInit() {
     setTimeout(() => {

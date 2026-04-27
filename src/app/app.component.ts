@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -16,14 +16,10 @@ import { AuthService } from './services/auth.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  isAuthenticated$: Observable<boolean> = new Observable<boolean>();
+  private authService = inject(AuthService);
+  private matIconReg = inject(MatIconRegistry);
 
-  constructor(
-    private authService: AuthService,
-    private matIconReg: MatIconRegistry
-  ) {
-    this.isAuthenticated$ = this.authService.isAuthenticated$;
-  }
+  isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated$;
 
   ngOnInit() {
     // Set Angular Material to use the new Material Symbols icon font.

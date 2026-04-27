@@ -1,5 +1,5 @@
 import { HttpContext } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, map, Observable, take } from 'rxjs';
 
 import { SkipLoading } from '../interceptors/loading.interceptor';
@@ -41,10 +41,12 @@ interface SetSelectedProjectOptions {
   providedIn: 'root'
 })
 export class ProjectService {
+  private apiService = inject(ApiService);
+
   selectedProject$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   fileTree$: BehaviorSubject<FileTree | null> = new BehaviorSubject<FileTree | null>(null);
 
-  constructor(private apiService: ApiService) {
+  constructor() {
     // Initial app loads can reuse the persisted project only if the persisted
     // environment still matches the currently configured environment.
     const storedProject = this.getStoredProjectForEnvironment(this.apiService.environment);

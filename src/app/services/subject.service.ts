@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { filter, map, Observable, switchMap } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, filter, map, Observable, switchMap } from 'rxjs';
 
 import { Person, PersonPayload, PersonResponse } from '../models/person.model';
 import { ApiService } from './api.service';
@@ -9,11 +9,10 @@ import { ProjectService } from './project.service';
   providedIn: 'root'
 })
 export class SubjectService {
-  selectedProject$;
+  private apiService = inject(ApiService);
+  private projectService = inject(ProjectService);
 
-  constructor(private apiService: ApiService, private projectService: ProjectService) {
-    this.selectedProject$ = this.projectService.selectedProject$;
-  }
+  selectedProject$: BehaviorSubject<string | null> = this.projectService.selectedProject$;
 
   private validateProject(projectName: string | null | undefined): string | never {
     if (!projectName) {

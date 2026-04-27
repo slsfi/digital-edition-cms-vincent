@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { map, Observable } from 'rxjs';
 
@@ -9,12 +9,15 @@ import { QueryParamType } from '../models/common.model';
   providedIn: 'root'
 })
 export class QueryParamsService {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   queryParams$: Observable<Params>;
   sortParams$: Observable<QueryParamType[]>;
   filterParams$: Observable<QueryParamType[]>;
   pageParams$: Observable<QueryParamType[]>;
 
-  constructor(private router: Router, private route: ActivatedRoute) {
+  constructor() {
     this.queryParams$ = this.route.queryParams;
 
     this.sortParams$ = this.queryParams$.pipe(

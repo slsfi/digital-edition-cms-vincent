@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -33,11 +33,18 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrl: './persons.component.scss'
 })
 export class PersonsComponent implements OnInit {
+  private subjectService = inject(SubjectService);
+  private projectService = inject(ProjectService);
+  private dialog = inject(MatDialog);
+  private queryParamsService = inject(QueryParamsService);
+  private loadingService = inject(LoadingService);
+  private snackbar = inject(SnackbarService);
+
 
   loader$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  selectedProject$;
-  filterParams$;
-  loading$;
+  selectedProject$: BehaviorSubject<string | null> = this.subjectService.selectedProject$;
+  filterParams$ = this.queryParamsService.filterParams$;
+  loading$: Observable<boolean> = this.loadingService.loading$;
   persons$: Observable<Person[]> = of([]);
 
   columnsData: Column[] = [
@@ -69,19 +76,6 @@ export class PersonsComponent implements OnInit {
   ]
 
   displayedColumns: string[] = this.columnsData.map(column => column.field);
-
-  constructor(
-    private subjectService: SubjectService,
-    private projectService: ProjectService,
-    private dialog: MatDialog,
-    private queryParamsService: QueryParamsService,
-    private loadingService: LoadingService,
-    private snackbar: SnackbarService
-  ) {
-    this.loading$ = this.loadingService.loading$;
-    this.selectedProject$ = this.subjectService.selectedProject$;
-    this.filterParams$ = this.queryParamsService.filterParams$;
-  }
 
   ngOnInit() {
     this.persons$ = this.loader$.asObservable().pipe(
