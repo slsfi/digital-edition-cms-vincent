@@ -208,10 +208,11 @@ export class AuthService {
    * Requests a new access token using the stored refresh token.
    *
    * Concurrent callers share the same refresh request and wait for the same
-   * emitted token. Missing refresh tokens fail fast and expire the current
-   * session instead of issuing a backend request. Any refresh-endpoint failure,
-   * including auth-state failures such as `401` or `422`, is treated as
-   * terminal in the CMS and expires the current session.
+   * emitted token. The refreshed access token must pass CMS-user validation
+   * before it is stored or emitted. Missing refresh tokens fail fast and expire
+   * the current session instead of issuing a backend request. Any refresh or
+   * post-refresh CMS validation failure is treated as terminal in the CMS and
+   * expires the current session.
    */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
@@ -234,13 +235,15 @@ export class AuthService {
     const url = `${environment}auth/refresh`;
     const headers = { Authorization: `Bearer ${refreshToken}` };
     return this.apiService.post<RefreshTokenResponse>(url, null, { headers }, true).pipe(
-      map((response) => {
+      switchMap((response) => this.validateCmsAccessWithToken(response.access_token).pipe(
+        map(() => response.access_token)
+      )),
+      map((accessToken) => {
         refreshCompleted = true;
-        const { access_token } = response;
-        localStorage.setItem('access_token', access_token);
-        this.refreshTokenSubject.next(access_token);
+        localStorage.setItem('access_token', accessToken);
+        this.refreshTokenSubject.next(accessToken);
         this.isAuthenticated$.next(true);
-        return access_token;
+        return accessToken;
       }),
       catchError((error) => {
         refreshCompleted = true;
@@ -348,11 +351,11 @@ export class AuthService {
   }
 
   /**
-   * Validates that a freshly logged-in backend session belongs to a CMS user.
+   * Validates that an access token belongs to a CMS-user session.
    *
-   * The request uses the just-returned access token as a caller-supplied
-   * Authorization header. That keeps a CMS-access denial from entering the
-   * interceptor refresh flow before the frontend has accepted the login.
+   * The request uses the access token as a caller-supplied Authorization
+   * header. That keeps a CMS-access denial from entering the interceptor
+   * refresh flow while the token itself is being validated.
    */
   private validateCmsAccessWithToken(accessToken: string): Observable<boolean> {
     const environment = this.getConfiguredEnvironment();
@@ -383,8 +386,8 @@ export class AuthService {
   /**
    * Validates a complete token pair found at app startup before trusting it.
    *
-   * A stale access token gets one refresh attempt. The refreshed token must also
-   * pass CMS-user validation before the session is accepted.
+   * A stale access token gets one refresh attempt. The refresh flow validates
+   * the refreshed token before the session is accepted.
    */
   private createInitialSessionValidation(): Observable<boolean> {
     const accessToken = this.getAccessToken();
@@ -402,7 +405,6 @@ export class AuthService {
         }
 
         return this.refreshToken().pipe(
-          switchMap((refreshedAccessToken) => this.validateCmsAccessWithToken(refreshedAccessToken)),
           map(() => this.acceptInitialSession()),
           catchError(() => {
             this.clearAuthState(true, false);
@@ -534,7 +536,7 @@ export class AuthService {
   }
 
   /**
-   * Creates an error marker for failed post-login CMS-user validation.
+   * Creates an error marker for failed CMS-user validation.
    */
   private createCmsAccessValidationError(error?: unknown): CmsAccessValidationError {
     const cmsAccessError = new Error('CMS access could not be validated.') as CmsAccessValidationError;
@@ -549,7 +551,7 @@ export class AuthService {
   }
 
   /**
-   * Returns true when the error came from post-login CMS-user validation.
+   * Returns true when the error came from CMS-user validation.
    */
   private isCmsAccessValidationError(error: unknown): error is CmsAccessValidationError {
     return (error as { cmsAccessValidationFailed?: unknown } | null)?.cmsAccessValidationFailed === true;
