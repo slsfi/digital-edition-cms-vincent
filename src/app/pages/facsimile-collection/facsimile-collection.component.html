@@ -1,4 +1,6 @@
-@let facsimile = facsimile$ | async;
+@let facsColl = facsimileCollection();
+@let imageCount = numberOfPages();
+@let savingImageCount = savingNumberOfPages();
 @let missingFileNumbersValue = missingFileNumbers();
 @let missingFileSetValue = missingFileSet();
 
@@ -7,52 +9,81 @@
   <a matIconButton [routerLink]="['/facsimiles']" [queryParamsHandling]="'preserve'">
     <mat-icon>west</mat-icon>
   </a>
-  <h2>{{ facsimile?.title || '' }} (ID {{ facsimile?.id }}{{ facsimile?.description ? '; ' + facsimile?.description : '' }})</h2>
+  <h2>{{ facsColl?.title || '' }} (ID {{ facsColl?.id }}{{ facsColl?.description ? '; ' + facsColl?.description : '' }})</h2>
 </div>
 
 @if (loadingFacsData()) {
   <loading-spinner></loading-spinner>
-} @else {
-  @if (facsimile && facsimile.number_of_pages) {
-    <h3>Images in the facsimile collection ({{ facsimile.number_of_pages }})</h3>
+} @else if (facsColl) {
+  <div class="edit-facs-coll-row">
+    <mat-form-field class="number-of-pages-field" [subscriptSizing]="'dynamic'">
+      <mat-label>Number of images</mat-label>
+      <input
+        matInput
+        type="number"
+        inputmode="numeric"
+        min="1"
+        step="1"
+        [formControl]="numberOfPagesControl"
+      >
+      <mat-error>Enter a positive integer.</mat-error>
+    </mat-form-field>
 
-    <div class="actions-row">
-      @if (missingFileNumbersValue.length) {
-        <a
-          matButton="filled"
-          [routerLink]="['/facsimiles', facsimile?.id, 'upload-missing']"
-        >Add missing ({{ missingFileNumbersValue.length }})</a>
-      }
+    <button
+      matButton="filled"
+      type="button"
+      [disabled]="!numberOfPagesSaveEnabled()"
+      (click)="saveNumberOfPages(facsColl)"
+    >
+      Save
+    </button>
+    <p>Note: reducing the number of images in the facsimile collection will not delete already uploaded image files from the server.</p>
+  </div>
 
-      @if (missingFileNumbersValue.length !== facsimile.number_of_pages) {
-        <a
-          matButton="filled"
-          [routerLink]="['/facsimiles', facsimile?.id, 'upload-all']"
-        >Replace all ({{ facsimile.number_of_pages }})</a>
+  <div class="actions-row">
+    @if (missingFileNumbersValue.length) {
+      <a
+        matButton="filled"
+        [disabled]="savingImageCount"
+        [routerLink]="['/facsimiles', facsColl.id, 'upload-missing']"
+      >Add missing ({{ missingFileNumbersValue.length }})</a>
+    }
 
-        <a
-          matButton="filled"
-          [routerLink]="['/facsimiles', facsimile?.id, 'upload-selection']"
-        >
-          Replace selection
-        </a>
-      }
-    </div>
+    @if (missingFileNumbersValue.length !== imageCount) {
+      <a
+        matButton="filled"
+        [disabled]="savingImageCount"
+        [routerLink]="['/facsimiles', facsColl.id, 'upload-all']"
+      >Replace all ({{ imageCount }})</a>
 
-    <div class="images">
-      @for (page of pageNumbers(); track page) {
-        <div class="image">
-          <div>{{ page }}</div>
-          @if (missingFileSetValue.has(page)) {
-            <mat-icon class="img-icon error">block</mat-icon>
-          } @else {
-            <mat-icon class="img-icon success">check_circle</mat-icon>
-          }
-        </div>
-      } @empty {
-        <p>No images.</p>
-      }
-    </div>
+      <a
+        matButton="filled"
+        [disabled]="savingImageCount"
+        [routerLink]="['/facsimiles', facsColl.id, 'upload-selection']"
+      >
+        Replace selection
+      </a>
+    }
+  </div>
 
+  <div class="images">
+    @for (page of pageNumbers(); track page) {
+      <div class="image">
+        <div>{{ page }}</div>
+        @if (missingFileSetValue.has(page)) {
+          <mat-icon class="img-icon error" matTooltip="Not uploaded">block</mat-icon>
+        } @else {
+          <mat-icon class="img-icon success" matTooltip="Uploaded">check_circle</mat-icon>
+        }
+      </div>
+    } @empty {
+      <p>No images.</p>
+    }
+  </div>
+
+  @if (savingImageCount) {
+    <loading-spinner [overlay]="true"></loading-spinner>
   }
+} @else {
+  <p>Error loading facsimile collection.</p>
 }

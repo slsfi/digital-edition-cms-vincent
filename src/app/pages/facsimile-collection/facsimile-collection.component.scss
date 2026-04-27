@@ -11,6 +11,29 @@
   margin: 1.5rem 0;
 }
 
+.edit-facs-coll-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 1rem 0 0 0;
+
+  p {
+    font-size: 0.875rem;
+    max-width: 450px;
+    width: 100%;
+  }
+
+  button {
+    margin-right: 1em;
+  }
+}
+
+.number-of-pages-field {
+  min-width: 12em;
+  max-width: 12em;
+}
+
 .images {
   display: flex;
   flex-wrap: wrap;
