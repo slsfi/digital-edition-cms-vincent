@@ -36,11 +36,11 @@
           <mat-menu #addPublicationMenu="matMenu">
             <button mat-menu-item (click)="editPublication(null, publicationCollectionId)">
               <mat-icon>add</mat-icon>
-              Add single
+              Add publication
             </button>
-            <a mat-menu-item class="add-bundle" aria-label="Add multiple" [routerLink]="['/publication-collections', publicationCollectionId, 'bundle-add']">
+            <a mat-menu-item aria-label="Add publications from files" [routerLink]="['/publication-collections', publicationCollectionId, 'add-publications-from-files']">
               <mat-icon>library_add</mat-icon>
-              Add multiple
+              Add publications from files
             </a>
           </mat-menu>
           <button matIconButton
