@@ -10,7 +10,7 @@ import { Column, QueryParamType } from '../../models/common.model';
 import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
-  selector: 'app-table-sorting',
+  selector: 'table-sorting',
   imports: [
     MatInputModule,
     MatFormFieldModule,

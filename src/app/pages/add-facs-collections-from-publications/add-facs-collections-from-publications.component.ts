@@ -20,7 +20,7 @@ import { SnackbarService } from '../../services/snackbar.service';
 
 
 @Component({
-  selector: 'add-facsimile-from-publications',
+  selector: 'add-facs-collections-from-publications',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -33,10 +33,10 @@ import { SnackbarService } from '../../services/snackbar.service';
     RouterLink,
     LoadingSpinnerComponent
   ],
-  templateUrl: './add-facsimile-from-publications.component.html',
-  styleUrl: './add-facsimile-from-publications.component.scss'
+  templateUrl: './add-facs-collections-from-publications.component.html',
+  styleUrl: './add-facs-collections-from-publications.component.scss'
 })
-export class AddFacsimileFromPublicationsComponent implements OnInit {
+export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private publicationService = inject(PublicationService);
   private facsimileService = inject(FacsimileService);
@@ -113,7 +113,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
   }
 
   navToFacsimileCollections() {
-    this.router.navigate(['/facsimiles']);
+    this.router.navigate(['/facsimile-collections']);
   }
 
   getProgressPercentage(): number {

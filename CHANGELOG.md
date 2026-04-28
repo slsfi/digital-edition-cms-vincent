@@ -22,6 +22,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: require successful CMS-user validation via `/session/validate_cms` before accepting login, persisted startup sessions, or refreshed access tokens, and use CMS-user session validation for explicit session checks.
 - Migrate to the `inject` function.
 - Facsimile collections: ID links to facsimile images.
+- Rename 'facsimiles' to 'facsimile-collections' in files, components and routes.
+- Rename 'add-facsimile-from-publications' to 'add-facs-collections-from-publications' in files, components and routes.
+- Rename 'publication-bundle' to 'add-publications-from-files' in files, components and routes.
+- Rename 'new-publication-facsimile' to 'add-facsimile-to-publication' in files, components and routes.
+- Remove `app-` prefix from component selectors.
 - Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
 - Deps: update `zone.js` to 0.16.1.
 - Deps (dev): update `angular/eslint` to 21.3.1.
@@ -46,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Removed
 
 - Deprecated `provideAnimationsAsync()` from app config providers.
+- Unused `FacsimileFileComponent`.
 
 
 

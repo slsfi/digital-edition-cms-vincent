@@ -229,7 +229,7 @@ describe('AuthService', () => {
 
   it('restores an environment-matched project before redirecting to a project route', () => {
     (router as unknown as { url: string }).url = '/login?rt=1';
-    redirectStorage.consumeReturnUrl.and.returnValue('/facsimiles');
+    redirectStorage.consumeReturnUrl.and.returnValue('/facsimile-collections');
     projectService.restoreSelectedProjectForEnvironment.and.callFake(() => {
       projectService.getCurrentProject.and.returnValue('project-a');
       return 'project-a';
@@ -245,12 +245,12 @@ describe('AuthService', () => {
     service.login('user@example.com', 'secret');
 
     expect(projectService.restoreSelectedProjectForEnvironment).toHaveBeenCalledWith('https://api.sls.fi/', ['project-a']);
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/facsimiles');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/facsimile-collections');
   });
 
   it('sends users to the landing page when the return target needs a project but none was restored', () => {
     (router as unknown as { url: string }).url = '/login?rt=1';
-    redirectStorage.consumeReturnUrl.and.returnValue('/facsimiles');
+    redirectStorage.consumeReturnUrl.and.returnValue('/facsimile-collections');
     apiService.post.and.returnValue(of<LoginResponse>({
       access_token: 'access-token-1',
       refresh_token: 'refresh-token-1',

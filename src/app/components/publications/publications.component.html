@@ -36,11 +36,11 @@
           <mat-menu #addPublicationMenu="matMenu">
             <button mat-menu-item (click)="editPublication(null, publicationCollectionId)">
               <mat-icon>add</mat-icon>
-              Add single
+              Add publication
             </button>
-            <a mat-menu-item class="add-bundle" aria-label="Add multiple" [routerLink]="['/publication-collections', publicationCollectionId, 'bundle-add']">
+            <a mat-menu-item aria-label="Add publications from files" [routerLink]="['/publication-collections', publicationCollectionId, 'add-publications-from-files']">
               <mat-icon>library_add</mat-icon>
-              Add multiple
+              Add publications from files
             </a>
           </mat-menu>
           <button matIconButton
@@ -119,7 +119,7 @@
               (deleteRow)="deleteFacsimile($event)">
               <ng-content custom-table-title>Facsimiles</ng-content>
               <ng-content custom-table-actions>
-                <a mat-flat-button routerLink="facsimiles/new"><mat-icon>add</mat-icon>Add</a>
+                <a mat-flat-button routerLink="add-facsimile"><mat-icon>add</mat-icon>Add</a>
               </ng-content>
             </custom-table>
           </mat-card-content>

@@ -29,7 +29,7 @@ import {
 } from './facsimile-collection-columns';
 
 @Component({
-  selector: 'app-facsimiles',
+  selector: 'facsimile-collections',
   imports: [
     CommonModule,
     MatBadgeModule,
@@ -41,10 +41,10 @@ import {
     CustomTableComponent,
     LoadingSpinnerComponent
   ],
-  templateUrl: './facsimiles.component.html',
-  styleUrl: './facsimiles.component.scss'
+  templateUrl: './facsimile-collections.component.html',
+  styleUrl: './facsimile-collections.component.scss'
 })
-export class FacsimilesComponent implements OnInit {
+export class FacsimileCollectionsComponent implements OnInit {
   private facsimileService = inject(FacsimileService);
   private projectService = inject(ProjectService);
   private dialog = inject(MatDialog);
@@ -150,7 +150,7 @@ export class FacsimilesComponent implements OnInit {
   }
 
   addFromPublications() {
-    this.router.navigate(['/facsimiles/add-from-publications']);
+    this.router.navigate(['/facsimile-collections/add-from-publications']);
   }
 
 }

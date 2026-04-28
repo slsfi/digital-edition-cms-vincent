@@ -47,7 +47,7 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Home', route: '/', icon: 'home' },
   { label: 'Projects', route: '/projects', icon: 'hub' },
   { label: 'Text collections', route: '/publication-collections', icon: 'library_books' },
-  { label: 'Facsimile collections', route: '/facsimiles', icon: 'photo_library' },
+  { label: 'Facsimile collections', route: '/facsimile-collections', icon: 'photo_library' },
   { label: 'Table of contents', route: '/table-of-contents', icon: 'list_alt' },
   { label: 'Keywords', route: '/keywords', icon: 'label' },
   { label: 'Keyword linking', route: '/keywords/linking', icon: 'flowchart' },

@@ -20,7 +20,7 @@ import { QueryParamsService } from './../../services/query-params.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
-  selector: 'app-projects',
+  selector: 'projects',
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, LoadingSpinnerComponent,
     CustomTableComponent, CustomTableComponent, MatBadgeModule

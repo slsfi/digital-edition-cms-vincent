@@ -23,7 +23,7 @@ import { SubjectService } from '../../services/subject.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
-  selector: 'app-persons',
+  selector: 'persons',
   imports: [
     CommonModule, MatTableModule, MatIconModule, MatButtonModule, ScrollingModule, MatChipsModule,
     MatBadgeModule, LoadingSpinnerComponent, CustomTableComponent
