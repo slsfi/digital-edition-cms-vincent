@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './guards/auth.guard';
-import { AddFacsimileFromPublicationsComponent } from './pages/add-facsimile-from-publications/add-facsimile-from-publications.component';
+import { AddFacsCollectionsFromPublicationsComponent } from './pages/add-facs-collections-from-publications/add-facs-collections-from-publications.component';
 import { FacsimileCollectionComponent } from './pages/facsimile-collection/facsimile-collection.component';
 import { FacsimileCollectionUploadBlockComponent } from './pages/facsimile-collection-upload-block/facsimile-collection-upload-block.component';
 import { FacsimileCollectionUploadSelectionComponent } from './pages/facsimile-collection-upload-selection/facsimile-collection-upload-selection.component';
@@ -27,7 +27,7 @@ export const routes: Routes = [
   { path: 'publication-collections/:collectionId/publication/:publicationId', component: PublicationCollectionsComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId/publication/:publicationId/facsimiles/new', component: NewPublicationFacsimileComponent, canActivate: [authGuard] },
   { path: 'facsimile-collections', component: FacsimileCollectionsComponent, canActivate: [authGuard] },
-  { path: 'facsimile-collections/add-from-publications', component: AddFacsimileFromPublicationsComponent, canActivate: [authGuard] },
+  { path: 'facsimile-collections/add-from-publications', component: AddFacsCollectionsFromPublicationsComponent, canActivate: [authGuard] },
   { path: 'facsimile-collections/:id/upload-selection', component: FacsimileCollectionUploadSelectionComponent, canActivate: [authGuard] },
   { path: 'facsimile-collections/:id/upload-missing', component: FacsimileCollectionUploadBlockComponent, canActivate: [authGuard], data: { mode: 'missing' } },
   { path: 'facsimile-collections/:id/upload-all', component: FacsimileCollectionUploadBlockComponent, canActivate: [authGuard], data: { mode: 'all' } },

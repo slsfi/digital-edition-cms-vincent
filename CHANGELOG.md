@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate to the `inject` function.
 - Facsimile collections: ID links to facsimile images.
 - Rename 'facsimiles' to 'facsimile-collections' in files, components and routes.
+- Rename 'add-facsimile-from-publications' to 'add-facs-collections-from-publications' in files, components and routes.
 - Remove `app-` prefix from component selectors.
 - Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
 - Deps: update `zone.js` to 0.16.1.
