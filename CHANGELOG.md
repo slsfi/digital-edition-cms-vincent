@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Rename 'publication-bundle' to 'add-publications-from-files' in files, components and routes.
 - Rename 'new-publication-facsimile' to 'add-facsimile-to-publication' in files, components and routes.
 - Remove `app-` prefix from component selectors.
+- Edit dialog: use language select options for publication and manuscript language fields, preserving unknown backend language codes.
 - Update `README.md`.
 - Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
 - Deps: update `zone.js` to 0.16.1.
