@@ -48,6 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Increase contrast of text in disable form fields.
 - Lint config due to updated linting dependencies.
 - Lint errors.
+- Hide site subtitle on narrow screens.
 
 ### Removed
 
