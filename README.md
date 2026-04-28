@@ -19,6 +19,12 @@ The app is built on [Angular][angular] and uses [Angular Material][material] web
 
 
 
+## Documentation
+
+- [Auth flow](docs/auth-flow.md).
+
+
+
 ## Development Setup
 
 ### Prerequisites
@@ -107,19 +113,21 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ### Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Run `npm build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ### Running unit tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `npm test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-### Running end-to-end tests
+To run unit tests in Headless Chrome, run:
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```
+npm test -- --watch=false --browsers=ChromeHeadless
+```
 
 ### Lint
 
-Run `ng lint`
+Run `npm lint`
 
 ### Further help
 
