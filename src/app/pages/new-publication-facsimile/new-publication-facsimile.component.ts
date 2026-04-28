@@ -25,7 +25,7 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
-  selector: 'app-new-publication-facsimile',
+  selector: 'new-publication-facsimile',
   imports: [
     CommonModule, MatTableModule, CustomTableComponent, MatIconModule, MatBadgeModule, MatButtonModule,
     MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent

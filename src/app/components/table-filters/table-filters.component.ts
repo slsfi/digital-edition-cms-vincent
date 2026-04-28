@@ -11,7 +11,7 @@ import { personTypeOptions } from '../../models/person.model';
 import { QueryParamsService } from './../../services/query-params.service';
 
 @Component({
-  selector: 'app-table-filters',
+  selector: 'table-filters',
   imports: [
     MatInputModule,
     MatFormFieldModule,
