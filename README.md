@@ -127,7 +127,7 @@ npm test -- --watch=false --browsers=ChromeHeadless
 
 ### Lint
 
-Run `npm lint`
+Run `npm run lint`
 
 ### Further help
 
