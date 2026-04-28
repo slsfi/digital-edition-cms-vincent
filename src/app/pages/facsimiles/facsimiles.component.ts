@@ -23,6 +23,10 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { SnackbarService } from '../../services/snackbar.service';
 import { Column, Deleted } from '../../models/common.model';
 import { FacsimileCollection, FacsimileCollectionResponse } from '../../models/facsimile.model';
+import {
+  FACSIMILE_COLLECTION_ALL_COLUMN_DATA,
+  FACSIMILE_COLLECTION_COLUMNS_DATA
+} from './facsimile-collection-columns';
 
 @Component({
   selector: 'app-facsimiles',
@@ -50,21 +54,8 @@ export class FacsimilesComponent implements OnInit {
   private router = inject(Router);
 
 
-  columnsData: Column[] = [
-    { field: 'id', header: 'ID', type: 'id', editable: false, filterable: true },
-    { field: 'title', header: 'Title', filterable: true, type: 'string', editable: true, filterType: 'contains' },
-    { field: 'description', header: 'Description', filterable: true, type: 'string', editable: true, filterType: 'contains' },
-    { field: 'number_of_pages', header: 'Number of pages', filterable: false, type: 'number', editable: true },
-    { field: 'start_page_number', header: 'Start page number', filterable: false, type: 'number', editable: true },
-    { field: 'external_url', header: 'External URL', filterable: true, type: 'string', filterType: 'contains', editable: true },
-    { field: 'actions', header: 'Actions', filterable: false, type: 'action' },
-  ]
-  allColumnData = [
-    ...this.columnsData,
-    { field: 'page_comment', header: 'Page comment', filterable: false, type: 'string', editable: false },
-    { field: 'deleted', header: 'Deleted', filterable: false, type: 'boolean', editable: false },
-    { field: 'folder_path', header: 'Folder path', filterable: false, type: 'string', editable: false },
-  ]
+  columnsData: Column[] = FACSIMILE_COLLECTION_COLUMNS_DATA;
+  allColumnData: Column[] = FACSIMILE_COLLECTION_ALL_COLUMN_DATA;
   displayedColumns: string[] = this.columnsData.map(column => column.field);
 
   selectedProject$: BehaviorSubject<string | null> = this.facsimileService.selectedProject$;
