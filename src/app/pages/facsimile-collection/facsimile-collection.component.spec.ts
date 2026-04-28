@@ -44,12 +44,13 @@ describe('FacsimileCollectionComponent', () => {
       message: '',
       data: { missing_file_numbers: [] }
     }));
-    facsimileService.editFacsimileCollection.and.returnValue(of({
+    facsimileService.editFacsimileCollection.and.callFake((collectionId, payload) => of({
       success: true,
       message: '',
       data: {
         ...facsimileCollection,
-        number_of_pages: 6
+        ...payload,
+        id: collectionId
       }
     }));
 
@@ -93,32 +94,44 @@ describe('FacsimileCollectionComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should enable save only when the number of pages changes', () => {
-    let saveButton = fixture.debugElement.query(By.css('.edit-pages-row button')).nativeElement as HTMLButtonElement;
+  it('should enable save only when a valid title or number of pages changes', () => {
+    let saveButton = fixture.debugElement.query(By.css('.edit-facs-coll-row button')).nativeElement as HTMLButtonElement;
     expect(saveButton.disabled).toBeTrue();
 
     component.numberOfPagesControl.setValue(0);
     fixture.detectChanges();
 
-    saveButton = fixture.debugElement.query(By.css('.edit-pages-row button')).nativeElement as HTMLButtonElement;
+    saveButton = fixture.debugElement.query(By.css('.edit-facs-coll-row button')).nativeElement as HTMLButtonElement;
     expect(saveButton.disabled).toBeTrue();
 
     component.numberOfPagesControl.setValue(5);
     fixture.detectChanges();
 
-    saveButton = fixture.debugElement.query(By.css('.edit-pages-row button')).nativeElement as HTMLButtonElement;
+    saveButton = fixture.debugElement.query(By.css('.edit-facs-coll-row button')).nativeElement as HTMLButtonElement;
     expect(saveButton.disabled).toBeFalse();
 
     component.numberOfPagesControl.setValue(facsimileCollection.number_of_pages);
     fixture.detectChanges();
 
-    saveButton = fixture.debugElement.query(By.css('.edit-pages-row button')).nativeElement as HTMLButtonElement;
+    saveButton = fixture.debugElement.query(By.css('.edit-facs-coll-row button')).nativeElement as HTMLButtonElement;
+    expect(saveButton.disabled).toBeTrue();
+
+    component.titleControl.setValue('Updated title');
+    fixture.detectChanges();
+
+    saveButton = fixture.debugElement.query(By.css('.edit-facs-coll-row button')).nativeElement as HTMLButtonElement;
+    expect(saveButton.disabled).toBeFalse();
+
+    component.titleControl.setValue(' ');
+    fixture.detectChanges();
+
+    saveButton = fixture.debugElement.query(By.css('.edit-facs-coll-row button')).nativeElement as HTMLButtonElement;
     expect(saveButton.disabled).toBeTrue();
   });
 
-  it('should update only number_of_pages in the edit request', () => {
+  it('should update title and number_of_pages in the edit request', () => {
     const payload: FacsimileCollectionEditRequest = {
-      title: facsimileCollection.title,
+      title: 'Updated title',
       number_of_pages: 6,
       start_page_number: facsimileCollection.start_page_number,
       description: facsimileCollection.description,
@@ -126,8 +139,9 @@ describe('FacsimileCollectionComponent', () => {
       deleted: facsimileCollection.deleted
     };
 
+    component.titleControl.setValue('Updated title');
     component.numberOfPagesControl.setValue(6);
-    component.saveNumberOfPages(facsimileCollection);
+    component.saveFacsimileCollection(facsimileCollection);
 
     expect(facsimileService.editFacsimileCollection).toHaveBeenCalledOnceWith(
       facsimileCollection.id,
@@ -135,6 +149,7 @@ describe('FacsimileCollectionComponent', () => {
       'test-project'
     );
     expect(component.numberOfPages()).toBe(6);
-    expect(snackbar.show).toHaveBeenCalledWith('Number of images saved.');
+    expect(component.facsimileCollection()?.title).toBe('Updated title');
+    expect(snackbar.show).toHaveBeenCalledWith('Facsimile collection saved.');
   });
 });

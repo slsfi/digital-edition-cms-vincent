@@ -18,27 +18,25 @@
   gap: 0.625rem;
   margin: 1rem 0 0 0;
 
-  p {
-    font-size: 0.875rem;
-    max-width: 450px;
-    width: 100%;
-  }
-
   button {
-    margin-right: 1em;
+    margin-top: -1.25em;
   }
 }
 
+.title-field {
+  width: 30em;
+}
+
 .number-of-pages-field {
-  min-width: 12em;
-  max-width: 12em;
+  width: 12em;
+  max-width: 100%;
 }
 
 .images {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin: 0;
+  margin: 0 0 3rem 0;
   padding: 0;
 
   .image {

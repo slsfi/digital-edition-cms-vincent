@@ -5,17 +5,22 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTooltip } from "@angular/material/tooltip";
+import { MatTooltip } from '@angular/material/tooltip';
 import { finalize, take } from 'rxjs';
 
-import { FacsimileCollection, FacsimileCollectionEditRequest, VerifyFacsimileFileResponse } from '../../models/facsimile.model';
+import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
+import { FacsimilesComponent } from '../facsimiles/facsimiles.component';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { FacsimileCollection, FacsimileCollectionEditRequest,
+         FacsimileCollectionResponse, VerifyFacsimileFileResponse
+        } from '../../models/facsimile.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'facsimile-collection',
@@ -29,11 +34,20 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
     MatInputModule,
     LoadingSpinnerComponent,
     MatTooltip
-],
+  ],
   templateUrl: './facsimile-collection.component.html',
   styleUrl: './facsimile-collection.component.scss'
 })
 export class FacsimileCollectionComponent implements OnInit {
+  private static readonly notBlankValidator = (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    return value.trim() ? null : { blank: true };
+  };
+
   private static readonly integerValidator = (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
     if (value === null || value === '') {
@@ -43,6 +57,7 @@ export class FacsimileCollectionComponent implements OnInit {
     return Number.isInteger(Number(value)) ? null : { integer: true };
   };
 
+  private readonly dialog = inject(MatDialog);
   private readonly facsimileService = inject(FacsimileService);
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
@@ -51,10 +66,20 @@ export class FacsimileCollectionComponent implements OnInit {
   collectionId: number = this.route.snapshot.params['id'];
   facsimileCollection = signal<FacsimileCollection | null>(null);
   loadingFacsData = signal<boolean>(true);
-  savingNumberOfPages = signal<boolean>(false);
+  savingFacsimileCollection = signal<boolean>(false);
   missingFileNumbers = signal<number[]>([]);
   missingFileSet = computed(() => new Set(this.missingFileNumbers()));
   numberOfPages = signal<number>(0);
+  titleControl = new FormControl<string>(
+    { value: '', disabled: true },
+    {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        FacsimileCollectionComponent.notBlankValidator
+      ]
+    }
+  );
   numberOfPagesControl = new FormControl<number | null>(
     { value: null, disabled: true },
     {
@@ -65,18 +90,26 @@ export class FacsimileCollectionComponent implements OnInit {
       ]
     }
   );
+  titleInput = toSignal(this.titleControl.valueChanges, {
+    initialValue: this.titleControl.value
+  });
   numberOfPagesInput = toSignal(this.numberOfPagesControl.valueChanges, {
     initialValue: this.numberOfPagesControl.value
   });
-  numberOfPagesSaveEnabled = computed(() => {
+  facsimileCollectionSaveEnabled = computed(() => {
     const facsimile = this.facsimileCollection();
+    const newTitle = this.titleInput().trim();
     const newNumberOfPages = this.numberOfPagesInput();
 
     return !!facsimile
-      && !this.savingNumberOfPages()
+      && !this.savingFacsimileCollection()
+      && this.titleControl.valid
       && this.numberOfPagesControl.valid
       && newNumberOfPages !== null
-      && newNumberOfPages !== facsimile.number_of_pages;
+      && (
+        newTitle !== facsimile.title
+        || newNumberOfPages !== facsimile.number_of_pages
+      );
   });
   pageNumbers = computed(() =>
     Array.from({ length: this.numberOfPages() }, (_, i) => i + 1)
@@ -114,18 +147,19 @@ export class FacsimileCollectionComponent implements OnInit {
     });
   }
 
-  saveNumberOfPages(facsimile: FacsimileCollection): void {
-    if (!this.numberOfPagesSaveEnabled()) {
+  saveFacsimileCollection(facsimile: FacsimileCollection): void {
+    if (!this.facsimileCollectionSaveEnabled()) {
       return;
     }
 
+    const newTitle = this.titleControl.value.trim();
     const newNumberOfPages = this.numberOfPagesControl.value;
     if (newNumberOfPages === null) {
       return;
     }
 
     const payload: FacsimileCollectionEditRequest = {
-      title: facsimile.title,
+      title: newTitle,
       number_of_pages: newNumberOfPages,
       start_page_number: facsimile.start_page_number,
       description: facsimile.description,
@@ -133,19 +167,50 @@ export class FacsimileCollectionComponent implements OnInit {
       deleted: facsimile.deleted
     };
 
-    this.savingNumberOfPages.set(true);
+    this.savingFacsimileCollection.set(true);
     this.facsimileService.editFacsimileCollection(
       facsimile.id,
       payload,
       this.project
     ).pipe(
       take(1),
-      finalize(() => this.savingNumberOfPages.set(false))
+      finalize(() => this.savingFacsimileCollection.set(false))
     ).subscribe({
-      next: response => {
+      next: (response: FacsimileCollectionResponse) => {
         this.setFacsimileCollection(response.data);
         this.verifyFacsimileFiles();
-        this.snackbar.show('Number of images saved.');
+        this.snackbar.show('Facsimile collection saved.');
+      }
+    });
+  }
+
+  editFacsimileCollection(collection: FacsimileCollection) {
+    const data: EditDialogData<FacsimileCollection> = {
+      model: collection,
+      columns: this.allColumnData,
+      title: 'fascimile collection'
+    }
+    const dialogRef = this.dialog.open(EditDialogComponent, { data });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.savingFacsimileCollection.set(true);
+        const payload = result.form.getRawValue();
+
+        this.facsimileService.editFacsimileCollection(
+          collection.id,
+          payload,
+          this.project
+        ).pipe(
+          take(1),
+          finalize(() => this.savingFacsimileCollection.set(false))
+        ).subscribe({
+          next: (response: FacsimileCollectionResponse) => {
+            this.setFacsimileCollection(response.data);
+            this.verifyFacsimileFiles();
+            this.snackbar.show('Facsimile collection saved.');
+          }
+        });
       }
     });
   }
@@ -155,8 +220,11 @@ export class FacsimileCollectionComponent implements OnInit {
 
     this.facsimileCollection.set(facsimile);
     this.numberOfPages.set(numberOfPages);
+    this.titleControl.setValue(facsimile.title);
     this.numberOfPagesControl.setValue(numberOfPages);
+    this.titleControl.markAsPristine();
     this.numberOfPagesControl.markAsPristine();
+    this.titleControl.enable({ emitEvent: false });
     this.numberOfPagesControl.enable({ emitEvent: false });
   }
 
