@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -16,6 +17,7 @@ import { finalize, take } from 'rxjs';
 import { FileTreeComponent } from "../file-tree/file-tree.component";
 import { TranslationsComponent } from '../translations/translations.component';
 import { Column, PublishedOptions } from '../../models/common.model';
+import { GenericLanguageObj, languageOptionsWithNone } from '../../models/language.model';
 import { personTypeOptions } from '../../models/person.model';
 import { XmlMetadata } from './../../models/publication.model';
 import { ProjectService } from '../../services/project.service';
@@ -49,6 +51,7 @@ export interface EditDialogData<T> {
   styleUrl: './edit-dialog.component.scss'
 })
 export class EditDialogComponent<T> implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private publicationService = inject(PublicationService);
   private projectService = inject(ProjectService);
 
@@ -58,6 +61,16 @@ export class EditDialogComponent<T> implements OnInit {
   form!: FormGroup;
 
   columns: Column[] = [];
+  readonly languageOptions: readonly GenericLanguageObj[] = languageOptionsWithNone;
+  private readonly languageValues = signal<Record<string, string | null>>({});
+  readonly languageOptionsByField = computed<Partial<Record<string, readonly GenericLanguageObj[]>>>(() => {
+    const values = this.languageValues();
+
+    return Object.entries(values).reduce<Partial<Record<string, readonly GenericLanguageObj[]>>>((options, [field, value]) => {
+      options[field] = this.buildLanguageOptions(value);
+      return options;
+    }, {});
+  });
   personTypes = personTypeOptions;
   publishedOptions = PublishedOptions;
 
@@ -134,6 +147,10 @@ export class EditDialogComponent<T> implements OnInit {
         value = ((value === '' ? null : new Date(value as string)) as T[keyof T]);
       }
 
+      if (column.type === 'language') {
+        value = this.normalizeLanguageValue(value) as T[keyof T];
+      }
+
       // set link_manuscript and link_facsimile to false by default
       if (column.field === 'link_manuscript' || column.field === 'link_facsimile') {
         value = false as T[keyof T];
@@ -168,7 +185,46 @@ export class EditDialogComponent<T> implements OnInit {
         column.field,
         new FormControl({ value, disabled: !column.editable }, { validators })
       );
+
+      if (column.type === 'language') {
+        const control = this.form.controls[column.field];
+        this.setLanguageValue(column.field, control.value);
+        control.valueChanges.pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe(controlValue => this.setLanguageValue(column.field, controlValue));
+      }
     });
+  }
+
+  private setLanguageValue(field: string, value: unknown): void {
+    const normalizedValue = this.normalizeLanguageValue(value);
+    this.languageValues.update(values => ({
+      ...values,
+      [field]: normalizedValue
+    }));
+  }
+
+  private normalizeLanguageValue(value: unknown): string | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    return String(value);
+  }
+
+  private buildLanguageOptions(value: string | null): readonly GenericLanguageObj[] {
+    if (!value || this.isKnownLanguageCode(value)) {
+      return this.languageOptions;
+    }
+
+    return [
+      { label: `Unknown language (${value})`, code: value },
+      ...this.languageOptions,
+    ];
+  }
+
+  private isKnownLanguageCode(value: string): boolean {
+    return this.languageOptions.some(option => option.code === value);
   }
 
   isBCDate(dateString: string | number | null) {
