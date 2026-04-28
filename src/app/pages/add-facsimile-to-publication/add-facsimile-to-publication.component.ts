@@ -17,7 +17,7 @@ import { TableFiltersComponent } from '../../components/table-filters/table-filt
 import { Column } from '../../models/common.model';
 import { FacsimileCollection } from '../../models/facsimile.model';
 import { Publication } from '../../models/publication.model';
-import { FacsimileService } from './../../services/facsimile.service';
+import { FacsimileService } from '../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
@@ -25,15 +25,15 @@ import { QueryParamsService } from '../../services/query-params.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
 @Component({
-  selector: 'new-publication-facsimile',
+  selector: 'add-facsimile-to-publication',
   imports: [
     CommonModule, MatTableModule, CustomTableComponent, MatIconModule, MatBadgeModule, MatButtonModule,
     MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent
   ],
-  templateUrl: './new-publication-facsimile.component.html',
-  styleUrl: './new-publication-facsimile.component.scss'
+  templateUrl: './add-facsimile-to-publication.component.html',
+  styleUrl: './add-facsimile-to-publication.component.scss'
 })
-export class NewPublicationFacsimileComponent implements OnInit {
+export class AddFacsimileToPublicationComponent implements OnInit {
   private publicationService = inject(PublicationService);
   private facsimileService = inject(FacsimileService);
   private projectService = inject(ProjectService);

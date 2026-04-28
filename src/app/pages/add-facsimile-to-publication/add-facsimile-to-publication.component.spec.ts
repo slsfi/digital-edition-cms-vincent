@@ -2,19 +2,19 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 
-import { NewPublicationFacsimileComponent } from './new-publication-facsimile.component';
+import { AddFacsimileToPublicationComponent } from './add-facsimile-to-publication.component';
 import { getCommonTestingProviders } from '../../../testing/test-providers';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 
-describe('NewPublicationFacsimileComponent', () => {
-  let component: NewPublicationFacsimileComponent;
-  let fixture: ComponentFixture<NewPublicationFacsimileComponent>;
+describe('AddFacsimileToPublicationComponent', () => {
+  let component: AddFacsimileToPublicationComponent;
+  let fixture: ComponentFixture<AddFacsimileToPublicationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NewPublicationFacsimileComponent],
+      imports: [AddFacsimileToPublicationComponent],
       providers: [
         ...getCommonTestingProviders(),
         {
@@ -60,7 +60,7 @@ describe('NewPublicationFacsimileComponent', () => {
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(NewPublicationFacsimileComponent);
+    fixture = TestBed.createComponent(AddFacsimileToPublicationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -10,7 +10,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { KeywordsComponent } from './pages/keywords/keywords.component';
 import { KeywordLinkingComponent } from './pages/keyword-linking/keyword-linking.component';
 import { LoginComponent } from './pages/login/login.component';
-import { NewPublicationFacsimileComponent } from './pages/new-publication-facsimile/new-publication-facsimile.component';
+import { AddFacsimileToPublicationComponent } from './pages/add-facsimile-to-publication/add-facsimile-to-publication.component';
 import { PersonsComponent } from './pages/persons/persons.component';
 import { ProjectsComponent } from './pages/projects/projects.component';
 import { AddPublicationsFromFilesComponent } from './pages/add-publications-from-files/add-publications-from-files.component';
@@ -25,7 +25,7 @@ export const routes: Routes = [
   { path: 'publication-collections/:collectionId', component: PublicationCollectionsComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId/add-publications-from-files', component: AddPublicationsFromFilesComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId/publication/:publicationId', component: PublicationCollectionsComponent, canActivate: [authGuard] },
-  { path: 'publication-collections/:collectionId/publication/:publicationId/facsimiles/new', component: NewPublicationFacsimileComponent, canActivate: [authGuard] },
+  { path: 'publication-collections/:collectionId/publication/:publicationId/add-facsimile', component: AddFacsimileToPublicationComponent, canActivate: [authGuard] },
   { path: 'facsimile-collections', component: FacsimileCollectionsComponent, canActivate: [authGuard] },
   { path: 'facsimile-collections/add-from-publications', component: AddFacsCollectionsFromPublicationsComponent, canActivate: [authGuard] },
   { path: 'facsimile-collections/:id/upload-selection', component: FacsimileCollectionUploadSelectionComponent, canActivate: [authGuard] },
