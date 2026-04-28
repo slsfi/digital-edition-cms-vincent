@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-import { PublicationBundleComponent } from './publication-bundle.component';
+import { AddPublicationsFromFilesComponent } from './add-publications-from-files.component';
 import { Deleted, Published } from '../../models/common.model';
 import { FacsimileCollectionResponse, LinkFacsimileToPublicationResponse } from '../../models/facsimile.model';
 import { LinkTextToPublicationResponse, Publication, PublicationResponse } from '../../models/publication.model';
@@ -11,9 +11,9 @@ import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
-describe('PublicationBundleComponent', () => {
-  let component: PublicationBundleComponent;
-  let fixture: ComponentFixture<PublicationBundleComponent>;
+describe('AddPublicationsFromFilesComponent', () => {
+  let component: AddPublicationsFromFilesComponent;
+  let fixture: ComponentFixture<AddPublicationsFromFilesComponent>;
   let facsimileService: jasmine.SpyObj<FacsimileService>;
   let publicationService: jasmine.SpyObj<PublicationService>;
   let projectService: jasmine.SpyObj<ProjectService>;
@@ -39,7 +39,7 @@ describe('PublicationBundleComponent', () => {
     publicationService.getPublications.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [PublicationBundleComponent],
+      imports: [AddPublicationsFromFilesComponent],
       providers: [
         provideRouter([]),
         {
@@ -68,7 +68,7 @@ describe('PublicationBundleComponent', () => {
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PublicationBundleComponent);
+    fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -82,7 +82,7 @@ describe('PublicationBundleComponent', () => {
     publicationService.getPublications.and.returnValue(of([
       publication({ original_filename: ' data/texts/already-added.xml ' })
     ]));
-    fixture = TestBed.createComponent(PublicationBundleComponent);
+    fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
@@ -99,7 +99,7 @@ describe('PublicationBundleComponent', () => {
   it('should block adding files if existing publications failed to load', () => {
     spyOn(console, 'error');
     publicationService.getPublications.and.returnValue(throwError(() => new Error('request failed')));
-    fixture = TestBed.createComponent(PublicationBundleComponent);
+    fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 

@@ -40,7 +40,7 @@ interface BundleFormType {
 }
 
 @Component({
-  selector: 'publication-bundle',
+  selector: 'add-publications-from-files',
   imports: [
     CommonModule, FormsModule, MatIconModule, RouterLink,
     ReactiveFormsModule, MatButtonModule, FileTreeComponent,
@@ -48,10 +48,10 @@ interface BundleFormType {
     MatSlideToggleModule, MatDivider, MatTooltipModule,
     LoadingSpinnerComponent
   ],
-  templateUrl: './publication-bundle.component.html',
-  styleUrl: './publication-bundle.component.scss'
+  templateUrl: './add-publications-from-files.component.html',
+  styleUrl: './add-publications-from-files.component.scss'
 })
-export class PublicationBundleComponent implements OnInit {
+export class AddPublicationsFromFilesComponent implements OnInit {
   private readonly facsimileService = inject(FacsimileService);
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
