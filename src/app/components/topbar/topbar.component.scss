@@ -24,6 +24,12 @@ mat-toolbar.mat-toolbar {
   }
 }
 
+@media (max-width: 1000px) { 
+  .site-subtitle {
+    display: none;
+  }
+}
+
 a.sls-logo {
   display: block;
   margin: 0 auto;
