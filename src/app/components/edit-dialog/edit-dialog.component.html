@@ -62,6 +62,13 @@
                         <mat-option [value]="option.value">{{ option.label }}</mat-option>
                       }
                     </mat-select>
+                  } @else if (column.type === 'language') {
+                    @let fieldLanguageOptions = languageOptionsByField()[column.field] ?? languageOptions;
+                    <mat-select [formControlName]="column.field" canSelectNullableOptions>
+                      @for (option of fieldLanguageOptions; track option.code) {
+                        <mat-option [value]="option.code">{{ option.label }}@if (option.code) { ({{ option.code }}) }</mat-option>
+                      }
+                    </mat-select>
                   } @else if (column.type === 'textarea') {
                     <textarea
                       matInput

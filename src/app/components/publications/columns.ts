@@ -34,7 +34,7 @@ export const allPublicationColumnsData: Column[] = [
   { field: 'date_created', header: 'Date created', type: 'date', editable: false },
   { field: 'date_modified', header: 'Date modified', type: 'date', editable: false },
   { field: 'genre', header: 'Genre', type: 'string', editable: true, editOrder: 8 },
-  { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 7 },
+  { field: 'language', header: 'Language', type: 'language', editable: true, editOrder: 7 },
   { field: 'original_filename', header: 'Reading text file path', type: 'textarea', editable: true, editOrder: 1 },
   { field: 'original_publication_date', header: 'Date of origin', type: 'string', editable: true, editOrder: 6 },
   { field: 'publication_collection_id', header: 'Publication collection ID', type: 'number', editable: false },
@@ -59,7 +59,7 @@ export const allVersionColumnsData: Column[] = [
 export const manuscriptColumnsData: Column[] = [
   { field: 'name', 'header': 'Name', 'type': 'string', 'editable': true, editOrder: 2 },
   { field: 'original_filename', 'header': 'Manuscript file path', 'type': 'textarea', 'editable': true, editOrder: 1 },
-  { field: 'language', header: 'Language', type: 'string', editable: true, editOrder: 4 },
+  { field: 'language', header: 'Language', type: 'language', editable: true, editOrder: 4 },
   { field: 'sort_order', header: 'Sort order', type: 'number', editable: true, editOrder: 5 },
   { field: 'section_id', header: 'Section ID', type: 'number', editable: true, editOrder: 6 },
   { field: 'actions', 'header': 'Actions', 'type': 'action', 'editable': false },
