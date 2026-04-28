@@ -6,7 +6,7 @@
 
 <h1>Facsimile collection management</h1>
 <div class="selected-facsimile-collection">
-  <a matIconButton [routerLink]="['/facsimiles']" [queryParamsHandling]="'preserve'">
+  <a matIconButton [routerLink]="['/facsimile-collections']" [queryParamsHandling]="'preserve'">
     <mat-icon>west</mat-icon>
   </a>
   <h2>{{ facsColl?.title || '' }} (ID {{ facsColl?.id }}{{ facsColl?.description ? '; ' + facsColl?.description : '' }})</h2>
@@ -65,7 +65,7 @@
       <a
         matButton="filled"
         [disabled]="savingFacsColl"
-        [routerLink]="['/facsimiles', facsColl.id, 'upload-missing']"
+        [routerLink]="['/facsimile-collections', facsColl.id, 'upload-missing']"
       >Add missing ({{ missingFileNumbersValue.length }})</a>
     }
 
@@ -73,13 +73,13 @@
       <a
         matButton="filled"
         [disabled]="savingFacsColl"
-        [routerLink]="['/facsimiles', facsColl.id, 'upload-all']"
+        [routerLink]="['/facsimile-collections', facsColl.id, 'upload-all']"
       >Replace all ({{ imageCount }})</a>
 
       <a
         matButton="filled"
         [disabled]="savingFacsColl"
-        [routerLink]="['/facsimiles', facsColl.id, 'upload-selection']"
+        [routerLink]="['/facsimile-collections', facsColl.id, 'upload-selection']"
       >
         Replace selection
       </a>

@@ -12,7 +12,7 @@ import { FacsimileCollection, FacsimileCollectionEditRequest } from '../../model
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
-import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimiles/facsimile-collection-columns';
+import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimile-collections/facsimile-collection-columns';
 
 describe('FacsimileCollectionComponent', () => {
   let component: FacsimileCollectionComponent;
@@ -172,7 +172,7 @@ describe('FacsimileCollectionComponent', () => {
       external_url: 'https://example.com/updated',
       page_comment: 'Dialog page comment',
       deleted: Deleted.NotDeleted,
-      folder_path: '/facsimiles/dialog'
+      folder_path: '/facsimile-collections/dialog'
     };
 
     dialog.open.and.returnValue({
