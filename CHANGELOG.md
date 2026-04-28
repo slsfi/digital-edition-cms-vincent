@@ -51,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Removed
 
 - Deprecated `provideAnimationsAsync()` from app config providers.
+- Unused `FacsimileFileComponent`.
 
 
 
