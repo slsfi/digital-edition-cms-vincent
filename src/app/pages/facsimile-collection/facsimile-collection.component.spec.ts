@@ -1,19 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
 import { FacsimileCollectionComponent } from './facsimile-collection.component';
+import { EditDialogComponent } from '../../components/edit-dialog/edit-dialog.component';
 import { getCommonTestingProviders } from '../../../testing/test-providers';
 import { Deleted } from '../../models/common.model';
 import { FacsimileCollection, FacsimileCollectionEditRequest } from '../../models/facsimile.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
+import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimiles/facsimile-collection-columns';
 
 describe('FacsimileCollectionComponent', () => {
   let component: FacsimileCollectionComponent;
   let fixture: ComponentFixture<FacsimileCollectionComponent>;
+  let dialog: jasmine.SpyObj<MatDialog>;
   let facsimileService: jasmine.SpyObj<FacsimileService>;
   let snackbar: jasmine.SpyObj<SnackbarService>;
 
@@ -32,6 +36,7 @@ describe('FacsimileCollectionComponent', () => {
   };
 
   beforeEach(async () => {
+    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
     facsimileService = jasmine.createSpyObj<FacsimileService>(
       'FacsimileService',
       ['getFacsimileCollection', 'verifyFacsimileFile', 'editFacsimileCollection']
@@ -72,6 +77,10 @@ describe('FacsimileCollectionComponent', () => {
           useValue: {
             getCurrentProject: () => 'test-project'
           }
+        },
+        {
+          provide: MatDialog,
+          useValue: dialog
         },
         {
           provide: FacsimileService,
@@ -150,6 +159,46 @@ describe('FacsimileCollectionComponent', () => {
     );
     expect(component.numberOfPages()).toBe(6);
     expect(component.facsimileCollection()?.title).toBe('Updated title');
+    expect(snackbar.show).toHaveBeenCalledWith('Facsimile collection saved.');
+  });
+
+  it('should edit the collection through the full edit dialog', () => {
+    const dialogPayload = {
+      id: facsimileCollection.id,
+      title: 'Dialog title',
+      description: 'Dialog description',
+      number_of_pages: 8,
+      start_page_number: 2,
+      external_url: 'https://example.com/updated',
+      page_comment: 'Dialog page comment',
+      deleted: Deleted.NotDeleted,
+      folder_path: '/facsimiles/dialog'
+    };
+
+    dialog.open.and.returnValue({
+      afterClosed: () => of({
+        form: {
+          getRawValue: () => dialogPayload
+        }
+      })
+    } as never);
+
+    component.editFacsimileCollection(facsimileCollection);
+
+    expect(dialog.open).toHaveBeenCalledOnceWith(EditDialogComponent, {
+      data: {
+        model: facsimileCollection,
+        columns: FACSIMILE_COLLECTION_ALL_COLUMN_DATA,
+        title: 'fascimile collection'
+      }
+    });
+    expect(facsimileService.editFacsimileCollection).toHaveBeenCalledWith(
+      facsimileCollection.id,
+      dialogPayload,
+      'test-project'
+    );
+    expect(component.facsimileCollection()?.title).toBe('Dialog title');
+    expect(component.numberOfPages()).toBe(8);
     expect(snackbar.show).toHaveBeenCalledWith('Facsimile collection saved.');
   });
 });

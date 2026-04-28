@@ -15,7 +15,7 @@
 @if (loadingFacsData()) {
   <loading-spinner [overlay]="true"></loading-spinner>
 } @else if (facsColl) {
-  <h3>Facsimile collection title and image count</h3>
+  <h3>Facsimile collection data</h3>
   <div class="edit-facs-coll-row">
     <mat-form-field class="title-field">
       <mat-label>Title</mat-label>
@@ -52,7 +52,7 @@
     <button
       matButton="outlined"
       type="button"
-      [disabled]="!facsimileCollectionSaveEnabled()"
+      [disabled]="savingFacsColl"
       (click)="editFacsimileCollection(facsColl)"
     >
       Edit other fields

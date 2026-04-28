@@ -13,7 +13,6 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { finalize, take } from 'rxjs';
 
 import { EditDialogComponent, EditDialogData } from '../../components/edit-dialog/edit-dialog.component';
-import { FacsimilesComponent } from '../facsimiles/facsimiles.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { FacsimileCollection, FacsimileCollectionEditRequest,
          FacsimileCollectionResponse, VerifyFacsimileFileResponse
@@ -21,6 +20,7 @@ import { FacsimileCollection, FacsimileCollectionEditRequest,
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
+import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimiles/facsimile-collection-columns';
 
 @Component({
   selector: 'facsimile-collection',
@@ -187,7 +187,7 @@ export class FacsimileCollectionComponent implements OnInit {
   editFacsimileCollection(collection: FacsimileCollection) {
     const data: EditDialogData<FacsimileCollection> = {
       model: collection,
-      columns: this.allColumnData,
+      columns: FACSIMILE_COLLECTION_ALL_COLUMN_DATA,
       title: 'fascimile collection'
     }
     const dialogRef = this.dialog.open(EditDialogComponent, { data });
