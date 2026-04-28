@@ -75,6 +75,29 @@ describe('ApiService', () => {
     }
   });
 
+  it('shows a network error message when the browser receives no HTTP response', () => {
+    const error = new HttpErrorResponse({
+      error: new ProgressEvent('error'),
+      status: 0,
+      statusText: 'Unknown Error',
+      url: 'https://testa-api.sls.fi/digitaledition/topelius/facsimile_collection/71263/data/'
+    });
+    let receivedError: unknown;
+
+    service.handleError(error).subscribe({
+      next: () => fail('expected handleError to rethrow'),
+      error: (err) => {
+        receivedError = err;
+      }
+    });
+
+    expect(receivedError).toBe(error);
+    expect(snackbar.show).toHaveBeenCalledWith(
+      'Network error. Check your internet or VPN connection and try again.',
+      'error'
+    );
+  });
+
   it('does not show a snackbar when error messages are disabled', () => {
     const error = createError({ message: 'Forbidden' });
 
