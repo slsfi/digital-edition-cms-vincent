@@ -45,6 +45,10 @@ export class ApiService {
   }
 
   private getErrorMessage(error: HttpErrorResponse): string {
+    if (error.status === 0) {
+      return 'Network error. Check your internet or VPN connection and try again.';
+    }
+
     const backendMessage = this.getBackendErrorMessage(error.error);
     return backendMessage || error.message || 'An error occurred';
   }
