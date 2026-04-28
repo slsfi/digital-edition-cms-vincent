@@ -113,7 +113,7 @@ export class AddFacsimileFromPublicationsComponent implements OnInit {
   }
 
   navToFacsimileCollections() {
-    this.router.navigate(['/facsimiles']);
+    this.router.navigate(['/facsimile-collections']);
   }
 
   getProgressPercentage(): number {

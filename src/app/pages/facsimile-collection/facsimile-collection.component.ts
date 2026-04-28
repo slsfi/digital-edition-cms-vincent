@@ -20,7 +20,7 @@ import { FacsimileCollection, FacsimileCollectionEditRequest,
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
-import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimiles/facsimile-collection-columns';
+import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimile-collections/facsimile-collection-columns';
 
 @Component({
   selector: 'facsimile-collection',

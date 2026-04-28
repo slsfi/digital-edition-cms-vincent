@@ -82,7 +82,7 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   }
 
   returnNav(facsCollId?: number | null): void {
-    const routeSegments = facsCollId ? ['/facsimiles', facsCollId] : ['/facsimiles'];
+    const routeSegments = facsCollId ? ['/facsimile-collections', facsCollId] : ['/facsimile-collections'];
     this.router.navigate(
       routeSegments,
       { queryParamsHandling: 'preserve' }
