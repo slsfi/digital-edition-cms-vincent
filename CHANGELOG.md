@@ -29,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Remove `app-` prefix from component selectors.
 - Edit dialog: use language select options for publication and manuscript language fields, preserving unknown backend language codes.
 - Update `README.md`.
-- Deps: update `@angular/core` to 21.2.10 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.8.
+- Deps: update `@angular/core` to 21.2.11 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.9.
 - Deps: update `zone.js` to 0.16.1.
 - Deps (dev): update `angular/eslint` to 21.3.1.
 - Deps (dev): update `eslint` to 10.2.1, and `typescript-eslint` to 8.59.1, and transitive dependencies.
