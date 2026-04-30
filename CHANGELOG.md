@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Breaking changes
 
-- The backend APIs must implement a `/session/validate_cms` endpoint that responds with HTTP `200` if the authenticated user has a valid access token and is a CMS user.
+- The backend APIs must implement a `/session/validate_cms` endpoint that responds with HTTP `200` if the authenticated user has a valid access token and is a CMS user. Refer to the implementation in [digital_edition_api](https://github.com/slsfi/digital_edition_api/blob/d0b6dd1a2489c02021bb23651c8a61b09f3e5e7d/sls_api/endpoints/session.py#L74).
 
 ### Added
 
