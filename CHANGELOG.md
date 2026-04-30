@@ -8,53 +8,61 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [3.0.0] – 2026-04-30
+
+### Breaking changes
+
+- The backend APIs must implement a `/session/validate_cms` endpoint that responds with HTTP `200` if the authenticated user has a valid access token and is a CMS user.
+
 ### Added
 
-- `AGENTS.md` to guide AI coding agents.
-- Docs: `auth-flow.md` describing the expected authentication behavior of the CMS in human-readable terms.
-- Publications: option to also create and link facsimile collections when adding publications.
-- Facsimile collection: edit collection data in upload view.
+- `AGENTS.md` to guide AI coding agents. ([c91acc6](https://github.com/slsfi/digital-edition-cms-vincent/commit/c91acc6d31c0258ba368fa6c89901b8b7f2f5095))
+- Docs: `auth-flow.md` describing the expected authentication behavior of the CMS in human-readable terms. ([26f0a93](https://github.com/slsfi/digital-edition-cms-vincent/commit/26f0a93d2656c70780b4d210ebf805c22396bf7a))
+- Publications: option to also create and link facsimile collections when adding publications. ([48b881f](https://github.com/slsfi/digital-edition-cms-vincent/commit/48b881f38ac932fa2258c5c9292120477823b4c2), [1f7d8e1](https://github.com/slsfi/digital-edition-cms-vincent/commit/1f7d8e1e60a1fdfed0d61fbddd6a63a421ee0c32))
+- Facsimile collection: edit collection data in upload view. ([83c136a](https://github.com/slsfi/digital-edition-cms-vincent/commit/83c136ac7b9b800a08fd0cbf94e9d80f9a416b47))
 
 ### Changed
 
-- CI: harden Docker image build pipeline, update `nginx` to 1.30.0, and update actions.
-- Custom table: increase surface area of links in cells.
-- Auth: require successful CMS-user validation via `/session/validate_cms` before accepting login, persisted startup sessions, or refreshed access tokens, and use CMS-user session validation for explicit session checks.
-- Migrate to the `inject` function.
-- Facsimile collections: ID links to facsimile images.
-- Rename 'facsimiles' to 'facsimile-collections' in files, components and routes.
-- Rename 'add-facsimile-from-publications' to 'add-facs-collections-from-publications' in files, components and routes.
-- Rename 'publication-bundle' to 'add-publications-from-files' in files, components and routes.
-- Rename 'new-publication-facsimile' to 'add-facsimile-to-publication' in files, components and routes.
-- Remove `app-` prefix from component selectors.
-- Edit dialog: use language select options for publication and manuscript language fields, preserving unknown backend language codes.
-- Update `README.md`.
-- Deps: update `@angular/core` to 21.2.11 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.9.
-- Deps: update `zone.js` to 0.16.1.
-- Deps (dev): update `angular/eslint` to 21.3.1.
-- Deps (dev): update `eslint` to 10.2.1, and `typescript-eslint` to 8.59.1, and transitive dependencies.
-- Deps (dev): update `@types/jasmine` to 6.0.0, `jasmine-core` to 6.2.0, and `karma-jasmine-html-reporter` to 2.2.0.
-- Deps: update transitive dependencies.
+- CI: harden Docker image build pipeline, update `nginx` to 1.30.0, and update actions. ([3c95009](https://github.com/slsfi/digital-edition-cms-vincent/commit/3c950096644f206b796906d79c922be68f172ecc), [4e3f630](https://github.com/slsfi/digital-edition-cms-vincent/commit/4e3f630dc55e02c2ebbc657db0cf20e9af1e1389))
+- Custom table: increase surface area of links in cells. ([79423f9](https://github.com/slsfi/digital-edition-cms-vincent/commit/79423f9b931739f914afe5ac92c8e8d81e7e435f))
+- Auth: require successful CMS-user validation via `/session/validate_cms` before accepting login, persisted startup sessions, or refreshed access tokens, and use CMS-user session validation for explicit session checks. ([def6e5d](https://github.com/slsfi/digital-edition-cms-vincent/commit/def6e5dc78a984d88e7a674ebb64a88996d1d8e1), [88cc638](https://github.com/slsfi/digital-edition-cms-vincent/commit/88cc638f511b258c01abcc408b61148b6a0405a6), [d71600f](https://github.com/slsfi/digital-edition-cms-vincent/commit/d71600f2398566cb0f20ec9b896b7503c27e292a))
+- Migrate to the `inject` function. ([d0b4520](https://github.com/slsfi/digital-edition-cms-vincent/commit/d0b452015bc378ff1258d7fd45be82bd2888cc88))
+- Facsimile collections: ID links to facsimile images. ([f5314f6](https://github.com/slsfi/digital-edition-cms-vincent/commit/f5314f6ad2d2d8e2b4e5d511c9091cb0b3b17a97))
+- Rename 'facsimiles' to 'facsimile-collections' in files, components and routes. ([ef5db3c](https://github.com/slsfi/digital-edition-cms-vincent/commit/ef5db3c0c3a26d48839ae9f91124413a0f4c3d64))
+- Rename 'add-facsimile-from-publications' to 'add-facs-collections-from-publications' in files, components and routes. ([c9cc348](https://github.com/slsfi/digital-edition-cms-vincent/commit/c9cc348af1feb7648866ea8aadd65016f4aeea51))
+- Rename 'publication-bundle' to 'add-publications-from-files' in files, components and routes. ([a972abe](https://github.com/slsfi/digital-edition-cms-vincent/commit/a972abe6ff4bc07535f0da7457af8a5a729d5827))
+- Rename 'new-publication-facsimile' to 'add-facsimile-to-publication' in files, components and routes. ([0458d3d](https://github.com/slsfi/digital-edition-cms-vincent/commit/0458d3d308cf601777c91ebf48547efa4d8d9133))
+- Remove `app-` prefix from component selectors. ([7be11c3](https://github.com/slsfi/digital-edition-cms-vincent/commit/7be11c3f68d6ad4748a693b85d9e20e1eba59173))
+- Edit dialog: use language select options for publication and manuscript language fields, preserving unknown backend language codes. ([4dc4d91](https://github.com/slsfi/digital-edition-cms-vincent/commit/4dc4d91385ef1f9719d4ae0ec4cfd748548b9709))
+- Update `README.md`. ([3dcdefb](https://github.com/slsfi/digital-edition-cms-vincent/commit/3dcdefbcaa22f48ff0d4bff99e463c6bfaf803c4), [8133a0e](https://github.com/slsfi/digital-edition-cms-vincent/commit/8133a0e96d9bf769c9b0bff38a3ff885edd7cabd))
+- Deps: update `@angular/core` to 21.2.11 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.9. ([3f8c285](https://github.com/slsfi/digital-edition-cms-vincent/commit/3f8c2859d1fbca9219669a4be8b209a8f8dbc9ad), [62270c0](https://github.com/slsfi/digital-edition-cms-vincent/commit/62270c0a1830558c747524be25d07c34577a6df0))
+- Deps: update `zone.js` to 0.16.1. ([7862235](https://github.com/slsfi/digital-edition-cms-vincent/commit/7862235cc91068c50dce69975f8320ff0d25d876))
+- Deps (dev): update `angular/eslint` to 21.3.1. ([81aae91](https://github.com/slsfi/digital-edition-cms-vincent/commit/81aae918cb266bcb3af84a5b05d556fd1090b5d4))
+- Deps (dev): update `eslint` to 10.2.1, and `typescript-eslint` to 8.59.1, and transitive dependencies. ([027f860](https://github.com/slsfi/digital-edition-cms-vincent/commit/027f860db9acd222d3e978d8df38ae29a86a2634), [f59b166](https://github.com/slsfi/digital-edition-cms-vincent/commit/f59b166b3271aebd58ebda2d15206fab1df7e6a1))
+- Deps (dev): update `@types/jasmine` to 6.0.0, `jasmine-core` to 6.2.0, and `karma-jasmine-html-reporter` to 2.2.0. ([d8fe54e](https://github.com/slsfi/digital-edition-cms-vincent/commit/d8fe54e9deb0a045cb41b951fecf2fa0ba856736))
+- Deps: update transitive dependencies. ([75b9dd0](https://github.com/slsfi/digital-edition-cms-vincent/commit/75b9dd0363ec92abe83a9d4601f02a1ff4e65317), [0443724](https://github.com/slsfi/digital-edition-cms-vincent/commit/04437245933d923fae3f67cfa2b5e3764ceba3fe))
 
 ### Fixed
 
-- Translation language options not loading.
-- Publication bundle: block adding publications when existing publication checks fail, and trim file paths for duplicate detection.
-- Test: Angular specs after jasmine-core upgrade.
-- Auth: harden CMS login/session handling by requiring complete stored sessions, validating stale sessions against the backend, scoping bearer-token injection and refresh flow to the selected backend, preserving safe return routes and environment-scoped project selection through login and forced re-authentication, and tightening custom backend URL handling.
-- Auth: remove route-guard session polling and treat any `/session/validate` error as a terminal auth failure that logs the user out.
-- API: handle error responses without a JSON body when showing snackbar messages.
-- API: show a network or VPN connection message when requests fail before receiving an HTTP response.
-- Login: enable form submission when browser autofill populates stored email and password fields.
-- Increase contrast of text in disable form fields.
-- Lint config due to updated linting dependencies.
-- Lint errors.
-- Hide site subtitle on narrow screens.
+- Translation language options not loading. ([3eeffa7](https://github.com/slsfi/digital-edition-cms-vincent/commit/3eeffa7188aff1b102884e89ad43dc2240196702))
+- Publication bundle: block adding publications when existing publication checks fail, and trim file paths for duplicate detection. ([00a39cf](https://github.com/slsfi/digital-edition-cms-vincent/commit/00a39cf33e2e706d71d60591366d13343ec5d9a7))
+- Test: Angular specs after jasmine-core upgrade. ([8b9c01f](https://github.com/slsfi/digital-edition-cms-vincent/commit/8b9c01fff097724e9e17f9cc3572af78bc49631f))
+- Auth: harden CMS login/session handling by requiring complete stored sessions, validating stale sessions against the backend, scoping bearer-token injection and refresh flow to the selected backend, preserving safe return routes and environment-scoped project selection through login and forced re-authentication, and tightening custom backend URL handling. ([8860764](https://github.com/slsfi/digital-edition-cms-vincent/commit/886076445858ed089faff20d6864bd5169784e7e))
+- Auth: remove route-guard session polling and treat any `/session/validate` error as a terminal auth failure that logs the user out. ([e8dec16](https://github.com/slsfi/digital-edition-cms-vincent/commit/e8dec169ad1b17e43490ffd318b06b9890204cb3))
+- API: handle error responses without a JSON body when showing snackbar messages. ([4c8dfe4](https://github.com/slsfi/digital-edition-cms-vincent/commit/4c8dfe47e10a4965c24675a1b22f7ebdc085f868))
+- API: show a network or VPN connection message when requests fail before receiving an HTTP response. ([19210c4](https://github.com/slsfi/digital-edition-cms-vincent/commit/19210c4c8b0ae2feeb284e6a7c22d0aaf5ce5382))
+- Login: enable form submission when browser autofill populates stored email and password fields. ([5abffdb](https://github.com/slsfi/digital-edition-cms-vincent/commit/5abffdb2597d4d9b957158eced8cf6e7c26d508b))
+- Increase contrast of text in disable form fields. ([143a496](https://github.com/slsfi/digital-edition-cms-vincent/commit/143a4963d1ee3579a13d33fa04916eceee1825c3))
+- Lint config due to updated linting dependencies. ([82ddfa7](https://github.com/slsfi/digital-edition-cms-vincent/commit/82ddfa7211c3a871fe5a5cc25e738f5c0d9e9d14))
+- Lint errors. ([96a4a61](https://github.com/slsfi/digital-edition-cms-vincent/commit/96a4a61fe7ed0c792cb5973a33c108849e57d708), [8208d66](https://github.com/slsfi/digital-edition-cms-vincent/commit/8208d66aa2d5f07e790b6d334290473d5b45eb1b))
+- Hide site subtitle on narrow screens. ([8ff8797](https://github.com/slsfi/digital-edition-cms-vincent/commit/8ff87977ec83c5f4499b2fe97f9182e2e96ecfc2))
 
 ### Removed
 
-- Deprecated `provideAnimationsAsync()` from app config providers.
-- Unused `FacsimileFileComponent`.
+- Deprecated `provideAnimationsAsync()` from app config providers. ([ba082a5](https://github.com/slsfi/digital-edition-cms-vincent/commit/ba082a57fdc0aa2450fee195e0f14f2c17d2a681))
+- Unused `FacsimileFileComponent`. ([efb6cbe](https://github.com/slsfi/digital-edition-cms-vincent/commit/efb6cbe95bc0b982fdd87e8b365ad6b3de1c14b6))
 
 
 
@@ -433,7 +441,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.1.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.0...HEAD
+[3.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.1.0...3.0.0
 [2.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.2...2.0.0
 [1.5.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.1...1.5.2
