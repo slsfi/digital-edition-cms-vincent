@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core` to 21.2.14 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.12.
 - Deps: update `zone.js` to 0.16.2.
 - Deps (dev): update `angular-eslint` to 21.4.0.
+- Deps (dev): update `eslint` to 10.4.0.
 
 
 
