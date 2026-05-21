@@ -8,15 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [3.0.1] – 2026-05-21
+
 ### Changed
 
-- Update `nginx` to 1.30.1.
-- Deps: update `@angular/core` to 21.2.14 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.12.
-- Deps: update `zone.js` to 0.16.2.
-- Deps (dev): update `angular-eslint` to 21.4.0.
-- Deps (dev): update `eslint` to 10.4.0.
-- Deps (dev): update `typescript-eslint` to 8.59.4.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.30.1. ([7577b31](https://github.com/slsfi/digital-edition-cms-vincent/commit/7577b315831077b917055e3cdf5d3c5cbe3954e7))
+- Deps: update `@angular/core` to 21.2.14 and `@angular/cli`, `@angular/cdk` and `@angular/material` to 21.2.12. ([910d1b2](https://github.com/slsfi/digital-edition-cms-vincent/commit/910d1b23a10010e548a268e92636b4d787b456ba))
+- Deps: update `zone.js` to 0.16.2. ([4ac4a52](https://github.com/slsfi/digital-edition-cms-vincent/commit/4ac4a52056fd317f4c8d3a7f06c4ca459477b4b3))
+- Deps (dev): update `angular-eslint` to 21.4.0. ([daece2d](https://github.com/slsfi/digital-edition-cms-vincent/commit/daece2d7304ed9829bb76cd5c9029ac1f16ad6ed))
+- Deps (dev): update `eslint` to 10.4.0. ([10dbefa](https://github.com/slsfi/digital-edition-cms-vincent/commit/10dbefa77f4182be76f7709e8a4e819af6d0111a))
+- Deps (dev): update `typescript-eslint` to 8.59.4. ([2ba7323](https://github.com/slsfi/digital-edition-cms-vincent/commit/2ba7323166d1e167f0078809e54ef0c027301a8d))
+- Deps: update transitive dependencies. ([468097e](https://github.com/slsfi/digital-edition-cms-vincent/commit/468097ebbdfb69a33a854bd1d8f82ffc7908c6ab))
 
 
 
@@ -451,7 +455,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.1...HEAD
+[3.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.1.0...3.0.0
 [2.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/1.5.2...2.0.0
