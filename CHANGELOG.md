@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `zone.js` to 0.16.2.
+
 
 
 ## [3.0.0] – 2026-04-30
