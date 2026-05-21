@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `zone.js` to 0.16.2.
 - Deps (dev): update `angular-eslint` to 21.4.0.
 - Deps (dev): update `eslint` to 10.4.0.
+- Deps (dev): update `typescript-eslint` to 8.59.4.
 
 
 
