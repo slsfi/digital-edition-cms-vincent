@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `eslint` to 10.5.0.
 - Deps (dev): update `jasmine-core` to 6.3.0.
 - Deps (dev): update `typescript-eslint` to 8.62.0.
+- Deps: update transitive dependencies.
 
 
 
