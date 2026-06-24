@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [3.0.2] – 2026-06-24
+
 ### Changed
 
-- Update `nginx` to 1.30.3.
-- Deps: update `@angular/core` to 21.2.17, `@angular/cli` to 21.2.16, and `@angular/cdk` and `@angular/material` to 21.2.14.
-- Deps (dev): update `eslint` to 10.5.0.
-- Deps (dev): update `jasmine-core` to 6.3.0.
-- Deps (dev): update `typescript-eslint` to 8.62.0.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.30.3. ([ffa289d](https://github.com/slsfi/digital-edition-cms-vincent/commit/ffa289da22153f7282359e4cc8a416a2b446b9e3))
+- Deps: update `@angular/core` to 21.2.17, `@angular/cli` to 21.2.16, and `@angular/cdk` and `@angular/material` to 21.2.14. ([cdcdc68](https://github.com/slsfi/digital-edition-cms-vincent/commit/cdcdc6849b8fbb9dc9d4d0b6acf954ea70ccf556))
+- Deps (dev): update `eslint` to 10.5.0. ([42b3398](https://github.com/slsfi/digital-edition-cms-vincent/commit/42b33982538301c5c76295497e6edea83ff6f15b))
+- Deps (dev): update `jasmine-core` to 6.3.0. ([7066869](https://github.com/slsfi/digital-edition-cms-vincent/commit/70668695cc6093a666da795aef36f61da6051092))
+- Deps (dev): update `typescript-eslint` to 8.62.0. ([2735eb9](https://github.com/slsfi/digital-edition-cms-vincent/commit/2735eb9ad16d93f91c8e15a7c34c21722b9dc305))
+- Deps: update transitive dependencies. ([a4d8b7b](https://github.com/slsfi/digital-edition-cms-vincent/commit/a4d8b7b73ddda2caeb907a9d7234d9745de8cc65))
 
 
 
@@ -464,7 +468,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.2...HEAD
+[3.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.1.0...3.0.0
 [2.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.0.0...2.1.0
