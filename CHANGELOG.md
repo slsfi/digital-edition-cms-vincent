@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core` to 21.2.19 and `@angular/cli` to 21.2.20.
 - Deps (dev): update `eslint` to 10.8.1.
 - Deps (dev): update `typescript-eslint` to 8.66.0.
+- Deps: update transitive dependencies.
 
 
 
