@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Removed
+
+- Deps: deprecated `@angular/animations`.
+
 
 
 ## [3.0.3] – 2026-08-11
