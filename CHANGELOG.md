@@ -8,13 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [3.0.3] – 2026-08-11
+
 ### Changed
 
-- Update `nginx` to 1.30.4.
-- Deps: update `@angular/core` to 21.2.19 and `@angular/cli` to 21.2.20.
-- Deps (dev): update `eslint` to 10.8.1.
-- Deps (dev): update `typescript-eslint` to 8.66.0.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.30.4. ([d4d4fe0](https://github.com/slsfi/digital-edition-cms-vincent/commit/d4d4fe08c5254d0567191819dcd911a954e885a0))
+- Deps: update `@angular/core` to 21.2.19 and `@angular/cli` to 21.2.20. ([78a6add](https://github.com/slsfi/digital-edition-cms-vincent/commit/78a6add0eafcce44fee80c229de82171c8dcc100))
+- Deps (dev): update `eslint` to 10.8.1. ([523353b](https://github.com/slsfi/digital-edition-cms-vincent/commit/523353b503c4a21c5dbdbd12deb7f5d75e159b4b))
+- Deps (dev): update `typescript-eslint` to 8.66.0. ([d7058f7](https://github.com/slsfi/digital-edition-cms-vincent/commit/d7058f7cd996ef517d30bb24e46d2028b7ef2463))
+- Deps: update transitive dependencies. ([d02bbf9](https://github.com/slsfi/digital-edition-cms-vincent/commit/d02bbf94b2c0ff7d72a60197391173f876cce09f))
 
 
 
@@ -476,7 +480,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.3...HEAD
+[3.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/2.1.0...3.0.0
