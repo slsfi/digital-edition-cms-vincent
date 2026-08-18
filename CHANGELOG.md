@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [3.0.4] – 2026-08-18
+
 ### Changed
 
-- Deps: update `@angular/core` to 21.2.20 and `@angular/cli` to 21.2.21.
-- Deps (dev): update `typescript-eslint` to 8.67.0.
+- Deps: update `@angular/core` to 21.2.20 and `@angular/cli` to 21.2.21. ([55ddaa6](https://github.com/slsfi/digital-edition-cms-vincent/commit/55ddaa6c4d545504b53f8b3a4f90e77aaad17f2c))
+- Deps (dev): update `typescript-eslint` to 8.67.0. ([bd7eec0](https://github.com/slsfi/digital-edition-cms-vincent/commit/bd7eec0aad20633034431fa9b63fde0e57d89e12))
 
 ### Removed
 
-- Deps: deprecated `@angular/animations`.
+- Deps: deprecated `@angular/animations`. ([d61cb4f](https://github.com/slsfi/digital-edition-cms-vincent/commit/d61cb4fe79e9ae058254b93ac9ce244b68af8e42))
 
 
 
@@ -489,7 +493,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.3...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.4...HEAD
+[3.0.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.0...3.0.1
