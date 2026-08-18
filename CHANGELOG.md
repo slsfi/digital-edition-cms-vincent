@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Deps: update `@angular/core` to 21.2.20 and `@angular/cli` to 21.2.21.
 - Deps (dev): update `typescript-eslint` to 8.67.0.
 
 ### Removed
