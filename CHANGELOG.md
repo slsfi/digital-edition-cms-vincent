@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Upgrade the required Node.js runtime and Docker build image to Node 24 with npm 11.
 - Deps: update `@angular/core` to 21.2.21.
 
+### Fixed
+
+- Test: remove the legacy animation provider from the login spec so clean installs build without `@angular/animations`.
+
 
 
 ## [3.0.4] – 2026-08-18
