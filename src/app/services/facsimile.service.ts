@@ -73,7 +73,7 @@ export class FacsimileService {
   uploadFacsimileFile(collectionId: number, pageNumber: number, formData: FormData, projectName: string | null | undefined) {
     const project = this.validateProject(projectName);
     const url = `${this.apiService.prefixedUrl}/${project}/facsimiles/${collectionId}/${pageNumber}`;
-    return this.apiService.post(url, formData, { reportProgress: true, observe: 'events', context: new HttpContext().set(SkipLoading, true) });
+    return this.apiService.post(url, formData, { reportUploadProgress: true, observe: 'events', context: new HttpContext().set(SkipLoading, true) });
   }
 
   // Legacy method for reactive updates on home page
