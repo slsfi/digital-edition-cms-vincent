@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +38,7 @@ class FileQueueObject {
   selector: 'file-upload',
   imports: [CommonModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule],
   templateUrl: './file-upload.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-upload.component.scss'
 })
 export class FileUploadComponent {

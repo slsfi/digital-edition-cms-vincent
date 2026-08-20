@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,6 +31,7 @@ import { SnackbarService } from '../../services/snackbar.service';
     MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent
   ],
   templateUrl: './add-facsimile-to-publication.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-facsimile-to-publication.component.scss'
 })
 export class AddFacsimileToPublicationComponent implements OnInit {

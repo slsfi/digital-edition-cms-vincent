@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -36,6 +36,7 @@ import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimile-collections/f
     MatTooltip
   ],
   templateUrl: './facsimile-collection.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facsimile-collection.component.scss'
 })
 export class FacsimileCollectionComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +20,7 @@ interface TreeNode {
   selector: 'file-tree',
   imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent, CommonModule],
   templateUrl: './file-tree.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-tree.component.scss'
 })
 export class FileTreeComponent implements OnInit, OnDestroy {

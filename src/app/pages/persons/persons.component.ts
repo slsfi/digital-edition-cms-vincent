@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -30,6 +30,7 @@ import { SnackbarService } from '../../services/snackbar.service';
   ],
   providers: [DatePipe],
   templateUrl: './persons.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './persons.component.scss'
 })
 export class PersonsComponent implements OnInit {

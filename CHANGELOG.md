@@ -12,7 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Upgrade the required Node.js runtime and Docker build image to Node 24 with npm 11.
 - Upgrade `actions/checkout` in Docker build action workflow to v7.
-- Deps: update `@angular/core` to 21.2.21.
+- Migrate unit testing from Karma/Jasmine to Vitest.
+- Deps: update `@angular/core`, `@angular/cdk` and `@angular/material` to 22.1.3, and `@angular/cli` to 22.1.5.
+- Deps (dev): update `angular-eslint` to 22.1.0.
+- Deps (dev): update `typescript` to 6.0.3.
 
 ### Fixed
 

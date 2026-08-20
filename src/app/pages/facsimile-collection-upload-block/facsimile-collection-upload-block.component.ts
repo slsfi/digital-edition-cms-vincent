@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,6 +26,7 @@ type UploadMode = 'missing' | 'all';
     RangeArrayPipe
   ],
   templateUrl: './facsimile-collection-upload-block.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facsimile-collection-upload-block.component.scss'
 })
 export class FacsimileCollectionUploadBlockComponent implements OnInit {

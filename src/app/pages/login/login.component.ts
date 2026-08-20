@@ -1,6 +1,6 @@
 import { TextFieldModule, type AutofillEvent } from '@angular/cdk/text-field';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule,
          ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,6 +44,7 @@ const validIfEnvironmentIsCustom = function(control: AbstractControl): Validatio
     ReactiveFormsModule, CommonModule, MatIconModule, TextFieldModule, LoadingSpinnerComponent
   ],
   templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit, OnDestroy {

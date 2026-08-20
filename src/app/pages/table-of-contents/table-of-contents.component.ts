@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -52,6 +52,7 @@ import { NonExistingTocLanguagesPipe } from '../../pipes/non-existing-toc-langua
     NonExistingTocLanguagesPipe
   ],
   templateUrl: './table-of-contents.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./table-of-contents.component.scss']
 })
 export class TableOfContentsComponent implements OnInit {

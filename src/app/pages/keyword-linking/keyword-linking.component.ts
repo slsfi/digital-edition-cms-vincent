@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -50,6 +50,7 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
     IsEmptyStringPipe
   ],
   templateUrl: './keyword-linking.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './keyword-linking.component.scss'
 })
 export class KeywordLinkingComponent implements OnInit {

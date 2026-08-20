@@ -1,5 +1,5 @@
 
-import { Component, DestroyRef, effect, inject, input, OnInit, output, viewChild } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, OnInit, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +29,7 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
     IsEmptyStringPipe
   ],
   templateUrl: './publication-keyword-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './publication-keyword-table.component.scss'
 })
 export class PublicationKeywordTableComponent implements OnInit {

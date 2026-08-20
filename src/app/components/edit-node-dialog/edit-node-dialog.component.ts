@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -42,6 +42,7 @@ import { SnackbarService } from '../../services/snackbar.service';
     AsyncPipe
   ],
   templateUrl: './edit-node-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./edit-node-dialog.component.scss']
 })
 export class EditNodeDialogComponent implements OnInit {

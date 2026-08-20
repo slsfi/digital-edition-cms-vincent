@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -42,6 +42,7 @@ import {
     LoadingSpinnerComponent
   ],
   templateUrl: './facsimile-collections.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facsimile-collections.component.scss'
 })
 export class FacsimileCollectionsComponent implements OnInit {

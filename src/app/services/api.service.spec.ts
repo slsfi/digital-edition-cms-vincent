@@ -1,4 +1,4 @@
-import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient, withXhr } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
 import { ApiService } from './api.service';
@@ -37,7 +37,7 @@ describe('ApiService', () => {
     snackbar = jasmine.createSpyObj<SnackbarService>('SnackbarService', ['show']);
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         { provide: SnackbarService, useValue: snackbar }
       ]
     });

@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ import { ProjectService } from '../../services/project.service';
   selector: 'navigation',
   imports: [MatDividerModule, MatListModule, MatIconModule, RouterLink],
   templateUrl: './navigation.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './navigation.component.scss'
 })
 export class NavigationComponent implements OnDestroy {

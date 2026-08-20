@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -20,6 +20,7 @@ import { QueryParamsService } from './../../services/query-params.service';
     MatButtonModule
 ],
   templateUrl: './table-sorting.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './table-sorting.component.scss'
 })
 export class TableSortingComponent implements OnInit {

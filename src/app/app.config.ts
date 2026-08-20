@@ -2,7 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withRouterConfig } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
@@ -16,6 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding(), withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideHttpClient(
+      withXhr(),
       withInterceptors([authInterceptor, loadingInterceptor]),
     ),
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },

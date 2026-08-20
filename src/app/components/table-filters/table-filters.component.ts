@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ import { QueryParamsService } from './../../services/query-params.service';
     MatButtonModule
 ],
   templateUrl: './table-filters.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './table-filters.component.scss'
 })
 export class TableFiltersComponent implements OnInit {

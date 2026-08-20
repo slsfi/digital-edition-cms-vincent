@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,6 +28,7 @@ export interface EditTocRootDialogData {
     IsEmptyStringPipe
   ],
   templateUrl: './edit-toc-root-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./edit-toc-root-dialog.component.scss']
 })
 export class EditTocRootDialogComponent {
