@@ -2,7 +2,6 @@ import { CdkAutofill } from '@angular/cdk/text-field';
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
 import { AuthService, LoginErrorCode } from '../../services/auth.service';
@@ -44,7 +43,6 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
-        provideNoopAnimations(),
         { provide: ApiService, useValue: apiService },
         { provide: AuthService, useValue: authService },
         { provide: LoadingService, useValue: { loading$: of(false) } }
