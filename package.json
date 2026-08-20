@@ -2,6 +2,22 @@
   "name": "vincent-cms",
   "version": "3.0.4",
   "description": "CMS for the SLS Digital Edition Platform",
+  "engines": {
+    "node": "^24.15.0",
+    "npm": "^11.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.15.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "^11.0.0",
+      "onFail": "error"
+    }
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
