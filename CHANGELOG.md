@@ -8,21 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.0.0] – 2026-08-21
+
 ### Changed
 
-- Upgrade the required Node.js runtime and Docker build image to Node 24 with npm 11.
-- Upgrade `actions/checkout` in Docker build action workflow to v7.
-- Migrate unit testing from Karma/Jasmine to Vitest.
-- Disable `OnPush` change detection lint errors.
-- Add version-pinned npm install-script approvals and document the transitive dependency update workflow.
-- Deps: update `@angular/core`, `@angular/cdk` and `@angular/material` to 22.1.3, and `@angular/cli` to 22.1.5.
-- Deps (dev): update `angular-eslint` to 22.1.0.
-- Deps (dev): update `typescript` to 6.0.3.
-- Deps: update transitive dependencies.
+- Upgrade the required Node.js runtime and Docker build image to Node 24 with npm 11. ([2fe194c](https://github.com/slsfi/digital-edition-cms-vincent/commit/2fe194c70f2c3012831982f6e63b4d6398a90c40))
+- Upgrade `actions/checkout` in Docker build action workflow to v7. ([da6d713](https://github.com/slsfi/digital-edition-cms-vincent/commit/da6d713a205c2e590786775217a01c307b6d3f2d))
+- Migrate unit testing from Karma/Jasmine to Vitest. ([b98cc77](https://github.com/slsfi/digital-edition-cms-vincent/commit/b98cc77f92d2e6908e436bae2ee1f1ea22a34427))
+- Disable `OnPush` change detection lint errors. ([b98cc77](https://github.com/slsfi/digital-edition-cms-vincent/commit/b98cc77f92d2e6908e436bae2ee1f1ea22a34427))
+- Add version-pinned npm install-script approvals and document the transitive dependency update workflow. ([db1f15e](https://github.com/slsfi/digital-edition-cms-vincent/commit/db1f15ed4e595a405fbf20722ad73994ceb02070))
+- Deps: update `@angular/core`, `@angular/cdk` and `@angular/material` to 22.1.3, and `@angular/cli` to 22.1.5. ([6575895](https://github.com/slsfi/digital-edition-cms-vincent/commit/6575895fab1b0ce0d3c1e466f5be40c2319eef4f), [b98cc77](https://github.com/slsfi/digital-edition-cms-vincent/commit/b98cc77f92d2e6908e436bae2ee1f1ea22a34427))
+- Deps (dev): update `angular-eslint` to 22.1.0. ([b98cc77](https://github.com/slsfi/digital-edition-cms-vincent/commit/b98cc77f92d2e6908e436bae2ee1f1ea22a34427))
+- Deps (dev): update `typescript` to 6.0.3. ([b98cc77](https://github.com/slsfi/digital-edition-cms-vincent/commit/b98cc77f92d2e6908e436bae2ee1f1ea22a34427))
+- Deps: update transitive dependencies. ([5900de3](https://github.com/slsfi/digital-edition-cms-vincent/commit/5900de3caa43b3a42a46649185b88b76725d2e53))
 
 ### Fixed
 
-- Test: remove the legacy animation provider from the login spec so clean installs build without `@angular/animations`.
+- Test: remove the legacy animation provider from the login spec so clean installs build without `@angular/animations`. ([17335c5](https://github.com/slsfi/digital-edition-cms-vincent/commit/17335c532046ec9165f3cb275d78afab4da9c188))
 
 
 
@@ -509,7 +513,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.4...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.0...HEAD
+[4.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.4...4.0.0
 [3.0.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.1...3.0.2
