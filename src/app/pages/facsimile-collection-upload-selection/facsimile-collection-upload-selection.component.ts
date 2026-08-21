@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -63,6 +63,7 @@ type ReplaceRowForm = FormGroup<{
     LoadingSpinnerComponent,
   ],
   templateUrl: './facsimile-collection-upload-selection.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facsimile-collection-upload-selection.component.scss'
 })
 export class FacsimileCollectionUploadSelectionComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -17,6 +17,7 @@ import { ProjectService } from '../../services/project.service';
   imports: [CommonModule, MatToolbarModule, MatTooltipModule,
     MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
   templateUrl: './topbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './topbar.component.scss'
 })
 export class TopbarComponent {

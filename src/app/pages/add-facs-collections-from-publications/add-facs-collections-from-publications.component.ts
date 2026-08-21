@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,6 +34,7 @@ import { SnackbarService } from '../../services/snackbar.service';
     LoadingSpinnerComponent
   ],
   templateUrl: './add-facs-collections-from-publications.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-facs-collections-from-publications.component.scss'
 })
 export class AddFacsCollectionsFromPublicationsComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -34,6 +34,7 @@ import { QueryParamsService } from './../../services/query-params.service';
   ],
   providers: [DatePipe],
   templateUrl: './custom-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy {

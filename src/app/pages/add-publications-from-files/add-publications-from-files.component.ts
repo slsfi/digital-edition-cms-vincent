@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
          Validators } from '@angular/forms';
@@ -49,6 +49,7 @@ interface BundleFormType {
     LoadingSpinnerComponent
   ],
   templateUrl: './add-publications-from-files.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-publications-from-files.component.scss'
 })
 export class AddPublicationsFromFilesComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, DOCUMENT, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,6 +40,7 @@ type EditableTocNodeAssignmentTarget = Partial<
     CanMoveNodeUpPipe
   ],
   templateUrl: './toc-tree.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./toc-tree.component.scss']
 })
 export class TocTreeComponent implements OnChanges {

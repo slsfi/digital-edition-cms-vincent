@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -68,6 +68,7 @@ type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, input, Output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,6 +27,7 @@ import { TranslationService } from '../../services/translation.service';
     GetLangLabelPipe
   ],
   templateUrl: './translations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './translations.component.scss'
 })
 export class TranslationsComponent implements AfterViewInit {

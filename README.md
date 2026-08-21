@@ -118,12 +118,12 @@ Run `npm run build` to build the project. The build artifacts will be stored in 
 
 ### Running unit tests
 
-Run `npm test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev/) using jsdom.
 
-To run unit tests in Headless Chrome, run:
+To run the unit tests once without watch mode, run:
 
 ```
-npm test -- --watch=false --browsers=ChromeHeadless
+npm test -- --watch=false
 ```
 
 ### Lint

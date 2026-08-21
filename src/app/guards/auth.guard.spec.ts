@@ -1,12 +1,9 @@
+import type { MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn, UrlTree, provideRouter } from '@angular/router';
 import { firstValueFrom, Observable, of } from 'rxjs';
 
-import {
-  AUTH_REDIRECT_MARKER_QUERY_PARAM,
-  AUTH_REDIRECT_MARKER_VALUE,
-  AuthRedirectStorageService
-} from '../services/auth-redirect-storage.service';
+import { AUTH_REDIRECT_MARKER_QUERY_PARAM, AUTH_REDIRECT_MARKER_VALUE, AuthRedirectStorageService } from '../services/auth-redirect-storage.service';
 import { AuthService } from '../services/auth.service';
 import { authGuard } from './auth.guard';
 
@@ -14,123 +11,122 @@ type AuthGuardRoute = Parameters<CanActivateFn>[0];
 type AuthGuardState = Parameters<CanActivateFn>[1];
 
 describe('authGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) =>
-    TestBed.runInInjectionContext(() => authGuard(...guardParameters));
-  let isAuthenticated = false;
-  let authRedirectStorage: jasmine.SpyObj<
-    Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
-  >;
-  let initialSessionValidationPending = false;
-  let initialSessionValidation$: Observable<boolean> = of(false);
+    const executeGuard: CanActivateFn = (...guardParameters) => TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+    let isAuthenticated = false;
+    let authRedirectStorage: MockedObject<Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>>;
+    let initialSessionValidationPending = false;
+    let initialSessionValidation$: Observable<boolean> = of(false);
 
-  function asUrl(value: unknown): string | null {
-    return value instanceof UrlTree ? value.toString() : null;
-  }
+    function asUrl(value: unknown): string | null {
+        return value instanceof UrlTree ? value.toString() : null;
+    }
 
-  function runGuard(url: string): unknown {
-    return executeGuard({} as AuthGuardRoute, { url } as AuthGuardState);
-  }
+    function runGuard(url: string): unknown {
+        return executeGuard({} as AuthGuardRoute, { url } as AuthGuardState);
+    }
 
-  beforeEach(() => {
-    isAuthenticated = false;
-    initialSessionValidationPending = false;
-    initialSessionValidation$ = of(false);
-    authRedirectStorage = jasmine.createSpyObj<
-      Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
-    >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl', 'clearReturnUrl']);
-    authRedirectStorage.storeReturnUrl.and.returnValue(true);
-    authRedirectStorage.consumeReturnUrl.and.returnValue(null);
+    beforeEach(() => {
+        isAuthenticated = false;
+        initialSessionValidationPending = false;
+        initialSessionValidation$ = of(false);
+        authRedirectStorage = {
+            storeReturnUrl: vi.fn().mockName("AuthRedirectStorageService.storeReturnUrl"),
+            consumeReturnUrl: vi.fn().mockName("AuthRedirectStorageService.consumeReturnUrl"),
+            clearReturnUrl: vi.fn().mockName("AuthRedirectStorageService.clearReturnUrl")
+        };
+        authRedirectStorage.storeReturnUrl.mockReturnValue(true);
+        authRedirectStorage.consumeReturnUrl.mockReturnValue(null);
 
-    TestBed.configureTestingModule({
-      providers: [
-        provideRouter([]),
-        {
-          provide: AuthService,
-          useValue: {
-            isAuthenticated: () => isAuthenticated,
-            isInitialSessionValidationPending: () => initialSessionValidationPending,
-            validateInitialSession: () => initialSessionValidation$
-          }
-        },
-        { provide: AuthRedirectStorageService, useValue: authRedirectStorage }
-      ]
+        TestBed.configureTestingModule({
+            providers: [
+                provideRouter([]),
+                {
+                    provide: AuthService,
+                    useValue: {
+                        isAuthenticated: () => isAuthenticated,
+                        isInitialSessionValidationPending: () => initialSessionValidationPending,
+                        validateInitialSession: () => initialSessionValidation$
+                    }
+                },
+                { provide: AuthRedirectStorageService, useValue: authRedirectStorage }
+            ]
+        });
     });
-  });
 
-  it('redirects protected routes to /login and stores the intended target when unauthenticated', () => {
-    const result = runGuard('/projects');
+    it('redirects protected routes to /login and stores the intended target when unauthenticated', () => {
+        const result = runGuard('/projects');
 
-    expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/projects');
-    expect(asUrl(result)).toBe(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
-  });
+        expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/projects');
+        expect(asUrl(result)).toBe(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
+    });
 
-  it('falls back to the legacy returnUrl query param when redirect storage fails', () => {
-    authRedirectStorage.storeReturnUrl.and.returnValue(false);
+    it('falls back to the legacy returnUrl query param when redirect storage fails', () => {
+        authRedirectStorage.storeReturnUrl.mockReturnValue(false);
 
-    const result = runGuard('/projects');
+        const result = runGuard('/projects');
 
-    expect(asUrl(result)).toBe('/login?returnUrl=%2Fprojects');
-  });
+        expect(asUrl(result)).toBe('/login?returnUrl=%2Fprojects');
+    });
 
-  it('allows the login route when unauthenticated', () => {
-    const result = runGuard('/login');
+    it('allows the login route when unauthenticated', () => {
+        const result = runGuard('/login');
 
-    expect(result).toBe(true);
-    expect(authRedirectStorage.consumeReturnUrl).not.toHaveBeenCalled();
-  });
+        expect(result).toBe(true);
+        expect(authRedirectStorage.consumeReturnUrl).not.toHaveBeenCalled();
+    });
 
-  it('redirects authenticated login visits to the stored marker URL', () => {
-    isAuthenticated = true;
-    authRedirectStorage.consumeReturnUrl.and.returnValue('/projects');
+    it('redirects authenticated login visits to the stored marker URL', () => {
+        isAuthenticated = true;
+        authRedirectStorage.consumeReturnUrl.mockReturnValue('/projects');
 
-    const result = runGuard(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
+        const result = runGuard(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
 
-    expect(authRedirectStorage.consumeReturnUrl).toHaveBeenCalledTimes(1);
-    expect(asUrl(result)).toBe('/projects');
-  });
+        expect(authRedirectStorage.consumeReturnUrl).toHaveBeenCalledTimes(1);
+        expect(asUrl(result)).toBe('/projects');
+    });
 
-  it('redirects authenticated login visits to the safe query returnUrl when no marker target exists', () => {
-    isAuthenticated = true;
+    it('redirects authenticated login visits to the safe query returnUrl when no marker target exists', () => {
+        isAuthenticated = true;
 
-    const result = runGuard('/login?returnUrl=%2Fprojects');
+        const result = runGuard('/login?returnUrl=%2Fprojects');
 
-    expect(asUrl(result)).toBe('/projects');
-  });
+        expect(asUrl(result)).toBe('/projects');
+    });
 
-  it('falls back to / when the authenticated login redirect target is unsafe', () => {
-    isAuthenticated = true;
+    it('falls back to / when the authenticated login redirect target is unsafe', () => {
+        isAuthenticated = true;
 
-    const result = runGuard('/login?returnUrl=%2F%2Fevil.example');
+        const result = runGuard('/login?returnUrl=%2F%2Fevil.example');
 
-    expect(asUrl(result)).toBe('/');
-  });
+        expect(asUrl(result)).toBe('/');
+    });
 
-  it('allows protected routes when already authenticated', () => {
-    isAuthenticated = true;
+    it('allows protected routes when already authenticated', () => {
+        isAuthenticated = true;
 
-    const result = runGuard('/projects');
+        const result = runGuard('/projects');
 
-    expect(result).toBe(true);
-    expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
-  });
+        expect(result).toBe(true);
+        expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
+    });
 
-  it('waits for a successful initial session validation before allowing a protected route', async () => {
-    initialSessionValidationPending = true;
-    initialSessionValidation$ = of(true);
+    it('waits for a successful initial session validation before allowing a protected route', async () => {
+        initialSessionValidationPending = true;
+        initialSessionValidation$ = of(true);
 
-    const result = await firstValueFrom(runGuard('/projects') as Observable<unknown>);
+        const result = await firstValueFrom(runGuard('/projects') as Observable<unknown>);
 
-    expect(result).toBe(true);
-    expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
-  });
+        expect(result).toBe(true);
+        expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
+    });
 
-  it('redirects to login when initial session validation fails for a protected route', async () => {
-    initialSessionValidationPending = true;
-    initialSessionValidation$ = of(false);
+    it('redirects to login when initial session validation fails for a protected route', async () => {
+        initialSessionValidationPending = true;
+        initialSessionValidation$ = of(false);
 
-    const result = await firstValueFrom(runGuard('/projects') as Observable<unknown>);
+        const result = await firstValueFrom(runGuard('/projects') as Observable<unknown>);
 
-    expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/projects');
-    expect(asUrl(result)).toBe(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
-  });
+        expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/projects');
+        expect(asUrl(result)).toBe(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
+    });
 });

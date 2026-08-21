@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 import { CdkAutofill } from '@angular/cdk/text-field';
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -10,158 +11,155 @@ import { LoadingService } from '../../services/loading.service';
 import { LoginComponent } from './login.component';
 
 describe('LoginComponent', () => {
-  let component: LoginComponent;
-  let fixture: ComponentFixture<LoginComponent>;
-  let apiService: jasmine.SpyObj<Pick<ApiService, 'setEnvironment'>> & { environment: string };
-  let authService: jasmine.SpyObj<Pick<AuthService, 'login' | 'clearLoginError'>> &
-    Pick<AuthService, 'loginError' | 'loginInProgress'>;
-  let environment: string;
-  let loginError: WritableSignal<LoginErrorCode | null>;
+    let component: LoginComponent;
+    let fixture: ComponentFixture<LoginComponent>;
+    let apiService: MockedObject<Pick<ApiService, 'setEnvironment'>> & {
+        environment: string;
+    };
+    let authService: MockedObject<Pick<AuthService, 'login' | 'clearLoginError'>> & Pick<AuthService, 'loginError' | 'loginInProgress'>;
+    let environment: string;
+    let loginError: WritableSignal<LoginErrorCode | null>;
 
-  beforeEach(async () => {
-    environment = '';
-    apiService = jasmine.createSpyObj<Pick<ApiService, 'setEnvironment'>>(
-      'ApiService',
-      ['setEnvironment']
-    ) as jasmine.SpyObj<Pick<ApiService, 'setEnvironment'>> & { environment: string };
-    Object.defineProperty(apiService, 'environment', {
-      get: () => environment
-    });
-    authService = jasmine.createSpyObj<Pick<AuthService, 'login' | 'clearLoginError'>>(
-      'AuthService',
-      ['login', 'clearLoginError']
-    ) as jasmine.SpyObj<Pick<AuthService, 'login' | 'clearLoginError'>> &
-      Pick<AuthService, 'loginError' | 'loginInProgress'>;
-    loginError = signal<LoginErrorCode | null>(null);
-    Object.defineProperty(authService, 'loginError', {
-      value: loginError.asReadonly()
-    });
-    Object.defineProperty(authService, 'loginInProgress', {
-      value: signal(false).asReadonly()
-    });
+    beforeEach(async () => {
+        environment = '';
+        apiService = {
+            setEnvironment: vi.fn().mockName("ApiService.setEnvironment")
+        } as MockedObject<Pick<ApiService, 'setEnvironment'>> & {
+            environment: string;
+        };
+        Object.defineProperty(apiService, 'environment', {
+            get: () => environment
+        });
+        authService = {
+            login: vi.fn().mockName("AuthService.login"),
+            clearLoginError: vi.fn().mockName("AuthService.clearLoginError")
+        } as MockedObject<Pick<AuthService, 'login' | 'clearLoginError'>> & Pick<AuthService, 'loginError' | 'loginInProgress'>;
+        loginError = signal<LoginErrorCode | null>(null);
+        Object.defineProperty(authService, 'loginError', {
+            value: loginError.asReadonly()
+        });
+        Object.defineProperty(authService, 'loginInProgress', {
+            value: signal(false).asReadonly()
+        });
 
-    await TestBed.configureTestingModule({
-      imports: [LoginComponent],
-      providers: [
-        { provide: ApiService, useValue: apiService },
-        { provide: AuthService, useValue: authService },
-        { provide: LoadingService, useValue: { loading$: of(false) } }
-      ]
-    }).compileComponents();
+        await TestBed.configureTestingModule({
+            imports: [LoginComponent],
+            providers: [
+                { provide: ApiService, useValue: apiService },
+                { provide: AuthService, useValue: authService },
+                { provide: LoadingService, useValue: { loading$: of(false) } }
+            ]
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('preselects a stored predefined environment', () => {
-    environment = 'https://testa-api.sls.fi/';
-
-    fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.environment.value).toBe('https://testa-api.sls.fi/');
-  });
-
-  it('preselects a stored custom environment', () => {
-    environment = 'https://custom-api.example.com/';
-
-    fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.environment.value).toBe(' ');
-    expect(component.customEnvironment.value).toBe('https://custom-api.example.com/');
-  });
-
-  it('does not submit when the custom environment URL is invalid', () => {
-    component.loginForm.setValue({
-      email: 'user@example.com',
-      password: 'secret',
-      environment: ' ',
-      customEnvironment: 'not-a-url'
+        fixture = TestBed.createComponent(LoginComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
-    component.login();
-
-    expect(component.customEnvironment.hasError('invalidEnvironment')).toBeTrue();
-    expect(apiService.setEnvironment).not.toHaveBeenCalled();
-    expect(authService.login).not.toHaveBeenCalled();
-  });
-
-  it('does not submit when the custom environment URL uses http', () => {
-    component.loginForm.setValue({
-      email: 'user@example.com',
-      password: 'secret',
-      environment: ' ',
-      customEnvironment: 'http://example.com/custom'
+    it('should create', () => {
+        expect(component).toBeTruthy();
     });
 
-    component.login();
+    it('preselects a stored predefined environment', () => {
+        environment = 'https://testa-api.sls.fi/';
 
-    expect(component.customEnvironment.hasError('invalidEnvironment')).toBeTrue();
-    expect(apiService.setEnvironment).not.toHaveBeenCalled();
-    expect(authService.login).not.toHaveBeenCalled();
-  });
+        fixture = TestBed.createComponent(LoginComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
 
-  it('normalizes custom environment URLs and trims the login email before submitting', () => {
-    component.loginForm.setValue({
-      email: ' user@example.com ',
-      password: 'secret',
-      environment: ' ',
-      customEnvironment: ' https://example.com/custom '
+        expect(component.environment.value).toBe('https://testa-api.sls.fi/');
     });
 
-    component.login();
+    it('preselects a stored custom environment', () => {
+        environment = 'https://custom-api.example.com/';
 
-    expect(apiService.setEnvironment).toHaveBeenCalledWith('https://example.com/custom/');
-    expect(authService.login).toHaveBeenCalledWith('user@example.com', 'secret');
-    expect(component.customEnvironment.value).toBe('https://example.com/custom/');
-  });
+        fixture = TestBed.createComponent(LoginComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
 
-  it('updates controls from cdk autofill events', () => {
-    expect(fixture.debugElement.queryAll(By.directive(CdkAutofill)).length).toBe(2);
+        expect(component.environment.value).toBe(' ');
+        expect(component.customEnvironment.value).toBe('https://custom-api.example.com/');
+    });
 
-    const emailInput = fixture.nativeElement.querySelector(
-      'input[autocomplete="email"]'
-    ) as HTMLInputElement;
-    const passwordInput = fixture.nativeElement.querySelector(
-      'input[autocomplete="current-password"]'
-    ) as HTMLInputElement;
-    const loginButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+    it('does not submit when the custom environment URL is invalid', () => {
+        component.loginForm.setValue({
+            email: 'user@example.com',
+            password: 'secret',
+            environment: ' ',
+            customEnvironment: 'not-a-url'
+        });
 
-    component.environment.setValue('https://api.sls.fi/');
-    fixture.detectChanges();
+        component.login();
 
-    expect(loginButton.disabled).toBeTrue();
+        expect(component.customEnvironment.hasError('invalidEnvironment')).toBe(true);
+        expect(apiService.setEnvironment).not.toHaveBeenCalled();
+        expect(authService.login).not.toHaveBeenCalled();
+    });
 
-    emailInput.value = 'user@example.com';
-    passwordInput.value = 'secret';
+    it('does not submit when the custom environment URL uses http', () => {
+        component.loginForm.setValue({
+            email: 'user@example.com',
+            password: 'secret',
+            environment: ' ',
+            customEnvironment: 'http://example.com/custom'
+        });
 
-    component.syncAutofilledInput('email', { target: emailInput, isAutofilled: true });
-    component.syncAutofilledInput('password', { target: passwordInput, isAutofilled: true });
-    fixture.detectChanges();
+        component.login();
 
-    expect(component.email.value).toBe('user@example.com');
-    expect(component.password.value).toBe('secret');
-    expect(component.loginForm.valid).toBeTrue();
-    expect(loginButton.disabled).toBeFalse();
-  });
+        expect(component.customEnvironment.hasError('invalidEnvironment')).toBe(true);
+        expect(apiService.setEnvironment).not.toHaveBeenCalled();
+        expect(authService.login).not.toHaveBeenCalled();
+    });
 
-  it('clears the login error when the form value changes', () => {
-    component.email.setValue('user@example.com');
+    it('normalizes custom environment URLs and trims the login email before submitting', () => {
+        component.loginForm.setValue({
+            email: ' user@example.com ',
+            password: 'secret',
+            environment: ' ',
+            customEnvironment: ' https://example.com/custom '
+        });
 
-    expect(authService.clearLoginError).toHaveBeenCalled();
-  });
+        component.login();
 
-  it('shows a specific message when CMS access cannot be verified', () => {
-    loginError.set('cms_access_denied');
+        expect(apiService.setEnvironment).toHaveBeenCalledWith('https://example.com/custom/');
+        expect(authService.login).toHaveBeenCalledWith('user@example.com', 'secret');
+        expect(component.customEnvironment.value).toBe('https://example.com/custom/');
+    });
 
-    expect(component.loginErrorMessage()).toBe('CMS access could not be verified for this account.');
-  });
+    it('updates controls from cdk autofill events', () => {
+        expect(fixture.debugElement.queryAll(By.directive(CdkAutofill)).length).toBe(2);
+
+        const emailInput = fixture.nativeElement.querySelector('input[autocomplete="email"]') as HTMLInputElement;
+        const passwordInput = fixture.nativeElement.querySelector('input[autocomplete="current-password"]') as HTMLInputElement;
+        const loginButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        component.environment.setValue('https://api.sls.fi/');
+        fixture.detectChanges();
+
+        expect(loginButton.disabled).toBe(true);
+
+        emailInput.value = 'user@example.com';
+        passwordInput.value = 'secret';
+
+        component.syncAutofilledInput('email', { target: emailInput, isAutofilled: true });
+        component.syncAutofilledInput('password', { target: passwordInput, isAutofilled: true });
+        fixture.detectChanges();
+
+        expect(component.email.value).toBe('user@example.com');
+        expect(component.password.value).toBe('secret');
+        expect(component.loginForm.valid).toBe(true);
+        expect(loginButton.disabled).toBe(false);
+    });
+
+    it('clears the login error when the form value changes', () => {
+        component.email.setValue('user@example.com');
+
+        expect(authService.clearLoginError).toHaveBeenCalled();
+    });
+
+    it('shows a specific message when CMS access cannot be verified', () => {
+        loginError.set('cms_access_denied');
+
+        expect(component.loginErrorMessage()).toBe('CMS access could not be verified for this account.');
+    });
 });
