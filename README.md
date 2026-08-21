@@ -29,7 +29,7 @@ The app is built on [Angular][angular] and uses [Angular Material][material] web
 
 ### Prerequisites
 
-1. Install [Node.js][node.js] which includes [npm][npm]. The app requires Node `^24.15.0` and npm `^11.0.0`; Docker and CI are configured to use Node `24`. Check both versions with:
+1. Install [Node.js][node.js] which includes [npm][npm]. The app requires Node `^24.15.0` and npm `>=11.16.0`; Docker and CI are configured to use Node `24`. Check both versions with:
 
 ```
 node --version
