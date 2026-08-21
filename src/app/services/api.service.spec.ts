@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 import { HttpErrorResponse, provideHttpClient, withXhr } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
@@ -5,107 +6,106 @@ import { ApiService } from './api.service';
 import { SnackbarService } from './snackbar.service';
 
 describe('ApiService', () => {
-  let service: ApiService;
-  let snackbar: jasmine.SpyObj<SnackbarService>;
+    let service: ApiService;
+    let snackbar: MockedObject<Pick<SnackbarService, 'show'>>;
 
-  function createError(errorBody: unknown): HttpErrorResponse {
-    return new HttpErrorResponse({
-      error: errorBody,
-      status: 403,
-      statusText: 'Forbidden',
-      url: '/api/resource'
-    });
-  }
-
-  function expectSnackbarMessage(errorBody: unknown, expectedMessage: string): void {
-    const error = createError(errorBody);
-    let receivedError: unknown;
-
-    service.handleError(error).subscribe({
-      next: () => fail('expected handleError to rethrow'),
-      error: (err) => {
-        receivedError = err;
-      }
-    });
-
-    expect(receivedError).toBe(error);
-    expect(snackbar.show).toHaveBeenCalledWith(expectedMessage, 'error');
-    snackbar.show.calls.reset();
-  }
-
-  beforeEach(() => {
-    snackbar = jasmine.createSpyObj<SnackbarService>('SnackbarService', ['show']);
-    TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(withXhr()),
-        { provide: SnackbarService, useValue: snackbar }
-      ]
-    });
-    service = TestBed.inject(ApiService);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
-  it('shows backend error messages from known response fields', () => {
-    expectSnackbarMessage({ message: 'Forbidden' }, 'Forbidden');
-    expectSnackbarMessage({ msg: 'Access denied' }, 'Access denied');
-  });
-
-  it('shows string backend error bodies directly', () => {
-    expectSnackbarMessage('Forbidden', 'Forbidden');
-  });
-
-  it('falls back to the HTTP error message when the backend error body has no message', () => {
-    for (const errorBody of [undefined, null, '', { message: '' }, { msg: '' }]) {
-      const error = createError(errorBody);
-      let receivedError: unknown;
-
-      service.handleError(error).subscribe({
-        next: () => fail('expected handleError to rethrow'),
-        error: (err) => {
-          receivedError = err;
-        }
-      });
-
-      expect(receivedError).toBe(error);
-      expect(snackbar.show).toHaveBeenCalledWith(error.message, 'error');
-      snackbar.show.calls.reset();
+    function createError(errorBody: unknown): HttpErrorResponse {
+        return new HttpErrorResponse({
+            error: errorBody,
+            status: 403,
+            statusText: 'Forbidden',
+            url: '/api/resource'
+        });
     }
-  });
 
-  it('shows a network error message when the browser receives no HTTP response', () => {
-    const error = new HttpErrorResponse({
-      error: new ProgressEvent('error'),
-      status: 0,
-      statusText: 'Unknown Error',
-      url: 'https://testa-api.sls.fi/digitaledition/topelius/facsimile_collection/71263/data/'
-    });
-    let receivedError: unknown;
+    function expectSnackbarMessage(errorBody: unknown, expectedMessage: string): void {
+        const error = createError(errorBody);
+        let receivedError: unknown;
 
-    service.handleError(error).subscribe({
-      next: () => fail('expected handleError to rethrow'),
-      error: (err) => {
-        receivedError = err;
-      }
-    });
+        service.handleError(error).subscribe({
+            next: () => expect.fail('expected handleError to rethrow'),
+            error: (err) => {
+                receivedError = err;
+            }
+        });
 
-    expect(receivedError).toBe(error);
-    expect(snackbar.show).toHaveBeenCalledWith(
-      'Network error. Check your internet or VPN connection and try again.',
-      'error'
-    );
-  });
+        expect(receivedError).toBe(error);
+        expect(snackbar.show).toHaveBeenCalledWith(expectedMessage, 'error');
+        snackbar.show.mockClear();
+    }
 
-  it('does not show a snackbar when error messages are disabled', () => {
-    const error = createError({ message: 'Forbidden' });
-
-    service.handleError(error, true).subscribe({
-      next: () => fail('expected handleError to rethrow'),
-      error: () => undefined
+    beforeEach(() => {
+        snackbar = {
+            show: vi.fn().mockName("SnackbarService.show")
+        };
+        TestBed.configureTestingModule({
+            providers: [
+                provideHttpClient(withXhr()),
+                { provide: SnackbarService, useValue: snackbar }
+            ]
+        });
+        service = TestBed.inject(ApiService);
     });
 
-    expect(snackbar.show).not.toHaveBeenCalled();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
+
+    it('shows backend error messages from known response fields', () => {
+        expectSnackbarMessage({ message: 'Forbidden' }, 'Forbidden');
+        expectSnackbarMessage({ msg: 'Access denied' }, 'Access denied');
+    });
+
+    it('shows string backend error bodies directly', () => {
+        expectSnackbarMessage('Forbidden', 'Forbidden');
+    });
+
+    it('falls back to the HTTP error message when the backend error body has no message', () => {
+        for (const errorBody of [undefined, null, '', { message: '' }, { msg: '' }]) {
+            const error = createError(errorBody);
+            let receivedError: unknown;
+
+            service.handleError(error).subscribe({
+                next: () => expect.fail('expected handleError to rethrow'),
+                error: (err) => {
+                    receivedError = err;
+                }
+            });
+
+            expect(receivedError).toBe(error);
+            expect(snackbar.show).toHaveBeenCalledWith(error.message, 'error');
+            snackbar.show.mockClear();
+        }
+    });
+
+    it('shows a network error message when the browser receives no HTTP response', () => {
+        const error = new HttpErrorResponse({
+            error: new ProgressEvent('error'),
+            status: 0,
+            statusText: 'Unknown Error',
+            url: 'https://testa-api.sls.fi/digitaledition/topelius/facsimile_collection/71263/data/'
+        });
+        let receivedError: unknown;
+
+        service.handleError(error).subscribe({
+            next: () => expect.fail('expected handleError to rethrow'),
+            error: (err) => {
+                receivedError = err;
+            }
+        });
+
+        expect(receivedError).toBe(error);
+        expect(snackbar.show).toHaveBeenCalledWith('Network error. Check your internet or VPN connection and try again.', 'error');
+    });
+
+    it('does not show a snackbar when error messages are disabled', () => {
+        const error = createError({ message: 'Forbidden' });
+
+        service.handleError(error, true).subscribe({
+            next: () => expect.fail('expected handleError to rethrow'),
+            error: () => undefined
+        });
+
+        expect(snackbar.show).not.toHaveBeenCalled();
+    });
 });
