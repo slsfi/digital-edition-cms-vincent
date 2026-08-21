@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
+import { HttpEventType } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -120,13 +120,11 @@ export class FileUploadComponent {
               queueObject.progress = Math.round(100 * (event.loaded / event.total));
               queueObject.status = FileQueueStatus.Progress;
             }
-            if (event instanceof HttpHeaderResponse) {
-              const statusString = event.status.toString()
-              if (statusString.startsWith("2")) {
-                queueObject.status = FileQueueStatus.Success;
-                observer.next();
-                observer.complete();
-              }
+            if (event.type === HttpEventType.Response) {
+              queueObject.progress = 100;
+              queueObject.status = FileQueueStatus.Success;
+              observer.next();
+              observer.complete();
             }
           },
           error: () => {
