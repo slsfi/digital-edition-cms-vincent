@@ -1,6 +1,6 @@
 {
   "name": "vincent-cms",
-  "version": "3.0.4",
+  "version": "4.0.0",
   "description": "CMS for the SLS Digital Edition Platform",
   "engines": {
     "node": "^24.15.0",
