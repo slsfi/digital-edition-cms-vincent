@@ -92,13 +92,46 @@ If there is a new major version of Angular and you don’t want to update to it,
 ng update @angular/cli@^<current_major> @angular/core@^<current_major> @angular/cdk@^<current_major> @angular/material@^<current_major>
 ```
 
-When updating to a new major version of Angular, check the update guide first: <https://angular.dev/update-guide>. Also update the Angular major version number specified in [`Dockerfile`][dockerfile].
+When updating to a new major version of Angular, check the update guide: <https://angular.dev/update-guide>.
 
 Other dependencies can be updated by bumping the version number in [`package.json`][package.json] and running:
 
 ```
 npm install
 ```
+
+#### Transitive dependencies
+
+Keep [`package-lock.json`][package-lock.json] when updating transitive dependencies so that the changes remain reproducible and reviewable. Update all dependencies to the newest versions permitted by their existing semver ranges with:
+
+```
+npm update
+```
+
+Some dependencies run lifecycle scripts during installation. The approved package versions are pinned in the `allowScripts` section of [`package.json`][package.json]. After updating, list packages whose scripts are not covered by an existing approval:
+
+```
+npm approve-scripts --allow-scripts-pending
+```
+
+Review each reported package and its changes before approving it. Approve packages individually, or list several package names in the same command:
+
+```
+npm approve-scripts <package> [<package> ...]
+```
+
+This updates the package's version-pinned entry in `allowScripts`. Do not replace it with an unversioned approval unless future versions of that package should be allowed to run install scripts without another review.
+
+Finally, perform a clean installation from the updated lockfile and verify the app:
+
+```
+npm ci
+npm test -- --watch=false
+npm run build
+npm run lint
+```
+
+`npm ci` removes the existing `node_modules` directory automatically. Commit the reviewed `package-lock.json` changes and, when approvals changed, the corresponding `package.json` changes. Deleting and regenerating the lockfile should only be necessary when repairing a broken dependency tree.
 
 ### Node.js and nginx Docker images
 
@@ -189,5 +222,6 @@ Custom pipes
 [node.js]: https://nodejs.org/
 [npm]: https://www.npmjs.com/get-npm
 [package.json]: package.json
+[package-lock.json]: package-lock.json
 [SLS]: https://www.sls.fi/en
 [vincent_ghcr]: https://github.com/slsfi/digital-edition-cms-vincent/pkgs/container/digital-edition-cms-vincent
