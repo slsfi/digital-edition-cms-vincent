@@ -8,21 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.0.1] – 2026-09-23
+
 ### Changed
 
-- Disable Dependabot's default cooldown period for version updates.
-- Update `nginx` to 1.30.5.
-- Deps: update `@angular/core`, `@angular/cdk` and `@angular/material` to 22.1.7, and `@angular/cli` to 22.1.8.
-- Deps: update `zone.js` to 0.16.3.
-- Deps (dev): update `angular-eslint` to 22.5.0.
-- Deps (dev): update `eslint` to 10.11.0.
-- Deps (dev): update `jsdom` to 30.1.1.
-- Deps (dev): update `typescript-eslint` to 8.70.1.
-- Deps: update transitive dependencies.
+- Disable Dependabot's default cooldown period for version updates. ([cb4fd6a](https://github.com/slsfi/digital-edition-cms-vincent/commit/cb4fd6aa60128a235e985406fe96496d330ff9b7))
+- Update `nginx` to 1.30.5. ([6457fe7](https://github.com/slsfi/digital-edition-cms-vincent/commit/6457fe7a8a40c788d5569cad1cdc0ebb42fdcb31))
+- Deps: update `@angular/core`, `@angular/cdk` and `@angular/material` to 22.1.7, and `@angular/cli` to 22.1.8. ([d037842](https://github.com/slsfi/digital-edition-cms-vincent/commit/d03784207afa9b5d33aefcd5f0deed8b1068c399))
+- Deps: update `zone.js` to 0.16.3. ([184c3be](https://github.com/slsfi/digital-edition-cms-vincent/commit/184c3beefd4697e05c0e5fe0a520d8dc9246e4bd))
+- Deps (dev): update `angular-eslint` to 22.5.0. ([82eadb0](https://github.com/slsfi/digital-edition-cms-vincent/commit/82eadb0f95ee64447f9abea83295ceb254536880))
+- Deps (dev): update `eslint` to 10.11.0. ([12ffe0e](https://github.com/slsfi/digital-edition-cms-vincent/commit/12ffe0e340a71992db7b4ede11d2b225452e4804))
+- Deps (dev): update `jsdom` to 30.1.1. ([342f1f1](https://github.com/slsfi/digital-edition-cms-vincent/commit/342f1f13072863712bf71f2f88a710e75bc0e81c))
+- Deps (dev): update `typescript-eslint` to 8.70.1. ([77aa5be](https://github.com/slsfi/digital-edition-cms-vincent/commit/77aa5bee633681b52a4cedc6253fbda9946d8c65))
+- Deps: update transitive dependencies. ([eb43043](https://github.com/slsfi/digital-edition-cms-vincent/commit/eb430430a13f85de3083c6ace29930081c18e260))
 
 ### Fixed
 
-- Restore Dependabot dependency updates by removing the incompatible `devEngines.packageManager` range and treating npm 11.16.0 as a minimum version.
+- Restore Dependabot dependency updates by removing the incompatible `devEngines.packageManager` range and treating npm 11.16.0 as a minimum version. ([0d6b56c](https://github.com/slsfi/digital-edition-cms-vincent/commit/0d6b56c78b846de588b44a616a3f019be630553e))
 
 
 
@@ -529,7 +533,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.1...HEAD
+[4.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.4...4.0.0
 [3.0.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.2...3.0.3
