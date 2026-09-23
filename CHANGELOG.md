@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Disable Dependabot's default cooldown period for version updates.
+- Update `nginx` to 1.30.5.
 - Deps: update `@angular/core`, `@angular/cdk` and `@angular/material` to 22.1.7, and `@angular/cli` to 22.1.8.
 - Deps: update `zone.js` to 0.16.3.
 - Deps (dev): update `angular-eslint` to 22.5.0.
