@@ -1,5 +1,5 @@
 
-import { Component, DestroyRef, effect, inject, input, OnInit, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,7 +29,6 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
     IsEmptyStringPipe
   ],
   templateUrl: './publication-keyword-table.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './publication-keyword-table.component.scss'
 })
 export class PublicationKeywordTableComponent implements OnInit {
@@ -45,12 +44,16 @@ export class PublicationKeywordTableComponent implements OnInit {
   displayedColumns: string[] = ['index', 'id', 'name'];
   dataSource = new MatTableDataSource<Publication>([]);
   searchControl = new FormControl<string>({ value: '', disabled: true });
+  totalCount = signal(0);
+  filteredCount = signal(0);
 
   constructor() {
     // Update table data when input publications change
     effect(() => {
       const publications = this.publications() ?? [];
       this.dataSource.data = publications;
+      this.totalCount.set(publications.length);
+      this.filteredCount.set(this.dataSource.filteredData.length);
 
       if (publications.length) {
         this.searchControl.enable();
@@ -58,19 +61,23 @@ export class PublicationKeywordTableComponent implements OnInit {
         this.searchControl.disable();
       }
     });
+
+    effect(() => {
+      const paginator = this.matPaginator();
+      if (paginator) {
+        this.dataSource.paginator = paginator;
+      }
+    });
+
+    effect(() => {
+      const sort = this.matSort();
+      if (sort) {
+        this.dataSource.sort = sort;
+      }
+    });
   }
 
   ngOnInit(): void {
-    const paginator = this.matPaginator();
-    const sort = this.matSort();
-
-    if (paginator) {
-      this.dataSource.paginator = paginator;
-    }
-    if (sort) {
-      this.dataSource.sort = sort;
-    }
-
     // Simple client-side search by name or id
     this.dataSource.filterPredicate = (data: Publication, filter: string) => {
       const term = (filter || '').trim().toLowerCase();
@@ -87,6 +94,7 @@ export class PublicationKeywordTableComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(value => {
       this.dataSource.filter = (value || '').trim().toLowerCase();
+      this.filteredCount.set(this.dataSource.filteredData.length);
 
       const paginator = this.matPaginator();
       if (paginator) {

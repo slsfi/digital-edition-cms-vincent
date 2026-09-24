@@ -1,7 +1,7 @@
 @let paginator = matPaginator();
 
 <h3>
-  Publications {{ dataSource.filteredData.length < dataSource.data.length ? `(${dataSource.filteredData.length}/${dataSource.data.length})` : `(${dataSource.data.length})` }}
+  Publications {{ filteredCount() < totalCount() ? `(${filteredCount()}/${totalCount()})` : `(${totalCount()})` }}
 </h3>
 
 <mat-form-field class="search-field">
