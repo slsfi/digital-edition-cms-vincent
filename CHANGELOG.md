@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
+- Zoneless migration phase 1: use Angular 22's implicit default `OnPush` strategy in compatible components while retaining eager host boundaries until their descendants are ready.
 
 
 
