@@ -6,6 +6,7 @@
 </div>
 
 <div class="content">
+  @let summary = creationSummary();
   <p>Select a publication collection and configure the facsimile collection settings. A new facsimile collection will be created for each publication in the selected collection.</p>
 
   <form [formGroup]="form" (ngSubmit)="createFacsimileCollections()" class="form">
@@ -69,43 +70,43 @@
     </div>
 
     <div class="form-actions">
-      <button matButton type="button" (click)="navToFacsimileCollections()" [disabled]="isProcessing">
+      <button matButton type="button" (click)="navToFacsimileCollections()" [disabled]="isProcessing()">
         Cancel
       </button>
-      <button matButton="filled" type="submit" [disabled]="!form.valid || isProcessing">
+      <button matButton="filled" type="submit" [disabled]="!form.valid || isProcessing()">
         <mat-icon>add</mat-icon>
         Create facsimile collections
       </button>
     </div>
   </form>
 
-  @if (isProcessing) {
+  @if (isProcessing()) {
     <div class="processing-section">
       <loading-spinner></loading-spinner>
       <p>{{ progressMessage }}</p>
     </div>
   }
 
-  @if (creationSummary) {
+  @if (summary) {
     <div class="results-section">     
       <div class="results-summary">
         <div class="result-item success">
           <mat-icon>check_circle</mat-icon>
-          <span>Successfully created: {{ creationSummary.successful }} / {{ creationSummary.total }}</span>
+          <span>Successfully created: {{ summary.successful }} / {{ summary.total }}</span>
         </div>
-        @if (creationSummary.failed > 0) {
+        @if (summary.failed > 0) {
           <div class="result-item error">
             <mat-icon>error</mat-icon>
-            <span>Failed: {{ creationSummary.failed }} / {{ creationSummary.total }}</span>
+            <span>Failed: {{ summary.failed }} / {{ summary.total }}</span>
           </div>
         }
       </div>
 
-      @if (creationSummary.failed > 0) {
+      @if (summary.failed > 0) {
         <div class="failed-items">
           <h3>Failed publications:</h3>
           <ul>
-            @for (result of creationSummary.results; track result.publicationId) {
+            @for (result of summary.results; track result.publicationId) {
               @if (!result.success) {
                 <li>
                   <strong>{{ result.publicationName }}</strong> (ID: {{ result.publicationId }})
@@ -119,11 +120,11 @@
       }
 
       <!--
-      @if (creationSummary.successful > 0) {
+      @if (summary.successful > 0) {
         <div class="success-items">
           <h3>Successfully created:</h3>
           <ul>
-            @for (result of creationSummary.results; track result.publicationId) {
+            @for (result of summary.results; track result.publicationId) {
               @if (result.success) {
                 <li>
                   <strong>{{ result.publicationName }}</strong> → 

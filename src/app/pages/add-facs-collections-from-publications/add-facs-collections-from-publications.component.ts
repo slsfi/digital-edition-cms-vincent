@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,7 +34,6 @@ import { SnackbarService } from '../../services/snackbar.service';
     LoadingSpinnerComponent
   ],
   templateUrl: './add-facs-collections-from-publications.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-facs-collections-from-publications.component.scss'
 })
 export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
@@ -47,9 +46,9 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
 
   form: FormGroup;
   publicationCollections$: Observable<PublicationCollection[]> = of([]);
-  isProcessing = false;
+  readonly isProcessing = signal(false);
   progressMessage = '';
-  creationSummary: FacsimileCreationSummary | null = null;
+  readonly creationSummary = signal<FacsimileCreationSummary | null>(null);
 
   constructor() {
     this.form = this.fb.group({
@@ -88,12 +87,12 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
   }
 
   createFacsimileCollections() {
-    if (this.form.valid && !this.isProcessing) {
+    if (this.form.valid && !this.isProcessing()) {
       const config: FacsimileCreationConfig = this.form.value;
       
-      this.isProcessing = true;
+      this.isProcessing.set(true);
       this.progressMessage = 'Creating facsimile collections…';
-      this.creationSummary = null;
+      this.creationSummary.set(null);
 
       const currentProject = this.projectService.getCurrentProject();
       
@@ -101,11 +100,11 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
         take(1)
       ).subscribe({
         next: (summary: FacsimileCreationSummary) => {
-          this.isProcessing = false;
-          this.creationSummary = summary;
+          this.isProcessing.set(false);
+          this.creationSummary.set(summary);
         },
         error: (error) => {
-          this.isProcessing = false;
+          this.isProcessing.set(false);
           console.error('Bulk creation failed:', error);
           this.snackbar.show('Failed to create facsimile collections. Please try again.', 'error');
         }
@@ -118,7 +117,8 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
   }
 
   getProgressPercentage(): number {
-    if (!this.creationSummary) return 0;
-    return Math.round((this.creationSummary.successful + this.creationSummary.failed) / this.creationSummary.total * 100);
+    const summary = this.creationSummary();
+    if (!summary) return 0;
+    return Math.round((summary.successful + summary.failed) / summary.total * 100);
   }
 }

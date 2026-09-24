@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -68,7 +68,6 @@ type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent implements OnInit {
@@ -112,7 +111,7 @@ export class PublicationsComponent implements OnInit {
   facsimileColumnData = facsimileColumnData;
 
   metadataUpdateFailures: number[] = [];
-  metadataUpdating = false;
+  readonly metadataUpdating = signal(false);
 
   ngOnInit() {
     this.publicationCollectionId$ = this.route.paramMap.pipe(
@@ -577,7 +576,7 @@ export class PublicationsComponent implements OnInit {
           return filtered;
         };
 
-        this.metadataUpdating = true;
+        this.metadataUpdating.set(true);
         this.metadataUpdateFailures = [];
 
         const currentProject = this.projectService.getCurrentProject();
@@ -620,7 +619,7 @@ export class PublicationsComponent implements OnInit {
               }),
               toArray(), // Collect all results to emit once all updates are done
               finalize(() => {
-                this.metadataUpdating = false;
+                this.metadataUpdating.set(false);
                 progressSnackbarRef?.dismiss();
               })
             )

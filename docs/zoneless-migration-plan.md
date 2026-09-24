@@ -33,7 +33,7 @@ Apply the following rules throughout the migration:
 5. Convert plain template state changed by `subscribe`, `finalize`, delayed RxJS operators, timers, or deferred dialog callbacks to signals unless an existing explicit notification path is clear and tested.
 6. Remove `changeDetection: ChangeDetectionStrategy.Eager` from a component in the same commit that makes the component `OnPush`-compatible. Also remove the now-unused `ChangeDetectionStrategy` import.
 7. Remove the existing explicit `ChangeDetectionStrategy.OnPush` from `KeywordsComponent`; the declaration is redundant in Angular 22.
-8. Do not place an unconverted explicit-Eager component behind a default-OnPush application component. An unnotified Eager descendant would not be reached through a clean OnPush ancestor during a Zone-triggered traversal. In particular, keep `AppComponent` explicit-Eager until every descendant is compatible, and keep `FileTreeDialogComponent` explicit-Eager until `FileTreeComponent` is migrated in Commit 2.
+8. Do not place an unconverted explicit-Eager component behind a default-OnPush application component. An unnotified Eager descendant would not be reached through a clean OnPush ancestor during a Zone-triggered traversal. In particular, keep `AppComponent` explicit-Eager until every descendant is compatible, keep `FileTreeDialogComponent` explicit-Eager until `FileTreeComponent` is migrated in Commit 2, and keep `FacsimileCollectionUploadBlockComponent` explicit-Eager until `FileUploadComponent` is migrated in Commit 4.
 9. Keep Zone.js installed and keep `provideZoneChangeDetection()` until all component commits are complete. This keeps every intermediate commit runnable. Because each migrated component is already default-OnPush and does not host an unconverted Eager application subtree, focused tests can still expose missing component notifications before the final zoneless cutover.
 
 ## Current baseline
@@ -133,7 +133,7 @@ Keep these related values plain because they are either internal or only changed
 
 For programmatic form updates in metadata callbacks, the accompanying `gettingMetadata` signal update must remain in the same operation so the form directives are checked after the update.
 
-Remove the explicit `Eager` declaration from every component changed in this commit.
+Remove the explicit `Eager` declaration from every component changed in this commit except `FacsimileCollectionUploadBlockComponent`. It must remain an eager compatibility boundary until its `FileUploadComponent` child is migrated in Commit 4; otherwise HTTP progress callbacks in the eager child can be skipped behind the clean default-OnPush host.
 
 After `FileTreeComponent` uses signals for its asynchronously loaded state, remove the explicit `Eager` declaration and unused `ChangeDetectionStrategy` import from `FileTreeDialogComponent`. The dialog must remain eager until then because a clean default-OnPush dialog would prevent its unnotified Eager child from being reached by Zone-triggered traversal.
 
@@ -194,13 +194,15 @@ Suggested commit:
 - Keep `uploadQueue$` and its `AsyncPipe`; it still owns queue membership.
 - Update `isUploadable()` and the template for signal reads.
 
+After `FileUploadComponent` uses signals for its asynchronous progress state, remove the explicit `Eager` declaration and unused `ChangeDetectionStrategy` import from `FacsimileCollectionUploadBlockComponent`.
+
 ### `FacsimileCollectionUploadSelectionComponent`
 
 - Convert `uploadInProgress` and `allUploaded` to signals.
 - Keep queue-item status and progress as plain values because every asynchronous mutation already emits through `uploadQueue$`, which is consumed by `AsyncPipe`.
 - Keep the reactive `FormArray`; its row changes are user-event driven.
 
-Remove the explicit `Eager` declaration from both components.
+Remove the explicit `Eager` declaration from both upload components and from `FacsimileCollectionUploadBlockComponent`.
 
 Tests:
 

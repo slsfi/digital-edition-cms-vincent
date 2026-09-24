@@ -1,14 +1,16 @@
 import type { MockedObject } from "vitest";
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { of, Subject } from 'rxjs';
 
 import { PublicationsComponent } from './publications.component';
 import { getCommonTestingProviders } from '../../../testing/test-providers';
 import { Deleted, Published } from '../../models/common.model';
 import { FacsimileCollectionResponse, LinkFacsimileToPublicationResponse } from '../../models/facsimile.model';
-import { Publication, PublicationResponse } from '../../models/publication.model';
+import { Publication, PublicationResponse, XmlMetadata } from '../../models/publication.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
@@ -28,13 +30,21 @@ describe('PublicationsComponent', () => {
         'getCommentsForPublication' |
         'getFacsimilesForPublication' |
         'getManuscriptsForPublication' |
+        'getMetadataFromXML' |
         'getPublications' |
         'getVersionsForPublication' |
         'linkFacsimileToPublication' |
         'linkTextToPublication'>>;
     let snackbar: MockedObject<Pick<SnackbarService, 'show'>>;
+    let consoleWarn: ReturnType<typeof vi.spyOn>;
 
     beforeEach(async () => {
+        const originalWarn = console.warn;
+        consoleWarn = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+            if (!String(args[0]).includes('NG0914')) {
+                originalWarn(...args);
+            }
+        });
         dialog = {
             open: vi.fn().mockName("MatDialog.open")
         };
@@ -50,6 +60,7 @@ describe('PublicationsComponent', () => {
             getCommentsForPublication: vi.fn().mockName("PublicationService.getCommentsForPublication"),
             getFacsimilesForPublication: vi.fn().mockName("PublicationService.getFacsimilesForPublication"),
             getManuscriptsForPublication: vi.fn().mockName("PublicationService.getManuscriptsForPublication"),
+            getMetadataFromXML: vi.fn().mockName("PublicationService.getMetadataFromXML"),
             getPublications: vi.fn().mockName("PublicationService.getPublications"),
             getVersionsForPublication: vi.fn().mockName("PublicationService.getVersionsForPublication"),
             linkFacsimileToPublication: vi.fn().mockName("PublicationService.linkFacsimileToPublication"),
@@ -69,12 +80,28 @@ describe('PublicationsComponent', () => {
         await TestBed.configureTestingModule({
             imports: [PublicationsComponent],
             providers: [
+                provideZonelessChangeDetection(),
                 ...getCommonTestingProviders(),
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        paramMap: of(convertToParamMap({ collectionId: '5' }))
+                    }
+                },
                 { provide: MatDialog, useValue: dialog },
                 { provide: FacsimileService, useValue: facsimileService },
                 { provide: ProjectService, useValue: projectService },
                 { provide: PublicationService, useValue: publicationService },
-                { provide: QueryParamsService, useValue: { sortParams$: of([]), filterParams$: of([]) } },
+                {
+                    provide: QueryParamsService,
+                    useValue: {
+                        queryParams$: of({}),
+                        sortParams$: of([]),
+                        filterParams$: of([]),
+                        pageParams$: of([]),
+                        getPageNumber: () => '1'
+                    }
+                },
                 { provide: SnackbarService, useValue: snackbar },
                 { provide: LoadingService, useValue: { loading$: of(false) } }
             ]
@@ -83,6 +110,10 @@ describe('PublicationsComponent', () => {
 
         fixture = TestBed.createComponent(PublicationsComponent);
         component = fixture.componentInstance;
+    });
+
+    afterEach(() => {
+        consoleWarn.mockRestore();
     });
 
     it('should create', () => {
@@ -125,6 +156,50 @@ describe('PublicationsComponent', () => {
             type: 0
         }, 'test-project');
         expect(snackbar.show).toHaveBeenCalledWith('Publication saved.');
+    });
+
+    it('removes the metadata-update spinner after the asynchronous update completes', async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const publications$ = new Subject<Publication[]>();
+        const metadata$ = new Subject<XmlMetadata>();
+        publicationService.getPublications.mockReturnValue(publications$);
+        publicationService.getMetadataFromXML.mockReturnValue(metadata$);
+        publicationService.editPublication.mockReturnValue(of(publicationResponse({ id: 42 })));
+        dialog.open.mockReturnValue({
+            afterClosed: () => of({
+                value: true,
+                selectedMetadataFields: { name: true }
+            })
+        } as never);
+
+        component.updateMetadataAll('5');
+        await fixture.whenStable();
+
+        expect(component.metadataUpdating()).toBe(true);
+        expect(fixture.nativeElement.querySelector('loading-spinner')).not.toBeNull();
+
+        publications$.next([publication({
+            id: 42,
+            name: 'Old title',
+            original_filename: 'document.xml'
+        })]);
+        metadata$.next({
+            genre: 'Novel',
+            language: 'sv',
+            name: 'Updated title',
+            original_publication_date: '1900'
+        });
+        await fixture.whenStable();
+
+        expect(publicationService.editPublication).toHaveBeenCalledWith(
+            42,
+            { name: 'Updated title' },
+            'test-project'
+        );
+        expect(component.metadataUpdating()).toBe(false);
+        expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
     });
 });
 

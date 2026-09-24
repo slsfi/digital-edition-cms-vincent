@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -29,7 +29,6 @@ import { SnackbarService } from '../../services/snackbar.service';
     LoadingSpinnerComponent
   ],
   templateUrl: './home.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
@@ -46,7 +45,7 @@ export class HomeComponent implements OnInit {
 
   appVersion = APP_VERSION;
   navItems = navigationItems.filter((item) => item.route !== '/');
-  syncingRepo = false;
+  readonly syncingRepo = signal(false);
   readonly panelOpenState = signal(false);
 
   ngOnInit(): void {
@@ -81,12 +80,12 @@ export class HomeComponent implements OnInit {
   }
 
   pullRepo() {
-    this.syncingRepo = true;
+    this.syncingRepo.set(true);
     const currentProject = this.projectService.getCurrentProject();
     this.projectService.pullChangesFromGitRemote(currentProject).pipe(
       take(1),
       finalize(() => {
-        this.syncingRepo = false;
+        this.syncingRepo.set(false);
       })
     ).subscribe({
       next: () => {

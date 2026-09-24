@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
          Validators } from '@angular/forms';
@@ -49,7 +49,6 @@ interface BundleFormType {
     LoadingSpinnerComponent
   ],
   templateUrl: './add-publications-from-files.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-publications-from-files.component.scss'
 })
 export class AddPublicationsFromFilesComponent implements OnInit {
@@ -61,7 +60,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly router = inject(Router);
 
-  gettingMetadata = false;
+  readonly gettingMetadata = signal(false);
   loading$ = this.loadingService.loading$;
   project: string | null = null;
   publicationCollectionId$: Observable<string | null> = this.route.paramMap.pipe(
@@ -205,7 +204,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
 
   getMetadataFromXMLAll() {
     this.metadataFailures = [];
-    this.gettingMetadata = true;
+    this.gettingMetadata.set(true);
     let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
 
     if (this.files.controls.length > 40) {
@@ -239,7 +238,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       }, concurrentRequests),
       toArray(),
       finalize(() => {
-        this.gettingMetadata = false;
+        this.gettingMetadata.set(false);
         progressSnackbarRef?.dismiss();
       })
     ).subscribe({

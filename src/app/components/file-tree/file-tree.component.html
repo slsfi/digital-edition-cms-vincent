@@ -3,10 +3,10 @@
   <button matIconButton type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
 }
 
-@if (loading && showLoading) {
+@if (loading() && showLoading) {
   <loading-spinner></loading-spinner>
 }
-<mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
+<mat-tree #tree [dataSource]="dataSource()" [childrenAccessor]="childrenAccessor">
   <!-- Node template for leaf nodes -->
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="20">
     <button matIconButton disabled> </button>
