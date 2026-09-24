@@ -33,7 +33,8 @@ Apply the following rules throughout the migration:
 5. Convert plain template state changed by `subscribe`, `finalize`, delayed RxJS operators, timers, or deferred dialog callbacks to signals unless an existing explicit notification path is clear and tested.
 6. Remove `changeDetection: ChangeDetectionStrategy.Eager` from a component in the same commit that makes the component `OnPush`-compatible. Also remove the now-unused `ChangeDetectionStrategy` import.
 7. Remove the existing explicit `ChangeDetectionStrategy.OnPush` from `KeywordsComponent`; the declaration is redundant in Angular 22.
-8. Keep Zone.js installed and keep `provideZoneChangeDetection()` until all component commits are complete. This keeps every intermediate commit runnable. Because each migrated component is already default-OnPush, focused tests can still expose missing component notifications before the final zoneless cutover.
+8. Do not place an unconverted explicit-Eager component behind a default-OnPush application component. An unnotified Eager descendant would not be reached through a clean OnPush ancestor during a Zone-triggered traversal. In particular, keep `AppComponent` explicit-Eager until every descendant is compatible, and keep `FileTreeDialogComponent` explicit-Eager until `FileTreeComponent` is migrated in Commit 2.
+9. Keep Zone.js installed and keep `provideZoneChangeDetection()` until all component commits are complete. This keeps every intermediate commit runnable. Because each migrated component is already default-OnPush and does not host an unconverted Eager application subtree, focused tests can still expose missing component notifications before the final zoneless cutover.
 
 ## Current baseline
 
@@ -73,7 +74,6 @@ Suggested commit:
 
 Remove the explicit `changeDetection` option and unused `ChangeDetectionStrategy` imports from components whose state is already driven by inputs, signals, `AsyncPipe`, initialization, or bound listeners. This should include:
 
-- `AppComponent`
 - `TopbarComponent`
 - `LoadingSpinnerComponent`
 - `ConfirmDialogComponent`
@@ -81,7 +81,6 @@ Remove the explicit `changeDetection` option and unused `ChangeDetectionStrategy
 - `EditNodeDialogComponent`
 - `EditKeywordDialogComponent`
 - `EditTocRootDialogComponent`
-- `FileTreeDialogComponent`
 - `TableFiltersComponent`
 - `TableSortingComponent`
 - `LoginComponent`
@@ -99,6 +98,10 @@ Do not include the components assigned to later commits, even if their decorator
 Tests:
 
 - Run affected existing component specs.
+- In a zoneless TestBed, verify that toggling an auto-generated TOC field through `ngModel` updates the rendered control and dialog result without a forced `detectChanges()`.
+- In a zoneless TestBed, verify that confirmation-dialog scalar and indexed `ngModel` toggles are returned by the confirm action without a forced `detectChanges()`.
+- In a zoneless TestBed, verify that the edit-node autocomplete renders a debounced result and that selecting it updates the dependent fields without a forced `detectChanges()`.
+- In a zoneless TestBed, verify that asynchronously supplied keyword categories render, initialize the category form control, and are included in the submitted result without a forced `detectChanges()`.
 - Add a regression test only if an affected component has an asynchronous UI transition that is not already exercised.
 - Run the standard commit gate.
 
@@ -132,11 +135,14 @@ For programmatic form updates in metadata callbacks, the accompanying `gettingMe
 
 Remove the explicit `Eager` declaration from every component changed in this commit.
 
+After `FileTreeComponent` uses signals for its asynchronously loaded state, remove the explicit `Eager` declaration and unused `ChangeDetectionStrategy` import from `FileTreeDialogComponent`. The dialog must remain eager until then because a clean default-OnPush dialog would prevent its unnotified Eager child from being reached by Zone-triggered traversal.
+
 Tests:
 
 - router-event updates render the active navigation entry;
 - repository-sync completion re-enables the action;
 - file-tree data and loading state render after service emission;
+- in a zoneless integration test, a delayed file-tree service emission removes the dialog spinner and renders tree nodes, and selecting a node updates the displayed path and dialog result without a forced `detectChanges()`;
 - metadata completion updates the form and button/spinner state;
 - bulk facsimile success and error paths render completion state.
 
@@ -264,6 +270,8 @@ Suggested commit:
 
 Remove the component's explicit `Eager` declaration.
 
+After `TocTreeComponent` and all other descendants are default-OnPush compatible, remove the explicit `Eager` declaration and unused `ChangeDetectionStrategy` import from `AppComponent`. Keeping the root eager until this point ensures that an unconverted explicit-Eager descendant is not hidden behind a clean default-OnPush root during intermediate commits. Removing the root strategy here, while Zone.js is still installed, also keeps the root traversal change separate from the Zone.js removal in Commit 7.
+
 Tests:
 
 - dialog-driven node edit/add/delete updates the rendered tree;
@@ -271,6 +279,7 @@ Tests:
 - deferred drag/drop rebuild updates IDs and ordering using Vitest timers;
 - parent dirty state is still emitted;
 - collapse, expand, and node toggles continue to render.
+- application-shell navigation and routed content still render with the implicit default-OnPush root.
 
 After this commit, verify that no component contains `changeDetection:` or imports `ChangeDetectionStrategy`.
 

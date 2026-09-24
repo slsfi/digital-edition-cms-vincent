@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -38,7 +38,6 @@ interface FormValue {
     MatSelectModule
   ],
   templateUrl: './edit-keyword-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-keyword-dialog.component.scss'
 })
 export class EditKeywordDialogComponent {

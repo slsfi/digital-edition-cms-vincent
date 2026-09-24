@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit,
+import { Component, inject, OnInit,
          signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -37,7 +37,6 @@ interface Filters {
 
 @Component({
   selector: 'keywords',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
