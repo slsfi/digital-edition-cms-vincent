@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,7 +50,6 @@ export interface EditDialogData<T> {
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './edit-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-dialog.component.scss'
 })
 export class EditDialogComponent<T> implements OnInit {
@@ -81,7 +80,7 @@ export class EditDialogComponent<T> implements OnInit {
   translationIdd: number | undefined;
   parentTranslationField: string | undefined;
   fileSelectorVisible = false;
-  gettingMetadata = false;
+  readonly gettingMetadata = signal(false);
 
   get originalFilenameControl() {
     return this.form.controls['original_filename'];
@@ -237,12 +236,12 @@ export class EditDialogComponent<T> implements OnInit {
   }
 
   getMetadata() {
-    this.gettingMetadata = true;
+    this.gettingMetadata.set(true);
     const currentProject = this.projectService.getCurrentProject();
     this.publicationService.getMetadataFromXML(this.originalFilenameControl.value, currentProject).pipe(
       take(1),
       finalize(() => {
-        this.gettingMetadata = false;
+        this.gettingMetadata.set(false);
       })
     ).subscribe((metadata: XmlMetadata) => {
       for (const key in metadata) {

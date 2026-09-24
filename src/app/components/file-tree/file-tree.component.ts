@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,6 @@ interface TreeNode {
   selector: 'file-tree',
   imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent, CommonModule],
   templateUrl: './file-tree.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-tree.component.scss'
 })
 export class FileTreeComponent implements OnInit, OnDestroy {
@@ -37,8 +36,8 @@ export class FileTreeComponent implements OnInit, OnDestroy {
   @Output() filesInFolder = new EventEmitter<string[]>();
 
   closeInUse = false;
-  dataSource: TreeNode[] = [];
-  loading = true;
+  readonly dataSource = signal<TreeNode[]>([]);
+  readonly loading = signal(true);
   selectedNodes: string[] = [];
 
   ngOnInit() {
@@ -52,9 +51,9 @@ export class FileTreeComponent implements OnInit, OnDestroy {
         map((fileTree) => this.convertToTreeNode(fileTree))
       )
       .subscribe((data: TreeNode[]) => {
-        this.dataSource = data;
+        this.dataSource.set(data);
         if (data.length > 0) {
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
@@ -145,7 +144,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
     }
 
     // Start the recursive search
-    findPath(this.dataSource, targetNode);
+    findPath(this.dataSource(), targetNode);
 
     return path;
   }

@@ -1,12 +1,13 @@
 import type { MockedObject } from "vitest";
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { AddPublicationsFromFilesComponent } from './add-publications-from-files.component';
 import { Deleted, Published } from '../../models/common.model';
 import { FacsimileCollectionResponse, LinkFacsimileToPublicationResponse } from '../../models/facsimile.model';
-import { LinkTextToPublicationResponse, Publication, PublicationResponse } from '../../models/publication.model';
+import { LinkTextToPublicationResponse, Publication, PublicationResponse, XmlMetadata } from '../../models/publication.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
@@ -19,19 +20,28 @@ describe('AddPublicationsFromFilesComponent', () => {
     let publicationService: MockedObject<Pick<PublicationService,
         'getPublicationCollections' |
         'getPublications' |
+        'getMetadataFromXML' |
         'addPublication' |
         'linkFacsimileToPublication' |
         'linkTextToPublication'>>;
     let projectService: MockedObject<Pick<ProjectService, 'getCurrentProject'>>;
     let snackbar: MockedObject<Pick<SnackbarService, 'show'>>;
+    let consoleWarn: ReturnType<typeof vi.spyOn>;
 
     beforeEach(async () => {
+        const originalWarn = console.warn;
+        consoleWarn = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+            if (!String(args[0]).includes('NG0914')) {
+                originalWarn(...args);
+            }
+        });
         facsimileService = {
             addFacsimileCollection: vi.fn().mockName("FacsimileService.addFacsimileCollection")
         };
         publicationService = {
             getPublicationCollections: vi.fn().mockName("PublicationService.getPublicationCollections"),
             getPublications: vi.fn().mockName("PublicationService.getPublications"),
+            getMetadataFromXML: vi.fn().mockName("PublicationService.getMetadataFromXML"),
             addPublication: vi.fn().mockName("PublicationService.addPublication"),
             linkFacsimileToPublication: vi.fn().mockName("PublicationService.linkFacsimileToPublication"),
             linkTextToPublication: vi.fn().mockName("PublicationService.linkTextToPublication")
@@ -50,6 +60,7 @@ describe('AddPublicationsFromFilesComponent', () => {
         await TestBed.configureTestingModule({
             imports: [AddPublicationsFromFilesComponent],
             providers: [
+                provideZonelessChangeDetection(),
                 provideRouter([]),
                 {
                     provide: ActivatedRoute,
@@ -80,6 +91,10 @@ describe('AddPublicationsFromFilesComponent', () => {
         fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        consoleWarn.mockRestore();
     });
 
     it('should create', () => {
@@ -159,6 +174,56 @@ describe('AddPublicationsFromFilesComponent', () => {
             priority: 1,
             type: 0
         }, 'test-project');
+    });
+
+    it('renders metadata form updates and clears the loading state after completion', async () => {
+        const metadata$ = new Subject<XmlMetadata>();
+        publicationService.getMetadataFromXML.mockReturnValue(metadata$);
+        publicationService.getPublicationCollections.mockReturnValue(of([{
+            collection_intro_filename: null,
+            collection_intro_published: Published.NotPublished,
+            collection_title_filename: '',
+            collection_title_published: Published.NotPublished,
+            date_created: '',
+            date_modified: null,
+            id: 1,
+            name: 'Collection',
+            name_translation_id: null,
+            project_id: 1,
+            published: Published.PublishedInternally,
+            title: 'Collection'
+        }]));
+        fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
+        component = fixture.componentInstance;
+        component.existingFilePathsLoaded = true;
+        component.selectedFiles(['document.xml']);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const metadataButton = Array.from(
+            fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+        ).find(button => button.textContent?.includes('Get metadata from XML'));
+
+        expect(metadataButton).toBeDefined();
+        metadataButton?.click();
+        await fixture.whenStable();
+
+        expect(metadataButton?.disabled).toBe(true);
+        expect(fixture.nativeElement.querySelector('loading-spinner')).not.toBeNull();
+
+        metadata$.next({
+            genre: 'Novel',
+            language: 'sv',
+            name: 'Updated title',
+            original_publication_date: '1900'
+        });
+        await fixture.whenStable();
+
+        const renderedInputValues = Array.from(
+            fixture.nativeElement.querySelectorAll('input') as NodeListOf<HTMLInputElement>
+        ).map(input => input.value);
+        expect(renderedInputValues).toContain('Updated title');
+        expect(metadataButton?.disabled).toBe(false);
+        expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
     });
 });
 

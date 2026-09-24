@@ -1,7 +1,12 @@
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
 
 import { Column } from '../../models/common.model';
+import { XmlMetadata } from '../../models/publication.model';
+import { ProjectService } from '../../services/project.service';
+import { PublicationService } from '../../services/publication.service';
 import { EditDialogComponent, EditDialogData } from './edit-dialog.component';
 import { getCommonTestingProviders } from '../../../testing/test-providers';
 
@@ -10,12 +15,15 @@ interface TestData {
     id?: number;
     name?: string;
     language?: string | null;
+    original_filename?: string;
 }
 
 describe('EditDialogComponent', () => {
     let component: EditDialogComponent<TestData>;
     let fixture: ComponentFixture<EditDialogComponent<TestData>>;
     let dialogData: EditDialogData<TestData>;
+    let metadata$: Subject<XmlMetadata>;
+    let consoleWarn: ReturnType<typeof vi.spyOn>;
 
     const languageColumn: Column = {
         field: 'language',
@@ -25,6 +33,13 @@ describe('EditDialogComponent', () => {
     };
 
     beforeEach(async () => {
+        const originalWarn = console.warn;
+        consoleWarn = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+            if (!String(args[0]).includes('NG0914')) {
+                originalWarn(...args);
+            }
+        });
+        metadata$ = new Subject<XmlMetadata>();
         dialogData = {
             model: null,
             columns: [],
@@ -34,7 +49,10 @@ describe('EditDialogComponent', () => {
         await TestBed.configureTestingModule({
             imports: [EditDialogComponent],
             providers: [
+                provideZonelessChangeDetection(),
                 ...getCommonTestingProviders(),
+                { provide: ProjectService, useValue: { getCurrentProject: () => 'test-project' } },
+                { provide: PublicationService, useValue: { getMetadataFromXML: () => metadata$ } },
                 {
                     provide: MAT_DIALOG_DATA,
                     useFactory: () => dialogData
@@ -42,6 +60,10 @@ describe('EditDialogComponent', () => {
             ]
         })
             .compileComponents();
+    });
+
+    afterEach(() => {
+        consoleWarn.mockRestore();
     });
 
     function createComponent(data: Partial<EditDialogData<TestData>> = {}) {
@@ -122,5 +144,38 @@ describe('EditDialogComponent', () => {
 
         const options = languageOptionsFor('language');
         expect(options[0]).toEqual({ label: 'Unknown language (zz)', code: 'zz' });
+    });
+
+    it('renders metadata form updates and re-enables the action after completion', async () => {
+        createComponent({
+            model: { original_filename: 'document.xml', name: '' },
+            columns: [
+                { field: 'original_filename', header: 'File path', type: 'string', editable: true },
+                { field: 'name', header: 'Name', type: 'string', editable: true }
+            ]
+        });
+        const metadataButton = Array.from(
+            fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+        ).find(button => button.textContent?.includes('Get metadata from XML'));
+
+        expect(metadataButton).toBeDefined();
+        metadataButton?.click();
+        await fixture.whenStable();
+
+        expect(metadataButton?.disabled).toBe(true);
+
+        metadata$.next({
+            genre: 'Novel',
+            language: 'sv',
+            name: 'Updated title',
+            original_publication_date: '1900'
+        });
+        await fixture.whenStable();
+
+        const renderedInputValues = Array.from(
+            fixture.nativeElement.querySelectorAll('input') as NodeListOf<HTMLInputElement>
+        ).map(input => input.value);
+        expect(renderedInputValues).toContain('Updated title');
+        expect(metadataButton?.disabled).toBe(false);
     });
 });

@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, OnDestroy, Output, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +14,6 @@ import { ProjectService } from '../../services/project.service';
   selector: 'navigation',
   imports: [MatDividerModule, MatListModule, MatIconModule, RouterLink],
   templateUrl: './navigation.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './navigation.component.scss'
 })
 export class NavigationComponent implements OnDestroy {
@@ -26,14 +25,14 @@ export class NavigationComponent implements OnDestroy {
 
   navItems = navigationItems;
 
-  currentUrl = '';
+  readonly currentUrl = signal('');
   private destroy$ = new Subject<void>();
 
   constructor() {
     this.router.events.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
-      this.currentUrl = this.router.url.split('?')[0]; // Remove query parameters
+      this.currentUrl.set(this.router.url.split('?')[0]); // Remove query parameters
     });
   }
 

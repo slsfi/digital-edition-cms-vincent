@@ -40,7 +40,7 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   loadingFacsData = signal<boolean>(true);
   missingFileNumbers = signal<number[]>([]);
   missingFileNumbersOrig = signal<number[]>([]);
-  mode: UploadMode = 'missing';
+  readonly mode = signal<UploadMode>('missing');
   project: string | null = this.projectService.getCurrentProject();
   uploadCompleted = signal<boolean>(false);
 
@@ -54,9 +54,9 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
 
     this.route.data.subscribe(data => {
       const m = data['mode'] as UploadMode | undefined;
-      this.mode = m ?? 'missing';
+      this.mode.set(m ?? 'missing');
 
-      if (this.mode === 'missing') {
+      if (this.mode() === 'missing') {
         this.verifyFacsimileFiles(true);
       }
     });
@@ -91,7 +91,7 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   }
 
   uploadComplete(): void {
-    if (this.mode === 'missing') {
+    if (this.mode() === 'missing') {
       this.verifyFacsimileFiles();
     }
     this.uploadCompleted.set(true);
