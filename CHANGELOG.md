@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
 - Zoneless migration phase 1: use Angular 22's implicit default `OnPush` strategy in compatible components while retaining eager host boundaries until their descendants are ready.
 - Zoneless migration phase 2: drive small asynchronous UI state with signals, use the implicit default `OnPush` strategy in compatible affected components, retain the eager upload-block boundary until its child upload workflow is migrated, and add focused regression coverage.
+- Zoneless migration phase 3: make shared tables and translations compatible with implicit default `OnPush` change detection and add focused zoneless regression coverage.
 
 
 

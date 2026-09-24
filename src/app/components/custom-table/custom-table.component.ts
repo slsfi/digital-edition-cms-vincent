@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -34,7 +34,6 @@ import { QueryParamsService } from './../../services/query-params.service';
   ],
   providers: [DatePipe],
   templateUrl: './custom-table.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './custom-table.component.scss'
 })
 export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
@@ -78,8 +77,8 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   loading$ = this.loadingService.loading$;
 
   originalData: T[] = [];
-  originalCount = 0;
-  filteredCount = 0;
+  originalCount = signal(0);
+  filteredCount = signal(0);
   selection: SelectionModel<T> = new SelectionModel<T>(false, []);
 
   ngOnInit() {
@@ -113,7 +112,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     const dataWithOriginal$ = this.data$.pipe(
       tap(data => {
         this.originalData = [...data];
-        this.originalCount = data.length;
+        this.originalCount.set(data.length);
       })
     );
 
@@ -145,7 +144,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
             }
           });
         }
-        this.filteredCount = data.length;
+        this.filteredCount.set(data.length);
 
         // Sorting logic fixed
         if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
