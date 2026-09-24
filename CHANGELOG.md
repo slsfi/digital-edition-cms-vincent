@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Docs: Angular zoneless and default-OnPush [migration plan](docs/zoneless-migration-plan.md).
+
 ### Changed
 
 - Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
