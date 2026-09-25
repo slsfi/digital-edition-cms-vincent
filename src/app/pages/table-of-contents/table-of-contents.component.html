@@ -1,3 +1,15 @@
+@let collections = this.collections();
+@let currentToc = this.currentToc();
+@let isLoading = this.isLoading();
+@let isSaving = this.isSaving();
+@let hasUnsavedChanges = this.hasUnsavedChanges();
+@let isGeneratingFlatToc = this.isGeneratingFlatToc();
+@let isUpdatingFromDb = this.isUpdatingFromDb();
+@let publicationsForSelectedCollection = this.publicationsForSelectedCollection();
+@let tocVariantsByCollectionId = this.tocVariantsByCollectionId();
+@let currentTocLanguage = this.currentTocLanguage();
+@let tocLanguageSelection = this.tocLanguageSelection();
+
 <h1>Table of contents management</h1>
 
 @if (projectName === null) {
@@ -25,7 +37,7 @@
       <mat-form-field class="toc-language-select" [subscriptSizing]="'dynamic'">
         <mat-label>Table of contents language</mat-label>
         <mat-select
-              [(value)]="tocLanguageSelection"
+              [value]="tocLanguageSelection"
               (selectionChange)="changeTocLanguage($event.value)"
               canSelectNullableOptions
         >

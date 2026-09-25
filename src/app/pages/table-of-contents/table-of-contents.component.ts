@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -52,7 +52,6 @@ import { NonExistingTocLanguagesPipe } from '../../pipes/non-existing-toc-langua
     NonExistingTocLanguagesPipe
   ],
   templateUrl: './table-of-contents.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./table-of-contents.component.scss']
 })
 export class TableOfContentsComponent implements OnInit {
@@ -65,29 +64,29 @@ export class TableOfContentsComponent implements OnInit {
   projectName: string | null = null;
 
   // Collections
-  collections: PublicationCollection[] = [];
+  readonly collections = signal<PublicationCollection[]>([]);
   selectedCollection: PublicationCollection | null = null;
   selectedCollectionId: number | null = null;
 
   // Table of Contents
-  currentToc: TocRoot | null = null;
-  isLoading = false;
-  isSaving = false;
-  hasUnsavedChanges = false;
+  readonly currentToc = signal<TocRoot | null>(null);
+  readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
+  readonly hasUnsavedChanges = signal(false);
 
   // Auto-generation
   selectedSortOption = 'id';
-  isGeneratingFlatToc = false;
+  readonly isGeneratingFlatToc = signal(false);
 
   // Data sync
-  isUpdatingFromDb = false;
+  readonly isUpdatingFromDb = signal(false);
 
   // Publications cache for selected collection
-  publicationsForSelectedCollection: PublicationLite[] = [];
+  readonly publicationsForSelectedCollection = signal<PublicationLite[]>([]);
 
   // Table of contents language variants per collection
   // Example: { 1: { hasUniversal: true, languages: ['fi', 'sv'] } }
-  tocVariantsByCollectionId: Record<number, TocLanguageVariants> = {};
+  readonly tocVariantsByCollectionId = signal<Record<number, TocLanguageVariants>>({});
 
   // Default value used when a collection has no entry in
   // tocVariantsByCollectionId
@@ -99,12 +98,12 @@ export class TableOfContentsComponent implements OnInit {
   // Currently selected language variant for the TOC of the selected
   // collection.
   // null => general (no language; <id>.json)
-  currentTocLanguage: string | null = null;
+  readonly currentTocLanguage = signal<string | null>(null);
 
   // The language currently selected in the UI language select.
   // This can temporarily diverge from currentTocLanguage if the
   // user cancels a language change.
-  tocLanguageSelection: string | null = null;
+  readonly tocLanguageSelection = signal<string | null>(null);
 
   // Languages the user can choose when creating/saving TOCs.
   readonly availableLanguages: readonly LanguageObjWithNone[] = languageOptions;
@@ -193,11 +192,11 @@ export class TableOfContentsComponent implements OnInit {
           }
         }
 
-        this.tocVariantsByCollectionId = variants;
+        this.tocVariantsByCollectionId.set(variants);
         // console.log('tocVariantsByCollectionId', this.tocVariantsByCollectionId);
 
         // Set collections
-        this.collections = collections;
+        this.collections.set(collections);
       },
       error: err => {
         // Only triggers if the *collections* call fails
@@ -212,7 +211,7 @@ export class TableOfContentsComponent implements OnInit {
     this.selectedCollectionId = collection.id;
 
     // Pick a default TOC language variant for this collection:
-    const variants = this.tocVariantsByCollectionId[collection.id];
+    const variants = this.tocVariantsByCollectionId()[collection.id];
     // Initial TOC language:
     // - universal TOC exists -> null
     // - no universal, but language variants exist -> first language
@@ -221,8 +220,8 @@ export class TableOfContentsComponent implements OnInit {
       ? null
       : variants?.languages[0] ?? null;
 
-    this.currentTocLanguage = initialLanguage;
-    this.tocLanguageSelection = initialLanguage;
+    this.currentTocLanguage.set(initialLanguage);
+    this.tocLanguageSelection.set(initialLanguage);
 
     this.loadPublicationsForSelectedCollection();
     this.loadTableOfContents();
@@ -230,7 +229,7 @@ export class TableOfContentsComponent implements OnInit {
 
   private loadPublicationsForSelectedCollection(): void {
     if (!this.projectName || !this.selectedCollectionId) {
-      this.publicationsForSelectedCollection = [];
+      this.publicationsForSelectedCollection.set([]);
       return;
     }
 
@@ -242,10 +241,10 @@ export class TableOfContentsComponent implements OnInit {
       take(1)
     ).subscribe({
       next: (publications: PublicationLite[]) => {
-        this.publicationsForSelectedCollection = publications;
+        this.publicationsForSelectedCollection.set(publications);
       },
       error: () => {
-        this.publicationsForSelectedCollection = [];
+        this.publicationsForSelectedCollection.set([]);
       }
     });
   }
@@ -255,79 +254,86 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.tocService.loadToc(
       this.selectedCollectionId,
-      this.currentTocLanguage || undefined
+      this.currentTocLanguage() || undefined
     ).pipe(
       take(1)
     ).subscribe({
       next: (toc: TocRoot) => {
-        this.currentToc = toc;
-        this.hasUnsavedChanges = false;
-        this.isLoading = false;
+        this.currentToc.set(toc);
+        this.hasUnsavedChanges.set(false);
+        this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading table of contents:', error);
         if (error.status !== 404) {
           this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
         }
-        this.currentToc = null; // Clear previous TOC
-        this.hasUnsavedChanges = false; // Reset unsaved changes
-        this.isLoading = false;
+        this.currentToc.set(null); // Clear previous TOC
+        this.hasUnsavedChanges.set(false); // Reset unsaved changes
+        this.isLoading.set(false);
       }
     });
   }
 
   saveTableOfContents(): void {
-    if (!this.currentToc || !this.selectedCollectionId) {
+    const currentToc = this.currentToc();
+    if (!currentToc || !this.selectedCollectionId) {
       return;
     }
 
     // Clean the TOC data before saving
-    const cleanedToc = this.cleanTocForSaving(this.currentToc);
+    const cleanedToc = this.cleanTocForSaving(currentToc);
 
-    this.isSaving = true;
-    this.tocService.saveToc(this.selectedCollectionId, cleanedToc, this.currentTocLanguage || undefined).pipe(
+    this.isSaving.set(true);
+    this.tocService.saveToc(this.selectedCollectionId, cleanedToc, this.currentTocLanguage() || undefined).pipe(
       take(1)
     ).subscribe({
       next: (response: SaveTocResponse) => {
         if (response.success) {
-          this.hasUnsavedChanges = false;
+          this.hasUnsavedChanges.set(false);
           this.snackbar.show(response.message);
 
           // refresh tocVariantsByCollectionId if new file just created
           const id = this.selectedCollectionId!;
-          const lang = this.currentTocLanguage;
-          if (!this.tocVariantsByCollectionId[id]) {
-            this.tocVariantsByCollectionId[id] = { hasUniversal: false, languages: [] };
-          }
-          const entry = this.tocVariantsByCollectionId[id];
-          if (!lang) {
-            entry.hasUniversal = true;
-          } else if (!entry.languages.includes(lang)) {
-            entry.languages.push(lang);
-          }
+          const lang = this.currentTocLanguage();
+          this.tocVariantsByCollectionId.update(variants => {
+            const entry = variants[id] ?? { hasUniversal: false, languages: [] };
+            const updatedEntry: TocLanguageVariants = !lang
+              ? { ...entry, hasUniversal: true, languages: [...entry.languages] }
+              : {
+                  ...entry,
+                  languages: entry.languages.includes(lang)
+                    ? [...entry.languages]
+                    : [...entry.languages, lang]
+                };
+
+            return { ...variants, [id]: updatedEntry };
+          });
         }
-        this.isSaving = false;
+        this.isSaving.set(false);
       },
       error: (error) => {
         console.error('Error saving table of contents:', error);
         this.snackbar.show(error.error?.message || 'Failed to save table of contents.', 'error');
-        this.isSaving = false;
+        this.isSaving.set(false);
       }
     });
   }
 
   changeTocLanguage(newLanguage: string | null): void {
+    this.tocLanguageSelection.set(newLanguage);
+
     // If there are no unsaved changes, just commit immediately.
-    if (!this.hasUnsavedChanges) {
-      this.currentTocLanguage = newLanguage;
+    if (!this.hasUnsavedChanges()) {
+      this.currentTocLanguage.set(newLanguage);
       this.loadTableOfContents();
       return;
     }
 
-    const previousCommittedLanguage = this.currentTocLanguage;
+    const previousCommittedLanguage = this.currentTocLanguage();
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -341,12 +347,12 @@ export class TableOfContentsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.value) {
         // User confirmed: commit new selection
-        this.hasUnsavedChanges = false;
-        this.currentTocLanguage = newLanguage;
+        this.hasUnsavedChanges.set(false);
+        this.currentTocLanguage.set(newLanguage);
         this.loadTableOfContents();
       } else {
         // User cancelled: revert the UI selection back to the committed language
-        this.tocLanguageSelection = previousCommittedLanguage;
+        this.tocLanguageSelection.set(previousCommittedLanguage);
       }
     });
   }
@@ -480,7 +486,7 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    this.isGeneratingFlatToc = true;
+    this.isGeneratingFlatToc.set(true);
     
     // Use provided sort option or default
     const sortBy = sortOption || this.selectedSortOption;
@@ -492,27 +498,27 @@ export class TableOfContentsComponent implements OnInit {
       take(1)
     ).subscribe({
       next: (publications: Publication[]) => {
-        this.currentToc = this.tocService.generateFlatToc(
+        this.currentToc.set(this.tocService.generateFlatToc(
           this.selectedCollectionId!,
           publications,
           sortBy,
           this.selectedCollection?.name,
           includedFields
-        );
-        this.hasUnsavedChanges = true;
-        this.isGeneratingFlatToc = false;
+        ));
+        this.hasUnsavedChanges.set(true);
+        this.isGeneratingFlatToc.set(false);
         this.snackbar.show('Flat table of contents generated.');
       },
       error: (error) => {
         console.error('Error loading publications:', error);
         this.snackbar.show('Failed to load publications for table of contents generation.', 'error');
-        this.isGeneratingFlatToc = false;
+        this.isGeneratingFlatToc.set(false);
       }
     });
   }
 
   openUpdateNodeFieldsDialog(): void {
-    if (!this.selectedCollectionId || this.hasUnsavedChanges) {
+    if (!this.selectedCollectionId || this.hasUnsavedChanges()) {
       this.snackbar.show('Please save your changes before updating item fields with publication data from the database.', 'error');
       return;
     }
@@ -543,22 +549,22 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    this.isUpdatingFromDb = true;
+    this.isUpdatingFromDb.set(true);
     this.tocService.updateTocWithPublicationData(
       this.selectedCollectionId, fields
     ).pipe(
       take(1)
     ).subscribe({
       next: (response: TocResponse) => {
-        this.currentToc = response.data;
-        this.hasUnsavedChanges = true;
-        this.isUpdatingFromDb = false;
+        this.currentToc.set(response.data);
+        this.hasUnsavedChanges.set(true);
+        this.isUpdatingFromDb.set(false);
         this.snackbar.show(response.message);
       },
       error: (error) => {
         console.error('Error updating from database:', error);
         this.snackbar.show(error.error.message, 'error');
-        this.isUpdatingFromDb = false;
+        this.isUpdatingFromDb.set(false);
       }
     });
   }
@@ -568,7 +574,7 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    if (this.currentToc === null) {
+    if (this.currentToc() === null) {
       this.createNewToc();
       return;
     }
@@ -590,15 +596,15 @@ export class TableOfContentsComponent implements OnInit {
   }
 
   private createNewToc() {
-    this.currentToc = this.tocService.createNewTocRoot(
+    this.currentToc.set(this.tocService.createNewTocRoot(
       this.selectedCollectionId!,
       this.selectedCollection?.name
-    );
-    this.hasUnsavedChanges = true;
+    ));
+    this.hasUnsavedChanges.set(true);
   }
 
   markTocAsChanged(): void {
-    this.hasUnsavedChanges = true;
+    this.hasUnsavedChanges.set(true);
   }
 
 }

@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Zoneless migration phase 2: drive small asynchronous UI state with signals, use the implicit default `OnPush` strategy in compatible affected components, retain the eager upload-block boundary until its child upload workflow is migrated, and add focused regression coverage.
 - Zoneless migration phase 3: make shared tables and translations compatible with implicit default `OnPush` change detection and add focused zoneless regression coverage.
 - Zoneless migration phase 4: signal asynchronous upload progress and workflow state, move all upload components to implicit default `OnPush`, recognize final HTTP responses in selected-page uploads, keep failed or cancelled uploads safely retryable without repeating completed files, show completion navigation only after full success, and add focused zoneless regression coverage.
+- Zoneless migration phase 5: signal asynchronous table-of-contents page state, use immutable TOC-variant updates, move the page to implicit default `OnPush`, and add focused zoneless regression coverage for loading, saving, language changes, generation, and database updates.
 
 
 
