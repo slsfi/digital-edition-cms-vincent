@@ -8,20 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
-### Added
-
-- Docs: Angular zoneless and default-OnPush [migration plan](docs/zoneless-migration-plan.md).
-
 ### Changed
 
 - Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
-- Zoneless migration phase 1: use Angular 22's implicit default `OnPush` strategy in compatible components while retaining eager host boundaries until their descendants are ready.
-- Zoneless migration phase 2: drive small asynchronous UI state with signals, use the implicit default `OnPush` strategy in compatible affected components, retain the eager upload-block boundary until its child upload workflow is migrated, and add focused regression coverage.
-- Zoneless migration phase 3: make shared tables and translations compatible with implicit default `OnPush` change detection and add focused zoneless regression coverage.
-- Zoneless migration phase 4: signal asynchronous upload progress and workflow state, move all upload components to implicit default `OnPush`, recognize final HTTP responses in selected-page uploads, keep failed or cancelled uploads safely retryable without repeating completed files, show completion navigation only after full success, and add focused zoneless regression coverage.
-- Zoneless migration phase 5: signal asynchronous table-of-contents page state, cancel superseded collection loads, disable selectors during active work, make the TOC tree read-only while saving, safely attribute save results to their original target and revision, recover cleanly from bodyless database-update errors, use immutable TOC-variant updates, confirm collection or language changes before discarding unsaved work, move the page to implicit default `OnPush`, and add focused zoneless regression coverage—including the real eager TOC-tree child—for loading, saving, selection changes, generation, and database updates.
-- Zoneless migration phase 6: make mutable table-of-contents tree updates notify implicit default `OnPush` views, keep the tree read-only while asynchronous operations replace it, remove the final eager component boundaries, and add focused zoneless regression coverage for tree mutations and the application shell.
-- Zoneless migration phase 7: remove Zone.js from application and test configuration, use Angular 22's zoneless change-detection defaults throughout the application, and prevent the keywords loading indicator from changing after its initial check.
+- Migrate the application to Angular 22's zoneless change-detection and implicit default `OnPush` APIs, with notification-safe asynchronous state and focused regression coverage. See the completed [migration plan](docs/zoneless-migration-plan.md).
 
 
 

@@ -141,6 +141,10 @@ npm run lint
 
 ## Further development notes
 
+### Change detection
+
+The application relies on Angular's default change-detection behavior, without explicit component strategies or Zone.js. Keep observable state consumed with `AsyncPipe` as observables, and use signals for template-visible imperative state changed by asynchronous callbacks without another Angular notification source. Do not add explicit change-detection configuration or Zone.js providers/polyfills unless there is a documented application requirement for doing so.
+
 ### Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.

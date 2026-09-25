@@ -10,7 +10,7 @@ This is an Angular CMS application for the SLS Digital Edition Platform. Applica
 - `npm start`: run `ng serve` for local development at `http://localhost:4200/`.
 - `npm run build`: generate `src/config/app-version.ts` via `prebuild`, then build the Angular app into `dist/`.
 - `npm run watch`: build continuously with the development configuration.
-- `npm test`: run Angular unit tests with Karma and Jasmine.
+- `npm test`: run Angular unit tests with Vitest and jsdom.
 - `npm run lint`: run Angular ESLint checks for TypeScript and templates.
 - `docker compose up -d`: run the published container setup using `compose.yaml`.
 
@@ -18,9 +18,11 @@ This is an Angular CMS application for the SLS Digital Edition Platform. Applica
 
 Use TypeScript, Angular standalone patterns, and Angular CLI conventions already present in the repo. Keep indentation at 2 spaces, prefer single quotes in TypeScript, trim trailing whitespace, and end files with a newline as defined in `.editorconfig`. Component selectors are kebab-case with no prefix, while directive selectors use camelCase with the `app` prefix. Name Angular files by role, for example `publication.service.ts`, `custom-table.component.ts`, and `id-route.pipe.ts`.
 
+The application relies on Angular's default change-detection behavior, without explicit component strategies or Zone.js. Do not add explicit change-detection configuration or Zone.js providers/polyfills unless the application has a documented requirement for them. Keep observable state consumed with `AsyncPipe` as observables; use signals for template-visible imperative state changed asynchronously when no existing Angular notification source covers the update.
+
 ## Testing Guidelines
 
-Place unit tests beside the implementation as `*.spec.ts`. Use Jasmine/Karma through Angular TestBed, and reuse helpers from `src/testing/test-providers.ts` where appropriate. Add or update specs when changing services, guards, interceptors, pipes, or component behavior. For focused local runs, use Angular/Karma include flags, for example `npm test -- --watch=false --browsers=ChromeHeadless --include src/app/services/auth.service.spec.ts`.
+Place unit tests beside the implementation as `*.spec.ts`. Use Vitest through Angular TestBed, and reuse helpers from `src/testing/test-providers.ts` where appropriate. Add or update specs when changing services, guards, interceptors, pipes, or component behavior. For focused local runs, use the include flag, for example `npm test -- --watch=false --include src/app/services/auth.service.spec.ts`. For asynchronous component behavior, assert the rendered result after `fixture.whenStable()` without forcing another `fixture.detectChanges()`, so tests exercise Angular's actual notification path.
 
 ## Commit & Pull Request Guidelines
 
