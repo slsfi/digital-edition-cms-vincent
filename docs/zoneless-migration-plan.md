@@ -259,6 +259,7 @@ Tests:
 - collection-change confirmation and cancellation when there are unsaved changes;
 - selector disabling during active work and stale-response protection for rapid collection changes;
 - captured save-target handling and read-only TOC-tree behavior while saving;
+- safe database-update error cleanup, including responses without an error body;
 - auto-generation and database-update success/error;
 - new TOC and dirty-state transitions.
 

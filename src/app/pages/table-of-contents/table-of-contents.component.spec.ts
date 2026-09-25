@@ -461,9 +461,11 @@ describe('TableOfContentsComponent', () => {
     prepareLoadedToc(false);
     const update$ = new Subject<TocResponse>();
     const failedUpdate$ = new Subject<TocResponse>();
+    const bodylessFailedUpdate$ = new Subject<TocResponse>();
     tocService.updateTocWithPublicationData
       .mockReturnValueOnce(update$)
-      .mockReturnValueOnce(failedUpdate$);
+      .mockReturnValueOnce(failedUpdate$)
+      .mockReturnValueOnce(bodylessFailedUpdate$);
     dialog.open.mockReturnValue({
       afterClosed: () => of({
         value: true,
@@ -496,6 +498,23 @@ describe('TableOfContentsComponent', () => {
     expect(component.isUpdatingFromDb()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('All changes saved');
     expect(snackbar.show).toHaveBeenLastCalledWith('Database update failed.', 'error');
+
+    component.openUpdateNodeFieldsDialog();
+    await fixture.whenStable();
+    expect(component.isUpdatingFromDb()).toBe(true);
+    expect(collectionSelect().disabled).toBe(true);
+    expect(languageSelect().disabled).toBe(true);
+
+    bodylessFailedUpdate$.error({ status: 0, error: null });
+    await fixture.whenStable();
+
+    expect(component.isUpdatingFromDb()).toBe(false);
+    expect(collectionSelect().disabled).toBe(false);
+    expect(languageSelect().disabled).toBe(false);
+    expect(snackbar.show).toHaveBeenLastCalledWith(
+      'Failed to update item fields with publication data.',
+      'error'
+    );
   });
 
   it('renders a new TOC and dirty state after starting from the empty state', async () => {

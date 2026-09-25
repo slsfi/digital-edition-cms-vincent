@@ -631,18 +631,20 @@ export class TableOfContentsComponent implements OnInit {
     this.tocService.updateTocWithPublicationData(
       this.selectedCollectionId, fields
     ).pipe(
-      take(1)
+      take(1),
+      finalize(() => this.isUpdatingFromDb.set(false))
     ).subscribe({
       next: (response: TocResponse) => {
         this.currentToc.set(response.data);
         this.hasUnsavedChanges.set(true);
-        this.isUpdatingFromDb.set(false);
         this.snackbar.show(response.message);
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('Error updating from database:', error);
-        this.snackbar.show(error.error.message, 'error');
-        this.isUpdatingFromDb.set(false);
+        this.snackbar.show(
+          error.error?.message || 'Failed to update item fields with publication data.',
+          'error'
+        );
       }
     });
   }
