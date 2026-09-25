@@ -2,6 +2,7 @@
 @let collectionSelection = this.collectionSelection();
 @let currentToc = this.currentToc();
 @let isLoading = this.isLoading();
+@let isLoadingPublications = this.isLoadingPublications();
 @let isSaving = this.isSaving();
 @let hasUnsavedChanges = this.hasUnsavedChanges();
 @let isGeneratingFlatToc = this.isGeneratingFlatToc();
@@ -10,6 +11,7 @@
 @let tocVariantsByCollectionId = this.tocVariantsByCollectionId();
 @let currentTocLanguage = this.currentTocLanguage();
 @let tocLanguageSelection = this.tocLanguageSelection();
+@let selectorsDisabled = isLoading || isLoadingPublications || isSaving || isGeneratingFlatToc || isUpdatingFromDb;
 
 <h1>Table of contents management</h1>
 
@@ -20,7 +22,10 @@
   <div class="collection-selection">
     <mat-form-field [subscriptSizing]="'dynamic'">
       <mat-label>Publication collection</mat-label>
-      <mat-select [value]="collectionSelection" (selectionChange)="setSelectedCollection($event.value)">
+      <mat-select
+        [value]="collectionSelection"
+        [disabled]="selectorsDisabled"
+        (selectionChange)="setSelectedCollection($event.value)">
         @for (collection of collections; track collection.id) {
           <mat-option [value]="collection">
             {{ collection.name }} (ID: {{ collection.id }})
@@ -39,6 +44,7 @@
         <mat-label>Table of contents language</mat-label>
         <mat-select
               [value]="tocLanguageSelection"
+              [disabled]="selectorsDisabled"
               (selectionChange)="changeTocLanguage($event.value)"
               canSelectNullableOptions
         >

@@ -242,6 +242,7 @@ Implementation constraints:
 - Keep `projectName`, `selectedCollection`, and `selectedCollectionId` plain unless implementation proves a signal is necessary; they are initialized before first render or changed by bound selection listeners.
 - Keep the committed `selectedCollection` plain, but use a signal for the collection selector's tentative value so a cancelled unsaved-changes confirmation can restore the committed collection in a default-OnPush view.
 - Keep publication and TOC service calls as observables.
+- Cancel superseded collection-dependent publication and TOC loads with `switchMap`, and disable both selectors while loads, saves, generation, or database updates are active.
 - Keep the existing mutable `TocRoot` data model for this migration.
 - Update all method and template reads consistently.
 
@@ -255,6 +256,7 @@ Tests:
 - save success/error and variant-map update;
 - language-change confirmation and cancellation;
 - collection-change confirmation and cancellation when there are unsaved changes;
+- selector disabling during active work and stale-response protection for rapid collection changes;
 - auto-generation and database-update success/error;
 - new TOC and dirty-state transitions.
 

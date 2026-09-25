@@ -1,5 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { catchError, forkJoin, map, of, take } from 'rxjs';
+import { catchError, finalize, forkJoin, map, of, Subject, switchMap, take } from 'rxjs';
 
 import { TableOfContentsService } from '../../services/table-of-contents.service';
 import { PublicationService } from '../../services/publication.service';
@@ -32,6 +34,14 @@ import { ExistingTocLanguagesPipe } from '../../pipes/existing-toc-languages.pip
 import { GetLangLabelPipe } from '../../pipes/get-lang-label.pipe';
 import { NonExistingTocLanguagesPipe } from '../../pipes/non-existing-toc-languages.pipe';
 
+interface TocLoadRequest {
+  collectionId: number;
+  language: string | null;
+}
+
+type TocLoadResult =
+  | { toc: TocRoot; error: null }
+  | { toc: null; error: HttpErrorResponse };
 
 @Component({
   selector: 'toc-management',
@@ -55,6 +65,7 @@ import { NonExistingTocLanguagesPipe } from '../../pipes/non-existing-toc-langua
   styleUrls: ['./table-of-contents.component.scss']
 })
 export class TableOfContentsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly projectService = inject(ProjectService);
   private readonly publicationService = inject(PublicationService);
@@ -84,6 +95,12 @@ export class TableOfContentsComponent implements OnInit {
 
   // Publications cache for selected collection
   readonly publicationsForSelectedCollection = signal<PublicationLite[]>([]);
+  readonly isLoadingPublications = signal(false);
+  private readonly publicationLoadRequests = new Subject<{
+    collectionId: number;
+    projectName: string;
+  }>();
+  private readonly tocLoadRequests = new Subject<TocLoadRequest>();
 
   // Table of contents language variants per collection
   // Example: { 1: { hasUniversal: true, languages: ['fi', 'sv'] } }
@@ -113,6 +130,9 @@ export class TableOfContentsComponent implements OnInit {
   readonly universalTocLanguage = UNIVERSAL_TOC_LANGUAGE;
 
   ngOnInit(): void {
+    this.observePublicationLoads();
+    this.observeTocLoads();
+
     // Get project name
     this.projectName = this.projectService.getCurrentProject();
 
@@ -262,19 +282,29 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    this.publicationService.getPublications(
-      String(this.selectedCollectionId), this.projectName, true, 'name'
-    ).pipe(
-      // convert Publication[] -> PublicationLite[]
-      map((list: Publication[]) => list.map(toPublicationLite)),
-      take(1)
-    ).subscribe({
-      next: (publications: PublicationLite[]) => {
-        this.publicationsForSelectedCollection.set(publications);
-      },
-      error: () => {
-        this.publicationsForSelectedCollection.set([]);
-      }
+    this.publicationLoadRequests.next({
+      collectionId: this.selectedCollectionId,
+      projectName: this.projectName
+    });
+  }
+
+  private observePublicationLoads(): void {
+    this.publicationLoadRequests.pipe(
+      switchMap(({ collectionId, projectName }) => {
+        this.isLoadingPublications.set(true);
+        return this.publicationService.getPublications(
+          String(collectionId), projectName, true, 'name'
+        ).pipe(
+          // convert Publication[] -> PublicationLite[]
+          map((list: Publication[]) => list.map(toPublicationLite)),
+          take(1),
+          catchError(() => of([] as PublicationLite[])),
+          finalize(() => this.isLoadingPublications.set(false))
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(publications => {
+      this.publicationsForSelectedCollection.set(publications);
     });
   }
 
@@ -283,27 +313,37 @@ export class TableOfContentsComponent implements OnInit {
       return;
     }
 
-    this.isLoading.set(true);
-    this.tocService.loadToc(
-      this.selectedCollectionId,
-      this.currentTocLanguage() || undefined
-    ).pipe(
-      take(1)
-    ).subscribe({
-      next: (toc: TocRoot) => {
-        this.currentToc.set(toc);
-        this.hasUnsavedChanges.set(false);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
+    this.tocLoadRequests.next({
+      collectionId: this.selectedCollectionId,
+      language: this.currentTocLanguage()
+    });
+  }
+
+  private observeTocLoads(): void {
+    this.tocLoadRequests.pipe(
+      switchMap(({ collectionId, language }) => {
+        this.isLoading.set(true);
+        return this.tocService.loadToc(
+          collectionId,
+          language || undefined
+        ).pipe(
+          take(1),
+          map((toc): TocLoadResult => ({ toc, error: null })),
+          catchError((error: HttpErrorResponse) => of<TocLoadResult>({ toc: null, error })),
+          finalize(() => this.isLoading.set(false))
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(({ toc, error }) => {
+      if (error) {
         console.error('Error loading table of contents:', error);
         if (error.status !== 404) {
           this.snackbar.show(error.error?.message || 'Failed to load table of contents.', 'error');
         }
-        this.currentToc.set(null); // Clear previous TOC
-        this.hasUnsavedChanges.set(false); // Reset unsaved changes
-        this.isLoading.set(false);
       }
+
+      this.currentToc.set(toc); // Clear the previous TOC on error
+      this.hasUnsavedChanges.set(false);
     });
   }
 
