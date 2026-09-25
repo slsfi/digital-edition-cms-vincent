@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DOCUMENT, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,7 +40,6 @@ type EditableTocNodeAssignmentTarget = Partial<
     CanMoveNodeUpPipe
   ],
   templateUrl: './toc-tree.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./toc-tree.component.scss']
 })
 export class TocTreeComponent implements OnChanges {
@@ -52,6 +51,12 @@ export class TocTreeComponent implements OnChanges {
   @Input() publications: PublicationLite[] = [];
   @Input() disabled = false;
   @Output() tocChanged = new EventEmitter<void>();
+
+  /**
+   * The TOC model is intentionally mutable. This revision notifies the
+   * default-OnPush view when deferred dialog or timer callbacks mutate it.
+   */
+  protected readonly treeRevision = signal(0);
 
   // Drag and drop properties
   nodeLookup: Record<string, TocNode> = {};
@@ -364,6 +369,7 @@ export class TocTreeComponent implements OnChanges {
   private runNodeChangedActions(): void {
     // Regenerate IDs after changes
     this.prepareDragDrop(this.toc.children);
+    this.treeRevision.update(revision => revision + 1);
     // Invalidate cache after DOM update
     setTimeout(() => {
       this.invalidateDropListCache();
@@ -617,6 +623,7 @@ export class TocTreeComponent implements OnChanges {
         } else {
           delete this.toc.introductionPageName;
         }
+        this.treeRevision.update(revision => revision + 1);
         this.tocChanged.emit();
       }
     });

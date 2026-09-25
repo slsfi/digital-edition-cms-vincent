@@ -1,4 +1,8 @@
-<div class="toc-tree" [class.suppress-drop-anim]="suppressDropAnim">
+<div
+  class="toc-tree"
+  [attr.data-tree-revision]="treeRevision()"
+  [class.suppress-drop-anim]="suppressDropAnim"
+>
   <!-- ToC root properties -->
   <div class="toc-root">
     <div class="root-properties">
