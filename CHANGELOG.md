@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Zoneless migration phase 1: use Angular 22's implicit default `OnPush` strategy in compatible components while retaining eager host boundaries until their descendants are ready.
 - Zoneless migration phase 2: drive small asynchronous UI state with signals, use the implicit default `OnPush` strategy in compatible affected components, retain the eager upload-block boundary until its child upload workflow is migrated, and add focused regression coverage.
 - Zoneless migration phase 3: make shared tables and translations compatible with implicit default `OnPush` change detection and add focused zoneless regression coverage.
-- Zoneless migration phase 4: signal asynchronous upload progress and workflow state, move all upload components to implicit default `OnPush`, recognize final HTTP responses in selected-page uploads, ensure completion navigation appears in both upload modes, and add focused zoneless regression coverage.
+- Zoneless migration phase 4: signal asynchronous upload progress and workflow state, move all upload components to implicit default `OnPush`, recognize final HTTP responses in selected-page uploads, keep failed or cancelled uploads safely retryable without repeating completed files, show completion navigation only after full success, and add focused zoneless regression coverage.
 
 
 

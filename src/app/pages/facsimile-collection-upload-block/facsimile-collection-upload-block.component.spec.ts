@@ -145,6 +145,31 @@ describe('FacsimileCollectionUploadBlockComponent upload integration', () => {
     expect(fixture.nativeElement.querySelector('.completed-back-nav')?.textContent)
       .toContain('Return to facsimile collection');
   });
+
+  it('does not render completion navigation when a child upload fails', async () => {
+    const fileUpload = fixture.debugElement.query(By.directive(FileUploadComponent))
+      .componentInstance as FileUploadComponent;
+    fileUpload.addToQueue(new File(['image'], 'page.jpg', { type: 'image/jpeg' }), 1);
+    await fixture.whenStable();
+
+    const uploadButton = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find(button => button.textContent?.includes('Upload'));
+    expect(uploadButton).toBeDefined();
+    uploadButton?.click();
+    await fixture.whenStable();
+
+    uploadEvents$.error(new Error('upload failed'));
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('mat-icon.error')?.textContent)
+      .toContain('error');
+    expect(fixture.nativeElement.querySelector('.completed-back-nav')).toBeNull();
+    const retryButton = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find(button => button.textContent?.includes('Retry'));
+    expect(retryButton?.disabled).toBe(false);
+  });
 });
 
 function facsimileCollection() {

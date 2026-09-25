@@ -1,16 +1,19 @@
 @let queue = uploadQueue$ | async;
 @let uploadInProgress = this.uploadInProgress();
-@let allUploaded = this.allUploaded();
+@let uploadFinished = this.uploadFinished();
+@let hasErrors = this.hasErrors;
+@let hasUploadableFiles = this.hasUploadableFiles;
 
 @if (queue && queue.length) {
   <div class="actions">
-    <button mat-flat-button [disabled]="uploadInProgress || allUploaded" (click)="uploadFiles()">
-      <mat-icon>cloud_upload</mat-icon>Upload
+    <button mat-flat-button [disabled]="uploadInProgress || !hasUploadableFiles" (click)="uploadFiles()">
+      <mat-icon>{{ uploadFinished && hasErrors ? 'replay' : 'cloud_upload' }}</mat-icon>
+      {{ uploadFinished && hasErrors ? 'Retry' : 'Upload' }}
     </button>
-    <button mat-flat-button [disabled]="uploadInProgress || allUploaded" (click)="clearQueue()">
+    <button mat-flat-button [disabled]="uploadInProgress || (uploadFinished && !hasErrors)" (click)="clearQueue()">
       <mat-icon>delete</mat-icon>Clear
     </button>
-    <button mat-flat-button [disabled]="!uploadInProgress || allUploaded" (click)="cancelUploads()">
+    <button mat-flat-button [disabled]="!uploadInProgress" (click)="cancelUploads()">
       <mat-icon>cancel</mat-icon>Cancel
     </button>
   </div>

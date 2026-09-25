@@ -21,8 +21,8 @@ enum FileQueueStatus {
 class FileQueueObject {
   file: File;
   order: number;
-  status = signal(FileQueueStatus.Pending);
-  progress = signal(0);
+  readonly status = signal(FileQueueStatus.Pending);
+  readonly progress = signal(0);
   request: Subscription | undefined;
 
   constructor(file: File, order: number) {
@@ -54,7 +54,16 @@ export class FileUploadComponent {
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
   file: File | undefined;
   readonly uploadInProgress = signal(false);
-  readonly allUploaded = signal(false);
+  readonly uploadFinished = signal(false);
+  private uploadSubscription: Subscription | undefined;
+
+  get hasErrors(): boolean {
+    return this._queue.some(file => file.status() === FileQueueStatus.Error);
+  }
+
+  get hasUploadableFiles(): boolean {
+    return this._queue.some(file => file.isUploadable());
+  }
 
   onFileSelected(event: Event) {
     if (event.target) {
@@ -78,7 +87,8 @@ export class FileUploadComponent {
   addToQueue(file: File, order: number) {
     const queueObject = new FileQueueObject(file, order);
     this._queue.push(queueObject);
-    this.uploadQueue$.next(this._queue);
+    this.uploadFinished.set(false);
+    this.uploadQueue$.next([...this._queue]);
   }
 
   uploadFiles() {
@@ -91,15 +101,26 @@ export class FileUploadComponent {
       )
     );
 
+    this.uploadFinished.set(false);
     this.uploadInProgress.set(true);
 
-    throttledFiles$.subscribe({
-      error: () => this.snackbar.show('Error uploading file.', 'error'),
+    this.uploadSubscription = throttledFiles$.subscribe({
+      error: () => {
+        this.uploadInProgress.set(false);
+        this.uploadFinished.set(true);
+        this.uploadSubscription = undefined;
+        this.snackbar.show('Error uploading file.', 'error');
+      },
       complete: () => {
         this.uploadInProgress.set(false);
-        this.allUploaded.set(true);
-        this.filesUploaded.emit();
-        this.snackbar.show('All files uploaded.');
+        this.uploadFinished.set(true);
+        this.uploadSubscription = undefined;
+        if (this.hasErrors) {
+          this.snackbar.show('Upload finished with errors. You can retry failed files.', 'warning');
+        } else {
+          this.filesUploaded.emit();
+          this.snackbar.show('All files uploaded.');
+        }
       },
     });
   }
@@ -111,7 +132,7 @@ export class FileUploadComponent {
       formData.append('facsimile', file, file.name);
 
       const currentProject = this.projectService.getCurrentProject();
-      queueObject.request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData, currentProject)
+      const request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData, currentProject)
         .subscribe({
           next: (event: any) => { /* eslint-disable-line */
             if (event.type == HttpEventType.UploadProgress) {
@@ -133,26 +154,34 @@ export class FileUploadComponent {
             observer.complete();
           },
           complete: () => {
-            observer.next();
-            observer.complete();
+            if (!observer.closed) {
+              queueObject.status.set(FileQueueStatus.Error);
+              queueObject.progress.set(0);
+              observer.next();
+              observer.complete();
+            }
           }
         });
+      queueObject.request = request;
+      return () => request.unsubscribe();
     })
   }
 
   cancelUploads() {
-    this._queue.forEach(file => {
-      if (file.request) {
-        file.request.unsubscribe();
-        file.status.set(FileQueueStatus.Pending);
-        file.progress.set(0);
-      }
+    const activeFiles = this._queue.filter(file => file.request && !file.request.closed);
+    this.uploadSubscription?.unsubscribe();
+    this.uploadSubscription = undefined;
+    activeFiles.forEach(file => {
+      file.status.set(FileQueueStatus.Pending);
+      file.progress.set(0);
     });
     this.uploadInProgress.set(false);
+    this.uploadFinished.set(false);
   }
 
   clearQueue() {
     this._queue = [];
+    this.uploadFinished.set(false);
     this.uploadQueue$.next([]);
   }
 

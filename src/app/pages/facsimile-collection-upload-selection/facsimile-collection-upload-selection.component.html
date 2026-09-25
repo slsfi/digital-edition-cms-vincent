@@ -2,6 +2,8 @@
 @let queue = uploadQueue$ | async;
 @let pageCount = numberOfPages();
 @let uploadInProgress = this.uploadInProgress();
+@let uploadFinished = this.uploadFinished();
+@let hasUploadableFiles = this.hasUploadableFiles;
 
 <h1>Facsimile collection management</h1>
 <div class="selected-facsimile-collection">
@@ -92,10 +94,10 @@
       Cancel uploads
     </button>
 
-    @if (allUploaded() && hasErrors) {
+    @if (!uploadInProgress && hasUploadableFiles) {
       <button matButton="filled" (click)="upload()">
         <mat-icon>replay</mat-icon>
-        Retry
+        {{ uploadFinished && hasErrors ? 'Retry failed uploads' : 'Resume uploads' }}
       </button>
     }
   </div>
@@ -148,7 +150,7 @@
     </table>
   </div>
 
-  @if (uploadCompleted()) {
+  @if (showCompletedNavigation()) {
     <button
       class="completed-back-nav"
       matButton="filled"

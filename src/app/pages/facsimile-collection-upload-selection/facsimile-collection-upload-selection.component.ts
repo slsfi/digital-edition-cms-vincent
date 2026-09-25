@@ -81,14 +81,15 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   private _queue: FileQueueObject[] = [];
   uploadQueue$ = new BehaviorSubject<FileQueueObject[]>([]);
   readonly uploadInProgress = signal(false);
-  readonly allUploaded = signal(false);
+  readonly uploadFinished = signal(false);
+  private uploadSubscription: Subscription | undefined;
 
   collectionId: number = this.route.snapshot.params['id'];
   facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
   loadingFacsData = signal<boolean>(true);
   numberOfPages = signal<number>(1);
   project: string | null = this.projectService.getCurrentProject();
-  uploadCompleted = signal<boolean>(false);
+  readonly showCompletedNavigation = signal(false);
 
   get rows(): FormArray<ReplaceRowForm> {
     return this.form.controls.rows;
@@ -161,6 +162,10 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
     return this._queue.some(q => q.status === FileQueueStatus.Error);
   }
 
+  get hasUploadableFiles(): boolean {
+    return this._queue.some(q => q.isUploadable());
+  }
+
   buildReplacements(): Replacement[] {
     const reps: Replacement[] = [];
     for (const c of this.rows.controls) {
@@ -184,7 +189,7 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       this._queue.push(new FileQueueObject(r.file, r.slot));
     }
     this.uploadQueue$.next(this._queue);
-    this.allUploaded.set(false);
+    this.uploadFinished.set(false);
   }
 
   upload(): void {
@@ -216,20 +221,27 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       mergeMap(q => this.uploadOne(q), concurrentRequests)
     );
 
+    this.uploadFinished.set(false);
     this.uploadInProgress.set(true);
 
-    throttled$.subscribe({
-      error: () => this.snackbar.show('Error uploading file(s).', 'error'),
+    this.uploadSubscription = throttled$.subscribe({
+      error: () => {
+        this.uploadInProgress.set(false);
+        this.uploadFinished.set(true);
+        this.uploadSubscription = undefined;
+        this.snackbar.show('Error uploading file(s).', 'error');
+      },
       complete: () => {
         this.uploadInProgress.set(false);
-        this.allUploaded.set(true);
+        this.uploadFinished.set(true);
+        this.uploadSubscription = undefined;
 
         const hasErrors = this._queue.some(q => q.status === FileQueueStatus.Error);
         if (hasErrors) {
           this.snackbar.show('Upload finished with errors. You can retry failed files.', 'warning');
         } else {
           this.snackbar.show('Upload finished.');
-          this.uploadCompleted.set(true);
+          this.showCompletedNavigation.set(true);
         }
       }
     });
@@ -240,7 +252,7 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       const formData = new FormData();
       formData.append('facsimile', queueObject.file, queueObject.file.name);
 
-      queueObject.request = this.facsimileService
+      const request = this.facsimileService
         .uploadFacsimileFile(this.collectionId, queueObject.order, formData, this.project)
         .subscribe({
           next: (event: any) => { // eslint-disable-line
@@ -266,23 +278,31 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
             observer.complete();
           },
           complete: () => {
-            observer.next();
-            observer.complete();
+            if (!observer.closed) {
+              queueObject.status = FileQueueStatus.Error;
+              queueObject.progress = 0;
+              this.uploadQueue$.next(this._queue);
+              observer.next();
+              observer.complete();
+            }
           }
         });
+      queueObject.request = request;
+      return () => request.unsubscribe();
     });
   }
 
   cancelUploads(): void {
-    this._queue.forEach(q => {
-      if (q.request) {
-        q.request.unsubscribe();
-        q.status = FileQueueStatus.Pending;
-        q.progress = 0;
-      }
+    const activeFiles = this._queue.filter(q => q.request && !q.request.closed);
+    this.uploadSubscription?.unsubscribe();
+    this.uploadSubscription = undefined;
+    activeFiles.forEach(q => {
+      q.status = FileQueueStatus.Pending;
+      q.progress = 0;
     });
     this.uploadQueue$.next(this._queue);
     this.uploadInProgress.set(false);
+    this.uploadFinished.set(false);
   }
 
   returnNav(facsCollId?: number | null): void {

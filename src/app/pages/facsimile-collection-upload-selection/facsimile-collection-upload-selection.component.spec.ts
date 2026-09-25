@@ -79,8 +79,8 @@ describe('FacsimileCollectionUploadSelectionComponent', () => {
     expect(progressBar().getAttribute('aria-valuenow')).toBe('100');
     expect(statusIcon('success')?.textContent).toContain('check_circle');
     expect(component.uploadInProgress()).toBe(false);
-    expect(component.allUploaded()).toBe(true);
-    expect(component.uploadCompleted()).toBe(true);
+    expect(component.uploadFinished()).toBe(true);
+    expect(component.showCompletedNavigation()).toBe(true);
     expect(fixture.nativeElement.querySelector('.completed-back-nav')).not.toBeNull();
   });
 
@@ -99,11 +99,14 @@ describe('FacsimileCollectionUploadSelectionComponent', () => {
     expect(progressBar().classList.contains('error')).toBe(true);
     expect(progressBar().getAttribute('aria-valuenow')).toBe('0');
     expect(statusIcon('error')?.textContent).toContain('error');
-    expect(component.allUploaded()).toBe(true);
-    expect(button('Retry')).toBeDefined();
+    expect(component.uploadFinished()).toBe(true);
+    expect(button('Retry failed uploads')).toBeDefined();
 
-    clickButton('Retry');
+    clickButton('Retry failed uploads');
     await fixture.whenStable();
+    expect(component.uploadFinished()).toBe(false);
+    expect(button('Retry failed uploads')).toBeUndefined();
+    expect(button('Resume uploads')).toBeUndefined();
     retryUpload$.next({ type: HttpEventType.UploadProgress, loaded: 8, total: 10 });
     await fixture.whenStable();
     retryUpload$.next(new HttpResponse({ status: 204 }));
@@ -113,25 +116,58 @@ describe('FacsimileCollectionUploadSelectionComponent', () => {
     expect(progressBar().getAttribute('aria-valuenow')).toBe('100');
     expect(statusIcon('success')?.textContent).toContain('check_circle');
     expect(component.uploadInProgress()).toBe(false);
-    expect(component.allUploaded()).toBe(true);
-    expect(component.uploadCompleted()).toBe(true);
+    expect(component.uploadFinished()).toBe(true);
+    expect(component.showCompletedNavigation()).toBe(true);
   });
 
-  it('cancels an upload and renders the reset pending state', async () => {
-    startUpload();
+  it('preserves completed files when cancelling and resumes only unfinished files', async () => {
+    const successfulUpload$ = new Subject<unknown>();
+    const activeUpload$ = new Subject<unknown>();
+    const resumedUpload$ = new Subject<unknown>();
+    facsimileService.uploadFacsimileFile
+      .mockReturnValueOnce(successfulUpload$)
+      .mockReturnValueOnce(activeUpload$)
+      .mockReturnValueOnce(resumedUpload$);
+    component.rows.at(0).patchValue({
+      slot: 1,
+      file: new File(['image'], 'replacement-1.jpg', { type: 'image/jpeg' })
+    });
+    component.addRow();
+    component.rows.at(1).patchValue({
+      slot: 2,
+      file: new File(['image'], 'replacement-2.jpg', { type: 'image/jpeg' })
+    });
+    component.upload();
     await fixture.whenStable();
-    uploadEvents$.next({ type: HttpEventType.UploadProgress, loaded: 7, total: 10 });
+    successfulUpload$.next(new HttpResponse({ status: 201 }));
+    activeUpload$.next({ type: HttpEventType.UploadProgress, loaded: 7, total: 10 });
     await fixture.whenStable();
 
     clickButton('Cancel uploads');
     await fixture.whenStable();
 
-    expect(progressBar().classList.contains('pending')).toBe(true);
-    expect(progressBar().getAttribute('aria-valuenow')).toBe('0');
-    expect(statusIcon('pending')?.textContent).toContain('circle');
+    expect(progressBars()[0].classList.contains('success')).toBe(true);
+    expect(progressBars()[1].classList.contains('pending')).toBe(true);
+    expect(progressBars()[1].getAttribute('aria-valuenow')).toBe('0');
     expect(component.uploadInProgress()).toBe(false);
-    expect(component.allUploaded()).toBe(false);
+    expect(component.uploadFinished()).toBe(false);
     expect(button('Cancel uploads')?.disabled).toBe(true);
+    expect(button('Resume uploads')?.disabled).toBe(false);
+
+    activeUpload$.next(new HttpResponse({ status: 201 }));
+    await fixture.whenStable();
+    expect(progressBars()[1].classList.contains('pending')).toBe(true);
+    expect(component.showCompletedNavigation()).toBe(false);
+
+    clickButton('Resume uploads');
+    await fixture.whenStable();
+    expect(facsimileService.uploadFacsimileFile).toHaveBeenCalledTimes(3);
+
+    resumedUpload$.next(new HttpResponse({ status: 201 }));
+    await fixture.whenStable();
+
+    expect(progressBars().every(bar => bar.classList.contains('success'))).toBe(true);
+    expect(component.showCompletedNavigation()).toBe(true);
   });
 
   function startUpload(): void {
@@ -156,6 +192,12 @@ describe('FacsimileCollectionUploadSelectionComponent', () => {
 
   function progressBar(): HTMLElement {
     return fixture.nativeElement.querySelector('mat-progress-bar') as HTMLElement;
+  }
+
+  function progressBars(): HTMLElement[] {
+    return Array.from(
+      fixture.nativeElement.querySelectorAll('mat-progress-bar') as NodeListOf<HTMLElement>
+    );
   }
 
   function statusIcon(status: string): HTMLElement | null {
