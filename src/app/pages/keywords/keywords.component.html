@@ -1,5 +1,3 @@
-@let isLoading = loading$ | async;
-
 <div class="header">
   <h1>Keywords management</h1>
   <p>Manage keywords for the current project. Keywords can be organized into categories and used to tag publications.</p>
@@ -44,6 +42,8 @@
       Clear filters
     </button>
   </div>
+
+  @let isLoading = loading$ | async;
 
   <custom-table
     [data$]="filteredKeywords$"
