@@ -575,6 +575,72 @@ describe('TableOfContentsComponent', () => {
   }
 });
 
+describe('TableOfContentsComponent with the real TocTreeComponent', () => {
+  let fixture: ComponentFixture<TableOfContentsComponent>;
+  let component: TableOfContentsComponent;
+  let consoleWarn: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    const originalWarn = console.warn;
+    consoleWarn = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+      if (!String(args[0]).includes('NG0914')) {
+        originalWarn(...args);
+      }
+    });
+    const dialog = { open: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [TableOfContentsComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: MatDialog, useValue: dialog },
+        { provide: ProjectService, useValue: { getCurrentProject: () => 'test-project' } },
+        {
+          provide: PublicationService,
+          useValue: {
+            getPublicationCollections: () => of([collection()]),
+            getPublications: () => of([])
+          }
+        },
+        { provide: SnackbarService, useValue: { show: vi.fn() } },
+        {
+          provide: TableOfContentsService,
+          useValue: {
+            getTocFilesList: () => of({ toc: { '7.json': null } }),
+            loadToc: () => of(tocRoot())
+          }
+        }
+      ]
+    })
+    .overrideProvider(MatDialog, { useValue: dialog })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(TableOfContentsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    component.setSelectedCollection(component.collections()[0]);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    consoleWarn.mockRestore();
+  });
+
+  it('renders dirty state after the real eager child emits tocChanged', async () => {
+    const tocTree = fixture.debugElement.query(By.directive(TocTreeComponent))
+      .componentInstance as TocTreeComponent;
+    expect(component.hasUnsavedChanges()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain('All changes saved');
+
+    tocTree.tocChanged.emit();
+    await fixture.whenStable();
+
+    expect(component.hasUnsavedChanges()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Unsaved changes');
+  });
+});
+
 function collection(id = 7, name = 'Test collection'): PublicationCollection {
   return {
     collection_intro_filename: null,

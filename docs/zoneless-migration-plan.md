@@ -260,6 +260,7 @@ Tests:
 - selector disabling during active work and stale-response protection for rapid collection changes;
 - captured save-target handling and read-only TOC-tree behavior while saving;
 - safe database-update error cleanup, including responses without an error body;
+- real-child zoneless integration coverage proving `TocTreeComponent.tocChanged` updates the default-OnPush parent view;
 - auto-generation and database-update success/error;
 - new TOC and dirty-state transitions.
 
