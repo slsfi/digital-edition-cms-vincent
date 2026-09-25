@@ -173,6 +173,7 @@
         [toc]="currentToc" 
         [collectionId]="selectedCollectionId!"
         [publications]="publicationsForSelectedCollection"
+        [disabled]="isSaving"
         (tocChanged)="markTocAsChanged()">
       </toc-tree>
     </div>

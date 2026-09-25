@@ -31,6 +31,7 @@ class TestTocTreeComponent {
   readonly toc = input.required<TocRoot>();
   readonly collectionId = input.required<number>();
   readonly publications = input<PublicationLite[]>([]);
+  readonly disabled = input(false);
   readonly tocChanged = output<void>();
 }
 
@@ -305,6 +306,7 @@ describe('TableOfContentsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Saving…');
     expect(collectionSelect().disabled).toBe(true);
     expect(languageSelect().disabled).toBe(true);
+    expect(tocTree().disabled()).toBe(true);
 
     universalSave$.next(saveResponse('Universal TOC saved.'));
     await fixture.whenStable();
@@ -315,6 +317,7 @@ describe('TableOfContentsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('All changes saved');
     expect(collectionSelect().disabled).toBe(false);
     expect(languageSelect().disabled).toBe(false);
+    expect(tocTree().disabled()).toBe(false);
 
     component.currentTocLanguage.set('fi');
     component.hasUnsavedChanges.set(true);
@@ -328,6 +331,33 @@ describe('TableOfContentsComponent', () => {
     expect(variantsAfterLanguageSave[7]).not.toBe(universalEntry);
     expect(variantsAfterLanguageSave[7]).toEqual({ hasUniversal: true, languages: ['fi'] });
     expect(snackbar.show).toHaveBeenLastCalledWith('Finnish TOC saved.');
+  });
+
+  it('attributes a save to its captured target and preserves newer dirty state', async () => {
+    await finishInitialLoad(
+      [collection(), collection(8, 'Second collection')],
+      []
+    );
+    const save$ = new Subject<SaveTocResponse>();
+    tocService.saveToc.mockReturnValue(save$);
+    prepareLoadedToc();
+
+    component.saveTableOfContents();
+    await fixture.whenStable();
+    expect(tocTree().disabled()).toBe(true);
+
+    component.selectedCollectionId = 8;
+    component.currentTocLanguage.set('fi');
+    component.markTocAsChanged();
+    save$.next(saveResponse('First collection saved.'));
+    await fixture.whenStable();
+
+    expect(component.tocVariantsByCollectionId()[7])
+      .toEqual({ hasUniversal: true, languages: [] });
+    expect(component.tocVariantsByCollectionId()[8]).toBeUndefined();
+    expect(component.hasUnsavedChanges()).toBe(true);
+    expect(component.isSaving()).toBe(false);
+    expect(tocTree().disabled()).toBe(false);
   });
 
   it('restores the unsaved status after a save error', async () => {
@@ -514,6 +544,11 @@ describe('TableOfContentsComponent', () => {
 
   function collectionSelect(): MatSelect {
     return fixture.debugElement.queryAll(By.directive(MatSelect))[0].componentInstance as MatSelect;
+  }
+
+  function tocTree(): TestTocTreeComponent {
+    return fixture.debugElement.query(By.directive(TestTocTreeComponent))
+      .componentInstance as TestTocTreeComponent;
   }
 
   function text(selector: string): string | null {
