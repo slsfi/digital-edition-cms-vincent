@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -46,7 +45,6 @@ describe('EditNodeDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EditNodeDialogComponent],
       providers: [
-        provideZonelessChangeDetection(),
         ...getCommonTestingProviders(),
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: MatDialogRef, useValue: { close: vi.fn() } },

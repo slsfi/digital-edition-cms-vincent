@@ -1,5 +1,11 @@
 # Angular Zoneless and Default-OnPush Migration Plan
 
+## Status
+
+**Completed on 2026-09-25.**
+
+All seven migration phases have been implemented and verified. The final exhaustive no-change diagnostic and manual smoke testing were completed successfully, and the temporary application-wide diagnostic provider was removed. This document is retained as the implementation record for the migration.
+
 ## Goal
 
 Migrate the Angular 22.2 application to zoneless change detection and the Angular 22 default `OnPush` change-detection strategy while keeping the behavioral changes as small as possible.

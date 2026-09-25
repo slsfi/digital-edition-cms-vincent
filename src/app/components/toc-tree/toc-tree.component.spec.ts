@@ -1,5 +1,4 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,7 +25,6 @@ describe('TocTreeComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TocTreeComponent],
       providers: [
-        provideZonelessChangeDetection(),
         { provide: MatDialog, useValue: { open: dialogOpen } }
       ]
     })

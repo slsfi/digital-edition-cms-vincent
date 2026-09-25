@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PublicationKeywordTableComponent } from './publication-keyword-table.component';
@@ -12,7 +11,6 @@ describe('PublicationKeywordTableComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PublicationKeywordTableComponent],
-      providers: [provideZonelessChangeDetection()]
     })
     .compileComponents();
 

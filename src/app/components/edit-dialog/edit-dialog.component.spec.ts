@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
@@ -49,7 +48,6 @@ describe('EditDialogComponent', () => {
         await TestBed.configureTestingModule({
             imports: [EditDialogComponent],
             providers: [
-                provideZonelessChangeDetection(),
                 ...getCommonTestingProviders(),
                 { provide: ProjectService, useValue: { getCurrentProject: () => 'test-project' } },
                 { provide: PublicationService, useValue: { getMetadataFromXML: () => metadata$ } },

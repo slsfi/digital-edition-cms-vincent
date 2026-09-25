@@ -1,5 +1,4 @@
 import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
@@ -23,7 +22,6 @@ describe('FileUploadComponent', () => {
     await TestBed.configureTestingModule({
       imports: [FileUploadComponent],
       providers: [
-        provideZonelessChangeDetection(),
         {
           provide: FacsimileService,
           useValue: { uploadFacsimileFile }
