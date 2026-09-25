@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
@@ -35,7 +34,6 @@ describe('ConfirmDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ConfirmDialogComponent],
       providers: [
-        provideZonelessChangeDetection(),
         ...getCommonTestingProviders(),
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: MatDialogRef, useValue: dialogRef }

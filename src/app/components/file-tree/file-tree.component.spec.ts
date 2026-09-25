@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
@@ -24,7 +23,6 @@ describe('FileTreeComponent', () => {
     await TestBed.configureTestingModule({
       imports: [FileTreeComponent],
       providers: [
-        provideZonelessChangeDetection(),
         {
           provide: ProjectService,
           useValue: {

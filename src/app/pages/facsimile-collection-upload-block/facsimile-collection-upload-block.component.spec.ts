@@ -1,5 +1,4 @@
 import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -30,7 +29,6 @@ describe('FacsimileCollectionUploadBlockComponent', () => {
     await TestBed.configureTestingModule({
       imports: [FacsimileCollectionUploadBlockComponent],
       providers: [
-        provideZonelessChangeDetection(),
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -86,7 +84,6 @@ describe('FacsimileCollectionUploadBlockComponent upload integration', () => {
     await TestBed.configureTestingModule({
       imports: [FacsimileCollectionUploadBlockComponent],
       providers: [
-        provideZonelessChangeDetection(),
         provideRouter([]),
         {
           provide: ActivatedRoute,

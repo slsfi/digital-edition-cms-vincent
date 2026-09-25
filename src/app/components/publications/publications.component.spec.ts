@@ -1,5 +1,4 @@
 import type { MockedObject } from "vitest";
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -80,7 +79,6 @@ describe('PublicationsComponent', () => {
         await TestBed.configureTestingModule({
             imports: [PublicationsComponent],
             providers: [
-                provideZonelessChangeDetection(),
                 ...getCommonTestingProviders(),
                 {
                     provide: ActivatedRoute,

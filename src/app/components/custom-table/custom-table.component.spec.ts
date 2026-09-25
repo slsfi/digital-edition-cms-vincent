@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Params, provideRouter } from '@angular/router';
 import { BehaviorSubject, of, Subject } from 'rxjs';
@@ -26,7 +25,6 @@ describe('CustomTableComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CustomTableComponent],
       providers: [
-        provideZonelessChangeDetection(),
         provideRouter([]),
         {
           provide: QueryParamsService,

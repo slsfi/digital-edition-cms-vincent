@@ -1,4 +1,4 @@
-import { Component, provideZonelessChangeDetection } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { MatDrawer } from '@angular/material/sidenav';
@@ -24,7 +24,6 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        provideZonelessChangeDetection(),
         provideRouter([{ path: '', component: RoutedTestComponent }]),
         {
           provide: AuthService,

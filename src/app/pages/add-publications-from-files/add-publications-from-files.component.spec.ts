@@ -1,5 +1,4 @@
 import type { MockedObject } from "vitest";
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
@@ -60,7 +59,6 @@ describe('AddPublicationsFromFilesComponent', () => {
         await TestBed.configureTestingModule({
             imports: [AddPublicationsFromFilesComponent],
             providers: [
-                provideZonelessChangeDetection(),
                 provideRouter([]),
                 {
                     provide: ActivatedRoute,

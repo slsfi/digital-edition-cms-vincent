@@ -1,5 +1,4 @@
 import type { MockedObject } from 'vitest';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 
@@ -26,7 +25,6 @@ describe('TranslationsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TranslationsComponent],
       providers: [
-        provideZonelessChangeDetection(),
         {
           provide: ProjectService,
           useValue: {

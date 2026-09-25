@@ -1,4 +1,4 @@
-import { Component, input, output, provideZonelessChangeDetection } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
@@ -87,7 +87,6 @@ describe('TableOfContentsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TableOfContentsComponent],
       providers: [
-        provideZonelessChangeDetection(),
         { provide: MatDialog, useValue: dialog },
         { provide: ProjectService, useValue: { getCurrentProject: () => 'test-project' } },
         { provide: PublicationService, useValue: publicationService },
@@ -603,7 +602,6 @@ describe('TableOfContentsComponent with the real TocTreeComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TableOfContentsComponent],
       providers: [
-        provideZonelessChangeDetection(),
         { provide: MatDialog, useValue: dialog },
         { provide: ProjectService, useValue: { getCurrentProject: () => 'test-project' } },
         {

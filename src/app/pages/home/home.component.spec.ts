@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
@@ -28,7 +27,6 @@ describe('MainComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
       providers: [
-        provideZonelessChangeDetection(),
         ...getCommonTestingProviders(),
         { provide: ApiService, useValue: { environment$: of(null) } },
         { provide: LoadingService, useValue: { loading$: of(false) } },
