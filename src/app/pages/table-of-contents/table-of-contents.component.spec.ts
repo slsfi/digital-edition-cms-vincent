@@ -146,6 +146,56 @@ describe('TableOfContentsComponent', () => {
     expect(text('.test-publication-count')).toBe('2');
   });
 
+  it('reverts a cancelled collection change and loads a confirmed collection', async () => {
+    await finishInitialLoad(
+      [collection(), collection(8, 'Second collection')],
+      ['7.json', '8_fi.json']
+    );
+    prepareLoadedToc();
+    const firstCollection = component.selectedCollection!;
+    const secondCollection = component.collections()[1];
+    const cancelResult$ = new Subject<{ value: boolean }>();
+    const confirmResult$ = new Subject<{ value: boolean }>();
+    dialog.open
+      .mockReturnValueOnce({ afterClosed: () => cancelResult$ })
+      .mockReturnValueOnce({ afterClosed: () => confirmResult$ });
+    tocService.loadToc.mockReturnValue(of(tocRoot('Second TOC', 8)));
+
+    component.setSelectedCollection(secondCollection);
+    await fixture.whenStable();
+
+    expect(component.selectedCollection).toBe(firstCollection);
+    expect(component.selectedCollectionId).toBe(7);
+    expect(component.collectionSelection()).toBe(secondCollection);
+    expect(collectionSelect().value).toBe(secondCollection);
+    expect(tocService.loadToc).not.toHaveBeenCalled();
+
+    cancelResult$.next({ value: false });
+    cancelResult$.complete();
+    await fixture.whenStable();
+
+    expect(component.selectedCollection).toBe(firstCollection);
+    expect(component.selectedCollectionId).toBe(7);
+    expect(component.collectionSelection()).toBe(firstCollection);
+    expect(collectionSelect().value).toBe(firstCollection);
+    expect(component.hasUnsavedChanges()).toBe(true);
+    expect(text('.test-toc-title')).toBe('Loaded TOC');
+
+    component.setSelectedCollection(secondCollection);
+    confirmResult$.next({ value: true });
+    confirmResult$.complete();
+    await fixture.whenStable();
+
+    expect(component.selectedCollection).toBe(secondCollection);
+    expect(component.selectedCollectionId).toBe(8);
+    expect(component.collectionSelection()).toBe(secondCollection);
+    expect(collectionSelect().value).toBe(secondCollection);
+    expect(component.hasUnsavedChanges()).toBe(false);
+    expect(component.currentTocLanguage()).toBe('fi');
+    expect(tocService.loadToc).toHaveBeenCalledWith(8, 'fi');
+    expect(text('.test-toc-title')).toBe('Second TOC');
+  });
+
   it('renders loading, loaded, and not-found states after TOC responses', async () => {
     await finishInitialLoad([collection()], ['7.json']);
     const loadedToc$ = new Subject<TocRoot>();
@@ -385,8 +435,10 @@ describe('TableOfContentsComponent', () => {
   }
 
   function prepareLoadedToc(hasChanges = true): void {
-    component.selectedCollection = collection();
-    component.selectedCollectionId = 7;
+    const selectedCollection = component.collections()[0] ?? collection();
+    component.selectedCollection = selectedCollection;
+    component.selectedCollectionId = selectedCollection.id;
+    component.collectionSelection.set(selectedCollection);
     component.currentToc.set(tocRoot());
     component.currentTocLanguage.set(null);
     component.tocLanguageSelection.set(null);
@@ -395,6 +447,10 @@ describe('TableOfContentsComponent', () => {
 
   function languageSelect(): MatSelect {
     return fixture.debugElement.queryAll(By.directive(MatSelect))[1].componentInstance as MatSelect;
+  }
+
+  function collectionSelect(): MatSelect {
+    return fixture.debugElement.queryAll(By.directive(MatSelect))[0].componentInstance as MatSelect;
   }
 
   function text(selector: string): string | null {

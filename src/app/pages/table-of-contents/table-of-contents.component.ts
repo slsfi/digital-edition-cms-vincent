@@ -67,6 +67,7 @@ export class TableOfContentsComponent implements OnInit {
   readonly collections = signal<PublicationCollection[]>([]);
   selectedCollection: PublicationCollection | null = null;
   selectedCollectionId: number | null = null;
+  readonly collectionSelection = signal<PublicationCollection | null>(null);
 
   // Table of Contents
   readonly currentToc = signal<TocRoot | null>(null);
@@ -207,6 +208,34 @@ export class TableOfContentsComponent implements OnInit {
   }
 
   setSelectedCollection(collection: PublicationCollection): void {
+    this.collectionSelection.set(collection);
+
+    if (!this.hasUnsavedChanges()) {
+      this.commitSelectedCollection(collection);
+      return;
+    }
+
+    const previousCommittedCollection = this.selectedCollection;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Change publication collection',
+        message: 'You have unsaved changes. Switching collection will discard them. Continue?',
+        confirmText: 'Change collection',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.value) {
+        this.hasUnsavedChanges.set(false);
+        this.commitSelectedCollection(collection);
+      } else {
+        this.collectionSelection.set(previousCommittedCollection);
+      }
+    });
+  }
+
+  private commitSelectedCollection(collection: PublicationCollection): void {
     this.selectedCollection = collection;
     this.selectedCollectionId = collection.id;
 

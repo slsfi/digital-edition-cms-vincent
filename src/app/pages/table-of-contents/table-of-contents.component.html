@@ -1,4 +1,5 @@
 @let collections = this.collections();
+@let collectionSelection = this.collectionSelection();
 @let currentToc = this.currentToc();
 @let isLoading = this.isLoading();
 @let isSaving = this.isSaving();
@@ -19,7 +20,7 @@
   <div class="collection-selection">
     <mat-form-field [subscriptSizing]="'dynamic'">
       <mat-label>Publication collection</mat-label>
-      <mat-select [(value)]="selectedCollection" (selectionChange)="setSelectedCollection($event.value)">
+      <mat-select [value]="collectionSelection" (selectionChange)="setSelectedCollection($event.value)">
         @for (collection of collections; track collection.id) {
           <mat-option [value]="collection">
             {{ collection.name }} (ID: {{ collection.id }})
