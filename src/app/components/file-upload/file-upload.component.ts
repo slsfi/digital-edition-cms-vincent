@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,24 +21,22 @@ enum FileQueueStatus {
 class FileQueueObject {
   file: File;
   order: number;
-  status: FileQueueStatus;
-  progress = 0;
+  readonly status = signal(FileQueueStatus.Pending);
+  readonly progress = signal(0);
   request: Subscription | undefined;
 
   constructor(file: File, order: number) {
     this.file = file;
     this.order = order;
-    this.status = FileQueueStatus.Pending;
   }
 
-  isUploadable = () => this.status === FileQueueStatus.Pending || this.status === FileQueueStatus.Error;
+  isUploadable = () => this.status() === FileQueueStatus.Pending || this.status() === FileQueueStatus.Error;
 }
 
 @Component({
   selector: 'file-upload',
   imports: [CommonModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule],
   templateUrl: './file-upload.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-upload.component.scss'
 })
 export class FileUploadComponent {
@@ -55,8 +53,17 @@ export class FileUploadComponent {
   _queue: FileQueueObject[] = [];
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
   file: File | undefined;
-  uploadInProgress = false;
-  allUploaded = false;
+  readonly uploadInProgress = signal(false);
+  readonly uploadFinished = signal(false);
+  private uploadSubscription: Subscription | undefined;
+
+  get hasErrors(): boolean {
+    return this._queue.some(file => file.status() === FileQueueStatus.Error);
+  }
+
+  get hasUploadableFiles(): boolean {
+    return this._queue.some(file => file.isUploadable());
+  }
 
   onFileSelected(event: Event) {
     if (event.target) {
@@ -80,7 +87,8 @@ export class FileUploadComponent {
   addToQueue(file: File, order: number) {
     const queueObject = new FileQueueObject(file, order);
     this._queue.push(queueObject);
-    this.uploadQueue$.next(this._queue);
+    this.uploadFinished.set(false);
+    this.uploadQueue$.next([...this._queue]);
   }
 
   uploadFiles() {
@@ -93,15 +101,26 @@ export class FileUploadComponent {
       )
     );
 
-    this.uploadInProgress = true;
+    this.uploadFinished.set(false);
+    this.uploadInProgress.set(true);
 
-    throttledFiles$.subscribe({
-      error: () => this.snackbar.show('Error uploading file.', 'error'),
+    this.uploadSubscription = throttledFiles$.subscribe({
+      error: () => {
+        this.uploadInProgress.set(false);
+        this.uploadFinished.set(true);
+        this.uploadSubscription = undefined;
+        this.snackbar.show('Error uploading file.', 'error');
+      },
       complete: () => {
-        this.uploadInProgress = false;
-        this.allUploaded = true;
-        this.filesUploaded.emit();
-        this.snackbar.show('All files uploaded.');
+        this.uploadInProgress.set(false);
+        this.uploadFinished.set(true);
+        this.uploadSubscription = undefined;
+        if (this.hasErrors) {
+          this.snackbar.show('Upload finished with errors. You can retry failed files.', 'warning');
+        } else {
+          this.filesUploaded.emit();
+          this.snackbar.show('All files uploaded.');
+        }
       },
     });
   }
@@ -113,48 +132,56 @@ export class FileUploadComponent {
       formData.append('facsimile', file, file.name);
 
       const currentProject = this.projectService.getCurrentProject();
-      queueObject.request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData, currentProject)
+      const request = this.facsimileService.uploadFacsimileFile(this.collectionId(), queueObject.order, formData, currentProject)
         .subscribe({
           next: (event: any) => { /* eslint-disable-line */
             if (event.type == HttpEventType.UploadProgress) {
-              queueObject.progress = Math.round(100 * (event.loaded / event.total));
-              queueObject.status = FileQueueStatus.Progress;
+              queueObject.progress.set(Math.round(100 * (event.loaded / event.total)));
+              queueObject.status.set(FileQueueStatus.Progress);
             }
             if (event.type === HttpEventType.Response) {
-              queueObject.progress = 100;
-              queueObject.status = FileQueueStatus.Success;
+              queueObject.progress.set(100);
+              queueObject.status.set(FileQueueStatus.Success);
               observer.next();
               observer.complete();
             }
           },
           error: () => {
-            queueObject.status = FileQueueStatus.Error;
-            queueObject.progress = 0;
+            queueObject.status.set(FileQueueStatus.Error);
+            queueObject.progress.set(0);
             // Continue with next file
             observer.next();
             observer.complete();
           },
           complete: () => {
-            observer.next();
-            observer.complete();
+            if (!observer.closed) {
+              queueObject.status.set(FileQueueStatus.Error);
+              queueObject.progress.set(0);
+              observer.next();
+              observer.complete();
+            }
           }
         });
+      queueObject.request = request;
+      return () => request.unsubscribe();
     })
   }
 
   cancelUploads() {
-    this._queue.forEach(file => {
-      if (file.request) {
-        file.request.unsubscribe();
-        file.status = FileQueueStatus.Pending;
-        file.progress = 0;
-      }
+    const activeFiles = this._queue.filter(file => file.request && !file.request.closed);
+    this.uploadSubscription?.unsubscribe();
+    this.uploadSubscription = undefined;
+    activeFiles.forEach(file => {
+      file.status.set(FileQueueStatus.Pending);
+      file.progress.set(0);
     });
-    this.uploadInProgress = false;
+    this.uploadInProgress.set(false);
+    this.uploadFinished.set(false);
   }
 
   clearQueue() {
     this._queue = [];
+    this.uploadFinished.set(false);
     this.uploadQueue$.next([]);
   }
 

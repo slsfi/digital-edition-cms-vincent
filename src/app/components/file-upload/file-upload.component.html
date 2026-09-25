@@ -1,14 +1,19 @@
 @let queue = uploadQueue$ | async;
+@let uploadInProgress = this.uploadInProgress();
+@let uploadFinished = this.uploadFinished();
+@let hasErrors = this.hasErrors;
+@let hasUploadableFiles = this.hasUploadableFiles;
 
 @if (queue && queue.length) {
   <div class="actions">
-    <button mat-flat-button [disabled]="uploadInProgress || allUploaded" (click)="uploadFiles()">
-      <mat-icon>cloud_upload</mat-icon>Upload
+    <button mat-flat-button [disabled]="uploadInProgress || !hasUploadableFiles" (click)="uploadFiles()">
+      <mat-icon>{{ uploadFinished && hasErrors ? 'replay' : 'cloud_upload' }}</mat-icon>
+      {{ uploadFinished && hasErrors ? 'Retry' : 'Upload' }}
     </button>
-    <button mat-flat-button [disabled]="uploadInProgress || allUploaded" (click)="clearQueue()">
+    <button mat-flat-button [disabled]="uploadInProgress || (uploadFinished && !hasErrors)" (click)="clearQueue()">
       <mat-icon>delete</mat-icon>Clear
     </button>
-    <button mat-flat-button [disabled]="!uploadInProgress || allUploaded" (click)="cancelUploads()">
+    <button mat-flat-button [disabled]="!uploadInProgress" (click)="cancelUploads()">
       <mat-icon>cancel</mat-icon>Cancel
     </button>
   </div>
@@ -33,9 +38,9 @@
       <th mat-header-cell *matHeaderCellDef>Progress</th>
       <td mat-cell *matCellDef="let item">
         <mat-progress-bar
-          [ngClass]="item.status"
+          [ngClass]="item.status()"
           mode="determinate"
-          [value]="item.progress">
+          [value]="item.progress()">
         </mat-progress-bar>
       </td>
     </ng-container>
@@ -43,14 +48,15 @@
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef>Status</th>
       <td mat-cell *matCellDef="let item">
-        @if (item.status === 'pending') {
-          <mat-icon [ngClass]="item.status">circle</mat-icon>  
-        } @else if (item.status === 'progress') {
-          <mat-icon [ngClass]="item.status">arrow_upload_progress</mat-icon>
-        } @else if (item.status === 'success') {
-          <mat-icon [ngClass]="item.status">check_circle</mat-icon>
+        @let status = item.status();
+        @if (status === 'pending') {
+          <mat-icon [ngClass]="status">circle</mat-icon>
+        } @else if (status === 'progress') {
+          <mat-icon [ngClass]="status">arrow_upload_progress</mat-icon>
+        } @else if (status === 'success') {
+          <mat-icon [ngClass]="status">check_circle</mat-icon>
         } @else {
-          <mat-icon [ngClass]="item.status">error</mat-icon>
+          <mat-icon [ngClass]="status">error</mat-icon>
         }
       </td>
     </ng-container>

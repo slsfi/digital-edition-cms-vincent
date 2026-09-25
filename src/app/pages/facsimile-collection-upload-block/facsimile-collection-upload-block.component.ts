@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,7 +26,6 @@ type UploadMode = 'missing' | 'all';
     RangeArrayPipe
   ],
   templateUrl: './facsimile-collection-upload-block.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facsimile-collection-upload-block.component.scss'
 })
 export class FacsimileCollectionUploadBlockComponent implements OnInit {
@@ -42,7 +41,7 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
   missingFileNumbersOrig = signal<number[]>([]);
   readonly mode = signal<UploadMode>('missing');
   project: string | null = this.projectService.getCurrentProject();
-  uploadCompleted = signal<boolean>(false);
+  readonly showCompletedNavigation = signal(false);
 
   ngOnInit() {
     this.facsimile$ = this.facsimileService.getFacsimileCollection(
@@ -90,11 +89,11 @@ export class FacsimileCollectionUploadBlockComponent implements OnInit {
     );
   }
 
-  uploadComplete(): void {
+  onFilesUploaded(): void {
     if (this.mode() === 'missing') {
       this.verifyFacsimileFiles();
     }
-    this.uploadCompleted.set(true);
+    this.showCompletedNavigation.set(true);
   }
 
 }

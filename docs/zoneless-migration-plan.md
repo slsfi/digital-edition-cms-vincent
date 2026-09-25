@@ -190,25 +190,29 @@ Suggested commit:
 ### `FileUploadComponent`
 
 - Convert `FileQueueObject.status` and `FileQueueObject.progress` to signals. These fields currently mutate during HTTP upload events without a corresponding `uploadQueue$` emission and therefore directly depend on Zone-based checks.
-- Convert `uploadInProgress` and `allUploaded` to signals.
+- Convert `uploadInProgress` and `uploadFinished` to signals.
 - Keep `uploadQueue$` and its `AsyncPipe`; it still owns queue membership.
 - Update `isUploadable()` and the template for signal reads.
+- Treat a batch as successful only when every file succeeds. Keep failed files retryable and emit `filesUploaded` only after the complete queue has succeeded.
+- Cancel the aggregate upload subscription, preserve completed rows, and reset only active rows so a later upload resumes unfinished work without duplicating successful requests.
 
 After `FileUploadComponent` uses signals for its asynchronous progress state, remove the explicit `Eager` declaration and unused `ChangeDetectionStrategy` import from `FacsimileCollectionUploadBlockComponent`.
 
 ### `FacsimileCollectionUploadSelectionComponent`
 
-- Convert `uploadInProgress` and `allUploaded` to signals.
+- Convert `uploadInProgress` and `uploadFinished` to signals.
 - Keep queue-item status and progress as plain values because every asynchronous mutation already emits through `uploadQueue$`, which is consumed by `AsyncPipe`.
 - Keep the reactive `FormArray`; its row changes are user-event driven.
+- Keep failed and cancelled rows retryable, prevent retry controls while a batch is active, and show completion navigation only after every queued replacement succeeds.
 
 Remove the explicit `Eager` declaration from both upload components and from `FacsimileCollectionUploadBlockComponent`.
 
 Tests:
 
 - render intermediate upload progress and each terminal status;
-- render completion and error/retry state;
-- verify cancellation resets state;
+- render completion and error/retry state for both one-file and mixed two-file batches;
+- verify cancellation preserves completed rows, resets active rows, and resumes only unfinished uploads;
+- verify failed child uploads do not trigger host-level completion navigation;
 - assert DOM changes after mocked HTTP events without an additional `fixture.detectChanges()`.
 
 ## Commit 5: Convert table-of-contents page state to signals
