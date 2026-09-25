@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,24 +21,22 @@ enum FileQueueStatus {
 class FileQueueObject {
   file: File;
   order: number;
-  status: FileQueueStatus;
-  progress = 0;
+  status = signal(FileQueueStatus.Pending);
+  progress = signal(0);
   request: Subscription | undefined;
 
   constructor(file: File, order: number) {
     this.file = file;
     this.order = order;
-    this.status = FileQueueStatus.Pending;
   }
 
-  isUploadable = () => this.status === FileQueueStatus.Pending || this.status === FileQueueStatus.Error;
+  isUploadable = () => this.status() === FileQueueStatus.Pending || this.status() === FileQueueStatus.Error;
 }
 
 @Component({
   selector: 'file-upload',
   imports: [CommonModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule],
   templateUrl: './file-upload.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-upload.component.scss'
 })
 export class FileUploadComponent {
@@ -55,8 +53,8 @@ export class FileUploadComponent {
   _queue: FileQueueObject[] = [];
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);
   file: File | undefined;
-  uploadInProgress = false;
-  allUploaded = false;
+  readonly uploadInProgress = signal(false);
+  readonly allUploaded = signal(false);
 
   onFileSelected(event: Event) {
     if (event.target) {
@@ -93,13 +91,13 @@ export class FileUploadComponent {
       )
     );
 
-    this.uploadInProgress = true;
+    this.uploadInProgress.set(true);
 
     throttledFiles$.subscribe({
       error: () => this.snackbar.show('Error uploading file.', 'error'),
       complete: () => {
-        this.uploadInProgress = false;
-        this.allUploaded = true;
+        this.uploadInProgress.set(false);
+        this.allUploaded.set(true);
         this.filesUploaded.emit();
         this.snackbar.show('All files uploaded.');
       },
@@ -117,19 +115,19 @@ export class FileUploadComponent {
         .subscribe({
           next: (event: any) => { /* eslint-disable-line */
             if (event.type == HttpEventType.UploadProgress) {
-              queueObject.progress = Math.round(100 * (event.loaded / event.total));
-              queueObject.status = FileQueueStatus.Progress;
+              queueObject.progress.set(Math.round(100 * (event.loaded / event.total)));
+              queueObject.status.set(FileQueueStatus.Progress);
             }
             if (event.type === HttpEventType.Response) {
-              queueObject.progress = 100;
-              queueObject.status = FileQueueStatus.Success;
+              queueObject.progress.set(100);
+              queueObject.status.set(FileQueueStatus.Success);
               observer.next();
               observer.complete();
             }
           },
           error: () => {
-            queueObject.status = FileQueueStatus.Error;
-            queueObject.progress = 0;
+            queueObject.status.set(FileQueueStatus.Error);
+            queueObject.progress.set(0);
             // Continue with next file
             observer.next();
             observer.complete();
@@ -146,11 +144,11 @@ export class FileUploadComponent {
     this._queue.forEach(file => {
       if (file.request) {
         file.request.unsubscribe();
-        file.status = FileQueueStatus.Pending;
-        file.progress = 0;
+        file.status.set(FileQueueStatus.Pending);
+        file.progress.set(0);
       }
     });
-    this.uploadInProgress = false;
+    this.uploadInProgress.set(false);
   }
 
   clearQueue() {

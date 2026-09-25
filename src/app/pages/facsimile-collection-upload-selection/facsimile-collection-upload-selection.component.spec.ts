@@ -1,52 +1,68 @@
+import type { MockedObject } from 'vitest';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, provideRouter } from '@angular/router';
+import { of, Subject } from 'rxjs';
 
-import { FileUploadComponent } from './file-upload.component';
+import { FacsimileCollectionUploadSelectionComponent } from './facsimile-collection-upload-selection.component';
+import { Deleted } from '../../models/common.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
-describe('FileUploadComponent', () => {
-  let component: FileUploadComponent;
-  let fixture: ComponentFixture<FileUploadComponent>;
+describe('FacsimileCollectionUploadSelectionComponent', () => {
+  let component: FacsimileCollectionUploadSelectionComponent;
+  let fixture: ComponentFixture<FacsimileCollectionUploadSelectionComponent>;
+  let facsimileService: MockedObject<Pick<FacsimileService,
+    'getFacsimileCollection' | 'uploadFacsimileFile'>>;
   let uploadEvents$: Subject<unknown>;
   let snackbar: { show: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     uploadEvents$ = new Subject<unknown>();
     snackbar = { show: vi.fn() };
+    facsimileService = {
+      getFacsimileCollection: vi.fn().mockReturnValue(of({
+        date_created: '',
+        date_modified: null,
+        deleted: Deleted.NotDeleted,
+        description: null,
+        external_url: null,
+        folder_path: null,
+        id: 12,
+        number_of_pages: 4,
+        page_comment: null,
+        start_page_number: 0,
+        title: 'Facsimile'
+      })),
+      uploadFacsimileFile: vi.fn().mockReturnValue(uploadEvents$)
+    };
 
     await TestBed.configureTestingModule({
-      imports: [FileUploadComponent],
+      imports: [FacsimileCollectionUploadSelectionComponent],
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([]),
         {
-          provide: FacsimileService,
-          useValue: { uploadFacsimileFile: () => uploadEvents$ }
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { id: 12 } } }
         },
-        {
-          provide: ProjectService,
-          useValue: { getCurrentProject: () => 'test-project' }
-        },
+        { provide: FacsimileService, useValue: facsimileService },
+        { provide: ProjectService, useValue: { getCurrentProject: () => 'test-project' } },
         { provide: SnackbarService, useValue: snackbar }
       ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(FileUploadComponent);
-    fixture.componentRef.setInput('collectionId', 1);
-    fixture.componentRef.setInput('numberOfPages', 10);
-    fixture.componentRef.setInput('missingFileNumbers', []);
+    fixture = TestBed.createComponent(FacsimileCollectionUploadSelectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
   });
 
   it('renders intermediate progress and successful completion without a forced refresh', async () => {
-    await queueFile();
-    clickButton('Upload');
+    startUpload();
     await fixture.whenStable();
 
     uploadEvents$.next({ type: HttpEventType.UploadProgress, loaded: 5, total: 10 });
@@ -64,34 +80,50 @@ describe('FileUploadComponent', () => {
     expect(statusIcon('success')?.textContent).toContain('check_circle');
     expect(component.uploadInProgress()).toBe(false);
     expect(component.allUploaded()).toBe(true);
-    expect(snackbar.show).toHaveBeenCalledWith('All files uploaded.');
+    expect(component.uploadCompleted()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.completed-back-nav')).not.toBeNull();
   });
 
-  it('renders the terminal error state without a forced refresh', async () => {
-    await queueFile();
-    clickButton('Upload');
+  it('renders an error and successfully retries the failed upload', async () => {
+    const failedUpload$ = new Subject<unknown>();
+    const retryUpload$ = new Subject<unknown>();
+    facsimileService.uploadFacsimileFile
+      .mockReturnValueOnce(failedUpload$)
+      .mockReturnValueOnce(retryUpload$);
+    startUpload();
     await fixture.whenStable();
 
-    uploadEvents$.next({ type: HttpEventType.UploadProgress, loaded: 4, total: 10 });
-    await fixture.whenStable();
-    uploadEvents$.error(new Error('upload failed'));
+    failedUpload$.error(new Error('upload failed'));
     await fixture.whenStable();
 
     expect(progressBar().classList.contains('error')).toBe(true);
     expect(progressBar().getAttribute('aria-valuenow')).toBe('0');
     expect(statusIcon('error')?.textContent).toContain('error');
+    expect(component.allUploaded()).toBe(true);
+    expect(button('Retry')).toBeDefined();
+
+    clickButton('Retry');
+    await fixture.whenStable();
+    retryUpload$.next({ type: HttpEventType.UploadProgress, loaded: 8, total: 10 });
+    await fixture.whenStable();
+    retryUpload$.next(new HttpResponse({ status: 204 }));
+    await fixture.whenStable();
+
+    expect(progressBar().classList.contains('success')).toBe(true);
+    expect(progressBar().getAttribute('aria-valuenow')).toBe('100');
+    expect(statusIcon('success')?.textContent).toContain('check_circle');
     expect(component.uploadInProgress()).toBe(false);
     expect(component.allUploaded()).toBe(true);
+    expect(component.uploadCompleted()).toBe(true);
   });
 
   it('cancels an upload and renders the reset pending state', async () => {
-    await queueFile();
-    clickButton('Upload');
+    startUpload();
     await fixture.whenStable();
-
     uploadEvents$.next({ type: HttpEventType.UploadProgress, loaded: 7, total: 10 });
     await fixture.whenStable();
-    clickButton('Cancel');
+
+    clickButton('Cancel uploads');
     await fixture.whenStable();
 
     expect(progressBar().classList.contains('pending')).toBe(true);
@@ -99,13 +131,15 @@ describe('FileUploadComponent', () => {
     expect(statusIcon('pending')?.textContent).toContain('circle');
     expect(component.uploadInProgress()).toBe(false);
     expect(component.allUploaded()).toBe(false);
-    expect(button('Upload')?.disabled).toBe(false);
-    expect(button('Cancel')?.disabled).toBe(true);
+    expect(button('Cancel uploads')?.disabled).toBe(true);
   });
 
-  async function queueFile(): Promise<void> {
-    component.addToQueue(new File(['image'], 'page.jpg', { type: 'image/jpeg' }), 1);
-    await fixture.whenStable();
+  function startUpload(): void {
+    component.rows.at(0).patchValue({
+      slot: 2,
+      file: new File(['image'], 'replacement.jpg', { type: 'image/jpeg' })
+    });
+    component.upload();
   }
 
   function clickButton(label: string): void {

@@ -1,6 +1,7 @@
 @let facsimile = facsimile$ | async;
 @let queue = uploadQueue$ | async;
 @let pageCount = numberOfPages();
+@let uploadInProgress = this.uploadInProgress();
 
 <h1>Facsimile collection management</h1>
 <div class="selected-facsimile-collection">
@@ -91,7 +92,7 @@
       Cancel uploads
     </button>
 
-    @if (allUploaded && hasErrors) {
+    @if (allUploaded() && hasErrors) {
       <button matButton="filled" (click)="upload()">
         <mat-icon>replay</mat-icon>
         Retry

@@ -1,14 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  NgZone,
-  provideZoneChangeDetection,
-  provideZonelessChangeDetection
-} from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of, Subject } from 'rxjs';
 
 import { FacsimileCollectionUploadBlockComponent } from './facsimile-collection-upload-block.component';
@@ -17,13 +11,6 @@ import { Deleted } from '../../models/common.model';
 import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { SnackbarService } from '../../services/snackbar.service';
-
-@Component({
-  imports: [FacsimileCollectionUploadBlockComponent],
-  template: '<facsimile-collection-upload-block />',
-  changeDetection: ChangeDetectionStrategy.Eager
-})
-class EagerUploadHostComponent {}
 
 describe('FacsimileCollectionUploadBlockComponent', () => {
   let component: FacsimileCollectionUploadBlockComponent;
@@ -55,19 +42,7 @@ describe('FacsimileCollectionUploadBlockComponent', () => {
         {
           provide: FacsimileService,
           useValue: {
-            getFacsimileCollection: () => of({
-              date_created: '',
-              date_modified: null,
-              deleted: Deleted.NotDeleted,
-              description: null,
-              external_url: null,
-              folder_path: null,
-              id: 12,
-              number_of_pages: 4,
-              page_comment: null,
-              start_page_number: 0,
-              title: 'Facsimile'
-            }),
+            getFacsimileCollection: () => of(facsimileCollection()),
             verifyFacsimileFile: () => of({
               success: true,
               message: '',
@@ -102,17 +77,16 @@ describe('FacsimileCollectionUploadBlockComponent', () => {
 });
 
 describe('FacsimileCollectionUploadBlockComponent upload integration', () => {
-  let fixture: ComponentFixture<EagerUploadHostComponent>;
+  let fixture: ComponentFixture<FacsimileCollectionUploadBlockComponent>;
   let uploadEvents$: Subject<unknown>;
-  let ngZone: NgZone;
 
   beforeEach(async () => {
     uploadEvents$ = new Subject<unknown>();
 
     await TestBed.configureTestingModule({
-      imports: [EagerUploadHostComponent],
+      imports: [FacsimileCollectionUploadBlockComponent],
       providers: [
-        provideZoneChangeDetection(),
+        provideZonelessChangeDetection(),
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -124,19 +98,7 @@ describe('FacsimileCollectionUploadBlockComponent upload integration', () => {
         {
           provide: FacsimileService,
           useValue: {
-            getFacsimileCollection: () => of({
-              date_created: '',
-              date_modified: null,
-              deleted: Deleted.NotDeleted,
-              description: null,
-              external_url: null,
-              folder_path: null,
-              id: 12,
-              number_of_pages: 4,
-              page_comment: null,
-              start_page_number: 0,
-              title: 'Facsimile'
-            }),
+            getFacsimileCollection: () => of(facsimileCollection()),
             uploadFacsimileFile: () => uploadEvents$
           }
         },
@@ -146,26 +108,26 @@ describe('FacsimileCollectionUploadBlockComponent upload integration', () => {
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EagerUploadHostComponent);
-    ngZone = TestBed.inject(NgZone);
-    fixture.autoDetectChanges();
+    fixture = TestBed.createComponent(FacsimileCollectionUploadBlockComponent);
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 
-  it('renders delayed child upload progress through the eager host boundary', async () => {
+  it('renders child upload progress through the default-OnPush host', async () => {
     const fileUpload = fixture.debugElement.query(By.directive(FileUploadComponent))
       .componentInstance as FileUploadComponent;
     fileUpload.addToQueue(new File(['image'], 'page.jpg', { type: 'image/jpeg' }), 1);
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const uploadButton = Array.from(
       fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
     ).find(button => button.textContent?.includes('Upload'));
     expect(uploadButton).toBeDefined();
-
     uploadButton?.click();
     await fixture.whenStable();
-    await emitUploadEvent({ type: HttpEventType.UploadProgress, loaded: 5, total: 10 });
+
+    uploadEvents$.next({ type: HttpEventType.UploadProgress, loaded: 5, total: 10 });
+    await fixture.whenStable();
 
     const progressBar = fixture.nativeElement.querySelector('mat-progress-bar') as HTMLElement;
     expect(progressBar.classList.contains('progress')).toBe(true);
@@ -173,23 +135,30 @@ describe('FacsimileCollectionUploadBlockComponent upload integration', () => {
     expect(fixture.nativeElement.querySelector('mat-icon.progress')?.textContent)
       .toContain('arrow_upload_progress');
 
-    await emitUploadEvent(new HttpResponse({ status: 201 }));
+    uploadEvents$.next(new HttpResponse({ status: 201 }));
+    await fixture.whenStable();
 
     expect(progressBar.classList.contains('success')).toBe(true);
     expect(progressBar.getAttribute('aria-valuenow')).toBe('100');
     expect(fixture.nativeElement.querySelector('mat-icon.success')?.textContent)
       .toContain('check_circle');
+    expect(fixture.nativeElement.querySelector('.completed-back-nav')?.textContent)
+      .toContain('Return to facsimile collection');
   });
-
-  async function emitUploadEvent(event: unknown): Promise<void> {
-    await new Promise<void>(resolve => {
-      ngZone.run(() => {
-        setTimeout(() => {
-          uploadEvents$.next(event);
-          resolve();
-        });
-      });
-    });
-    await fixture.whenStable();
-  }
 });
+
+function facsimileCollection() {
+  return {
+    date_created: '',
+    date_modified: null,
+    deleted: Deleted.NotDeleted,
+    description: null,
+    external_url: null,
+    folder_path: null,
+    id: 12,
+    number_of_pages: 4,
+    page_comment: null,
+    start_page_number: 0,
+    title: 'Facsimile'
+  };
+}

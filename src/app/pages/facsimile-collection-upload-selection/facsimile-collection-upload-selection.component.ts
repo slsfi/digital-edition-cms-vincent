@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { HttpEventType, HttpHeaderResponse } from '@angular/common/http';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -63,7 +63,6 @@ type ReplaceRowForm = FormGroup<{
     LoadingSpinnerComponent,
   ],
   templateUrl: './facsimile-collection-upload-selection.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facsimile-collection-upload-selection.component.scss'
 })
 export class FacsimileCollectionUploadSelectionComponent implements OnInit {
@@ -81,8 +80,8 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
   // Upload queue UI (copied in spirit from FileUploadComponent)
   private _queue: FileQueueObject[] = [];
   uploadQueue$ = new BehaviorSubject<FileQueueObject[]>([]);
-  uploadInProgress = false;
-  allUploaded = false;
+  readonly uploadInProgress = signal(false);
+  readonly allUploaded = signal(false);
 
   collectionId: number = this.route.snapshot.params['id'];
   facsimile$: Observable<FacsimileCollection> = new Observable<FacsimileCollection>();
@@ -185,7 +184,7 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       this._queue.push(new FileQueueObject(r.file, r.slot));
     }
     this.uploadQueue$.next(this._queue);
-    this.allUploaded = false;
+    this.allUploaded.set(false);
   }
 
   upload(): void {
@@ -217,13 +216,13 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       mergeMap(q => this.uploadOne(q), concurrentRequests)
     );
 
-    this.uploadInProgress = true;
+    this.uploadInProgress.set(true);
 
     throttled$.subscribe({
       error: () => this.snackbar.show('Error uploading file(s).', 'error'),
       complete: () => {
-        this.uploadInProgress = false;
-        this.allUploaded = true;
+        this.uploadInProgress.set(false);
+        this.allUploaded.set(true);
 
         const hasErrors = this._queue.some(q => q.status === FileQueueStatus.Error);
         if (hasErrors) {
@@ -250,13 +249,12 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
               queueObject.status = FileQueueStatus.Progress;
               this.uploadQueue$.next(this._queue);
             }
-            if (event instanceof HttpHeaderResponse) {
-              if (String(event.status).startsWith('2')) {
-                queueObject.status = FileQueueStatus.Success;
-                this.uploadQueue$.next(this._queue);
-                observer.next();
-                observer.complete();
-              }
+            if (event.type === HttpEventType.Response && String(event.status).startsWith('2')) {
+              queueObject.progress = 100;
+              queueObject.status = FileQueueStatus.Success;
+              this.uploadQueue$.next(this._queue);
+              observer.next();
+              observer.complete();
             }
           },
           error: () => {
@@ -284,7 +282,7 @@ export class FacsimileCollectionUploadSelectionComponent implements OnInit {
       }
     });
     this.uploadQueue$.next(this._queue);
-    this.uploadInProgress = false;
+    this.uploadInProgress.set(false);
   }
 
   returnNav(facsCollId?: number | null): void {

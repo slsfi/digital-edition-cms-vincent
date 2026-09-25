@@ -1,6 +1,7 @@
 @let facsimile = facsimile$ | async;
 @let missing = missingFileNumbers();
 @let missingOrig = missingFileNumbersOrig();
+@let mode = this.mode();
 
 <h1>Facsimile collection management</h1>
 <div class="selected-facsimile-collection">
@@ -13,21 +14,22 @@
 @if (loadingFacsData()) {
   <loading-spinner></loading-spinner>
 } @else if (facsimile) {
-  @if (mode() === 'all') {
+  @if (mode === 'all') {
     @if (facsimile.number_of_pages) {
       <h3>Upload images to all pages in the facsimile collection ({{facsimile.number_of_pages}})</h3>
       <p>Any existing images in the facsimile collection will be replaced.</p>
       <file-upload
         [collectionId]="facsimile.id"
         [numberOfPages]="facsimile.number_of_pages"
-        [missingFileNumbers]="facsimile.number_of_pages | rangeArray">
+        [missingFileNumbers]="facsimile.number_of_pages | rangeArray"
+        (filesUploaded)="onFilesUploaded()">
       </file-upload>
 
     } @else {
       <p>No pages in the selected facsimile collection.</p>
     }
 
-  } @else if (mode() === 'missing') {
+  } @else if (mode === 'missing') {
     @if (facsimile.number_of_pages && missingOrig.length) {
       <h3>Upload missing images to the facsimile collection ({{ missing.length }} / {{ facsimile.number_of_pages }})</h3>
       <p>
@@ -44,7 +46,7 @@
         [collectionId]="facsimile.id"
         [numberOfPages]="facsimile.number_of_pages"
         [missingFileNumbers]="missingOrig"
-        (filesUploaded)="uploadComplete()">
+        (filesUploaded)="onFilesUploaded()">
       </file-upload>
 
     } @else if (missingOrig.length) {
@@ -58,7 +60,7 @@
   }
 }
 
-@if (uploadCompleted()) {
+@if (showCompletedNavigation()) {
   <button
     class="completed-back-nav"
     matButton="filled"
