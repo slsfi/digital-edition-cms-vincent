@@ -50,6 +50,7 @@ export class TocTreeComponent implements OnChanges {
   @Input() toc!: TocRoot;
   @Input() collectionId!: number;
   @Input() publications: PublicationLite[] = [];
+  @Input() disabled = false;
   @Output() tocChanged = new EventEmitter<void>();
 
   // Drag and drop properties
