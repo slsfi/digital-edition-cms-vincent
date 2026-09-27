@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
 - Migrate the application to Angular 22's zoneless change-detection and implicit default `OnPush` APIs, with notification-safe asynchronous state and focused regression coverage. See the completed [migration plan](docs/zoneless-migration-plan.md).
 
+### Fixed
+
+- Facsimile collection: return button alignment after completed upload.
+
 
 
 ## [4.0.1] – 2026-09-23
