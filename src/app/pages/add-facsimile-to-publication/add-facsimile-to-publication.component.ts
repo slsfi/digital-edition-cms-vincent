@@ -53,10 +53,10 @@ export class AddFacsimileToPublicationComponent implements OnInit {
   form!: FormGroup;
 
   columns: Column[] = [
-    { field: 'id', header: 'ID', type: 'string', filterable: true },
-    { field: 'title', header: 'Title', type: 'string', filterable: true },
-    { field: 'description', header: 'Description', type: 'string', filterable: true },
-    { field: 'external_url', header: 'External URL', type: 'string', filterable: true },
+    { field: 'id', header: 'ID', type: 'id', filterable: true },
+    { field: 'title', header: 'Title', type: 'string', filterable: true, filterType: 'contains' },
+    { field: 'description', header: 'Description', type: 'string', filterable: true, filterType: 'contains' },
+    { field: 'external_url', header: 'External URL', type: 'string', filterable: true, filterType: 'contains' },
   ]
 
   get publicationsPath() {

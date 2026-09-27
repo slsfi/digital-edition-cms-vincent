@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Facsimile collection: return button alignment after completed upload.
+- Add facsimile to publication: filter based on 'contains' on all fields except id.
 
 
 
