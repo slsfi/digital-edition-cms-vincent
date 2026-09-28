@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Facsimile collection: return button alignment after completed upload.
 - Add facsimile to publication: filter based on 'contains' on all fields except id.
+- File tree: finish loading and show an explicit empty state for empty trees, and preserve expanded folders after file selection.
 - Navigation: keep the most specific top-level menu item highlighted on nested routes, including direct page loads.
 
 

@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit, inject, signal, input, output } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, input, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTree, MatTreeModule } from '@angular/material/tree';
-import { filter, map, Subject, takeUntil } from 'rxjs';
+import { MatTreeModule } from '@angular/material/tree';
+import { filter, map } from 'rxjs';
 
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { FileTree } from '../../models/project.model';
@@ -22,11 +23,9 @@ interface TreeNode {
   templateUrl: './file-tree.component.html',
   styleUrl: './file-tree.component.scss'
 })
-export class FileTreeComponent implements OnInit, OnDestroy {
+export class FileTreeComponent implements OnInit {
   private projectService = inject(ProjectService);
-
-
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   readonly value = input<string | null>('');
   readonly selectFolder = input(false);
@@ -43,31 +42,21 @@ export class FileTreeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.selectedNodes = this.value()?.split('/') || [];
 
-    this.projectService.getFileTree()
-      .pipe(
-        takeUntil(this.destroy$),
-        filter((data) => !!data),
-        map((fileTree) => this.convertToTreeNode(fileTree))
-      )
-      .subscribe((data: TreeNode[]) => {
-        this.dataSource.set(data);
-        if (data.length > 0) {
-          this.loading.set(false);
-        }
-      });
+    this.projectService.getFileTree().pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter((data) => !!data),
+      map((fileTree) => this.convertToTreeNode(fileTree))
+    ).subscribe((data: TreeNode[]) => {
+      this.dataSource.set(data);
+      this.loading.set(false);
+    });
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  /** Returns a node's nested children so MatTree can render and manage their expansion. */
+  protected readonly childrenAccessor = (node: TreeNode): TreeNode[] => node.children;
 
-  get selectedNodeName() {
-    return this.selectedNodes[this.selectedNodes.length - 1];
-  }
-
-  childrenAccessor = (node: TreeNode) => node.children ?? [];
-  hasChild = (_: number, node: TreeNode) => node.children.length > 0;
+  /** Selects the expandable-node template for nodes that contain children. */
+  protected readonly hasChild = (_index: number, node: TreeNode): boolean => node.children.length > 0;
 
   convertToTreeNode(data: FileTree, level = 0): TreeNode[] {
     const result: TreeNode[] = [];
@@ -103,7 +92,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  select(node: TreeNode, tree: MatTree<TreeNode>) {
+  select(node: TreeNode) {
     const nodes = this.getNodes(node);
     if (this.selectFolder()) {
       const fileNames = [];
@@ -116,7 +105,6 @@ export class FileTreeComponent implements OnInit, OnDestroy {
       this.selectedNodes = nodes.map(node => node.name);
       this.valueChange.emit(this.selectedNodes.join('/'));
     }
-    tree.collapseAll();
   }
 
   getNodes(targetNode: TreeNode): TreeNode[] {
