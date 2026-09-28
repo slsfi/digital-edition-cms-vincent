@@ -3,7 +3,7 @@
   <button matIconButton type="button" (click)="previous()"><mat-icon>west</mat-icon></button>
 }
 
-@if (loading() && showLoading) {
+@if (loading() && showLoading()) {
   <loading-spinner></loading-spinner>
 }
 <mat-tree #tree [dataSource]="dataSource()" [childrenAccessor]="childrenAccessor">

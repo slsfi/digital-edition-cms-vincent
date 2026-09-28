@@ -651,7 +651,7 @@ describe('TableOfContentsComponent with the real TocTreeComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('All changes saved');
     expect(fixture.nativeElement.textContent).toContain('Original item');
 
-    tocTree.editNode(tocTree.toc.children[0]);
+    tocTree.editNode(tocTree.toc().children[0]);
     result$.next({ type: 'text', text: 'Edited item', itemId: '7_1' });
     await fixture.whenStable();
 

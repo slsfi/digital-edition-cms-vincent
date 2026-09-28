@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, inject, signal, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,9 +28,9 @@ export class FileTreeComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  @Input() value: string | null = '';
-  @Input() selectFolder = false;
-  @Input() showLoading = true;
+  readonly value = input<string | null>('');
+  readonly selectFolder = input(false);
+  readonly showLoading = input(true);
   @Output() valueChange = new EventEmitter<string>();
   @Output() panelClosed = new EventEmitter<void>();
   @Output() filesInFolder = new EventEmitter<string[]>();
@@ -42,7 +42,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.closeInUse = this.panelClosed.observed;
-    this.selectedNodes = this.value?.split('/') || [];
+    this.selectedNodes = this.value()?.split('/') || [];
 
     this.projectService.getFileTree()
       .pipe(
@@ -76,7 +76,8 @@ export class FileTreeComponent implements OnInit, OnDestroy {
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
         let isSelectable = false;
-        if (key.split('.').at(-1) === 'xml' && !this.selectFolder) {
+        const selectFolder = this.selectFolder();
+        if (key.split('.').at(-1) === 'xml' && !selectFolder) {
           isSelectable = true;
         }
         const node: TreeNode = {
@@ -89,7 +90,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
         // If the value is an object, recurse
         if (data[key] && typeof data[key] === 'object') {
           node.children = this.convertToTreeNode(data[key], level + 1);
-          if (this.selectFolder) {
+          if (selectFolder) {
             node.isSelectable = node.children.some(child => child.name.split('.').at(-1) === 'xml');
           } else {
             node.isSelectable = node.name.split('.').at(-1) === 'xml' ? true : false;
@@ -105,7 +106,7 @@ export class FileTreeComponent implements OnInit, OnDestroy {
 
   select(node: TreeNode, tree: MatTree<TreeNode>) {
     const nodes = this.getNodes(node);
-    if (this.selectFolder) {
+    if (this.selectFolder()) {
       const fileNames = [];
       const lastItem = nodes[nodes.length - 1];
       for (const item of lastItem.children.filter(child => child.name.split('.').at(-1) === 'xml')) {

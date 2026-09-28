@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild, inject, signal, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -40,17 +40,17 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   private queryParamsService = inject(QueryParamsService);
   private loadingService = inject(LoadingService);
 
-  @Input() columns: Column[] = [];
-  @Input() data$: Observable<T[]> = new BehaviorSubject<T[]>([]);
-  @Input() idRouteParams: string[] = [];
-  @Input() preserveQueryParams = false;
-  @Input() showIndex = true;
-  @Input() selectedId: string | null = null;
-  @Input() loadingData = false;
-  @Input() selectable = false;
-  @Input() paginationEnabled = true;
-  @Input() disableSortAndFilter = false;
-  @Input() extraFilterColumns: Column[] = []; // extra columns that can be filtered by but are not displayed in the table
+  readonly columns = input<Column[]>([]);
+  readonly data$ = input<Observable<T[]>>(new BehaviorSubject<T[]>([]));
+  readonly idRouteParams = input<string[]>([]);
+  readonly preserveQueryParams = input(false);
+  readonly showIndex = input(true);
+  readonly selectedId = input<string | null>(null);
+  readonly loadingData = input(false);
+  readonly selectable = input(false);
+  readonly paginationEnabled = input(true);
+  readonly disableSortAndFilter = input(false);
+  readonly extraFilterColumns = input<Column[]>([]); // extra columns that can be filtered by but are not displayed in the table
 
   @Output() editRow: EventEmitter<T> = new EventEmitter<T>();
   @Output() editRowSecondary: EventEmitter<T> = new EventEmitter<T>();
@@ -85,23 +85,24 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     this.editSecondaryUsed = this.editRowSecondary.observed;
     this.deleteUsed = this.deleteRow.observed;
     this.openUsed = this.openRow.observed;
-    this.originalColumns = this.columns;
+    this.originalColumns = this.columns();
     const indexColumn: Column = { field: 'index', header: '#', filterable: false, type: 'index' };
-    const columns = this.columns.filter(column => column.visible !== false);
-    this.tableColumns = this.showIndex ? [indexColumn, ...columns] : [...columns];
+    const columns = this.columns().filter(column => column.visible !== false);
+    this.tableColumns = this.showIndex() ? [indexColumn, ...columns] : [...columns];
     this.displayedColumns = this.tableColumns.map(column => column.field);
-    if (this.selectable) {
+    if (this.selectable()) {
       this.displayedColumns = ['select', ...this.displayedColumns];
     }
     this.filterableColumns = this.originalColumns.filter(column => column.filterable);
 
     // Merge in extraFilterColumns to filterable columns (these fields are not displayed in the table)
     // (dedupe by field, extra wins)
-    if (this.extraFilterColumns?.length) {
+    const extraFilterColumns = this.extraFilterColumns();
+    if (extraFilterColumns?.length) {
       const byField = new Map<string, Column>(
         this.filterableColumns.map(c => [c.field, c])
       );
-      for (const col of this.extraFilterColumns) {
+      for (const col of extraFilterColumns) {
         const prev = byField.get(col.field);
         byField.set(col.field, { ...(prev ?? {} as Column), ...col });
       }
@@ -109,7 +110,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     }
 
     // Prepare data stream that also updates original data snapshot
-    const dataWithOriginal$ = this.data$.pipe(
+    const dataWithOriginal$ = this.data$().pipe(
       tap(data => {
         this.originalData = [...data];
         this.originalCount.set(data.length);
@@ -121,7 +122,8 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
       takeUntil(this.destroy$),
       map(([data, queryParams]) => {
         // Filtering logic
-        if (!this.disableSortAndFilter) {
+        const disableSortAndFilter = this.disableSortAndFilter();
+        if (!disableSortAndFilter) {
           this.filterableColumns.forEach((column: Column) => {
             const field = column.field;
             const filterType = column.filterType ?? 'equals';
@@ -147,7 +149,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
         this.filteredCount.set(data.length);
 
         // Sorting logic fixed
-        if (!this.disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
+        if (!disableSortAndFilter && queryParams['sort'] && queryParams['direction']) {
           const sortKey = queryParams['sort'] as keyof T;
           const direction = queryParams['direction'] === 'asc' ? 1 : -1;
 
@@ -198,7 +200,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngAfterViewInit() {
-    if (this.paginationEnabled) {
+    if (this.paginationEnabled()) {
       this.tableDataSource.paginator = this.paginator;
     }
   }
