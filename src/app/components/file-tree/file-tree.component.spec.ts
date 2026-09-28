@@ -57,4 +57,16 @@ describe('FileTreeComponent', () => {
     expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
     expect(fixture.nativeElement.querySelector('.selectable')?.textContent).toContain('document.xml');
   });
+
+  it('shows the close button when configured and emits panelClosed', async () => {
+    const panelClosed = vi.fn();
+    component.panelClosed.subscribe(panelClosed);
+    fixture.componentRef.setInput('showCloseButton', true);
+    await fixture.whenStable();
+
+    const closeButton = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    closeButton.click();
+
+    expect(panelClosed).toHaveBeenCalledOnce();
+  });
 });

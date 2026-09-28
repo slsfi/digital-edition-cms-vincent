@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output, inject, signal, input } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,17 +31,16 @@ export class FileTreeComponent implements OnInit, OnDestroy {
   readonly value = input<string | null>('');
   readonly selectFolder = input(false);
   readonly showLoading = input(true);
-  @Output() valueChange = new EventEmitter<string>();
-  @Output() panelClosed = new EventEmitter<void>();
-  @Output() filesInFolder = new EventEmitter<string[]>();
+  readonly showCloseButton = input(false);
+  readonly valueChange = output<string>();
+  readonly panelClosed = output<void>();
+  readonly filesInFolder = output<string[]>();
 
-  closeInUse = false;
   readonly dataSource = signal<TreeNode[]>([]);
   readonly loading = signal(true);
   selectedNodes: string[] = [];
 
   ngOnInit() {
-    this.closeInUse = this.panelClosed.observed;
     this.selectedNodes = this.value()?.split('/') || [];
 
     this.projectService.getFileTree()

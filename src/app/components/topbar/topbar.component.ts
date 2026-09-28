@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -24,7 +24,7 @@ export class TopbarComponent {
   private authService = inject(AuthService);
   private projectService = inject(ProjectService);
 
-  @Output() menuToggle: EventEmitter<void> = new EventEmitter<void>();
+  readonly menuToggle = output<void>();
 
   isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated$;
   selectedProject$: BehaviorSubject<string | null> = this.projectService.selectedProject$;

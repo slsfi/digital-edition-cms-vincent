@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild, inject, signal, input } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject, signal, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -51,20 +51,20 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   readonly paginationEnabled = input(true);
   readonly disableSortAndFilter = input(false);
   readonly extraFilterColumns = input<Column[]>([]); // extra columns that can be filtered by but are not displayed in the table
+  readonly showSecondaryEditButton = input(false);
+  readonly showOpenButton = input(false);
+  readonly showDeleteButton = input(false);
 
-  @Output() editRow: EventEmitter<T> = new EventEmitter<T>();
-  @Output() editRowSecondary: EventEmitter<T> = new EventEmitter<T>();
-  @Output() openRow: EventEmitter<T> = new EventEmitter<T>();
-  @Output() selectRow: EventEmitter<T[]> = new EventEmitter<T[]>();
-  @Output() deleteRow: EventEmitter<T> = new EventEmitter<T>();
+  readonly editRow = output<T>();
+  readonly editRowSecondary = output<T>();
+  readonly openRow = output<T>();
+  readonly selectRow = output<T[]>();
+  readonly deleteRow = output<T>();
 
   private destroy$ = new Subject<void>();
   private wasSortingActive = false; // flag to check whether sorting was previously active
 
   displayedColumns: string[] = [];
-  editSecondaryUsed = false;
-  openUsed = false;
-  deleteUsed = false;
   tableColumns: Column[] = [];
   originalColumns: Column[] = [];
   filterableColumns: Column[] = [];
@@ -82,9 +82,6 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   selection: SelectionModel<T> = new SelectionModel<T>(false, []);
 
   ngOnInit() {
-    this.editSecondaryUsed = this.editRowSecondary.observed;
-    this.deleteUsed = this.deleteRow.observed;
-    this.openUsed = this.openRow.observed;
     this.originalColumns = this.columns();
     const indexColumn: Column = { field: 'index', header: '#', filterable: false, type: 'index' };
     const columns = this.columns().filter(column => column.visible !== false);

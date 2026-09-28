@@ -46,6 +46,7 @@
   @let isLoading = loading$ | async;
 
   <custom-table
+    [showDeleteButton]="true"
     [data$]="filteredKeywords$"
     [columns]="keywordColumnsData"
     (editRow)="editKeyword($event)"
