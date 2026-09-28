@@ -1,6 +1,6 @@
 <div class="menu">
   <mat-nav-list>
-    @for (item of navItems; track item.label) {
+    @for (item of navItems; track item.route) {
       <a mat-list-item [routerLink]="item.route" [activated]="item.route === activeRoute()" (click)="toggleMenu()">
         <div class="nav-link">
           <mat-icon>{{item.icon}}</mat-icon>
@@ -11,7 +11,7 @@
   </mat-nav-list>
   <mat-divider></mat-divider>
   <mat-nav-list>
-    <a href="/" mat-list-item (click)="logout();toggleMenu();">
+    <a mat-list-item routerLink="/logout" (click)="toggleMenu()">
       <mat-icon matListItemIcon>logout</mat-icon>
       <div matListItemTitle>Log out</div>
     </a>

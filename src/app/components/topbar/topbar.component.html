@@ -38,14 +38,14 @@
         }
       }
 
-      <button matIconButton
+      <a matIconButton
         class="logout-button"
         aria-label="Log out"
-        (click)="logout()"
+        routerLink="/logout"
         matTooltip="Log out"
         >
         <mat-icon>logout</mat-icon>
-      </button>
+      </a>
     </div>
   }
 </mat-toolbar>
