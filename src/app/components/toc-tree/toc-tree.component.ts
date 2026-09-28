@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { Component, DOCUMENT, EventEmitter, inject, input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -46,10 +46,10 @@ export class TocTreeComponent implements OnChanges {
   private readonly dialog = inject(MatDialog);
   private document: Document = inject(DOCUMENT);
 
-  @Input() toc!: TocRoot;
-  @Input() collectionId!: number;
-  @Input() publications: PublicationLite[] = [];
-  @Input() disabled = false;
+  readonly toc = input.required<TocRoot>();
+  readonly collectionId = input.required<number>();
+  readonly publications = input<PublicationLite[]>([]);
+  readonly disabled = input(false);
   @Output() tocChanged = new EventEmitter<void>();
 
   /**
@@ -225,6 +225,7 @@ export class TocTreeComponent implements OnChanges {
   drop(event: CdkDragDrop<TocNode[]>): void {
     if (!this.currentDropAction) return;
 
+    const toc = this.toc();
     const draggedItemId = event.item.data;
     const parentItemId = event.previousContainer.id;
     const targetId = this.currentDropAction.targetId;
@@ -234,15 +235,15 @@ export class TocTreeComponent implements OnChanges {
       this.currentDropAction.action = 'after';
     }
 
-    const targetListId = this.getParentNodeId(targetId, this.toc.children, 'main');
+    const targetListId = this.getParentNodeId(targetId, toc.children, 'main');
     const draggedItem = this.nodeLookup[draggedItemId];
 
     const oldItemContainer = parentItemId !== 'main'
       ? this.nodeLookup[parentItemId].children!
-      : this.toc.children;
+      : toc.children;
     const newContainer = targetListId !== 'main'
       ? this.nodeLookup[targetListId].children!
-      : this.toc.children;
+      : toc.children;
 
     // Check if the item is being dropped in the same position
     if (parentItemId === targetListId) {
@@ -368,7 +369,7 @@ export class TocTreeComponent implements OnChanges {
 
   private runNodeChangedActions(): void {
     // Regenerate IDs after changes
-    this.prepareDragDrop(this.toc.children);
+    this.prepareDragDrop(this.toc().children);
     this.treeRevision.update(revision => revision + 1);
     // Invalidate cache after DOM update
     setTimeout(() => {
@@ -382,8 +383,8 @@ export class TocTreeComponent implements OnChanges {
       data: {
         dialogMode: 'edit',
         node: node,
-        collectionId: this.collectionId,
-        publications: this.publications
+        collectionId: this.collectionId(),
+        publications: this.publications()
       }
     });
 
@@ -437,8 +438,8 @@ export class TocTreeComponent implements OnChanges {
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       data: {
         dialogMode: 'add',
-        collectionId: this.collectionId,
-        publications: this.publications
+        collectionId: this.collectionId(),
+        publications: this.publications()
       }
     });
 
@@ -470,8 +471,8 @@ export class TocTreeComponent implements OnChanges {
     const dialogRef = this.dialog.open(EditNodeDialogComponent, {
       data: {
         dialogMode: 'add',
-        collectionId: this.collectionId,
-        publications: this.publications
+        collectionId: this.collectionId(),
+        publications: this.publications()
       }
     });
 
@@ -565,7 +566,7 @@ export class TocTreeComponent implements OnChanges {
 
     if (nodePath.length === 1) {
       // delete from root level
-      this.toc.children.splice(nodePath[0], 1);
+      this.toc().children.splice(nodePath[0], 1);
       this.runNodeChangedActions();
       return;
     }
@@ -590,38 +591,39 @@ export class TocTreeComponent implements OnChanges {
   }
 
   editTocRootProperties(): void {
+    const toc = this.toc();
     const dialogRef = this.dialog.open(EditTocRootDialogComponent, {
       data: {
-        title: this.toc.text,
-        coverPageName: this.toc.coverPageName,
-        titlePageName: this.toc.titlePageName,
-        forewordPageName: this.toc.forewordPageName,
-        introductionPageName: this.toc.introductionPageName
+        title: toc.text,
+        coverPageName: toc.coverPageName,
+        titlePageName: toc.titlePageName,
+        forewordPageName: toc.forewordPageName,
+        introductionPageName: toc.introductionPageName
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.value) {
-        this.toc.text = result.data.title;
+        toc.text = result.data.title;
         if (result.data.coverPageName) {
-          this.toc.coverPageName = result.data.coverPageName;
+          toc.coverPageName = result.data.coverPageName;
         } else {
-          delete this.toc.coverPageName;
+          delete toc.coverPageName;
         }
         if (result.data.titlePageName) {
-          this.toc.titlePageName = result.data.titlePageName;
+          toc.titlePageName = result.data.titlePageName;
         } else {
-          delete this.toc.titlePageName;
+          delete toc.titlePageName;
         }
         if (result.data.forewordPageName) {
-          this.toc.forewordPageName = result.data.forewordPageName;
+          toc.forewordPageName = result.data.forewordPageName;
         } else {
-          delete this.toc.forewordPageName;
+          delete toc.forewordPageName;
         }
         if (result.data.introductionPageName) {
-          this.toc.introductionPageName = result.data.introductionPageName;
+          toc.introductionPageName = result.data.introductionPageName;
         } else {
-          delete this.toc.introductionPageName;
+          delete toc.introductionPageName;
         }
         this.treeRevision.update(revision => revision + 1);
         this.tocChanged.emit();
@@ -655,8 +657,9 @@ export class TocTreeComponent implements OnChanges {
       });
     };
 
-    if (this.toc.children) {
-      setExpanded(this.toc.children);
+    const children = this.toc().children;
+    if (children) {
+      setExpanded(children);
       // ToC should not be marked as changed just because nodes
       // are collapsed/expanded in the UI
       // this.onNodeChanged();
@@ -686,7 +689,7 @@ export class TocTreeComponent implements OnChanges {
   private resolvePath(node: TocNode): number[] {
     // Get the precomputed path to this node in the tree, or
     // compute it if it's not on the node
-    return node.path ?? this.findNodePath(node, this.toc.children, []);
+    return node.path ?? this.findNodePath(node, this.toc().children, []);
   }
 
   private findNodePath(targetNode: TocNode, nodes: TocNode[], currentPath: number[]): number[] {
@@ -717,7 +720,7 @@ export class TocTreeComponent implements OnChanges {
    * must land on a section node. Returns undefined if the path is invalid.
    */
   private getContainerAtPath(path: number[]): TocContainer | undefined {
-    let container: TocContainer = this.toc; // start at root
+    let container: TocContainer = this.toc(); // start at root
     for (const idx of path) {
       // Explicitly annotate the child; no optional chaining since containers
       // always have children

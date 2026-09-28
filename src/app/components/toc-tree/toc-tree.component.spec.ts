@@ -74,7 +74,7 @@ describe('TocTreeComponent', () => {
     const result$ = setNextDialogResult<TocNode>();
     const tocChanged = vi.spyOn(component.tocChanged, 'emit');
 
-    component.editNode(component.toc.children[0].children![0]);
+    component.editNode(component.toc().children[0].children![0]);
     result$.next({ type: 'text', text: 'Edited item', itemId: '7_1' });
     await fixture.whenStable();
 
@@ -90,13 +90,13 @@ describe('TocTreeComponent', () => {
     await fixture.whenStable();
 
     expect(nodeTexts()).toEqual(['Section', 'Item', 'Added item']);
-    expect(component.toc.children[1].id).toBe('node-1');
+    expect(component.toc().children[1].id).toBe('node-1');
   });
 
   it('removes a node after dialog confirmation', async () => {
     const result$ = setNextDialogResult<{ value: boolean }>();
 
-    component.deleteNode(component.toc.children[0].children![0]);
+    component.deleteNode(component.toc().children[0].children![0]);
     result$.next({ value: true });
     await fixture.whenStable();
 
@@ -144,7 +144,7 @@ describe('TocTreeComponent', () => {
     await fixture.whenStable();
 
     expect(nodeTexts()).toEqual(['Second', 'First']);
-    expect(component.toc.children.map(node => node.id)).toEqual(['node-0', 'node-1']);
+    expect(component.toc().children.map(node => node.id)).toEqual(['node-0', 'node-1']);
   });
 
   it('renders collapse, expand, and individual section toggles', async () => {
@@ -191,12 +191,12 @@ describe('TocTreeComponent', () => {
 
   function drags(): CdkDrag[] {
     return fixture.debugElement.queryAll(By.directive(CdkDrag))
-      .map(element => element.componentInstance as CdkDrag);
+      .map(element => element.injector.get(CdkDrag));
   }
 
   function dropLists(): CdkDropList[] {
     return fixture.debugElement.queryAll(By.directive(CdkDropList))
-      .map(element => element.componentInstance as CdkDropList);
+      .map(element => element.injector.get(CdkDropList));
   }
 });
 

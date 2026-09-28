@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
 - Migrate the application to Angular 22's zoneless change-detection and implicit default `OnPush` APIs, with notification-safe asynchronous state and focused regression coverage. See the completed [migration plan](docs/zoneless-migration-plan.md).
+- Migrate the remaining decorator-based component inputs to Angular's signal input API.
 - Navigation: centralize sign-out through a dedicated `/logout` route shared by the side navigation and topbar, and modernize route-state handling with Angular signals.
 
 ### Fixed
