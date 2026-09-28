@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, effect, EventEmitter, inject, input, Output, signal } from '@angular/core';
+import { Component, DOCUMENT, effect, inject, input, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,7 +50,7 @@ export class TocTreeComponent {
   readonly collectionId = input.required<number>();
   readonly publications = input<PublicationLite[]>([]);
   readonly disabled = input(false);
-  @Output() tocChanged = new EventEmitter<void>();
+  readonly tocChanged = output<void>();
 
   /**
    * The TOC model is intentionally mutable. This revision notifies the

@@ -93,6 +93,36 @@ describe('CustomTableComponent', () => {
     expect(renderedNames()).toEqual(['Alpha']);
   });
 
+  it('shows the delete action when configured and emits the selected row', async () => {
+    const actionFixture = TestBed.createComponent(CustomTableComponent<TestRow>);
+    const actionComponent = actionFixture.componentInstance;
+    const row = { id: 1, name: 'Alpha' };
+    const deleted = vi.fn();
+
+    actionFixture.componentRef.setInput('columns', [
+      {
+        field: 'actions',
+        header: 'Actions',
+        filterable: false,
+        type: 'action'
+      } satisfies Column
+    ]);
+    actionFixture.componentRef.setInput('data$', of([row]));
+    actionFixture.componentRef.setInput('showIndex', false);
+    actionFixture.componentRef.setInput('showDeleteButton', true);
+    actionComponent.deleteRow.subscribe(deleted);
+    actionFixture.detectChanges();
+    await actionFixture.whenStable();
+
+    const deleteButton = actionFixture.nativeElement.querySelector('.row-actions button:last-child') as HTMLButtonElement;
+    expect(deleteButton.textContent).toContain('delete');
+
+    deleteButton.click();
+
+    expect(deleted).toHaveBeenCalledWith(row);
+    actionFixture.destroy();
+  });
+
   function tableTitle(): string {
     return fixture.nativeElement.querySelector('.table-title')?.textContent ?? '';
   }

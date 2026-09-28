@@ -5,6 +5,7 @@
     <div class="bordered">
       <file-tree
         [value]="originalFilenameControl.value"
+        [showCloseButton]="true"
         (valueChange)="fileSelected($event)"
         (panelClosed)="hideFileSelector()">
       </file-tree>

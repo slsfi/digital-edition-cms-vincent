@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
+import { Component, inject, input, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -48,7 +48,7 @@ export class FileUploadComponent {
   numberOfPages = input.required<number>();
   missingFileNumbers = input.required<number[]>();
 
-  @Output() filesUploaded: EventEmitter<void> = new EventEmitter<void>();
+  readonly filesUploaded = output<void>();
 
   _queue: FileQueueObject[] = [];
   uploadQueue$: BehaviorSubject<FileQueueObject[]> = new BehaviorSubject<FileQueueObject[]>([]);

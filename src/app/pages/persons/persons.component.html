@@ -6,6 +6,7 @@
   <p>Please select a project</p>
 } @else {
   <custom-table
+    [showDeleteButton]="true"
     [data$]="persons$"
     [columns]="columnsData"
     (editRow)="edit($event)"

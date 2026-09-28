@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, input, OnInit, Output, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,7 +40,7 @@ export class TranslationsComponent implements OnInit {
   tableName = input.required<string | undefined>();
   parentTranslationField = input<string>();
 
-  @Output() panelClosed = new EventEmitter<void>();
+  readonly panelClosed = output<void>();
 
   mode = signal<'edit' | 'add' | ''>('');
 

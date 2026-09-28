@@ -11,6 +11,7 @@
       }
       <!-- List of publications -->
       <custom-table
+        [showDeleteButton]="true"
         [data$]="publications$"
         [columns]="publicationColumnsData"
         [extraFilterColumns]="extraFilterColumns"
@@ -94,6 +95,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
+              [showDeleteButton]="true"
               [data$]="comments$"
               [columns]="commentsColumnData"
               [paginationEnabled]="false"
@@ -111,6 +113,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
+              [showDeleteButton]="true"
               [data$]="facsimiles$"
               [columns]="facsimileColumnData"
               [paginationEnabled]="false"
@@ -128,6 +131,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
+              [showDeleteButton]="true"
               [data$]="manuscripts$"
               [columns]="manuscriptColumnsData"
               [paginationEnabled]="false"
@@ -145,6 +149,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <custom-table
+              [showDeleteButton]="true"
               [data$]="versions$"
               [columns]="versionColumnsData"
               [paginationEnabled]="false"

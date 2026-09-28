@@ -1,6 +1,7 @@
 <h1>Project management</h1>
 
 <custom-table
+  [showDeleteButton]="true"
   [data$]="projects$"
   [columns]="columnsData"
   (editRow)="editProject($event)"
