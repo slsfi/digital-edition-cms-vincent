@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, EventEmitter, inject, input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { Component, DOCUMENT, effect, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,7 +42,7 @@ type EditableTocNodeAssignmentTarget = Partial<
   templateUrl: './toc-tree.component.html',
   styleUrls: ['./toc-tree.component.scss']
 })
-export class TocTreeComponent implements OnChanges {
+export class TocTreeComponent {
   private readonly dialog = inject(MatDialog);
   private document: Document = inject(DOCUMENT);
 
@@ -65,15 +65,11 @@ export class TocTreeComponent implements OnChanges {
   private dropListIdsCacheValid = false;
   suppressDropAnim = false;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // only prepare drag-drop if toc in changes -> avoids
-    // running the prepare method multiple times for the same toc
-    if ('toc' in changes) {
-      const curr = changes['toc'].currentValue as TocRoot | null | undefined;
-      if (curr) {
-        this.prepareDragDrop(curr.children);
-      }
-    }
+  constructor() {
+    effect(() => {
+      const toc = this.toc();
+      this.prepareDragDrop(toc.children);
+    });
   }
 
   /**
