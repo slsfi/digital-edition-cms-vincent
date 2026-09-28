@@ -10,6 +10,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { KeywordsComponent } from './pages/keywords/keywords.component';
 import { KeywordLinkingComponent } from './pages/keyword-linking/keyword-linking.component';
 import { LoginComponent } from './pages/login/login.component';
+import { LogoutComponent } from './pages/logout/logout.component';
 import { AddFacsimileToPublicationComponent } from './pages/add-facsimile-to-publication/add-facsimile-to-publication.component';
 import { PersonsComponent } from './pages/persons/persons.component';
 import { ProjectsComponent } from './pages/projects/projects.component';
@@ -20,6 +21,7 @@ import { TableOfContentsComponent } from './pages/table-of-contents/table-of-con
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent, canActivate: [authGuard] },
+  { path: 'logout', component: LogoutComponent },
   { path: 'projects', component: ProjectsComponent, canActivate: [authGuard] },
   { path: 'publication-collections', component: PublicationCollectionsComponent, canActivate: [authGuard] },
   { path: 'publication-collections/:collectionId', component: PublicationCollectionsComponent, canActivate: [authGuard] },

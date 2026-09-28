@@ -29,7 +29,8 @@ describe('NavigationComponent', () => {
           { path: 'projects', component: TestRouteComponent },
           { path: 'publication-collections/:collectionId', component: TestRouteComponent },
           { path: 'keywords', component: TestRouteComponent },
-          { path: 'keywords/linking', component: TestRouteComponent }
+          { path: 'keywords/linking', component: TestRouteComponent },
+          { path: 'logout', component: TestRouteComponent }
         ])
       ]
     })
@@ -56,7 +57,6 @@ describe('NavigationComponent', () => {
       fixture.nativeElement.querySelectorAll('a[mat-list-item]') as NodeListOf<HTMLAnchorElement>
     ).find(link => link.textContent?.includes('Projects'));
 
-    expect(component.currentUrl()).toBe('/projects');
     expect(projectsLink?.classList.contains('mdc-list-item--activated')).toBe(true);
   });
 
@@ -83,7 +83,6 @@ describe('NavigationComponent', () => {
       fixture.nativeElement.querySelectorAll('a[mat-list-item]') as NodeListOf<HTMLAnchorElement>
     ).find(link => link.textContent?.includes('Text collections'));
 
-    expect(component.currentUrl()).toBe('/publication-collections/220');
     expect(textCollectionsLink?.classList.contains('mdc-list-item--activated')).toBe(true);
   });
 
@@ -99,5 +98,19 @@ describe('NavigationComponent', () => {
 
     expect(keywordsLink?.classList.contains('mdc-list-item--activated')).toBe(false);
     expect(keywordLinkingLink?.classList.contains('mdc-list-item--activated')).toBe(true);
+  });
+
+  it('closes the menu and navigates to the logout route', async () => {
+    const menuToggleSpy = vi.fn();
+    component.menuToggle.subscribe(menuToggleSpy);
+
+    const logoutLink = Array.from(
+      fixture.nativeElement.querySelectorAll('a[mat-list-item]') as NodeListOf<HTMLAnchorElement>
+    ).find(link => link.textContent?.includes('Log out'));
+    logoutLink?.click();
+    await fixture.whenStable();
+
+    expect(menuToggleSpy).toHaveBeenCalledOnce();
+    expect(TestBed.inject(Router).url).toBe('/logout');
   });
 });

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +23,6 @@ export class TopbarComponent {
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
   private projectService = inject(ProjectService);
-  private router = inject(Router);
 
   @Output() menuToggle: EventEmitter<void> = new EventEmitter<void>();
 
@@ -34,11 +33,4 @@ export class TopbarComponent {
   toggleMenu() {
     this.menuToggle.emit();
   }
-
-  logout() {
-    this.projectService.setSelectedProject(null);
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
 }

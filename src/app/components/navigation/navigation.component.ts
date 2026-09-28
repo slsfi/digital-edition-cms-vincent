@@ -1,14 +1,13 @@
 
-import { Component, computed, EventEmitter, OnDestroy, Output, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, computed, inject, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { Subject, takeUntil } from 'rxjs';
+import { filter, map } from 'rxjs';
 
 import { navigationItems } from '../../models/common.model';
-import { AuthService } from '../../services/auth.service';
-import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'navigation',
@@ -16,53 +15,39 @@ import { ProjectService } from '../../services/project.service';
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.scss'
 })
-export class NavigationComponent implements OnDestroy {
-  private projectService = inject(ProjectService);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+export class NavigationComponent {
+  private readonly router = inject(Router);
 
-  @Output() menuToggle: EventEmitter<void> = new EventEmitter<void>();
+  readonly menuToggle = output<void>();
 
-  navItems = navigationItems;
+  protected readonly navItems = navigationItems;
 
-  readonly currentUrl = signal(this.getCurrentPath());
-  readonly activeRoute = computed(() => {
-    const url = this.currentUrl();
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(event => this.getPath(event.urlAfterRedirects))
+    ),
+    { initialValue: this.getPath(this.router.url) }
+  );
+
+  protected readonly activeRoute = computed(() => {
+    const path = this.currentPath();
 
     return this.navItems.reduce((mostSpecificRoute, item) => {
       const matches = item.route === '/'
-        ? url === '/'
-        : url === item.route || url.startsWith(`${item.route}/`);
+        ? path === '/'
+        : path === item.route || path.startsWith(`${item.route}/`);
 
       return matches && item.route.length > mostSpecificRoute.length ? item.route : mostSpecificRoute;
     }, '');
   });
-  private destroy$ = new Subject<void>();
 
-  constructor() {
-    this.router.events.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      this.currentUrl.set(this.getCurrentPath());
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  logout() {
-    this.authService.logout();
-    this.projectService.setSelectedProject(null);
-  }
-
-  toggleMenu() {
+  protected toggleMenu(): void {
     this.menuToggle.emit();
   }
 
-  private getCurrentPath(): string {
-    return this.router.url.split(/[?#]/)[0];
+  private getPath(url: string): string {
+    return url.split(/[?#]/)[0];
   }
 
 }
