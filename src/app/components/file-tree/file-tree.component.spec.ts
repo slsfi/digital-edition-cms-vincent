@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatTree } from '@angular/material/tree';
+import { By } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 
 import { FileTreeComponent } from './file-tree.component';
@@ -58,6 +60,31 @@ describe('FileTreeComponent', () => {
     expect(fixture.nativeElement.querySelector('.selectable')?.textContent).toContain('document.xml');
   });
 
+  it('stops loading and renders an empty state when the file tree is empty', async () => {
+    fileTree$.next({});
+    await fixture.whenStable();
+
+    expect(component.dataSource()).toEqual([]);
+    expect(component.loading()).toBe(false);
+    expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.empty-state')?.textContent).toContain('No files found.');
+  });
+
+  it('keeps expanded folders open after selecting a file', async () => {
+    fileTree$.next({ folder: { 'document.xml': null } });
+    await fixture.whenStable();
+
+    const folder = component.dataSource()[0];
+    const file = folder.children[0];
+    const tree = fixture.debugElement.query(By.directive(MatTree)).componentInstance as MatTree<typeof folder>;
+    tree.expand(folder);
+
+    component.select(file);
+
+    expect(tree.isExpanded(folder)).toBe(true);
+    expect(component.selectedNodes).toEqual(['folder', 'document.xml']);
+  });
+
   it('shows the close button when configured and emits panelClosed', async () => {
     const panelClosed = vi.fn();
     component.panelClosed.subscribe(panelClosed);
@@ -68,5 +95,13 @@ describe('FileTreeComponent', () => {
     closeButton.click();
 
     expect(panelClosed).toHaveBeenCalledOnce();
+  });
+
+  it('stops reacting to file-tree updates after destruction', () => {
+    fixture.destroy();
+
+    fileTree$.next({ 'document.xml': null });
+
+    expect(component.dataSource()).toEqual([]);
   });
 });

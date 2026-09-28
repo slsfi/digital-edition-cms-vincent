@@ -5,6 +5,8 @@
 
 @if (loading() && showLoading()) {
   <loading-spinner></loading-spinner>
+} @else if (!loading() && dataSource().length === 0) {
+  <p class="empty-state">No files found.</p>
 }
 <mat-tree #tree [dataSource]="dataSource()" [childrenAccessor]="childrenAccessor">
   <!-- Node template for leaf nodes -->
@@ -12,9 +14,9 @@
     <button matIconButton disabled> </button>
     <span [ngClass]="{'selected': isSelected(node), 'selectable': node.isSelectable}"
           tabindex="0"
-          (click)="node.isSelectable ? select(node, tree) : null"
-          (keydown.enter)="node.isSelectable ? select(node, tree) : null"
-          (keydown.space)="node.isSelectable ? select(node, tree) : null">
+          (click)="node.isSelectable ? select(node) : null"
+          (keydown.enter)="node.isSelectable ? select(node) : null"
+          (keydown.space)="node.isSelectable ? select(node) : null">
       {{node.name}}
     </span>
   </mat-tree-node>
@@ -31,9 +33,9 @@
         </mat-icon>
       </button>
       <span tabindex="0"
-            (click)="node.isSelectable ? select(node, tree) : null"
-            (keydown.enter)="node.isSelectable ? select(node, tree) : null"
-            (keydown.space)="node.isSelectable ? select(node, tree) : null">
+            (click)="node.isSelectable ? select(node) : null"
+            (keydown.enter)="node.isSelectable ? select(node) : null"
+            (keydown.space)="node.isSelectable ? select(node) : null">
         {{node.name}}
       </span>
     </div>
