@@ -51,13 +51,9 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   readonly paginationEnabled = input(true);
   readonly disableSortAndFilter = input(false);
   readonly extraFilterColumns = input<Column[]>([]); // extra columns that can be filtered by but are not displayed in the table
-  readonly showSecondaryEditButton = input(false);
-  readonly showOpenButton = input(false);
   readonly showDeleteButton = input(false);
 
   readonly editRow = output<T>();
-  readonly editRowSecondary = output<T>();
-  readonly openRow = output<T>();
   readonly selectRow = output<T[]>();
   readonly deleteRow = output<T>();
 
@@ -213,14 +209,6 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
 
   edit(model: T) {
     this.editRow.emit(model);
-  }
-
-  editSecondary(model: T) {
-    this.editRowSecondary.emit(model);
-  }
-
-  open(model: T) {
-    this.openRow.emit(model);
   }
 
   selectionChanged(row: T) {

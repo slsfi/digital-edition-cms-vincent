@@ -90,12 +90,6 @@
   } @else if (column.type === 'action') {
     <div class="row-actions">
       <button matIconButton (click)="edit(model)"><mat-icon>edit</mat-icon></button>
-      @if (showSecondaryEditButton()) {
-        <button matIconButton (click)="editSecondary(model)"><mat-icon>folder</mat-icon></button>
-      }
-      @if (showOpenButton()) {
-        <button matIconButton (click)="open(model)"><mat-icon>photo_library</mat-icon></button>
-      }
       @if (showDeleteButton()) {
         <button matIconButton (click)="delete(model)"><mat-icon>delete</mat-icon></button>
       }
