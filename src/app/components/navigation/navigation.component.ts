@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, OnDestroy, Output, inject, signal } from '@angular/core';
+import { Component, computed, EventEmitter, OnDestroy, Output, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,14 +25,25 @@ export class NavigationComponent implements OnDestroy {
 
   navItems = navigationItems;
 
-  readonly currentUrl = signal('');
+  readonly currentUrl = signal(this.getCurrentPath());
+  readonly activeRoute = computed(() => {
+    const url = this.currentUrl();
+
+    return this.navItems.reduce((mostSpecificRoute, item) => {
+      const matches = item.route === '/'
+        ? url === '/'
+        : url === item.route || url.startsWith(`${item.route}/`);
+
+      return matches && item.route.length > mostSpecificRoute.length ? item.route : mostSpecificRoute;
+    }, '');
+  });
   private destroy$ = new Subject<void>();
 
   constructor() {
     this.router.events.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
-      this.currentUrl.set(this.router.url.split('?')[0]); // Remove query parameters
+      this.currentUrl.set(this.getCurrentPath());
     });
   }
 
@@ -48,6 +59,10 @@ export class NavigationComponent implements OnDestroy {
 
   toggleMenu() {
     this.menuToggle.emit();
+  }
+
+  private getCurrentPath(): string {
+    return this.router.url.split(/[?#]/)[0];
   }
 
 }

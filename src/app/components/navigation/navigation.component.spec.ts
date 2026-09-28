@@ -25,7 +25,12 @@ describe('NavigationComponent', () => {
       imports: [NavigationComponent],
       providers: [
         ...getCommonTestingProviders(),
-        provideRouter([{ path: 'projects', component: TestRouteComponent }])
+        provideRouter([
+          { path: 'projects', component: TestRouteComponent },
+          { path: 'publication-collections/:collectionId', component: TestRouteComponent },
+          { path: 'keywords', component: TestRouteComponent },
+          { path: 'keywords/linking', component: TestRouteComponent }
+        ])
       ]
     })
     .compileComponents();
@@ -53,5 +58,46 @@ describe('NavigationComponent', () => {
 
     expect(component.currentUrl()).toBe('/projects');
     expect(projectsLink?.classList.contains('mdc-list-item--activated')).toBe(true);
+  });
+
+  it('keeps a top-level entry active on a nested route', async () => {
+    await TestBed.inject(Router).navigateByUrl('/publication-collections/220');
+    await fixture.whenStable();
+
+    const textCollectionsLink = Array.from(
+      fixture.nativeElement.querySelectorAll('a[mat-list-item]') as NodeListOf<HTMLAnchorElement>
+    ).find(link => link.textContent?.includes('Text collections'));
+
+    expect(textCollectionsLink?.classList.contains('mdc-list-item--activated')).toBe(true);
+  });
+
+  it('renders the active entry when created after the initial navigation', async () => {
+    fixture.destroy();
+    await TestBed.inject(Router).navigateByUrl('/publication-collections/220');
+
+    fixture = TestBed.createComponent(NavigationComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+
+    const textCollectionsLink = Array.from(
+      fixture.nativeElement.querySelectorAll('a[mat-list-item]') as NodeListOf<HTMLAnchorElement>
+    ).find(link => link.textContent?.includes('Text collections'));
+
+    expect(component.currentUrl()).toBe('/publication-collections/220');
+    expect(textCollectionsLink?.classList.contains('mdc-list-item--activated')).toBe(true);
+  });
+
+  it('only activates the most specific entry when navigation routes overlap', async () => {
+    await TestBed.inject(Router).navigateByUrl('/keywords/linking');
+    await fixture.whenStable();
+
+    const links = Array.from(
+      fixture.nativeElement.querySelectorAll('a[mat-list-item]') as NodeListOf<HTMLAnchorElement>
+    );
+    const keywordsLink = links.find(link => link.textContent?.trim() === 'label Keywords');
+    const keywordLinkingLink = links.find(link => link.textContent?.includes('Keyword linking'));
+
+    expect(keywordsLink?.classList.contains('mdc-list-item--activated')).toBe(false);
+    expect(keywordLinkingLink?.classList.contains('mdc-list-item--activated')).toBe(true);
   });
 });

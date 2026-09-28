@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Facsimile collection: return button alignment after completed upload.
 - Add facsimile to publication: filter based on 'contains' on all fields except id.
+- Navigation: highlight root menu item on sub-pages.
 
 
 
