@@ -1,4 +1,4 @@
-import { AsyncPipe, DecimalPipe, NgClass } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -61,8 +61,7 @@ type ReplaceRowForm = FormGroup<{
     MatProgressBarModule,
     LoadingSpinnerComponent,
     AsyncPipe,
-    DecimalPipe,
-    NgClass
+    DecimalPipe
   ],
   templateUrl: './facsimile-collection-upload-selection.component.html',
   styleUrl: './facsimile-collection-upload-selection.component.scss'

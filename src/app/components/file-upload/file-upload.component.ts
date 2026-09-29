@@ -1,5 +1,5 @@
 import { Component, inject, input, signal, output } from '@angular/core';
-import { AsyncPipe, DecimalPipe, NgClass } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,7 +35,7 @@ class FileQueueObject {
 
 @Component({
   selector: 'file-upload',
-  imports: [MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule, AsyncPipe, DecimalPipe, NgClass],
+  imports: [MatIconModule, MatProgressBarModule, MatButtonModule, MatTableModule, AsyncPipe, DecimalPipe],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.scss'
 })
