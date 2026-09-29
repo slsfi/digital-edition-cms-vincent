@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy, OnInit, inject, signal, input, output, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, OnInit, inject, signal, input, output, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -8,7 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, tap } from 'rxjs';
 
 import { Column } from '../../models/common.model';
 import { CustomDatePipe } from '../../pipes/custom-date.pipe';
@@ -36,9 +37,10 @@ import { QueryParamsService } from './../../services/query-params.service';
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss'
 })
-export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
+export class CustomTableComponent<T> implements OnInit, AfterViewInit {
   private queryParamsService = inject(QueryParamsService);
   private loadingService = inject(LoadingService);
+  private destroyRef = inject(DestroyRef);
 
   readonly columns = input<Column[]>([]);
   readonly data$ = input<Observable<T[]>>(new BehaviorSubject<T[]>([]));
@@ -57,7 +59,6 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   readonly selectRow = output<T[]>();
   readonly deleteRow = output<T>();
 
-  private destroy$ = new Subject<void>();
   private wasSortingActive = false; // flag to check whether sorting was previously active
 
   displayedColumns: string[] = [];
@@ -112,7 +113,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
 
     // Subscribe to combined stream for filtering and sorting of data
     combineLatest([dataWithOriginal$, this.queryParams$]).pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       map(([data, queryParams]) => {
         // Filtering logic
         const disableSortAndFilter = this.disableSortAndFilter();
@@ -197,11 +198,6 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
     if (this.paginationEnabled() && paginator) {
       this.tableDataSource.paginator = paginator;
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   getProperty<Type, Key extends keyof Type>(obj: Type, key: Key) {
