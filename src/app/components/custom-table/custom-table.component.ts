@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject, signal, input, output } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject, signal, input, output, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -66,7 +66,7 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   filterableColumns: Column[] = [];
 
   tableDataSource = new MatTableDataSource<T>();
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  readonly matPaginator = viewChild(MatPaginator);
 
   queryParams$ = this.queryParamsService.queryParams$;
   pageParams$ = this.queryParamsService.pageParams$;
@@ -193,8 +193,9 @@ export class CustomTableComponent<T> implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngAfterViewInit() {
-    if (this.paginationEnabled()) {
-      this.tableDataSource.paginator = this.paginator;
+    const paginator = this.matPaginator();
+    if (this.paginationEnabled() && paginator) {
+      this.tableDataSource.paginator = paginator;
     }
   }
 
