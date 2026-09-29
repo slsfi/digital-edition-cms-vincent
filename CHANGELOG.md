@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate decorator query fields to signal queries.
 - Migrate `NgClass` usages to native class bindings.
 - Replace component `CommonModule` dependencies with the standalone directives and pipes used by each template.
-- Custom table: replace manual subscription teardown with Angular's `DestroyRef` and `takeUntilDestroyed` APIs.
+- Custom table and login: replace manual subscription teardown with Angular's `DestroyRef` and `takeUntilDestroyed` APIs.
 - Navigation: centralize sign-out through a dedicated `/logout` route shared by the side navigation and topbar, and modernize route-state handling with Angular signals.
 - Docker: use the `Dockerfile` as the single source of truth for Node.js and nginx base-image tags.
 
