@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
          Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -42,11 +42,12 @@ interface BundleFormType {
 @Component({
   selector: 'add-publications-from-files',
   imports: [
-    CommonModule, FormsModule, MatIconModule, RouterLink,
+    FormsModule, MatIconModule, RouterLink,
     ReactiveFormsModule, MatButtonModule, FileTreeComponent,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatSlideToggleModule, MatDivider, MatTooltipModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AsyncPipe
   ],
   templateUrl: './add-publications-from-files.component.html',
   styleUrl: './add-publications-from-files.component.scss'

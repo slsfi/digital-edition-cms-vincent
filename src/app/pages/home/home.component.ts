@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,9 +24,10 @@ import { SnackbarService } from '../../services/snackbar.service';
 @Component({
   selector: 'home',
   imports: [
-    CommonModule, RouterLink, MatSelectModule, MatFormFieldModule, MatButtonModule,
+    RouterLink, MatSelectModule, MatFormFieldModule, MatButtonModule,
     MatIconModule, MatListModule, MatDividerModule, MatCardModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AsyncPipe
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -25,7 +24,6 @@ import { FACSIMILE_COLLECTION_ALL_COLUMN_DATA } from '../facsimile-collections/f
 @Component({
   selector: 'facsimile-collection',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,

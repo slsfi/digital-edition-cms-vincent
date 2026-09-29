@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,12 +18,12 @@ type UploadMode = 'missing' | 'all';
 @Component({
   selector: 'facsimile-collection-upload-block',
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     FileUploadComponent,
     LoadingSpinnerComponent,
-    RangeArrayPipe
+    RangeArrayPipe,
+    AsyncPipe
   ],
   templateUrl: './facsimile-collection-upload-block.component.html',
   styleUrl: './facsimile-collection-upload-block.component.scss'

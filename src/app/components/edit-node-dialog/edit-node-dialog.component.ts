@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,6 @@ import { SnackbarService } from '../../services/snackbar.service';
 @Component({
   selector: 'edit-toc-node-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     MatAutocompleteModule,
     MatButtonModule,

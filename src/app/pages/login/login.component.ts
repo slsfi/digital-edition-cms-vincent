@@ -1,5 +1,5 @@
 import { TextFieldModule, type AutofillEvent } from '@angular/cdk/text-field';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule,
          ValidationErrors, Validators } from '@angular/forms';
@@ -41,7 +41,8 @@ const validIfEnvironmentIsCustom = function(control: AbstractControl): Validatio
   selector: 'login',
   imports: [
     MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatSelectModule,
-    ReactiveFormsModule, CommonModule, MatIconModule, TextFieldModule, LoadingSpinnerComponent
+    ReactiveFormsModule, MatIconModule, TextFieldModule, LoadingSpinnerComponent,
+    AsyncPipe
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'

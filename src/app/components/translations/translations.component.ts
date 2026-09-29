@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, input, OnInit, signal, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,14 +17,14 @@ import { TranslationService } from '../../services/translation.service';
 @Component({
   selector: 'field-translations',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    GetLangLabelPipe
+    GetLangLabelPipe,
+    AsyncPipe
   ],
   templateUrl: './translations.component.html',
   styleUrl: './translations.component.scss'

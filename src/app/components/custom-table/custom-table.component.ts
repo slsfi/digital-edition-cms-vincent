@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, Component, DestroyRef, OnInit, inject, signal, input, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -21,7 +21,6 @@ import { QueryParamsService } from './../../services/query-params.service';
 @Component({
   selector: 'custom-table',
   imports: [
-    CommonModule,
     RouterLink,
     MatButtonModule,
     MatCheckboxModule,
@@ -31,7 +30,9 @@ import { QueryParamsService } from './../../services/query-params.service';
     ScrollingModule,
     CustomDatePipe,
     IdRoutePipe,
-    SoftWrapPathPipe
+    SoftWrapPathPipe,
+    NgClass,
+    NgTemplateOutlet
   ],
   providers: [DatePipe],
   templateUrl: './custom-table.component.html',

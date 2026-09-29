@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,6 @@ import { SnackbarService } from '../../services/snackbar.service';
 @Component({
   selector: 'add-facs-collections-from-publications',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -31,7 +30,8 @@ import { SnackbarService } from '../../services/snackbar.service';
     MatIconModule,
     MatSlideToggleModule,
     RouterLink,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AsyncPipe
   ],
   templateUrl: './add-facs-collections-from-publications.component.html',
   styleUrl: './add-facs-collections-from-publications.component.scss'

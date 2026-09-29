@@ -1,5 +1,5 @@
 import { Component, DOCUMENT, effect, inject, input, signal, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -25,7 +25,6 @@ type EditableTocNodeAssignmentTarget = Partial<
 @Component({
   selector: 'toc-tree',
   imports: [
-    CommonModule,
     FormsModule,
     MatButtonModule,
     MatDialogModule,
@@ -37,7 +36,8 @@ type EditableTocNodeAssignmentTarget = Partial<
     CdkDrag,
     CdkDropList,
     CanMoveNodeDownPipe,
-    CanMoveNodeUpPipe
+    CanMoveNodeUpPipe,
+    NgTemplateOutlet
   ],
   templateUrl: './toc-tree.component.html',
   styleUrls: ['./toc-tree.component.scss']
