@@ -64,7 +64,7 @@ describe('CustomTableComponent', () => {
     ]);
     await fixture.whenStable();
 
-    expect(component.tableDataSource.paginator).toBe(component.paginator);
+    expect(component.tableDataSource.paginator).toBe(component.matPaginator());
     expect(component.originalCount()).toBe(2);
     expect(component.filteredCount()).toBe(2);
     expect(tableTitle()).toContain('(2)');

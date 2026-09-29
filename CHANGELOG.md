@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate the application to Angular 22's zoneless change-detection and implicit default `OnPush` APIs, with notification-safe asynchronous state and focused regression coverage. See the completed [migration plan](docs/zoneless-migration-plan.md).
 - Migrate the remaining decorator-based component inputs to Angular's signal input API.
 - Migrate decorator-based component outputs to Angular's `output()` API, with explicit signal inputs controlling conditional output-related actions.
+- Migrate decorator query fields to signal queries.
 - Navigation: centralize sign-out through a dedicated `/logout` route shared by the side navigation and topbar, and modernize route-state handling with Angular signals.
 - Docker: use the `Dockerfile` as the single source of truth for Node.js and nginx base-image tags.
 
