@@ -8,25 +8,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.1.0] – 2026-09-29
+
 ### Changed
 
-- Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0.
-- Migrate the application to Angular 22's zoneless change-detection and implicit default `OnPush` APIs, with notification-safe asynchronous state and focused regression coverage. See the completed [migration plan](docs/zoneless-migration-plan.md).
-- Migrate the remaining decorator-based component inputs to Angular's signal input API.
-- Migrate decorator-based component outputs to Angular's `output()` API, with explicit signal inputs controlling conditional output-related actions.
-- Migrate decorator query fields to signal queries.
-- Migrate `NgClass` usages to native class bindings.
-- Replace component `CommonModule` dependencies with the standalone directives and pipes used by each template.
-- Custom table and login: replace manual subscription teardown with Angular's `DestroyRef` and `takeUntilDestroyed` APIs.
-- Navigation: centralize sign-out through a dedicated `/logout` route shared by the side navigation and topbar, and modernize route-state handling with Angular signals.
-- Docker: use the `Dockerfile` as the single source of truth for Node.js and nginx base-image tags.
+- Deps: update `@angular/core`, `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.0. ([4262aef](https://github.com/slsfi/digital-edition-cms-vincent/commit/4262aef1510f2e6aaeefba16ac149b946a8da7c2))
+- Migrate the application to Angular 22's zoneless change-detection and implicit default `OnPush` APIs, with notification-safe asynchronous state and focused regression coverage. See the completed [migration plan](docs/zoneless-migration-plan.md). ([69a5cd5](https://github.com/slsfi/digital-edition-cms-vincent/commit/69a5cd516e600af0c902653de5c572a5cbffc12f), [5bada63](https://github.com/slsfi/digital-edition-cms-vincent/commit/5bada633ba3dc9839066d5a6ee2a4d3b88d9f4e2), [da5f52c](https://github.com/slsfi/digital-edition-cms-vincent/commit/da5f52cc32c5ec50ce4fd35bb4f3afa54f7d9152), [d7b8981](https://github.com/slsfi/digital-edition-cms-vincent/commit/d7b8981c179642a3b53c061e788ffd2988e99b13), [28a35b2](https://github.com/slsfi/digital-edition-cms-vincent/commit/28a35b24a3bfa5eb74b5fc3968d4441145b1fc13), [fe9b7d4](https://github.com/slsfi/digital-edition-cms-vincent/commit/fe9b7d435d9ed54c669790bb4f8c9799e7524528), [c06eb7f](https://github.com/slsfi/digital-edition-cms-vincent/commit/c06eb7fda1f9894e968da2dd70284b11760a7829), [fdf8377](https://github.com/slsfi/digital-edition-cms-vincent/commit/fdf8377dde637c1da7d5bd559c8f1b42a9531293))
+- Migrate the remaining decorator-based component inputs to Angular's signal input API. ([7c83504](https://github.com/slsfi/digital-edition-cms-vincent/commit/7c8350464ce8f9cef75291bdaffc54b2844e9439))
+- Migrate decorator-based component outputs to Angular's `output()` API, with explicit signal inputs controlling conditional output-related actions. ([2d09c02](https://github.com/slsfi/digital-edition-cms-vincent/commit/2d09c02353347ed28910b2a76c1c81e9950a78c0))
+- Migrate decorator query fields to signal queries. ([45bc23f](https://github.com/slsfi/digital-edition-cms-vincent/commit/45bc23f7eaf9cd4bb4c719e42760c558ca222460))
+- Migrate `NgClass` usages to native class bindings. ([38e42ee](https://github.com/slsfi/digital-edition-cms-vincent/commit/38e42eece02e617c9748fa4e4d4ce33c4b11004e))
+- Replace component `CommonModule` dependencies with the standalone directives and pipes used by each template. ([5a194bb](https://github.com/slsfi/digital-edition-cms-vincent/commit/5a194bb494c843bd2de6890332e2ab8d7aba41b3))
+- Custom table and login: replace manual subscription teardown with Angular's `DestroyRef` and `takeUntilDestroyed` APIs. ([ee0f295](https://github.com/slsfi/digital-edition-cms-vincent/commit/ee0f2958a362448d11888af9d889397920808169), [72b8c9b](https://github.com/slsfi/digital-edition-cms-vincent/commit/72b8c9bd36f16c169d3d1fdd02a4f2f6e422975f))
+- Navigation: centralize sign-out through a dedicated `/logout` route shared by the side navigation and topbar, and modernize route-state handling with Angular signals. ([e77b2e4](https://github.com/slsfi/digital-edition-cms-vincent/commit/e77b2e4418710849f64c3c428f9e6627e4decc30))
+- Docker: use the `Dockerfile` as the single source of truth for Node.js and nginx base-image tags. ([8e26660](https://github.com/slsfi/digital-edition-cms-vincent/commit/8e266601885a604cb3ecf7dc30307353f410d8fe))
 
 ### Fixed
 
-- Facsimile collection: return button alignment after completed upload.
-- Add facsimile to publication: filter based on 'contains' on all fields except id.
-- File tree: finish loading and show an explicit empty state for empty trees, and preserve expanded folders after file selection.
-- Navigation: keep the most specific top-level menu item highlighted on nested routes, including direct page loads.
+- Facsimile collection: return button alignment after completed upload. ([47137af](https://github.com/slsfi/digital-edition-cms-vincent/commit/47137af38b1ba9fd5eb772eaa03378ea8f55731a))
+- Add facsimile to publication: filter based on 'contains' on all fields except id. ([0f754ed](https://github.com/slsfi/digital-edition-cms-vincent/commit/0f754ed334a47d46d593b79edd6890ef38d47494))
+- File tree: finish loading and show an explicit empty state for empty trees, and preserve expanded folders after file selection. ([a88be46](https://github.com/slsfi/digital-edition-cms-vincent/commit/a88be46eb8c0dbbdb367ed87b816b292c53941ff))
+- Navigation: keep the most specific top-level menu item highlighted on nested routes, including direct page loads. ([2cac9c1](https://github.com/slsfi/digital-edition-cms-vincent/commit/2cac9c1b42424a8572f2623c8ba214e6232ef4ce), [e77b2e4](https://github.com/slsfi/digital-edition-cms-vincent/commit/e77b2e4418710849f64c3c428f9e6627e4decc30))
 
 
 
@@ -553,7 +557,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.0...HEAD
+[4.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.1...4.1.0
 [4.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.4...4.0.0
 [3.0.4]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.3...3.0.4
