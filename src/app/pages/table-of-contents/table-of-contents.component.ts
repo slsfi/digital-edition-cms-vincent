@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -46,7 +46,6 @@ type TocLoadResult =
 @Component({
   selector: 'toc-management',
   imports: [
-    CommonModule,
     FormsModule,
     MatButtonModule,
     MatCardModule,
@@ -59,7 +58,8 @@ type TocLoadResult =
     TocTreeComponent,
     ExistingTocLanguagesPipe,
     GetLangLabelPipe,
-    NonExistingTocLanguagesPipe
+    NonExistingTocLanguagesPipe,
+    NgTemplateOutlet
   ],
   templateUrl: './table-of-contents.component.html',
   styleUrls: ['./table-of-contents.component.scss']

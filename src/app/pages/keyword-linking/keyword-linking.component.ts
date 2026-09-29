@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,7 +33,6 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
 @Component({
   selector: 'keyword-linking',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatButtonModule,
@@ -47,7 +46,8 @@ import { IsEmptyStringPipe } from '../../pipes/is-empty-string.pipe';
     MatTableModule,
     LoadingSpinnerComponent,
     PublicationKeywordTableComponent,
-    IsEmptyStringPipe
+    IsEmptyStringPipe,
+    AsyncPipe
   ],
   templateUrl: './keyword-linking.component.html',
   styleUrl: './keyword-linking.component.scss'

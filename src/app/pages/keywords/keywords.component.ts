@@ -1,6 +1,6 @@
 import { Component, inject, OnInit,
          signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -38,7 +38,6 @@ interface Filters {
 @Component({
   selector: 'keywords',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
@@ -52,7 +51,8 @@ interface Filters {
     MatTableModule,
     CustomTableComponent,
     LoadingSpinnerComponent,
-    IsEmptyStringPipe
+    IsEmptyStringPipe,
+    AsyncPipe
   ],
   templateUrl: './keywords.component.html',
   styleUrl: './keywords.component.scss'

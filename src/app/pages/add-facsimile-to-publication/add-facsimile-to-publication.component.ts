@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -27,8 +27,9 @@ import { SnackbarService } from '../../services/snackbar.service';
 @Component({
   selector: 'add-facsimile-to-publication',
   imports: [
-    CommonModule, MatTableModule, CustomTableComponent, MatIconModule, MatBadgeModule, MatButtonModule,
-    MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent
+    MatTableModule, CustomTableComponent, MatIconModule, MatBadgeModule, MatButtonModule,
+    MatFormFieldModule, ReactiveFormsModule, MatInputModule, RouterLink, LoadingSpinnerComponent,
+    AsyncPipe
   ],
   templateUrl: './add-facsimile-to-publication.component.html',
   styleUrl: './add-facsimile-to-publication.component.scss'

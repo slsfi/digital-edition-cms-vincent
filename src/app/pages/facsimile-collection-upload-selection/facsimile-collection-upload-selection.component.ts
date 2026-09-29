@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, DecimalPipe, NgClass } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -52,7 +52,6 @@ type ReplaceRowForm = FormGroup<{
 @Component({
   selector: 'facsimile-collection-upload-selected',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
@@ -61,6 +60,9 @@ type ReplaceRowForm = FormGroup<{
     MatTableModule,
     MatProgressBarModule,
     LoadingSpinnerComponent,
+    AsyncPipe,
+    DecimalPipe,
+    NgClass
   ],
   templateUrl: './facsimile-collection-upload-selection.component.html',
   styleUrl: './facsimile-collection-upload-selection.component.scss'

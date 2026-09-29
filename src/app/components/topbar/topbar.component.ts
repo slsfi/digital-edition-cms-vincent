@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,8 +14,15 @@ import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'topbar',
-  imports: [CommonModule, MatToolbarModule, MatTooltipModule,
-    MatIconModule, MatButtonModule, MatChipsModule, RouterLink],
+  imports: [
+    MatToolbarModule,
+    MatTooltipModule,
+    MatIconModule,
+    MatButtonModule,
+    MatChipsModule,
+    RouterLink,
+    AsyncPipe
+  ],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })

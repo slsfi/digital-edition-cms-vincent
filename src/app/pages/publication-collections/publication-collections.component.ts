@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,8 +26,9 @@ import { SnackbarService } from '../../services/snackbar.service';
 @Component({
   selector: 'publication-collections',
   imports: [
-    CommonModule, MatTableModule, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
-    PublicationsComponent, MatBadgeModule, CustomTableComponent, CustomTableComponent
+    MatTableModule, MatIconModule, MatButtonModule, RouterLink, LoadingSpinnerComponent,
+    PublicationsComponent, MatBadgeModule, CustomTableComponent, CustomTableComponent,
+    AsyncPipe
   ],
   providers: [DatePipe],
   templateUrl: './publication-collections.component.html',

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,6 @@ import {
 @Component({
   selector: 'facsimile-collections',
   imports: [
-    CommonModule,
     MatBadgeModule,
     MatButtonModule,
     MatIconModule,
@@ -39,7 +38,8 @@ import {
     MatTableModule,
     ScrollingModule,
     CustomTableComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AsyncPipe
   ],
   templateUrl: './facsimile-collections.component.html',
   styleUrl: './facsimile-collections.component.scss'

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -53,7 +53,6 @@ type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest
 @Component({
   selector: 'publications',
   imports: [
-    CommonModule,
     RouterLink,
     MatBadgeModule,
     MatButtonModule,
@@ -64,7 +63,8 @@ type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest
     MatTooltipModule,
     CustomTableComponent,
     LoadingSpinnerComponent,
-    SoftWrapPathPipe
+    SoftWrapPathPipe,
+    AsyncPipe
   ],
   providers: [DatePipe],
   templateUrl: './publications.component.html',

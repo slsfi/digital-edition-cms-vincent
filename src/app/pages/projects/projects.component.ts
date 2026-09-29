@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -22,8 +22,9 @@ import { SnackbarService } from '../../services/snackbar.service';
 @Component({
   selector: 'projects',
   imports: [
-    CommonModule, MatTableModule, MatIconModule, MatButtonModule, LoadingSpinnerComponent,
-    CustomTableComponent, CustomTableComponent, MatBadgeModule
+    MatTableModule, MatIconModule, MatButtonModule, LoadingSpinnerComponent,
+    CustomTableComponent, CustomTableComponent, MatBadgeModule,
+    AsyncPipe
   ],
   providers: [DatePipe],
   templateUrl: './projects.component.html',
