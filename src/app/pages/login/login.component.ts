@@ -1,6 +1,7 @@
 import { TextFieldModule, type AutofillEvent } from '@angular/cdk/text-field';
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule,
          ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +10,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Subscription } from 'rxjs';
 
 import { APP_VERSION } from '../../../config/app-version';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -47,16 +47,16 @@ const validIfEnvironmentIsCustom = function(control: AbstractControl): Validatio
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly loadingService = inject(LoadingService);
 
   readonly loginErrorMessage = computed(() => getLoginErrorMessage(this.authService.loginError()));
   readonly loginInProgress = this.authService.loginInProgress;
   appVersion = APP_VERSION;
   loading$ = this.loadingService.loading$;
-  valueChanges: Subscription = new Subscription();
 
   environments = [
     { value: 'https://api.sls.fi/', name: 'Production' },
@@ -99,14 +99,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.restoreStoredEnvironment();
-    this.valueChanges = this.loginForm.valueChanges.subscribe(() => {
+    this.loginForm.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
       this.customEnvironment.updateValueAndValidity({ emitEvent: false });
       this.authService.clearLoginError();
     });
-  }
-
-  ngOnDestroy() {
-    this.valueChanges.unsubscribe();
   }
 
   togglePasswordVisibility(event: MouseEvent) {

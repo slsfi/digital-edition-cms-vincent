@@ -157,6 +157,15 @@ describe('LoginComponent', () => {
         expect(authService.clearLoginError).toHaveBeenCalled();
     });
 
+    it('stops reacting to form changes after destruction', () => {
+        authService.clearLoginError.mockClear();
+        fixture.destroy();
+
+        component.email.setValue('user@example.com');
+
+        expect(authService.clearLoginError).not.toHaveBeenCalled();
+    });
+
     it('shows a specific message when CMS access cannot be verified', () => {
         loginError.set('cms_access_denied');
 
