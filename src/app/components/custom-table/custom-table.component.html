@@ -34,8 +34,8 @@
     }
     @for (column of tableColumns; track column.field;) {
       <ng-container [matColumnDef]="column.field">
-        <th mat-header-cell [ngClass]="{'index': column.type === 'index'}" *matHeaderCellDef>{{ column.header }}</th>
-        <td [ngClass]="{'index': column.type === 'index', 'selected': model.id.toString() === selectedId() }" mat-cell *matCellDef="let model; let i = index;">
+        <th mat-header-cell [class.index]="column.type === 'index'" *matHeaderCellDef>{{ column.header }}</th>
+        <td [class]="{'index': column.type === 'index', 'selected': model.id.toString() === selectedId() }" mat-cell *matCellDef="let model; let i = index;">
           <ng-container
             [ngTemplateOutlet]="columnCells"
             [ngTemplateOutletContext]="{ column, model, index: i }">

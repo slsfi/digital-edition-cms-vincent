@@ -1,4 +1,4 @@
-import { DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, Component, DestroyRef, OnInit, inject, signal, input, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -31,7 +31,6 @@ import { QueryParamsService } from './../../services/query-params.service';
     CustomDatePipe,
     IdRoutePipe,
     SoftWrapPathPipe,
-    NgClass,
     NgTemplateOutlet
   ],
   providers: [DatePipe],

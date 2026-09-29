@@ -1,6 +1,5 @@
 import { Component, DestroyRef, OnInit, inject, signal, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgClass } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule } from '@angular/material/tree';
@@ -19,7 +18,7 @@ interface TreeNode {
 
 @Component({
   selector: 'file-tree',
-  imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent, NgClass],
+  imports: [MatTreeModule, MatButtonModule, MatIconModule, LoadingSpinnerComponent],
   templateUrl: './file-tree.component.html',
   styleUrl: './file-tree.component.scss'
 })

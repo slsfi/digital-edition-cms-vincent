@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate the remaining decorator-based component inputs to Angular's signal input API.
 - Migrate decorator-based component outputs to Angular's `output()` API, with explicit signal inputs controlling conditional output-related actions.
 - Migrate decorator query fields to signal queries.
+- Migrate `NgClass` usages to native class bindings.
 - Replace component `CommonModule` dependencies with the standalone directives and pipes used by each template.
 - Custom table: replace manual subscription teardown with Angular's `DestroyRef` and `takeUntilDestroyed` APIs.
 - Navigation: centralize sign-out through a dedicated `/logout` route shared by the side navigation and topbar, and modernize route-state handling with Angular signals.
