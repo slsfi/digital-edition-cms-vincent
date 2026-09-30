@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Linting: enable `OnPush` change detection check.
+
 
 
 ## [4.1.0] – 2026-09-29
