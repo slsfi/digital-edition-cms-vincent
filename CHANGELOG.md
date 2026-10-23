@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Linting: enable `OnPush` change detection check.
 - Docker: upgrade Alpine packages and log versions.
+- Deps (dev): update `jsdom` to 30.1.3.
 
 
 
