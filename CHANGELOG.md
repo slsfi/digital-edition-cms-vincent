@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Linting: enable `OnPush` change detection check.
 - Docker: upgrade Alpine packages and log versions.
+- Update `nginx` to 1.30.6.
 - Deps (dev): update `jsdom` to 30.1.3.
 - Deps (dev): update `vitest` to 5.0.5.
 
