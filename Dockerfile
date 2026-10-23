@@ -16,6 +16,12 @@ ARG NGINX_IMAGE_TAG=1.30.5-alpine
 
 # 1. Create intermediate build image from official Node.js image.
 FROM node:${NODE_IMAGE_TAG} AS build
+# Apply available package updates from the configured Alpine release repositories.
+RUN apk upgrade --no-cache
+# Log Alpine and tool versions used by the build stage in separate build-log steps.
+RUN cat /etc/alpine-release
+RUN node --version
+RUN npm --version
 # Change working directory.
 WORKDIR /digital-edition-cms-vincent
 # Copy dependency manifests first to maximize layer cache reuse.
@@ -29,6 +35,10 @@ RUN npm run build
 
 # 2. Create final image from official nginx image.
 FROM nginx:${NGINX_IMAGE_TAG} AS final
+# Apply available package updates from the configured Alpine release repositories.
+RUN apk upgrade --no-cache
+# Log the Alpine version used by the final, runtime image.
+RUN cat /etc/alpine-release
 # Copy the dist/browser folder from the build image to the final, runtime image.
 COPY --from=build /digital-edition-cms-vincent/dist/vincent-cms/browser /usr/share/nginx/html
 # Copy custom nginx configuration file.
