@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Linting: enable `OnPush` change detection check.
 - Docker: upgrade Alpine packages and log versions.
 - Update `nginx` to 1.30.6.
+- Deps: update `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.4, and `@angular/core` to 22.2.3.
 - Deps (dev): update `angular-eslint` to 22.6.0.
 - Deps (dev): update `eslint` to 10.13.0.
 - Deps (dev): update `jsdom` to 30.1.3.
