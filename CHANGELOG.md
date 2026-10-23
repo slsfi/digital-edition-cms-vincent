@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.1.1] – 2026-10-23
+
 ### Changed
 
-- Linting: enable `OnPush` change detection check.
-- Docker: upgrade Alpine packages and log versions.
-- Update `nginx` to 1.30.6.
-- Deps: update `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.4, and `@angular/core` to 22.2.3.
-- Deps (dev): update `angular-eslint` to 22.6.0.
-- Deps (dev): update `eslint` to 10.13.0.
-- Deps (dev): update `jsdom` to 30.1.3.
-- Deps (dev): update `typescript-eslint` to 8.72.0.
-- Deps (dev): update `vitest` to 5.0.5.
-- Deps: update transitive dependencies.
+- Linting: enable `OnPush` change detection check. ([a7b6f20](https://github.com/slsfi/digital-edition-cms-vincent/commit/a7b6f20a8350675a30d94d71860b67c1646b133f))
+- Docker: upgrade Alpine packages and log versions. ([74a9964](https://github.com/slsfi/digital-edition-cms-vincent/commit/74a9964057b5acdc6c4d09bde2a9587c9062bf3f))
+- Update `nginx` to 1.30.6. ([4b1d607](https://github.com/slsfi/digital-edition-cms-vincent/commit/4b1d607690ba36f9e43eaeabb614cb50af5427df))
+- Deps: update `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.4, and `@angular/core` to 22.2.3. ([a14d150](https://github.com/slsfi/digital-edition-cms-vincent/commit/a14d150bc15ed464350e0a189857c4d282b06bf6))
+- Deps (dev): update `angular-eslint` to 22.6.0. ([64ed878](https://github.com/slsfi/digital-edition-cms-vincent/commit/64ed878380364dd122d10677ababb0c31c97c980))
+- Deps (dev): update `eslint` to 10.13.0. ([e0b5c11](https://github.com/slsfi/digital-edition-cms-vincent/commit/e0b5c112b8e294d508f8e250bf51fbacb0adf4ff))
+- Deps (dev): update `jsdom` to 30.1.3. ([640e85c](https://github.com/slsfi/digital-edition-cms-vincent/commit/640e85c79597b4fbdb495640d1bce977984e4230))
+- Deps (dev): update `typescript-eslint` to 8.72.0. ([61ac817](https://github.com/slsfi/digital-edition-cms-vincent/commit/61ac8177160f95e80620ef066a5bdc0d124fac52))
+- Deps (dev): update `vitest` to 5.0.5. ([1cd2160](https://github.com/slsfi/digital-edition-cms-vincent/commit/1cd2160d9b6e336465b1ef445bf5ba6b419fa34d))
+- Deps: update transitive dependencies. ([427fac3](https://github.com/slsfi/digital-edition-cms-vincent/commit/427fac30bb02b39866d0723e279a6dc97649d1db))
 
 
 
@@ -570,7 +574,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.1...HEAD
+[4.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.1...4.1.0
 [4.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/3.0.4...4.0.0
