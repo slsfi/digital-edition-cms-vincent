@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `jsdom` to 30.1.3.
 - Deps (dev): update `typescript-eslint` to 8.72.0.
 - Deps (dev): update `vitest` to 5.0.5.
+- Deps: update transitive dependencies.
 
 
 
