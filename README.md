@@ -155,7 +155,7 @@ Run `npm run build` to build the project. The build artifacts will be stored in 
 
 ### Running unit tests
 
-Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev/) using jsdom.
+Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev/) using Angular's unit-test builder and jsdom.
 
 To run the unit tests once without watch mode, run:
 
