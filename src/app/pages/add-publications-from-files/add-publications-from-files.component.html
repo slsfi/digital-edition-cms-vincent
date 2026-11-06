@@ -1,6 +1,8 @@
 @let collection = selectedPublicationCollection$ | async;
 @let collectionId = publicationCollectionId$ | async;
 @let loading = loading$ | async;
+@let isGettingMetadata = gettingMetadata();
+@let isSavingPublications = savingPublications();
 
 <h1>Text collection management</h1>
 
@@ -8,7 +10,7 @@
   <p>Please select a project</p>
 }
 
-@if (loading || gettingMetadata()) {
+@if (loading || isGettingMetadata || isSavingPublications) {
   <loading-spinner [overlay]="true"></loading-spinner>
 }
 
@@ -43,7 +45,7 @@
               </mat-form-field>
               <button type="button" matButton="filled"
                 (click)="getMetadataFromXMLAll()"
-                [disabled]="gettingMetadata()"
+                [disabled]="isGettingMetadata || isSavingPublications"
               >Get metadata from XML</button>
               <mat-slide-toggle
                 [(ngModel)]="addMsBoolean"
@@ -57,8 +59,8 @@
               >Also add facsimiles</mat-slide-toggle>
             </div>
             <div class="submit-buttons">
-              <button matButton type="button" class="clear-button" (click)="clearForm()">Clear</button>
-              <button matButton="filled" type="submit" form="bundle-form" [disabled]="!bundleForm.valid">Save</button>
+              <button matButton type="button" class="clear-button" (click)="clearForm()" [disabled]="isSavingPublications">Clear</button>
+              <button matButton="filled" type="submit" form="bundle-form" [disabled]="!bundleForm.valid || isGettingMetadata || isSavingPublications">Save</button>
             </div>
           </div>
           <mat-divider></mat-divider>
@@ -66,7 +68,7 @@
             @for (bundleRow of files.controls; track bundleRow; let i = $index) {
               <div class="bundle-row" [formGroup]="bundleRow">
                 <span>{{ i + 1 }}</span>
-                <button matIconButton type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)">
+                <button matIconButton type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)" [disabled]="isSavingPublications">
                   <mat-icon>cancel</mat-icon>
                 </button>
                 <mat-form-field class="path">

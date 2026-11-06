@@ -46,10 +46,10 @@ export class FacsimileService {
     );
   }
 
-  addFacsimileCollection(data: FacsimileCollectionCreateRequest, projectName: string | null | undefined) {
+  addFacsimileCollection(data: FacsimileCollectionCreateRequest, projectName: string | null | undefined, disableErrorMessage = false) {
     const project = this.validateProject(projectName);
     const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/new/`;
-    return this.apiService.post<FacsimileCollectionResponse>(url, data);
+    return this.apiService.post<FacsimileCollectionResponse>(url, data, {}, disableErrorMessage);
   }
 
   editFacsimileCollection(collectionId: number, data: FacsimileCollectionEditRequest, projectName: string | null | undefined) {
