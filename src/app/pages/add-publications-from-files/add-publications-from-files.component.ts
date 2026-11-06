@@ -1,5 +1,6 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, Injector, OnInit, PendingTasks, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
@@ -57,6 +58,9 @@ type RequestRunner = <T>(request: () => Observable<T>) => Observable<T>;
 })
 export class AddPublicationsFromFilesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly pendingTasks = inject(PendingTasks);
+  private readonly scrollContainer = inject(CdkScrollable, { optional: true });
   private readonly facsimileService = inject(FacsimileService);
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
@@ -67,6 +71,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
 
   readonly gettingMetadata = signal(false);
   readonly savingPublications = signal(false);
+  readonly preparingFiles = signal(false);
   loading$ = this.loadingService.loading$;
   project: string | null = null;
   publicationCollectionId$: Observable<string | null> = this.route.paramMap.pipe(
@@ -78,6 +83,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   defaultPublished = Published.PublishedInternally;
   saveFailures: string[] = [];
   metadataFailures: string[] = [];
+  missingRequiredMetadata: string[] = [];
   addMsBoolean = false;
   addFacsBoolean = false;
   existingFilePaths = new Set<string>();
@@ -150,6 +156,50 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     });
   }
 
+  prepareSelectedFiles(filePaths: string[]) {
+    if (this.preparingFiles() || this.gettingMetadata() || this.savingPublications()) {
+      return;
+    }
+    if (!this.existingFilePathsLoaded) {
+      this.selectedFiles(filePaths);
+      return;
+    }
+
+    this.preparingFiles.set(true);
+    this.pendingTasks.run(async () => {
+      try {
+        await this.waitForSpinnerPaint();
+        if (!this.destroyRef.destroyed) {
+          this.selectedFiles(filePaths);
+        }
+      } finally {
+        this.preparingFiles.set(false);
+      }
+    });
+  }
+
+  private waitForSpinnerPaint(): Promise<void> {
+    return new Promise(resolve => {
+      let frameId: number | undefined;
+      const finish = () => {
+        if (frameId !== undefined) {
+          cancelAnimationFrame(frameId);
+        }
+        unregisterDestroy();
+        resolve();
+      };
+      const unregisterDestroy = this.destroyRef.onDestroy(finish);
+      afterNextRender({
+        write: () => {
+          // Let the overlay paint before synchronous form creation occupies the main thread.
+          frameId = requestAnimationFrame(() => {
+            frameId = requestAnimationFrame(finish);
+          });
+        }
+      }, { injector: this.injector });
+    });
+  }
+
   selectedFiles(filePaths: string[]) {
     if (!this.existingFilePathsLoaded) {
       const message = this.existingFilePathsLoadFailed
@@ -182,6 +232,9 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       }));
     }
 
+    // Show missing required fields as soon as the selected rows are displayed.
+    this.files.markAllAsTouched();
+
     if (skipped.length) {
       if (skipped.length === filePaths.length) {
         this.snackbar.show(`All ${filePaths.length} XML files in the folder have already been added as publications to the collection. Unable to add them again.`, 'error');
@@ -193,6 +246,13 @@ export class AddPublicationsFromFilesComponent implements OnInit {
         this.snackbar.show(`Skipped ${skipped.length} / ${filePaths.length} XML files that have already been added as publications to the collection.`, 'info');
         console.log('Skipped XML files: ', skipped);
       }
+    }
+
+    const scrollContainer = this.scrollContainer;
+    if (this.files.length > 0 && scrollContainer) {
+      afterNextRender({
+        write: () => scrollContainer.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      }, { injector: this.injector });
     }
   }
 
@@ -209,11 +269,12 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   }
 
   getMetadataFromXMLAll() {
-    if (this.gettingMetadata() || this.savingPublications()) {
+    if (this.gettingMetadata() || this.savingPublications() || this.preparingFiles()) {
       return;
     }
 
     this.metadataFailures = [];
+    this.missingRequiredMetadata = [];
     this.gettingMetadata.set(true);
     const rows = [...this.files.controls];
     const progressMessage = signal(`Fetching XML metadata 1 / ${rows.length}…`);
@@ -235,6 +296,9 @@ export class AddPublicationsFromFilesComponent implements OnInit {
                 }
               }
             }
+            if (!row.controls.name.value.trim()) {
+              this.missingRequiredMetadata.push(`# ${index + 1}. ${originalFilename}`);
+            }
           }),
           catchError((err: unknown) => {
             console.error(`Failed to fetch metadata from ${originalFilename}:`, err);
@@ -251,12 +315,18 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        if (this.metadataFailures.length === 0) {
+        const summary: string[] = [];
+        if (this.metadataFailures.length > 0) {
+          summary.push(`Error fetching metadata from ${this.metadataFailures.length} / ${rows.length} file(s):\n${this.metadataFailures.join('\n')}`);
+        }
+        if (this.missingRequiredMetadata.length > 0) {
+          summary.push(`Missing required metadata from ${this.missingRequiredMetadata.length} / ${rows.length} file(s):\n${this.missingRequiredMetadata.join('\n')}`);
+        }
+
+        if (summary.length === 0) {
           this.snackbar.show('Successfully fetched metadata from all files.');
-        } else if (this.metadataFailures.length < rows.length) {
-          this.snackbar.show(`Failed to fetch metadata from ${this.metadataFailures.length} / ${rows.length} file(s):\n${this.metadataFailures.join('\n')}`, 'warning');
         } else {
-          this.snackbar.show('Failed to fetch metadata from all files.', 'error');
+          this.snackbar.show(summary.join('\n\n'), this.metadataFailures.length === rows.length ? 'error' : 'warning');
         }
       }
     });
@@ -313,7 +383,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   }
 
   savePublications(collectionId: string) {
-    if (this.savingPublications() || this.gettingMetadata()) {
+    if (this.savingPublications() || this.gettingMetadata() || this.preparingFiles()) {
       return;
     }
 

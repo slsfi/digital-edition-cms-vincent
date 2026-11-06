@@ -1,10 +1,14 @@
 import type { MockedObject, MockInstance } from 'vitest';
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { afterNextRender, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';
+import { By } from '@angular/platform-browser';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router, RouterOutlet } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 
 import { AddPublicationsFromFilesComponent } from './add-publications-from-files.component';
+import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { Deleted, Published } from '../../models/common.model';
 import { FacsimileCollectionResponse, LinkFacsimileToPublicationResponse } from '../../models/facsimile.model';
 import { LinkTextToPublicationResponse, Publication, PublicationCollection, PublicationResponse, XmlMetadata } from '../../models/publication.model';
@@ -12,6 +16,13 @@ import { FacsimileService } from '../../services/facsimile.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { SnackbarService } from '../../services/snackbar.service';
+
+@Component({
+  selector: 'scrolling-publications-test-host',
+  imports: [MatDrawerContainer, MatDrawerContent, RouterOutlet],
+  template: '<mat-drawer-container><mat-drawer-content><router-outlet /></mat-drawer-content></mat-drawer-container>'
+})
+class ScrollingPublicationsTestHostComponent {}
 
 describe('AddPublicationsFromFilesComponent', () => {
     let component: AddPublicationsFromFilesComponent;
@@ -64,7 +75,7 @@ describe('AddPublicationsFromFilesComponent', () => {
         publicationService.getPublications.mockReturnValue(of([]));
 
         await TestBed.configureTestingModule({
-            imports: [AddPublicationsFromFilesComponent],
+            imports: [AddPublicationsFromFilesComponent, ScrollingPublicationsTestHostComponent],
             providers: [
                 provideRouter([]),
                 {
@@ -199,6 +210,7 @@ describe('AddPublicationsFromFilesComponent', () => {
         ).find(button => button.textContent?.includes('Get metadata from XML'));
 
         expect(metadataButton).toBeDefined();
+        expect(fixture.nativeElement.querySelector('.name-field').classList.contains('mat-form-field-invalid')).toBe(true);
         metadataButton?.click();
         await fixture.whenStable();
 
@@ -217,9 +229,217 @@ describe('AddPublicationsFromFilesComponent', () => {
             fixture.nativeElement.querySelectorAll('input') as NodeListOf<HTMLInputElement>
         ).map(input => input.value);
         expect(renderedInputValues).toContain('Updated title');
+        expect(fixture.nativeElement.querySelector('.name-field').classList.contains('mat-form-field-invalid')).toBe(false);
+        expect(fixture.nativeElement.querySelector('.name-field mat-error')).toBeNull();
         expect(metadataButton?.disabled).toBe(false);
         expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
     });
+
+  describe('folder selection loading', () => {
+    beforeEach(async () => {
+      publicationService.getPublicationCollections.mockReturnValue(of([publicationCollection()]));
+      fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    function fileTree(): FileTreeComponent {
+      return fixture.debugElement.query(By.directive(FileTreeComponent)).componentInstance;
+    }
+
+    it('renders the overlay before building rows and clears it when step two is displayed', async () => {
+      const buildRows = component.selectedFiles.bind(component);
+      let spinnerVisibleDuringPreparation = false;
+      const prepare = vi.spyOn(component, 'selectedFiles').mockImplementation(paths => {
+        spinnerVisibleDuringPreparation = !!fixture.nativeElement.querySelector('loading-spinner');
+        buildRows(paths);
+      });
+
+      fileTree().filesInFolder.emit(['first.xml', 'second.xml']);
+      expect(component.preparingFiles()).toBe(true);
+      expect(prepare).not.toHaveBeenCalled();
+      fileTree().filesInFolder.emit(['ignored.xml']);
+      component.getMetadataFromXMLAll();
+      component.savePublications('1');
+      await fixture.whenStable();
+
+      expect(spinnerVisibleDuringPreparation).toBe(true);
+      expect(prepare).toHaveBeenCalledExactlyOnceWith(['first.xml', 'second.xml']);
+      expect(component.preparingFiles()).toBe(false);
+      expect(fixture.nativeElement.querySelectorAll('.bundle-row')).toHaveLength(2);
+      expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
+      expect(publicationService.getMetadataFromXML).not.toHaveBeenCalled();
+      expect(publicationService.addPublication).not.toHaveBeenCalled();
+    });
+
+    it.each(['before rendering', 'after rendering'])('cancels pending preparation when leaving the page %s', async phase => {
+      const prepare = vi.spyOn(component, 'selectedFiles');
+      const rendered = phase === 'after rendering' ? new Promise<void>(resolve => {
+        TestBed.runInInjectionContext(() => afterNextRender(() => resolve()));
+      }) : null;
+      fileTree().filesInFolder.emit(['document.xml']);
+      if (rendered) {
+        await rendered;
+      }
+
+      fixture.destroy();
+      await fixture.whenStable();
+
+      expect(prepare).not.toHaveBeenCalled();
+      expect(component.files.length).toBe(0);
+      expect(component.preparingFiles()).toBe(false);
+      expect(snackbar.show).not.toHaveBeenCalled();
+    });
+
+    it.each([{ paths: [] }, { paths: ['already.xml'] }])('clears the overlay when selection has no eligible files: $paths', async ({ paths }) => {
+      component.existingFilePaths.add('already.xml');
+      vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+      fileTree().filesInFolder.emit(paths);
+      await fixture.whenStable();
+
+      expect(component.preparingFiles()).toBe(false);
+      expect(component.files.length).toBe(0);
+      expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
+      expect(fixture.nativeElement.querySelector('file-tree')).not.toBeNull();
+    });
+
+    it('reports an unavailable publication list without starting preparation', async () => {
+      component.existingFilePathsLoaded = false;
+      component.existingFilePathsLoadFailed = true;
+
+      fileTree().filesInFolder.emit(['document.xml']);
+      await fixture.whenStable();
+
+      expect(component.preparingFiles()).toBe(false);
+      expect(component.files.length).toBe(0);
+      expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
+      expect(snackbar.show).toHaveBeenCalledWith('Failed to load existing publications. Please reload before adding publications.', 'error');
+    });
+  });
+
+  describe('scrolling between steps', () => {
+    it.each([
+      { paths: ['first.xml', 'second.xml'], existing: [], rows: 2 },
+      { paths: [], existing: [], rows: 0 },
+      { paths: ['already.xml'], existing: ['already.xml'], rows: 0 }
+    ])('resets the drawer scroll only when selection displays $rows publication rows', async ({ paths, existing, rows }) => {
+      publicationService.getPublicationCollections.mockReturnValue(of([publicationCollection()]));
+      const router = TestBed.inject(Router);
+      router.resetConfig([{ path: 'scroll-test/:collectionId', component: AddPublicationsFromFilesComponent }]);
+      const host = TestBed.createComponent(ScrollingPublicationsTestHostComponent);
+      host.detectChanges();
+      await router.navigateByUrl('/scroll-test/1');
+      await host.whenStable();
+      vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      const page = host.debugElement.query(By.directive(AddPublicationsFromFilesComponent))
+        .componentInstance as AddPublicationsFromFilesComponent;
+      existing.forEach(path => page.existingFilePaths.add(path));
+      const content = host.nativeElement.querySelector('mat-drawer-content') as HTMLElement;
+      content.scrollTop = 750;
+      content.scrollLeft = 50;
+      const scroll = vi.fn((options: ScrollToOptions) => {
+        expect(host.nativeElement.querySelectorAll('.bundle-row')).toHaveLength(rows);
+        content.scrollTop = options.top ?? content.scrollTop;
+        content.scrollLeft = options.left ?? content.scrollLeft;
+      });
+      Object.defineProperty(content, 'scrollTo', { configurable: true, value: scroll });
+      const fileTree = host.debugElement.query(By.directive(FileTreeComponent)).componentInstance as FileTreeComponent;
+
+      fileTree.filesInFolder.emit(paths);
+      expect(scroll).not.toHaveBeenCalled();
+      await host.whenStable();
+
+      expect(host.nativeElement.querySelectorAll('.bundle-row')).toHaveLength(rows);
+      if (rows > 0) {
+        expect(scroll).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ top: 0, left: 0, behavior: 'instant' }));
+        expect(content.scrollTop).toBe(0);
+        expect(content.scrollLeft).toBe(0);
+      } else {
+        expect(scroll).not.toHaveBeenCalled();
+        expect(content.scrollTop).toBe(750);
+      }
+    });
+  });
+
+  describe('required name validation', () => {
+    beforeEach(async () => {
+      publicationService.getPublicationCollections.mockReturnValue(of([publicationCollection()]));
+      fixture = TestBed.createComponent(AddPublicationsFromFilesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    async function selectFiles(paths: string[]) {
+      const fileTree = fixture.debugElement.query(By.directive(FileTreeComponent)).componentInstance as FileTreeComponent;
+      fileTree.filesInFolder.emit(paths);
+      await fixture.whenStable();
+    }
+
+    function nameFields(): HTMLElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.name-field'));
+    }
+
+    function saveButton(): HTMLButtonElement {
+      return fixture.nativeElement.querySelector('button[type="submit"]');
+    }
+
+    it('shows missing names as invalid as soon as selected files appear', async () => {
+      await selectFiles(['first.xml', 'second.xml']);
+
+      expect(nameFields()).toHaveLength(2);
+      for (const field of nameFields()) {
+        expect(field.classList.contains('mat-form-field-invalid')).toBe(true);
+        expect(field.querySelector('input')?.getAttribute('aria-required')).toBe('true');
+        expect(field.querySelector('mat-error')?.textContent).toContain('Name is required.');
+      }
+      expect(saveButton().disabled).toBe(true);
+      expect(fixture.nativeElement.querySelector('.language-field.mat-form-field-invalid')).toBeNull();
+    });
+
+    it('clears the error when a name is entered and restores it when the name is emptied without blurring', async () => {
+      await selectFiles(['document.xml']);
+      const field = nameFields()[0];
+      const input = field.querySelector('input')!;
+
+      input.value = 'Publication title';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await fixture.whenStable();
+
+      expect(field.classList.contains('mat-form-field-invalid')).toBe(false);
+      expect(field.querySelector('mat-error')).toBeNull();
+      expect(saveButton().disabled).toBe(false);
+
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await fixture.whenStable();
+
+      expect(field.classList.contains('mat-form-field-invalid')).toBe(true);
+      expect(field.querySelector('mat-error')?.textContent).toContain('Name is required.');
+      expect(saveButton().disabled).toBe(true);
+    });
+
+    it.each(['', null])('keeps an empty name visibly invalid after metadata returns name %s', async name => {
+      const metadata$ = new Subject<XmlMetadata>();
+      publicationService.getMetadataFromXML.mockReturnValue(metadata$);
+      await selectFiles(['document.xml']);
+      component.getMetadataFromXMLAll();
+      metadata$.next({ name, language: 'sv', genre: null, original_publication_date: null });
+      await fixture.whenStable();
+
+      const field = nameFields()[0];
+      expect(component.gettingMetadata()).toBe(false);
+      expect(field.querySelector('input')?.value).toBe('');
+      expect(field.classList.contains('mat-form-field-invalid')).toBe(true);
+      expect(field.querySelector('mat-error')?.textContent).toContain('Name is required.');
+      expect(saveButton().disabled).toBe(true);
+      expect(component.metadataFailures).toEqual([]);
+      expect(component.missingRequiredMetadata).toEqual(['# 1. document.xml']);
+      expect(snackbar.show).toHaveBeenCalledWith('Missing required metadata from 1 / 1 file(s):\n# 1. document.xml', 'warning');
+    });
+  });
 
   describe('metadata request throttling', () => {
     const metadata: XmlMetadata = {
@@ -232,6 +452,85 @@ describe('AddPublicationsFromFilesComponent', () => {
     beforeEach(() => {
       vi.useFakeTimers();
       vi.spyOn(console, 'error').mockReturnValue(undefined);
+    });
+
+    it.each([
+      { name: '', missing: true },
+      { name: null, missing: true },
+      { name: ' \t\n  ', missing: true },
+      { name: '  XML title  ', missing: false }
+    ])('checks the trimmed resulting name after a successful metadata response: $name', ({ name, missing }) => {
+      component.selectedFiles(['document.xml']);
+      publicationService.getMetadataFromXML.mockReturnValue(of({ ...metadata, name }));
+
+      component.getMetadataFromXMLAll();
+
+      expect(component.metadataFailures).toEqual([]);
+      expect(component.missingRequiredMetadata).toEqual(missing ? ['# 1. document.xml'] : []);
+      if (missing) {
+        expect(snackbar.show).toHaveBeenCalledWith('Missing required metadata from 1 / 1 file(s):\n# 1. document.xml', 'warning');
+      } else {
+        expect(snackbar.show).toHaveBeenCalledWith('Successfully fetched metadata from all files.');
+      }
+    });
+
+    it.each(['', null, ' \t '])('accepts an existing non-blank name when metadata returns name %s', name => {
+      component.selectedFiles(['document.xml']);
+      component.files.at(0).controls.name.setValue('  User title  ');
+      publicationService.getMetadataFromXML.mockReturnValue(of({ ...metadata, name }));
+
+      component.getMetadataFromXMLAll();
+
+      expect(component.files.at(0).controls.name.value).toBe('  User title  ');
+      expect(component.metadataFailures).toEqual([]);
+      expect(component.missingRequiredMetadata).toEqual([]);
+      expect(snackbar.show).toHaveBeenCalledWith('Successfully fetched metadata from all files.');
+    });
+
+    it('reports blank names and HTTP errors in separate lists while continuing to fetch the remaining files', async () => {
+      component.selectedFiles(['blank.xml', 'error.xml', 'valid.xml']);
+      publicationService.getMetadataFromXML
+        .mockReturnValueOnce(of({ ...metadata, name: '' }))
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 429 })))
+        .mockReturnValueOnce(of(metadata));
+
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(149);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(4999);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(3);
+      expect(component.files.at(2).controls.name.value).toBe('XML title');
+      expect(component.metadataFailures).toEqual(['# 2. error.xml']);
+      expect(component.missingRequiredMetadata).toEqual(['# 1. blank.xml']);
+      expect(snackbar.show).toHaveBeenCalledWith(
+        'Error fetching metadata from 1 / 3 file(s):\n# 2. error.xml\n\nMissing required metadata from 1 / 3 file(s):\n# 1. blank.xml',
+        'warning'
+      );
+    });
+
+    it('clears both lists before fetching metadata again', async () => {
+      component.selectedFiles(['error.xml', 'blank.xml']);
+      publicationService.getMetadataFromXML
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500 })))
+        .mockReturnValueOnce(of({ ...metadata, name: '' }));
+      component.getMetadataFromXMLAll();
+      await vi.runAllTimersAsync();
+      expect(component.metadataFailures).toEqual(['# 1. error.xml']);
+      expect(component.missingRequiredMetadata).toEqual(['# 2. blank.xml']);
+      snackbar.show.mockClear();
+      publicationService.getMetadataFromXML.mockReturnValue(of(metadata));
+
+      component.getMetadataFromXMLAll();
+      await vi.runAllTimersAsync();
+
+      expect(component.metadataFailures).toEqual([]);
+      expect(component.missingRequiredMetadata).toEqual([]);
+      expect(snackbar.show).toHaveBeenCalledExactlyOnceWith('Successfully fetched metadata from all files.');
     });
 
     it('waits for a response and the inter-request delay before starting the next file', async () => {
@@ -400,7 +699,8 @@ describe('AddPublicationsFromFilesComponent', () => {
       component.getMetadataFromXMLAll();
 
       expect(component.gettingMetadata()).toBe(false);
-      expect(snackbar.show).toHaveBeenCalledWith('Failed to fetch metadata from all files.', 'error');
+      expect(component.missingRequiredMetadata).toEqual([]);
+      expect(snackbar.show).toHaveBeenCalledWith('Error fetching metadata from 1 / 1 file(s):\n# 1. failed.xml', 'error');
       expect(snackbar.showProgress.mock.calls[0][0]()).toBe('Fetching XML metadata 1 / 1…');
       expect(dismissProgress).toHaveBeenCalledTimes(1);
     });
