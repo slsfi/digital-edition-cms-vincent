@@ -236,7 +236,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
         );
         const wait$ = index === 0 ? of(0) : timer(delayMs);
         return wait$.pipe(
-          switchMap(() => this.publicationService.getMetadataFromXML(originalFilename, this.project)),
+          switchMap(() => this.publicationService.getMetadataFromXML(originalFilename, this.project, true)),
           take(1),
           tap((metadata: XmlMetadata) => {
             nextFailureDelayMs = 0;
