@@ -1,7 +1,7 @@
 import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, filter, map, switchMap, from, concatMap,
-         toArray, catchError, of, take } from 'rxjs';
+         toArray, catchError, defer, of } from 'rxjs';
 
 import { SkipLoading } from '../interceptors/loading.interceptor';
 import { FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest,
@@ -9,6 +9,7 @@ import { FacsimileCollectionCreateRequest, FacsimileCollectionEditRequest,
          VerifyFacsimileFileResponse, FacsimileCreationConfig,
          FacsimileCreationResult, FacsimileCreationSummary } from '../models/facsimile.model';
 import { Publication, Manuscript } from '../models/publication.model';
+import { createThrottledRequestRunner, RequestRunner } from '../utils/request-throttler';
 import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 import { PublicationService } from './publication.service';
@@ -85,37 +86,34 @@ export class FacsimileService {
   }
 
   /**
-   * Creates facsimile collections from publications in a collection
-   * Processes publications sequentially as per requirements
+   * Creates and links facsimile collections sequentially, pacing every backend request.
+   * Reports the publication index and total when processing each publication begins.
    */
   createFacsimilesFromPublications(
-    config: FacsimileCreationConfig, 
-    projectName: string | null | undefined
+    config: FacsimileCreationConfig,
+    projectName: string | null | undefined,
+    onProgress?: (index: number, total: number) => void
   ) {
-    const project = this.validateProject(projectName);
-    
-    return this.publicationService.getPublications(String(config.publicationCollectionId), project).pipe(
-      take(1),
-      switchMap((publications: Publication[]) => {
-        return from(publications).pipe(
-          // Sequential processing (one at a time)
+    return defer(() => {
+      const project = this.validateProject(projectName);
+      const runRequest = createThrottledRequestRunner();
+
+      return runRequest(() => this.publicationService.getPublications(String(config.publicationCollectionId), project, true)).pipe(
+        switchMap((publications: Publication[]) => from(publications).pipe(
           concatMap((publication: Publication, index: number) => {
-            return this.processSinglePublication(publication, config, project, index + 1, publications.length);
+            onProgress?.(index + 1, publications.length);
+            return this.processSinglePublication(publication, config, project, index + 1, publications.length, runRequest);
           }),
-          // Collect all results
           toArray(),
-          // Final processing
-          map((results: FacsimileCreationResult[]) => {
-            return {
-              total: publications.length,
-              successful: results.filter(r => r.success).length,
-              failed: results.filter(r => !r.success).length,
-              results: results
-            } as FacsimileCreationSummary;
-          })
-        );
-      })
-    );
+          map((results: FacsimileCreationResult[]) => ({
+            total: publications.length,
+            successful: results.filter(r => r.success).length,
+            failed: results.filter(r => !r.success).length,
+            results
+          } as FacsimileCreationSummary))
+        ))
+      );
+    });
   }
 
   /**
@@ -126,12 +124,12 @@ export class FacsimileService {
     config: FacsimileCreationConfig, 
     project: string,
     currentIndex: number,
-    totalCount: number
+    totalCount: number,
+    runRequest: RequestRunner
   ) {
     // Step 1: Get manuscripts if needed for title
     const titleSource$ = config.titleSource === 'manuscript' 
-      ? this.publicationService.getManuscriptsForPublication(String(publication.id), project).pipe(
-          take(1),
+      ? runRequest(() => this.publicationService.getManuscriptsForPublication(String(publication.id), project, true)).pipe(
           map((manuscripts: Manuscript[]) => manuscripts.length > 0 ? manuscripts[0].name : (publication.name || `Publication ${publication.id}`))
         )
       : of(publication.name || `Publication ${publication.id}`);
@@ -148,8 +146,7 @@ export class FacsimileService {
           start_page_number: config.startPageNumber
         };
 
-        return this.addFacsimileCollection(facsimileData, project).pipe(
-          take(1),
+        return runRequest(() => this.addFacsimileCollection(facsimileData, project, true)).pipe(
           switchMap((facsimileResponse: FacsimileCollectionResponse) => {
             // Step 3: Link facsimile to publication
             const linkData = {
@@ -160,12 +157,12 @@ export class FacsimileService {
               type: 0
             };
 
-            return this.publicationService.linkFacsimileToPublication(
+            return runRequest(() => this.publicationService.linkFacsimileToPublication(
               facsimileResponse.data.id, 
               linkData, 
-              project
-            ).pipe(
-              take(1),
+              project,
+              true
+            )).pipe(
               map(() => ({
                 success: true,
                 publicationId: publication.id,

@@ -7,6 +7,7 @@
 
 <div class="content">
   @let summary = creationSummary();
+  @let processing = isProcessing();
   <p>Select a publication collection and configure the facsimile collection settings. A new facsimile collection will be created for each publication in the selected collection.</p>
 
   <form [formGroup]="form" (ngSubmit)="createFacsimileCollections()" class="form">
@@ -70,20 +71,20 @@
     </div>
 
     <div class="form-actions">
-      <button matButton type="button" (click)="navToFacsimileCollections()" [disabled]="isProcessing()">
+      <button matButton type="button" (click)="navToFacsimileCollections()" [disabled]="processing">
         Cancel
       </button>
-      <button matButton="filled" type="submit" [disabled]="!form.valid || isProcessing()">
+      <button matButton="filled" type="submit" [disabled]="!form.valid || processing">
         <mat-icon>add</mat-icon>
         Create facsimile collections
       </button>
     </div>
   </form>
 
-  @if (isProcessing()) {
+  @if (processing) {
     <div class="processing-section">
       <loading-spinner></loading-spinner>
-      <p>{{ progressMessage }}</p>
+      <p>{{ progressMessage() }}</p>
     </div>
   }
 

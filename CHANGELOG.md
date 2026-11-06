@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Add publications from XML files: suppress backend errors while fetching metadata.
 - Add publications from XML files: highlight missing names, clarify metadata error reporting, and improve loading feedback and scrolling between steps.
 - Publications: throttle bulk XML metadata updates and display progress throughout the operation.
+- Add facsimile collections from publications: throttle requests, show progress, and disable fields during creation.
 
 
 

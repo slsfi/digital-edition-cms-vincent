@@ -116,10 +116,10 @@ export class PublicationService {
     return this.apiService.post<VersionResponse>(url, data);
   }
 
-  getManuscriptsForPublication(publicationId: string, projectName: string | null | undefined) {
+  getManuscriptsForPublication(publicationId: string, projectName: string | null | undefined, disableErrorMessage = false) {
     const project = this.validateProject(projectName);
     const url = `${this.apiService.prefixedUrl}/${project}/publication/${publicationId}/manuscripts/`;
-    return this.apiService.get<ManuscriptsResponse>(url).pipe(
+    return this.apiService.get<ManuscriptsResponse>(url, {}, disableErrorMessage).pipe(
       map(response => response.data)
     );
   }

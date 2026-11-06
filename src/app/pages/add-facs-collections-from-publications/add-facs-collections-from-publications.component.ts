@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
-import { Observable, of, switchMap, take } from 'rxjs';
+import { finalize, Observable, of, switchMap, take } from 'rxjs';
 
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { FacsimileCreationConfig, FacsimileCreationSummary } from '../../models/facsimile.model';
@@ -43,11 +44,12 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
   private projectService = inject(ProjectService);
   private router = inject(Router);
   private readonly snackbar = inject(SnackbarService);
+  private readonly destroyRef = inject(DestroyRef);
 
   form: FormGroup;
   publicationCollections$: Observable<PublicationCollection[]> = of([]);
   readonly isProcessing = signal(false);
-  progressMessage = '';
+  readonly progressMessage = signal('');
   readonly creationSummary = signal<FacsimileCreationSummary | null>(null);
 
   constructor() {
@@ -77,7 +79,8 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
             );
           }
           return of('');
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       ).subscribe(collectionName => {
         if (collectionName) {
           this.form.patchValue({ description: collectionName });
@@ -89,22 +92,28 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
   createFacsimileCollections() {
     if (this.form.valid && !this.isProcessing()) {
       const config: FacsimileCreationConfig = this.form.value;
-      
+
+      this.form.disable({ emitEvent: false });
       this.isProcessing.set(true);
-      this.progressMessage = 'Creating facsimile collections…';
+      this.progressMessage.set('Fetching publication list…');
       this.creationSummary.set(null);
 
       const currentProject = this.projectService.getCurrentProject();
       
-      this.facsimileService.createFacsimilesFromPublications(config, currentProject).pipe(
-        take(1)
+      this.facsimileService.createFacsimilesFromPublications(config, currentProject, (index, total) => {
+        this.progressMessage.set(`Creating facsimile collection ${index} / ${total}…`);
+      }).pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.form.enable({ emitEvent: false });
+          this.isProcessing.set(false);
+        })
       ).subscribe({
         next: (summary: FacsimileCreationSummary) => {
-          this.isProcessing.set(false);
           this.creationSummary.set(summary);
         },
         error: (error) => {
-          this.isProcessing.set(false);
           console.error('Bulk creation failed:', error);
           this.snackbar.show('Failed to create facsimile collections. Please try again.', 'error');
         }
@@ -114,11 +123,5 @@ export class AddFacsCollectionsFromPublicationsComponent implements OnInit {
 
   navToFacsimileCollections() {
     this.router.navigate(['/facsimile-collections']);
-  }
-
-  getProgressPercentage(): number {
-    const summary = this.creationSummary();
-    if (!summary) return 0;
-    return Math.round((summary.successful + summary.failed) / summary.total * 100);
   }
 }
