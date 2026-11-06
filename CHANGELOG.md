@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Update Lukukirjat API URL.
 - Deps: update `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.6, and `@angular/core` to 22.2.4.
 
+### Fixed
+
+- Add test CI script command.
+
 
 
 ## [4.1.1] – 2026-10-23
