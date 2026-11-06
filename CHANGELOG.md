@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Add test CI script command.
 - Add publications from XML files: throttle metadata requests and pause longer after temporary failures to reduce backend load.
+- Add publications from XML files: suppress backend errors while fetching metadata.
 
 
 
