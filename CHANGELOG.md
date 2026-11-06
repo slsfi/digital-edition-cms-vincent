@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `eslint` to 10.14.0.
 - Deps (dev): update `typescript-eslint` to 8.72.1.
 - Deps (dev): update `vitest` to 5.1.0.
+- Deps: update transitive dependencies.
 
 ### Fixed
 
