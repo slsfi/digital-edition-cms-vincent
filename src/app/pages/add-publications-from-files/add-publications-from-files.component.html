@@ -1,6 +1,7 @@
 @let collection = selectedPublicationCollection$ | async;
 @let collectionId = publicationCollectionId$ | async;
 @let loading = loading$ | async;
+@let isPreparingFiles = preparingFiles();
 @let isGettingMetadata = gettingMetadata();
 @let isSavingPublications = savingPublications();
 
@@ -10,7 +11,7 @@
   <p>Please select a project</p>
 }
 
-@if (loading || isGettingMetadata || isSavingPublications) {
+@if (loading || isPreparingFiles || isGettingMetadata || isSavingPublications) {
   <loading-spinner [overlay]="true"></loading-spinner>
 }
 
@@ -27,7 +28,7 @@
     @if (files.length < 1) {
       <h3>1. Select folder to read XML files from</h3>
       <p>XML files that have already been added as publications, will be skipped.</p>
-      <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="selectedFiles($event)"></file-tree>
+      <file-tree [selectFolder]="true" [showLoading]="false" (filesInFolder)="prepareSelectedFiles($event)"></file-tree>
     } @else {
       <form [formGroup]="bundleForm" id="bundle-form" (ngSubmit)="savePublications(collectionId)">
         <h3>2. Fill in the publication metadata and save</h3>
@@ -66,8 +67,11 @@
           <mat-divider></mat-divider>
           <ng-container formArrayName="files">
             @for (bundleRow of files.controls; track bundleRow; let i = $index) {
+              @let rowNameError = bundleRow.controls.name.hasError('required');
+              @let rowError = rowNameError;
+
               <div class="bundle-row" [formGroup]="bundleRow">
-                <span>{{ i + 1 }}</span>
+                <span [class.row-error]="rowError">{{ i + 1 }}</span>
                 <button matIconButton type="button" aria-label="Remove row" matTooltip="Remove row" (click)="removeRow(i)" [disabled]="isSavingPublications">
                   <mat-icon>cancel</mat-icon>
                 </button>
@@ -85,6 +89,9 @@
                 <mat-form-field class="name-field">
                   <mat-label>Name</mat-label>
                   <input matInput formControlName="name" type="text"/>
+                  @if (rowNameError) {
+                    <mat-error>Name is required.</mat-error>
+                  }
                 </mat-form-field>
                 <mat-form-field class="language-field">
                   <mat-label>Language</mat-label>
