@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, combineLatest, concatMap, finalize, from, map, mergeMap,
+import { catchError, combineLatest, concatMap, defer, finalize, from, map,
          Observable, of, switchMap, take, tap, timer, toArray } from 'rxjs';
 
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
@@ -41,6 +41,8 @@ interface BundleFormType {
   original_publication_date: FormControl<string | null>;
 }
 
+type RequestRunner = <T>(request: () => Observable<T>) => Observable<T>;
+
 @Component({
   selector: 'add-publications-from-files',
   imports: [
@@ -65,6 +67,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly gettingMetadata = signal(false);
+  readonly savingPublications = signal(false);
   loading$ = this.loadingService.loading$;
   project: string | null = null;
   publicationCollectionId$: Observable<string | null> = this.route.paramMap.pipe(
@@ -207,7 +210,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   }
 
   getMetadataFromXMLAll() {
-    if (this.gettingMetadata()) {
+    if (this.gettingMetadata() || this.savingPublications()) {
       return;
     }
 
@@ -219,27 +222,13 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       progressSnackbarRef = this.snackbar.show('Fetching metadata from XML files…', 'info');
     }
 
-    const requestDelayMs = 150;
-    const batchSize = 10;
-    const batchDelayMs = 1000;
-    const failureDelayMs = 5000;
-    let nextFailureDelayMs = 0;
+    const runRequest = this.createThrottledRequestRunner();
     from(this.files.controls.map((row, index) => ({ row, index }))).pipe(
       concatMap(({ row, index }) => {
         const originalFilename = row.get('original_filename')!.value;
 
-        // Start immediately, then pause after each attempt, including failures.
-        // Use the longest applicable pause without stacking the delays.
-        const delayMs = Math.max(
-          index % batchSize === 0 ? batchDelayMs : requestDelayMs,
-          nextFailureDelayMs
-        );
-        const wait$ = index === 0 ? of(0) : timer(delayMs);
-        return wait$.pipe(
-          switchMap(() => this.publicationService.getMetadataFromXML(originalFilename, this.project, true)),
-          take(1),
+        return runRequest(() => this.publicationService.getMetadataFromXML(originalFilename, this.project, true)).pipe(
           tap((metadata: XmlMetadata) => {
-            nextFailureDelayMs = 0;
             for (const key in metadata) {
               if (Object.prototype.hasOwnProperty.call(metadata, key)) {
                 const control = row.get(key);
@@ -253,7 +242,6 @@ export class AddPublicationsFromFilesComponent implements OnInit {
           catchError((err: unknown) => {
             console.error(`Failed to fetch metadata from ${originalFilename}:`, err);
             this.metadataFailures.push(`# ${index + 1}. ${originalFilename}`);
-            nextFailureDelayMs = this.getMetadataFailureDelay(err, failureDelayMs);
             return of(null); // Continue the stream
           })
         );
@@ -277,7 +265,35 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     });
   }
 
-  private getMetadataFailureDelay(error: unknown, defaultDelayMs: number): number {
+  /** Paces sequential calls within one bulk operation, including linked-data requests. */
+  private createThrottledRequestRunner(): RequestRunner {
+    const requestDelayMs = 150;
+    const batchSize = 10;
+    const batchDelayMs = 1000;
+    const failureDelayMs = 5000;
+    let requestIndex = 0;
+    let nextFailureDelayMs = 0;
+
+    return <T>(request: () => Observable<T>) => defer(() => {
+      const index = requestIndex++;
+      // Start immediately, then use the longest applicable pause between attempts.
+      const delayMs = Math.max(
+        index % batchSize === 0 ? batchDelayMs : requestDelayMs,
+        nextFailureDelayMs
+      );
+      const wait$ = index === 0 ? of(0) : timer(delayMs);
+      return wait$.pipe(
+        switchMap(request),
+        take(1),
+        tap({
+          next: () => { nextFailureDelayMs = 0; },
+          error: (error: unknown) => { nextFailureDelayMs = this.getRequestFailureDelay(error, failureDelayMs); }
+        })
+      );
+    });
+  }
+
+  private getRequestFailureDelay(error: unknown, defaultDelayMs: number): number {
     // These statuses can indicate temporary backend or connectivity problems.
     if (!(error instanceof HttpErrorResponse) || ![0, 408, 429, 500, 502, 503, 504].includes(error.status)) {
       return 0;
@@ -300,6 +316,10 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   }
 
   savePublications(collectionId: string) {
+    if (this.savingPublications() || this.gettingMetadata()) {
+      return;
+    }
+
     if (!this.existingFilePathsLoaded) {
       const message = this.existingFilePathsLoadFailed
         ? 'Failed to load existing publications. Please reload before adding publications.'
@@ -309,16 +329,17 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     }
 
     this.saveFailures = [];
-    // concurrentRequests = 1 ensures that the publications are added sequentially in
-    // the order they appear in the UI
-    const concurrentRequests = 1;
-    const throttledRequests$ = from(this.files.controls).pipe(
-      mergeMap((row) => this.addPublication(row, parseInt(collectionId)), concurrentRequests)
-    );
-
-    throttledRequests$.subscribe({
-      complete: () => {
-        const total = this.files.controls.length;
+    this.savingPublications.set(true);
+    const rows = [...this.files.controls];
+    const runRequest = this.createThrottledRequestRunner();
+    from(rows).pipe(
+      concatMap(row => this.addPublication(row, parseInt(collectionId), runRequest)),
+      toArray(),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.savingPublications.set(false))
+    ).subscribe({
+      next: () => {
+        const total = rows.length;
         const failed = this.saveFailures.length;
 
         if (failed === 0) {
@@ -349,10 +370,15 @@ export class AddPublicationsFromFilesComponent implements OnInit {
    * 
    * @param row - A FormGroup containing the publication metadata to be submitted.
    * @param collectionId - The ID of the publication collection to add the publication to.
+   * @param runRequest - Shares request pacing across all publications and linked data in a bulk save.
    * @returns An Observable that completes when the publication and optional linked data
    *          have been processed. Emits no data, but handles success or failure internally.
    */
-  addPublication(row: FormGroup<BundleFormType>, collectionId: number): Observable<void> {
+  addPublication(
+    row: FormGroup<BundleFormType>,
+    collectionId: number,
+    runRequest: RequestRunner = this.createThrottledRequestRunner()
+  ): Observable<void> {
     if (!this.project) {
       return of(void 0);
     }
@@ -360,10 +386,9 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     const data = row.getRawValue() as PublicationAddRequest;
     data.published = this.bundleForm.value.published as Published;
 
-    return this.publicationService.addPublication(collectionId, data, this.project).pipe(
-      take(1),
-      switchMap((response: PublicationResponse) => this.linkManuscriptForPublication(response)),
-      switchMap((response: PublicationResponse) => this.linkFacsimileForPublication(response, data)),
+    return runRequest(() => this.publicationService.addPublication(collectionId, data, this.project)).pipe(
+      switchMap((response: PublicationResponse) => this.linkManuscriptForPublication(response, runRequest)),
+      switchMap((response: PublicationResponse) => this.linkFacsimileForPublication(response, data, runRequest)),
       map(() => void 0),
       catchError((err) => {
         console.error(`Publication, manuscript, or facsimile linking failed for file ${data.original_filename}:`, err);
@@ -373,7 +398,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     );
   }
 
-  private linkManuscriptForPublication(response: PublicationResponse): Observable<PublicationResponse> {
+  private linkManuscriptForPublication(response: PublicationResponse, runRequest: RequestRunner): Observable<PublicationResponse> {
     const pub = response.data;
 
     // Skip linking if addMsBoolean is false or original_filename is missing
@@ -391,17 +416,17 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     };
 
     // Also link a manuscript to the publication using the same data
-    return this.publicationService.linkTextToPublication(
+    return runRequest(() => this.publicationService.linkTextToPublication(
       pub.id, manuscriptPayload, this.project
-    ).pipe(
-      take(1),
+    )).pipe(
       map(() => response)
     );
   }
 
   private linkFacsimileForPublication(
     response: PublicationResponse,
-    data: PublicationAddRequest
+    data: PublicationAddRequest,
+    runRequest: RequestRunner
   ): Observable<PublicationResponse> {
     if (!this.addFacsBoolean) {
       return of(response);
@@ -417,8 +442,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       start_page_number: 0
     };
 
-    return this.facsimileService.addFacsimileCollection(facsimilePayload, this.project).pipe(
-      take(1),
+    return runRequest(() => this.facsimileService.addFacsimileCollection(facsimilePayload, this.project)).pipe(
       switchMap(facsimileResponse => {
         const linkPayload: LinkPublicationToFacsimileRequest = {
           publication_id: pub.id,
@@ -428,12 +452,11 @@ export class AddPublicationsFromFilesComponent implements OnInit {
           type: 0
         };
 
-        return this.publicationService.linkFacsimileToPublication(
+        return runRequest(() => this.publicationService.linkFacsimileToPublication(
           facsimileResponse.data.id,
           linkPayload,
           this.project
-        ).pipe(
-          take(1),
+        )).pipe(
           map(() => response)
         );
       })
