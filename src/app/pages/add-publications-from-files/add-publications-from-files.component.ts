@@ -2,7 +2,6 @@ import { afterNextRender, Component, DestroyRef, inject, Injector, OnInit, Pendi
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { AsyncPipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
          Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,8 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, combineLatest, concatMap, defer, finalize, from, map,
-         Observable, of, switchMap, take, tap, timer, toArray } from 'rxjs';
+import { catchError, combineLatest, concatMap, finalize, from, map,
+         Observable, of, switchMap, take, tap, toArray } from 'rxjs';
 
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -28,6 +27,7 @@ import { LoadingService } from '../../services/loading.service';
 import { ProjectService } from '../../services/project.service';
 import { PublicationService } from '../../services/publication.service';
 import { SnackbarService } from '../../services/snackbar.service';
+import { createThrottledRequestRunner, RequestRunner } from '../../utils/request-throttler';
 
 
 interface BundleFormType {
@@ -40,8 +40,6 @@ interface BundleFormType {
   legacy_id: FormControl<string | null>;
   original_publication_date: FormControl<string | null>;
 }
-
-type RequestRunner = <T>(request: () => Observable<T>) => Observable<T>;
 
 @Component({
   selector: 'add-publications-from-files',
@@ -279,7 +277,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     const rows = [...this.files.controls];
     const progressMessage = signal(`Fetching XML metadata 1 / ${rows.length}…`);
     const progressSnackbarRef = rows.length > 0 ? this.snackbar.showProgress(progressMessage) : null;
-    const runRequest = this.createThrottledRequestRunner();
+    const runRequest = createThrottledRequestRunner();
     from(rows).pipe(
       concatMap((row, index) => {
         progressMessage.set(`Fetching XML metadata ${index + 1} / ${rows.length}…`);
@@ -332,52 +330,6 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     });
   }
 
-  /** Paces sequential calls within one bulk operation, including linked-data requests. */
-  private createThrottledRequestRunner(): RequestRunner {
-    const requestDelayMs = 150;
-    const batchSize = 10;
-    const batchDelayMs = 1000;
-    const failureDelayMs = 5000;
-    let requestIndex = 0;
-    let nextFailureDelayMs = 0;
-
-    return <T>(request: () => Observable<T>) => defer(() => {
-      const index = requestIndex++;
-      // Start immediately, then use the longest applicable pause between attempts.
-      const delayMs = Math.max(
-        index % batchSize === 0 ? batchDelayMs : requestDelayMs,
-        nextFailureDelayMs
-      );
-      const wait$ = index === 0 ? of(0) : timer(delayMs);
-      return wait$.pipe(
-        switchMap(request),
-        take(1),
-        tap({
-          next: () => { nextFailureDelayMs = 0; },
-          error: (error: unknown) => { nextFailureDelayMs = this.getRequestFailureDelay(error, failureDelayMs); }
-        })
-      );
-    });
-  }
-
-  private getRequestFailureDelay(error: unknown, defaultDelayMs: number): number {
-    // These statuses can indicate temporary backend or connectivity problems.
-    if (!(error instanceof HttpErrorResponse) || ![0, 408, 429, 500, 502, 503, 504].includes(error.status)) {
-      return 0;
-    }
-
-    const retryAfter = error.headers.get('Retry-After')?.trim();
-    if (!retryAfter) {
-      return defaultDelayMs;
-    }
-
-    // Retry-After can contain either a number of seconds or an HTTP date.
-    const retryAfterMs = /^\d+$/.test(retryAfter)
-      ? Number(retryAfter) * 1000
-      : Date.parse(retryAfter) - Date.now();
-    return Number.isFinite(retryAfterMs) ? Math.max(defaultDelayMs, retryAfterMs) : defaultDelayMs;
-  }
-
   removeRow(index: number) {
     this.files.removeAt(index);
   }
@@ -400,7 +352,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     const rows = [...this.files.controls];
     const progressMessage = signal(`Saving publication 1 / ${rows.length}…`);
     const progressSnackbarRef = rows.length > 0 ? this.snackbar.showProgress(progressMessage) : null;
-    const runRequest = this.createThrottledRequestRunner();
+    const runRequest = createThrottledRequestRunner();
     from(rows).pipe(
       concatMap((row, index) => {
         progressMessage.set(`Saving publication ${index + 1} / ${rows.length}…`);
@@ -452,7 +404,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   addPublication(
     row: FormGroup<BundleFormType>,
     collectionId: number,
-    runRequest: RequestRunner = this.createThrottledRequestRunner()
+    runRequest: RequestRunner = createThrottledRequestRunner()
   ): Observable<void> {
     if (!this.project) {
       return of(void 0);

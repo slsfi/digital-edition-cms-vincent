@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -7,12 +8,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BehaviorSubject, catchError, combineLatest, concatMap,
          distinctUntilChanged, finalize, from, map, Observable, of,
-         switchMap, take, tap, toArray } from 'rxjs';
+         switchMap, take, toArray } from 'rxjs';
 
 import { allCommentsColumnData, allFacsimileColumnData, allManuscriptColumnsData,
          allPublicationColumnsData, allVersionColumnsData, commentsColumnData,
@@ -42,6 +42,7 @@ import { LinkTextToPublicationResponse, LinkTextToPublicationRequest, Manuscript
         } from '../../models/publication.model';
 import { SoftWrapPathPipe } from '../../pipes/soft-wrap-path.pipe';
 import { cleanEmptyStrings, cleanObject, shallowArrayEqual } from '../../utils/utility-functions';
+import { createThrottledRequestRunner } from '../../utils/request-throttler';
 
 
 type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest & {
@@ -71,6 +72,7 @@ type PublicationDialogFormValue = PublicationAddRequest & PublicationEditRequest
   styleUrl: './publications.component.scss'
 })
 export class PublicationsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly facsimileService = inject(FacsimileService);
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
@@ -538,6 +540,10 @@ export class PublicationsComponent implements OnInit {
   }
 
   updateMetadataAll(collectionId: string) {
+    if (this.metadataUpdating()) {
+      return;
+    }
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Update publications data from XML',
@@ -549,13 +555,17 @@ export class PublicationsComponent implements OnInit {
       }
     });
 
-    let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
-
-    dialogRef.afterClosed().subscribe(result => {
-
-      if (result?.value) {
+    dialogRef.afterClosed().pipe(
+      take(1),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(result => {
+      if (result?.value && !this.metadataUpdating()) {
         const selectedFields = result.selectedMetadataFields || {};
-        
+        if (!METADATA_FIELDS.some(field => selectedFields[field.key])) {
+          this.snackbar.show('No metadata fields selected for update.', 'info');
+          return;
+        }
+
         // Filter metadata to only include selected fields
         const filterMetadata = (metadata: XmlMetadata): Partial<PublicationEditRequest> => {
           const filtered: Partial<PublicationEditRequest> = {};
@@ -580,24 +590,20 @@ export class PublicationsComponent implements OnInit {
         this.metadataUpdateFailures = [];
 
         const currentProject = this.projectService.getCurrentProject();
-        this.publicationService.getPublications(collectionId, currentProject).pipe(
-          take(1),
-          tap((publications: Publication[]) => {
-            if (publications.length > 40) {
-              progressSnackbarRef = this.snackbar.show(
-                'Updating metadata of all publications from XML…', 'info'
-              );
-            }
-          }),
+        const progressMessage = signal('Fetching publication list…');
+        const progressSnackbarRef = this.snackbar.showProgress(progressMessage);
+        const runRequest = createThrottledRequestRunner();
+        runRequest(() => this.publicationService.getPublications(collectionId, currentProject, true)).pipe(
           switchMap((publications: Publication[]) =>
             from(publications).pipe(
-              concatMap((pub: Publication) => {
-                if (!pub.original_filename) {
+              concatMap((pub: Publication, index) => {
+                progressMessage.set(`Updating XML metadata ${index + 1} / ${publications.length}…`);
+                const originalFilename = pub.original_filename;
+                if (!originalFilename) {
                   return of(null);
                 }
 
-                return this.publicationService.getMetadataFromXML(pub.original_filename, currentProject).pipe(
-                  take(1),
+                return runRequest(() => this.publicationService.getMetadataFromXML(originalFilename, currentProject, true)).pipe(
                   switchMap((metadata: XmlMetadata) => {
                     const updateRequest: PublicationEditRequest = filterMetadata(metadata);
                     
@@ -606,9 +612,7 @@ export class PublicationsComponent implements OnInit {
                       return of(null);
                     }
 
-                    return this.publicationService.editPublication(pub.id, updateRequest, currentProject).pipe(
-                      take(1)
-                    );
+                    return runRequest(() => this.publicationService.editPublication(pub.id, updateRequest, currentProject, true));
                   }),
                   catchError(err => {
                     console.error(`Metadata update failed for publication ID ${pub.id}:`, err);
@@ -617,13 +621,14 @@ export class PublicationsComponent implements OnInit {
                   })
                 );
               }),
-              toArray(), // Collect all results to emit once all updates are done
-              finalize(() => {
-                this.metadataUpdating.set(false);
-                progressSnackbarRef?.dismiss();
-              })
+              toArray() // Collect all results to emit once all updates are done
             )
-          )
+          ),
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => {
+            this.metadataUpdating.set(false);
+            progressSnackbarRef.dismiss();
+          })
         ).subscribe({
           next: (results) => {
             if (results.length === 0) {
@@ -632,7 +637,7 @@ export class PublicationsComponent implements OnInit {
               this.snackbar.show('Successfully updated metadata of all publications.');
               this.publicationsLoader$.next(0); // Refresh the list
             } else if (this.metadataUpdateFailures.length < results.length) {
-              this.snackbar.show(`Failed to update metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'warning');
+              this.snackbar.show(`Error updating metadata of ${this.metadataUpdateFailures.length} / ${results.length} publication(s) with ID:\n${this.metadataUpdateFailures.join(", ")}`, 'warning');
               this.publicationsLoader$.next(0); // Refresh the list
             } else {
               this.snackbar.show('Failed to update metadata of any publication.', 'error');
