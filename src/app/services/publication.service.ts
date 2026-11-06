@@ -142,10 +142,10 @@ export class PublicationService {
     return this.apiService.post<LinkFacsimileToPublicationResponse>(url, data);
   }
 
-  linkFacsimileToPublication(facsimileCollectionId: number, data: LinkPublicationToFacsimileRequest, projectName: string | null | undefined) {
+  linkFacsimileToPublication(facsimileCollectionId: number, data: LinkPublicationToFacsimileRequest, projectName: string | null | undefined, disableErrorMessage = false) {
     const project = this.validateProject(projectName);
     const url = `${this.apiService.prefixedUrl}/${project}/facsimile_collection/${facsimileCollectionId}/link/`;
-    return this.apiService.post<LinkFacsimileToPublicationResponse>(url, data);
+    return this.apiService.post<LinkFacsimileToPublicationResponse>(url, data, {}, disableErrorMessage);
   }
 
   getMetadataFromXML(xmlPath: string, projectName: string | null | undefined, disableErrorMessage = false) {

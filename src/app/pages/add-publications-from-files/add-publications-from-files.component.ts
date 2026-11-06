@@ -331,12 +331,20 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     this.saveFailures = [];
     this.savingPublications.set(true);
     const rows = [...this.files.controls];
+    const progressMessage = signal(`Saving publication 1 / ${rows.length}…`);
+    const progressSnackbarRef = rows.length > 0 ? this.snackbar.showProgress(progressMessage) : null;
     const runRequest = this.createThrottledRequestRunner();
     from(rows).pipe(
-      concatMap(row => this.addPublication(row, parseInt(collectionId), runRequest)),
+      concatMap((row, index) => {
+        progressMessage.set(`Saving publication ${index + 1} / ${rows.length}…`);
+        return this.addPublication(row, parseInt(collectionId), runRequest);
+      }),
       toArray(),
       takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.savingPublications.set(false))
+      finalize(() => {
+        this.savingPublications.set(false);
+        progressSnackbarRef?.dismiss();
+      })
     ).subscribe({
       next: () => {
         const total = rows.length;
@@ -386,7 +394,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
     const data = row.getRawValue() as PublicationAddRequest;
     data.published = this.bundleForm.value.published as Published;
 
-    return runRequest(() => this.publicationService.addPublication(collectionId, data, this.project)).pipe(
+    return runRequest(() => this.publicationService.addPublication(collectionId, data, this.project, true)).pipe(
       switchMap((response: PublicationResponse) => this.linkManuscriptForPublication(response, runRequest)),
       switchMap((response: PublicationResponse) => this.linkFacsimileForPublication(response, data, runRequest)),
       map(() => void 0),
@@ -417,7 +425,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
 
     // Also link a manuscript to the publication using the same data
     return runRequest(() => this.publicationService.linkTextToPublication(
-      pub.id, manuscriptPayload, this.project
+      pub.id, manuscriptPayload, this.project, true
     )).pipe(
       map(() => response)
     );
@@ -442,7 +450,7 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       start_page_number: 0
     };
 
-    return runRequest(() => this.facsimileService.addFacsimileCollection(facsimilePayload, this.project)).pipe(
+    return runRequest(() => this.facsimileService.addFacsimileCollection(facsimilePayload, this.project, true)).pipe(
       switchMap(facsimileResponse => {
         const linkPayload: LinkPublicationToFacsimileRequest = {
           publication_id: pub.id,
@@ -455,7 +463,8 @@ export class AddPublicationsFromFilesComponent implements OnInit {
         return runRequest(() => this.publicationService.linkFacsimileToPublication(
           facsimileResponse.data.id,
           linkPayload,
-          this.project
+          this.project,
+          true
         )).pipe(
           map(() => response)
         );

@@ -25,7 +25,8 @@ describe('AddPublicationsFromFilesComponent', () => {
         'linkFacsimileToPublication' |
         'linkTextToPublication'>>;
     let projectService: MockedObject<Pick<ProjectService, 'getCurrentProject' | 'getFileTree'>>;
-    let snackbar: MockedObject<Pick<SnackbarService, 'show'>>;
+    let snackbar: MockedObject<Pick<SnackbarService, 'show' | 'showProgress'>>;
+    let dismissProgress: ReturnType<typeof vi.fn<() => void>>;
     let consoleWarn: ReturnType<typeof vi.spyOn>;
 
     beforeEach(async () => {
@@ -50,8 +51,12 @@ describe('AddPublicationsFromFilesComponent', () => {
             getCurrentProject: vi.fn().mockName("ProjectService.getCurrentProject"),
             getFileTree: vi.fn().mockName('ProjectService.getFileTree').mockReturnValue(of({}))
         };
+        dismissProgress = vi.fn<() => void>();
         snackbar = {
-            show: vi.fn().mockName("SnackbarService.show")
+            show: vi.fn().mockName("SnackbarService.show"),
+            showProgress: vi.fn().mockName('SnackbarService.showProgress').mockReturnValue({
+                dismiss: dismissProgress
+            } as unknown as ReturnType<SnackbarService['showProgress']>)
         };
 
         projectService.getCurrentProject.mockReturnValue('test-project');
@@ -161,7 +166,7 @@ describe('AddPublicationsFromFilesComponent', () => {
             published: Published.PublishedInternally,
             language: null,
             sort_order: 1
-        }, 'test-project');
+        }, 'test-project', true);
         expect(facsimileService.addFacsimileCollection).toHaveBeenCalledWith({
             title: 'Publication title',
             description: null,
@@ -169,14 +174,14 @@ describe('AddPublicationsFromFilesComponent', () => {
             external_url: null,
             number_of_pages: 4,
             start_page_number: 0
-        }, 'test-project');
+        }, 'test-project', true);
         expect(publicationService.linkFacsimileToPublication).toHaveBeenCalledWith(77, {
             publication_id: 42,
             page_nr: 1,
             section_id: 0,
             priority: 1,
             type: 0
-        }, 'test-project');
+        }, 'test-project', true);
     });
 
     it('renders metadata form updates and clears the loading state after completion', async () => {
@@ -451,12 +456,17 @@ describe('AddPublicationsFromFilesComponent', () => {
       expect(publicationService.addPublication).toHaveBeenCalledTimes(1);
       expect(publicationService.getMetadataFromXML).not.toHaveBeenCalled();
       expect(component.savingPublications()).toBe(true);
+      expect(snackbar.showProgress).toHaveBeenCalledTimes(1);
+      const progressMessage = snackbar.showProgress.mock.calls[0][0];
+      expect(progressMessage()).toBe('Saving publication 1 of 2…');
+      expect(dismissProgress).not.toHaveBeenCalled();
 
       firstResponse$.next(publicationResponse({ original_filename: 'first.xml' }));
       component.savePublications('1');
       await vi.advanceTimersByTimeAsync(149);
       expect(publicationService.addPublication).toHaveBeenCalledTimes(1);
       expect(navigate).not.toHaveBeenCalled();
+      expect(progressMessage()).toBe('Saving publication 2 of 2…');
       await vi.advanceTimersByTimeAsync(1);
       expect(publicationService.addPublication.mock.calls.map(([, data]) => data.original_filename))
         .toEqual(['first.xml', 'second.xml']);
@@ -465,6 +475,7 @@ describe('AddPublicationsFromFilesComponent', () => {
       expect(component.savingPublications()).toBe(false);
       expect(component.files.length).toBe(0);
       expect(snackbar.show).toHaveBeenCalledWith('Successfully added all publications.');
+      expect(dismissProgress).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledExactlyOnceWith(['../'], { relativeTo: TestBed.inject(ActivatedRoute) });
     });
 
@@ -492,11 +503,15 @@ describe('AddPublicationsFromFilesComponent', () => {
 
       component.savePublications('1');
       expect(calls).toEqual(['publication:first.xml']);
+      const progressMessage = snackbar.showProgress.mock.calls[0][0];
+      expect(progressMessage()).toBe('Saving publication 1 of 3…');
       await vi.advanceTimersByTimeAsync(149);
       expect(calls).toHaveLength(1);
+      expect(progressMessage()).toBe('Saving publication 1 of 3…');
       await vi.advanceTimersByTimeAsync(1201);
       expect(calls).toHaveLength(10);
       expect(component.savingPublications()).toBe(true);
+      expect(progressMessage()).toBe('Saving publication 3 of 3…');
       await vi.advanceTimersByTimeAsync(999);
       expect(calls).toHaveLength(10);
       await vi.advanceTimersByTimeAsync(1);
@@ -512,6 +527,8 @@ describe('AddPublicationsFromFilesComponent', () => {
       ]);
       expect(component.savingPublications()).toBe(false);
       expect(navigate).toHaveBeenCalledTimes(1);
+      expect(snackbar.showProgress).toHaveBeenCalledTimes(1);
+      expect(dismissProgress).toHaveBeenCalledTimes(1);
     });
 
     it.each([
@@ -538,6 +555,7 @@ describe('AddPublicationsFromFilesComponent', () => {
       component.savePublications('1');
       await vi.advanceTimersByTimeAsync(errorAtMs);
       expect(component.saveFailures).toEqual(['failed.xml']);
+      expect(snackbar.showProgress.mock.calls[0][0]()).toBe('Saving publication 2 of 2…');
       await vi.advanceTimersByTimeAsync(pauseMs - 1);
       expect(publicationService.addPublication).toHaveBeenCalledTimes(1);
       await vi.advanceTimersByTimeAsync(1);
@@ -547,6 +565,7 @@ describe('AddPublicationsFromFilesComponent', () => {
 
       expect(publicationService.addPublication).toHaveBeenCalledTimes(2);
       expect(snackbar.show).toHaveBeenCalledWith(expect.stringContaining('Failed to add 1'), 'error');
+      expect(dismissProgress).toHaveBeenCalledTimes(1);
       expect(component.savingPublications()).toBe(false);
       expect(navigate).toHaveBeenCalledTimes(1);
     });
@@ -582,6 +601,8 @@ describe('AddPublicationsFromFilesComponent', () => {
       expect(component.files.length).toBe(2);
       expect(navigate).not.toHaveBeenCalled();
       expect(snackbar.show).not.toHaveBeenCalled();
+      expect(snackbar.showProgress).toHaveBeenCalledTimes(1);
+      expect(dismissProgress).toHaveBeenCalledTimes(1);
     });
 
     it('keeps the loading overlay and save controls disabled during pauses, then clears them after completion', async () => {

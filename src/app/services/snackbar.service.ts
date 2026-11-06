@@ -1,5 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Signal } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
+
+import { ProgressSnackbarComponent } from '../components/progress-snackbar/progress-snackbar.component';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,15 @@ export class SnackbarService {
     return this.snackbar.open(message, closeText, {
       ...(type !== 'success' ? { duration: undefined } : {}),
       panelClass: [`snackbar-${type}`]
+    });
+  }
+
+  showProgress(message: Signal<string>): MatSnackBarRef<ProgressSnackbarComponent> {
+    return this.snackbar.openFromComponent(ProgressSnackbarComponent, {
+      data: message,
+      duration: 0,
+      politeness: 'polite',
+      panelClass: ['snackbar-info']
     });
   }
 
