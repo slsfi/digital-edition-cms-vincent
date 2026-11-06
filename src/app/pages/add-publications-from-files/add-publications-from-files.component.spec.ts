@@ -1,4 +1,5 @@
 import type { MockedObject } from "vitest";
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
@@ -92,6 +93,7 @@ describe('AddPublicationsFromFilesComponent', () => {
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         consoleWarn.mockRestore();
     });
 
@@ -223,6 +225,211 @@ describe('AddPublicationsFromFilesComponent', () => {
         expect(metadataButton?.disabled).toBe(false);
         expect(fixture.nativeElement.querySelector('loading-spinner')).toBeNull();
     });
+
+  describe('metadata request throttling', () => {
+    const metadata: XmlMetadata = {
+      genre: 'Novel',
+      language: 'sv',
+      name: 'XML title',
+      original_publication_date: '1900'
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
+    });
+
+    it('waits for a response and the inter-request delay before starting the next file', async () => {
+      const firstResponse$ = new Subject<XmlMetadata>();
+      const secondResponse$ = new Subject<XmlMetadata>();
+      publicationService.getMetadataFromXML
+        .mockReturnValueOnce(firstResponse$)
+        .mockReturnValueOnce(secondResponse$);
+      component.selectedFiles(['first.xml', 'second.xml']);
+      component.files.at(0).controls.name.setValue('User title');
+
+      component.getMetadataFromXMLAll();
+      component.getMetadataFromXMLAll();
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledExactlyOnceWith('first.xml', 'test-project');
+
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+
+      firstResponse$.next(metadata);
+      expect(firstResponse$.observed).toBe(false);
+      expect(component.files.at(0).controls.name.value).toBe('User title');
+      expect(component.files.at(0).controls.language.value).toBe('sv');
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(149);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      expect(component.gettingMetadata()).toBe(true);
+      expect(snackbar.show).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(publicationService.getMetadataFromXML).toHaveBeenNthCalledWith(2, 'second.xml', 'test-project');
+
+      secondResponse$.next(metadata);
+      expect(component.files.at(1).controls.name.value).toBe('XML title');
+      expect(component.gettingMetadata()).toBe(false);
+      expect(snackbar.show).toHaveBeenCalledWith('Successfully fetched metadata from all files.');
+    });
+
+    it('pauses for one second after every ten attempts, including failed requests', async () => {
+      const paths = Array.from({ length: 21 }, (_, index) => `document-${index + 1}.xml`);
+      component.selectedFiles(paths);
+      publicationService.getMetadataFromXML.mockImplementation(path => path === paths[9]
+        ? throwError(() => new Error('request failed'))
+        : of(metadata)
+      );
+
+      component.getMetadataFromXMLAll();
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1350);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(10);
+      expect(component.metadataFailures).toEqual([expect.stringContaining('document-10.xml')]);
+
+      await vi.advanceTimersByTimeAsync(999);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(10);
+      expect(component.gettingMetadata()).toBe(true);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(11);
+
+      await vi.advanceTimersByTimeAsync(1350);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(20);
+      await vi.advanceTimersByTimeAsync(999);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(20);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(publicationService.getMetadataFromXML.mock.calls.map(([path]) => path)).toEqual(paths);
+      expect(component.gettingMetadata()).toBe(false);
+      expect(snackbar.show).toHaveBeenCalledWith(expect.stringContaining('document-10.xml'), 'warning');
+    });
+
+    it.each([0, 408, 429, 500, 502, 503, 504])('pauses for five seconds after HTTP status %s and resumes normal pacing after success', async status => {
+      component.selectedFiles(['failed.xml', 'second.xml', 'third.xml']);
+      publicationService.getMetadataFromXML
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status })))
+        .mockReturnValue(of(metadata));
+
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(4999);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      expect(component.gettingMetadata()).toBe(true);
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(publicationService.getMetadataFromXML).toHaveBeenNthCalledWith(2, 'second.xml', 'test-project');
+      await vi.advanceTimersByTimeAsync(149);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(publicationService.getMetadataFromXML).toHaveBeenNthCalledWith(3, 'third.xml', 'test-project');
+      expect(component.gettingMetadata()).toBe(false);
+      expect(component.metadataFailures).toEqual([expect.stringContaining('failed.xml')]);
+      expect(snackbar.show).toHaveBeenCalledWith(expect.stringContaining('failed.xml'), 'warning');
+    });
+
+    it.each([400, 401, 403, 404, 422, 501, 505])('keeps normal pacing after non-transient HTTP status %s', async status => {
+      component.selectedFiles(['failed.xml', 'second.xml']);
+      publicationService.getMetadataFromXML
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status })))
+        .mockReturnValue(of(metadata));
+
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(149);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(2);
+      expect(component.gettingMetadata()).toBe(false);
+    });
+
+    it.each([
+      { retryAfter: '12', expectedDelayMs: 12000 },
+      { retryAfter: 'Fri, 06 Nov 2026 10:00:15 GMT', expectedDelayMs: 15000 },
+      { retryAfter: '1', expectedDelayMs: 5000 },
+      { retryAfter: 'Fri, 06 Nov 2026 09:00:00 GMT', expectedDelayMs: 5000 },
+      { retryAfter: 'invalid', expectedDelayMs: 5000 },
+      { retryAfter: '', expectedDelayMs: 5000 }
+    ])('uses the longer of five seconds and Retry-After "$retryAfter"', async ({ retryAfter, expectedDelayMs }) => {
+      vi.setSystemTime(new Date('2026-11-06T10:00:00Z'));
+      component.selectedFiles(['failed.xml', 'second.xml']);
+      publicationService.getMetadataFromXML
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({
+          status: 503,
+          headers: new HttpHeaders({ 'Retry-After': retryAfter })
+        })))
+        .mockReturnValue(of(metadata));
+
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(expectedDelayMs - 1);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(2);
+      expect(component.gettingMetadata()).toBe(false);
+    });
+
+    it('uses the failure pause instead of adding it to the batch pause', async () => {
+      const paths = Array.from({ length: 11 }, (_, index) => `document-${index + 1}.xml`);
+      component.selectedFiles(paths);
+      publicationService.getMetadataFromXML.mockImplementation(path => path === paths[9]
+        ? throwError(() => new HttpErrorResponse({ status: 429 }))
+        : of(metadata)
+      );
+
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(1350);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(10);
+      await vi.advanceTimersByTimeAsync(4999);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(10);
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(publicationService.getMetadataFromXML).toHaveBeenNthCalledWith(11, paths[10], 'test-project');
+      expect(component.gettingMetadata()).toBe(false);
+    });
+
+    it('finishes immediately after a failed final request', () => {
+      component.selectedFiles(['failed.xml']);
+      publicationService.getMetadataFromXML.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+
+      component.getMetadataFromXMLAll();
+
+      expect(component.gettingMetadata()).toBe(false);
+      expect(snackbar.show).toHaveBeenCalledWith('Failed to fetch metadata from all files.', 'error');
+    });
+
+    it('finishes immediately after the last response when the batch contains exactly ten files', async () => {
+      component.selectedFiles(Array.from({ length: 10 }, (_, index) => `document-${index + 1}.xml`));
+      publicationService.getMetadataFromXML.mockReturnValue(of(metadata));
+
+      component.getMetadataFromXMLAll();
+      await vi.advanceTimersByTimeAsync(1350);
+
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(10);
+      expect(component.gettingMetadata()).toBe(false);
+      expect(snackbar.show).toHaveBeenCalledWith('Successfully fetched metadata from all files.');
+    });
+
+    it.each(['request', 'pause', 'failure pause'])('cancels remaining metadata work when destroyed during a %s', async phase => {
+      const response$ = new Subject<XmlMetadata>();
+      component.selectedFiles(['first.xml', 'second.xml']);
+      publicationService.getMetadataFromXML.mockReturnValue(response$);
+      component.getMetadataFromXMLAll();
+      if (phase === 'pause') {
+        response$.next(metadata);
+      } else if (phase === 'failure pause') {
+        response$.error(new HttpErrorResponse({ status: 503 }));
+      }
+
+      fixture.destroy();
+      await vi.runAllTimersAsync();
+
+      expect(response$.observed).toBe(false);
+      expect(publicationService.getMetadataFromXML).toHaveBeenCalledTimes(1);
+      expect(component.gettingMetadata()).toBe(false);
+      expect(snackbar.show).not.toHaveBeenCalled();
+    });
+  });
 });
 
 function publication(values: Partial<Publication>): Publication {

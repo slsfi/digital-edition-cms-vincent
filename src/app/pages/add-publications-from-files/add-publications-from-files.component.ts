@@ -1,5 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsyncPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule,
          Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,8 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, combineLatest, finalize, from, map, mergeMap,
-         Observable, of, switchMap, take, tap, toArray} from 'rxjs';
+import { catchError, combineLatest, concatMap, finalize, from, map, mergeMap,
+         Observable, of, switchMap, take, tap, timer, toArray } from 'rxjs';
 
 import { FileTreeComponent } from '../../components/file-tree/file-tree.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
@@ -53,6 +55,7 @@ interface BundleFormType {
   styleUrl: './add-publications-from-files.component.scss'
 })
 export class AddPublicationsFromFilesComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly facsimileService = inject(FacsimileService);
   private readonly publicationService = inject(PublicationService);
   private readonly projectService = inject(ProjectService);
@@ -204,6 +207,10 @@ export class AddPublicationsFromFilesComponent implements OnInit {
   }
 
   getMetadataFromXMLAll() {
+    if (this.gettingMetadata()) {
+      return;
+    }
+
     this.metadataFailures = [];
     this.gettingMetadata.set(true);
     let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
@@ -212,14 +219,27 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       progressSnackbarRef = this.snackbar.show('Fetching metadata from XML files…', 'info');
     }
 
-    const concurrentRequests = 1;
+    const requestDelayMs = 150;
+    const batchSize = 10;
+    const batchDelayMs = 1000;
+    const failureDelayMs = 5000;
+    let nextFailureDelayMs = 0;
     from(this.files.controls.map((row, index) => ({ row, index }))).pipe(
-      mergeMap(({ row, index }) => {
+      concatMap(({ row, index }) => {
         const originalFilename = row.get('original_filename')!.value;
 
-        return this.publicationService.getMetadataFromXML(originalFilename, this.project).pipe(
+        // Start immediately, then pause after each attempt, including failures.
+        // Use the longest applicable pause without stacking the delays.
+        const delayMs = Math.max(
+          index % batchSize === 0 ? batchDelayMs : requestDelayMs,
+          nextFailureDelayMs
+        );
+        const wait$ = index === 0 ? of(0) : timer(delayMs);
+        return wait$.pipe(
+          switchMap(() => this.publicationService.getMetadataFromXML(originalFilename, this.project)),
           take(1),
           tap((metadata: XmlMetadata) => {
+            nextFailureDelayMs = 0;
             for (const key in metadata) {
               if (Object.prototype.hasOwnProperty.call(metadata, key)) {
                 const control = row.get(key);
@@ -230,14 +250,16 @@ export class AddPublicationsFromFilesComponent implements OnInit {
               }
             }
           }),
-          catchError(err => {
+          catchError((err: unknown) => {
             console.error(`Failed to fetch metadata from ${originalFilename}:`, err);
             this.metadataFailures.push(`# ${index + 1}. ${originalFilename}`);
+            nextFailureDelayMs = this.getMetadataFailureDelay(err, failureDelayMs);
             return of(null); // Continue the stream
           })
         );
-      }, concurrentRequests),
+      }),
       toArray(),
+      takeUntilDestroyed(this.destroyRef),
       finalize(() => {
         this.gettingMetadata.set(false);
         progressSnackbarRef?.dismiss();
@@ -253,6 +275,24 @@ export class AddPublicationsFromFilesComponent implements OnInit {
         }
       }
     });
+  }
+
+  private getMetadataFailureDelay(error: unknown, defaultDelayMs: number): number {
+    // These statuses can indicate temporary backend or connectivity problems.
+    if (!(error instanceof HttpErrorResponse) || ![0, 408, 429, 500, 502, 503, 504].includes(error.status)) {
+      return 0;
+    }
+
+    const retryAfter = error.headers.get('Retry-After')?.trim();
+    if (!retryAfter) {
+      return defaultDelayMs;
+    }
+
+    // Retry-After can contain either a number of seconds or an HTTP date.
+    const retryAfterMs = /^\d+$/.test(retryAfter)
+      ? Number(retryAfter) * 1000
+      : Date.parse(retryAfter) - Date.now();
+    return Number.isFinite(retryAfterMs) ? Math.max(defaultDelayMs, retryAfterMs) : defaultDelayMs;
   }
 
   removeRow(index: number) {
