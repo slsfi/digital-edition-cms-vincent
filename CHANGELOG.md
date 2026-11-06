@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Update Lukukirjat API URL.
+
 
 
 ## [4.1.1] – 2026-10-23
