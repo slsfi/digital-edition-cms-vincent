@@ -8,24 +8,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.1.2] – 2026-11-06
+
 ### Changed
 
-- Update Lukukirjat API URL.
-- Deps: update `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.6, and `@angular/core` to 22.2.4.
-- Deps: update `tslib` to 2.9.1.
-- Deps (dev): update `eslint` to 10.14.0.
-- Deps (dev): update `typescript-eslint` to 8.72.1.
-- Deps (dev): update `vitest` to 5.1.0.
-- Deps: update transitive dependencies.
+- Login: update Lukukirjat API URL. ([0cbfd3e](https://github.com/slsfi/digital-edition-cms-vincent/commit/0cbfd3e65c055699b52dabc3e355e4aaa33edf5d))
+- Deps: update `@angular/cdk`, `@angular/material`, and `@angular/cli` to 22.2.6, and `@angular/core` to 22.2.4. ([40eff16](https://github.com/slsfi/digital-edition-cms-vincent/commit/40eff169af58c1c883fa4942765c21c12dcb90d3))
+- Deps: update `tslib` to 2.9.1. ([9322e27](https://github.com/slsfi/digital-edition-cms-vincent/commit/9322e27cf183d4d1a1c6fd43a4e7083951449359))
+- Deps (dev): update `eslint` to 10.14.0. ([8ab5362](https://github.com/slsfi/digital-edition-cms-vincent/commit/8ab536260fef7a875b525a248d1f132e10b133b9))
+- Deps (dev): update `typescript-eslint` to 8.72.1. ([a9c2720](https://github.com/slsfi/digital-edition-cms-vincent/commit/a9c2720aa751a9b95b7dad6c815d15a4aafee87d))
+- Deps (dev): update `vitest` to 5.1.0. ([ba581ad](https://github.com/slsfi/digital-edition-cms-vincent/commit/ba581ada40bad7d9d20fe6e1b904c968db4da266))
+- Deps: update transitive dependencies. ([08b27f3](https://github.com/slsfi/digital-edition-cms-vincent/commit/08b27f36f27bb3a40df4f98ece05b3b819d9d5c4))
 
 ### Fixed
 
-- Add test CI script command.
-- Add publications from XML files: throttle metadata fetching and publication saving, with longer pauses after temporary failures, to reduce backend load.
-- Add publications from XML files: suppress backend errors while fetching metadata.
-- Add publications from XML files: highlight missing names, clarify metadata error reporting, and improve loading feedback and scrolling between steps.
-- Publications: throttle bulk XML metadata updates and display progress throughout the operation.
-- Add facsimile collections from publications: throttle requests, show progress, and disable fields during creation.
+- Add test CI script command. ([858b9ef](https://github.com/slsfi/digital-edition-cms-vincent/commit/858b9ef6efc6a0ec704f2c7aa6792c1adb85c29b))
+- Add publications from XML files: throttle metadata fetching and publication saving, with longer pauses after temporary failures, to reduce backend load. ([cccc5fe](https://github.com/slsfi/digital-edition-cms-vincent/commit/cccc5feb8294246cfa55f3035ab9afa58547b0c3), [549900c](https://github.com/slsfi/digital-edition-cms-vincent/commit/549900cf77da168ee604d01aeb58ce28380622c0))
+- Add publications from XML files: suppress backend errors while fetching metadata. ([02838cb](https://github.com/slsfi/digital-edition-cms-vincent/commit/02838cb87c3f8bccfe2cf38ddb56e2cc380bb892))
+- Add publications from XML files: highlight missing names, clarify metadata error reporting, and improve loading feedback and scrolling between steps. ([e55fd90](https://github.com/slsfi/digital-edition-cms-vincent/commit/e55fd9085f5609aa8b7f707ed39d4691b9f8429e))
+- Publications: throttle bulk XML metadata updates and display progress throughout the operation. ([8bee408](https://github.com/slsfi/digital-edition-cms-vincent/commit/8bee408d1d497f443e080a7ea2cd29b71a4a01bf))
+- Add facsimile collections from publications: throttle requests, show progress, and disable fields during creation. ([622718a](https://github.com/slsfi/digital-edition-cms-vincent/commit/622718a02d0f59bbebc953c0d32cf6ba3b8e3db0))
 
 
 
@@ -593,7 +597,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.2...HEAD
+[4.1.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.1...4.1.2
 [4.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.1...4.1.0
 [4.0.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.0...4.0.1
