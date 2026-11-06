@@ -2,11 +2,12 @@
 @let filterParams = filterParams$ | async;
 @let publicationCollectionId = publicationCollectionId$ | async;
 @let selectedPublication = selectedPublication$ | async;
+@let isUpdatingMetadata = metadataUpdating();
 
 @if (publicationCollectionId) {
   <div class="publications-wrapper">
     <div class="publications-col" [class.publication-selected]="selectedPublication">
-      @if ((loading$ | async) || metadataUpdating()) {
+      @if ((loading$ | async) || isUpdatingMetadata) {
         <loading-spinner [overlay]="true"></loading-spinner>
       }
       <!-- List of publications -->
@@ -55,7 +56,7 @@
             <button mat-menu-item
               (click)="updateMetadataAll(publicationCollectionId)"
               matTooltip="Update metadata of all publications in the collection from XML"
-              [disabled]="metadataUpdating()"
+              [disabled]="isUpdatingMetadata"
               >
               <mat-icon>sync</mat-icon>
               Update metadata from XML
