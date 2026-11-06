@@ -26,7 +26,7 @@ describe('SnackbarService', () => {
     fixture.detectChanges();
     const service = TestBed.inject(SnackbarService);
     const container = TestBed.inject(OverlayContainer).getContainerElement();
-    const message = signal('Saving publication 1 of 3…');
+    const message = signal('Saving publication 1 / 3…');
     const ref = service.showProgress(message);
     const dismissed = vi.fn();
     ref.afterDismissed().subscribe(dismissed);
@@ -34,14 +34,14 @@ describe('SnackbarService', () => {
     await vi.advanceTimersByTimeAsync(5001);
     await fixture.whenStable();
     const progress = container.querySelector('progress-snackbar');
-    expect(progress?.textContent).toContain('Saving publication 1 of 3…');
+    expect(progress?.textContent).toContain('Saving publication 1 / 3…');
     expect(dismissed).not.toHaveBeenCalled();
 
-    message.set('Saving publication 2 of 3…');
+    message.set('Saving publication 2 / 3…');
     await vi.advanceTimersByTimeAsync(1);
     await fixture.whenStable();
     expect(container.querySelector('progress-snackbar')).toBe(progress);
-    expect(progress?.textContent).toContain('Saving publication 2 of 3…');
+    expect(progress?.textContent).toContain('Saving publication 2 / 3…');
 
     ref.dismiss();
     await vi.runAllTimersAsync();

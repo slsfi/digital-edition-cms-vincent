@@ -4,7 +4,8 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarLabel } from '@angular/material/snack-ba
 @Component({
   selector: 'progress-snackbar',
   imports: [MatSnackBarLabel],
-  template: '<span matSnackBarLabel>{{ message() }}</span>'
+  template: '<span matSnackBarLabel>{{ message() }}</span>',
+  styles: ':host { display: flex; }'
 })
 export class ProgressSnackbarComponent {
   readonly message = inject<Signal<string>>(MAT_SNACK_BAR_DATA);

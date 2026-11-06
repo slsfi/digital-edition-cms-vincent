@@ -12,7 +12,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, combineLatest, concatMap, defer, finalize, from, map,
          Observable, of, switchMap, take, tap, timer, toArray } from 'rxjs';
@@ -216,15 +215,13 @@ export class AddPublicationsFromFilesComponent implements OnInit {
 
     this.metadataFailures = [];
     this.gettingMetadata.set(true);
-    let progressSnackbarRef: MatSnackBarRef<SimpleSnackBar> | null = null;
-
-    if (this.files.controls.length > 40) {
-      progressSnackbarRef = this.snackbar.show('Fetching metadata from XML files…', 'info');
-    }
-
+    const rows = [...this.files.controls];
+    const progressMessage = signal(`Fetching XML metadata 1 / ${rows.length}…`);
+    const progressSnackbarRef = rows.length > 0 ? this.snackbar.showProgress(progressMessage) : null;
     const runRequest = this.createThrottledRequestRunner();
-    from(this.files.controls.map((row, index) => ({ row, index }))).pipe(
-      concatMap(({ row, index }) => {
+    from(rows).pipe(
+      concatMap((row, index) => {
+        progressMessage.set(`Fetching XML metadata ${index + 1} / ${rows.length}…`);
         const originalFilename = row.get('original_filename')!.value;
 
         return runRequest(() => this.publicationService.getMetadataFromXML(originalFilename, this.project, true)).pipe(
@@ -256,8 +253,8 @@ export class AddPublicationsFromFilesComponent implements OnInit {
       next: () => {
         if (this.metadataFailures.length === 0) {
           this.snackbar.show('Successfully fetched metadata from all files.');
-        } else if (this.metadataFailures.length < this.files.controls.length) {
-          this.snackbar.show(`Failed to fetch metadata from ${this.metadataFailures.length} / ${this.files.controls.length} file(s):\n${this.metadataFailures.join('\n')}`, 'warning');
+        } else if (this.metadataFailures.length < rows.length) {
+          this.snackbar.show(`Failed to fetch metadata from ${this.metadataFailures.length} / ${rows.length} file(s):\n${this.metadataFailures.join('\n')}`, 'warning');
         } else {
           this.snackbar.show('Failed to fetch metadata from all files.', 'error');
         }
