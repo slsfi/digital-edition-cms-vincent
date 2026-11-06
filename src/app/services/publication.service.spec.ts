@@ -50,4 +50,25 @@ describe('PublicationService', () => {
       expect(showError).toHaveBeenCalledWith('Too many requests', 'error');
     }
   });
+
+  it.each([false, true])('preserves manuscript lookup errors while allowing bulk operations to suppress popups: %s', suppressErrors => {
+    const response$ = suppressErrors
+      ? service.getManuscriptsForPublication('42', 'test-project', true)
+      : service.getManuscriptsForPublication('42', 'test-project');
+    let receivedError: unknown;
+    response$.subscribe({
+      next: () => expect.fail('Expected a manuscript lookup error'),
+      error: error => { receivedError = error; }
+    });
+
+    http.expectOne(request => request.url.endsWith('/publication/42/manuscripts/'))
+      .flush({ message: 'Too many requests' }, { status: 429, statusText: 'Too Many Requests' });
+
+    expect(receivedError).toMatchObject({ status: 429 });
+    if (suppressErrors) {
+      expect(showError).not.toHaveBeenCalled();
+    } else {
+      expect(showError).toHaveBeenCalledWith('Too many requests', 'error');
+    }
+  });
 });
