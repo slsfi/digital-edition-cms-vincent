@@ -339,7 +339,7 @@ describe('PublicationsComponent', () => {
       expect(publicationService.getMetadataFromXML.mock.calls.map(([path]) => path)).toEqual(['first.xml', 'second.xml']);
       await vi.advanceTimersByTimeAsync(150);
 
-      expect(snackbar.show).toHaveBeenCalledWith('Failed to update metadata of 1 / 2 publication(s) with ID:\n1', 'warning');
+      expect(snackbar.show).toHaveBeenCalledWith('Error updating metadata of 1 / 2 publication(s) with ID:\n1', 'warning');
       expect(component.metadataUpdating()).toBe(false);
       expect(dismissProgress).toHaveBeenCalledTimes(1);
       expect(refresh).toHaveBeenCalledTimes(1);

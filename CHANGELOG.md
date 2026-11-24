@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Update `nginx` to 1.30.7.
 
+### Fixed
+
+- Tests: snackbar message.
+
 
 
 ## [4.1.2] – 2026-11-06
