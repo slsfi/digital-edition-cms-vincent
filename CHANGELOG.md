@@ -8,20 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.1.3] – 2026-11-24
+
 ### Changed
 
-- Login: add new environments.
-- Update `nginx` to 1.30.7.
-- Deps: update `@angular/cdk`, `@angular/material`, `@angular/cli`, and `@angular/core` to 22.3.0.
-- Deps (dev): update `angular-eslint` to 22.8.0.
-- Deps (dev): update `eslint` to 10.15.0.
-- Deps (dev): update `jsdom` to 31.0.1.
-- Deps (dev): update `typescript-eslint` to 8.74.0.
-- Deps (dev): update `vitest` to 5.1.1.
+- Login: add new environments. ([fd2ed39](https://github.com/slsfi/digital-edition-cms-vincent/commit/fd2ed39ce5e57671907ec408ca0b6c88a8547142))
+- Update `nginx` to 1.30.7. ([5df9cf8](https://github.com/slsfi/digital-edition-cms-vincent/commit/5df9cf80812dadd27e93b3c17f3fa73220c8df20))
+- Deps: update `@angular/cdk`, `@angular/material`, `@angular/cli`, and `@angular/core` to 22.3.0. ([dee4ada](https://github.com/slsfi/digital-edition-cms-vincent/commit/dee4ada1ee7dafb1a3e05154bee56bf3f92a9e2f))
+- Deps (dev): update `angular-eslint` to 22.8.0. ([7b03c25](https://github.com/slsfi/digital-edition-cms-vincent/commit/7b03c259a7ebe3ab37d3cc9236965e046eff037a))
+- Deps (dev): update `eslint` to 10.15.0. ([a1806ac](https://github.com/slsfi/digital-edition-cms-vincent/commit/a1806acaefc4008e7abff95eb4211bb0c15220aa))
+- Deps (dev): update `jsdom` to 31.0.1. ([aac7e24](https://github.com/slsfi/digital-edition-cms-vincent/commit/aac7e24c0e9143883d9e41b67d52f753f2cd2189))
+- Deps (dev): update `typescript-eslint` to 8.74.0. ([ce3f5ed](https://github.com/slsfi/digital-edition-cms-vincent/commit/ce3f5edb4ede3b3e8ecc3bdf5969c6d4559a30e7))
+- Deps (dev): update `vitest` to 5.1.1. ([31950d2](https://github.com/slsfi/digital-edition-cms-vincent/commit/31950d22e4359c6944f208a7317718a87ef267e3))
 
 ### Fixed
 
-- Tests: snackbar message.
+- Tests: snackbar message. ([9cc8953](https://github.com/slsfi/digital-edition-cms-vincent/commit/9cc89538123666983ba205efafd2c3b5e08309b9))
 
 
 
@@ -612,7 +616,8 @@ Initial release.
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.3...HEAD
+[4.1.3]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.2...4.1.3
 [4.1.2]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.1...4.1.2
 [4.1.1]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/slsfi/digital-edition-cms-vincent/compare/4.0.1...4.1.0
