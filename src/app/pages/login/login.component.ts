@@ -65,7 +65,10 @@ export class LoginComponent implements OnInit {
     { value: 'https://testa-jansson-api.sls.fi/', name: 'Jansson testa' },
     { value: 'https://granska-lukukirjat-api.sls.fi/', name: 'Lukukirjat granska' },
     { value: 'https://granska-parland-api.sls.fi/', name: 'Parland granska' },
+    { value: 'https://soderholm-api.sls.fi/', name: 'Söderholm production' },
+    { value: 'https://topelius-api.sls.fi/', name: 'Topelius production' },
     { value: 'https://granska-westermarck-api.sls.fi/', name: 'Westermarck granska' },
+    { value: 'https://vonwright-api.sls.fi/', name: 'von Wright production' },
     { value: CUSTOM_ENVIRONMENT_VALUE, name: 'Custom' }
   ];
 
