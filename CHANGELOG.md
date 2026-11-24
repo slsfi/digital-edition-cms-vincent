@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Update `nginx` to 1.30.7.
+- Deps: update `@angular/cdk`, `@angular/material`, `@angular/cli`, and `@angular/core` to 22.3.0.
 
 ### Fixed
 
